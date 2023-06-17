@@ -1,15 +1,19 @@
 package Processor;
-import java.util.ArrayList;
 
 public class CPU {
 
     private Registers registers;
 
+    public static final String[] Instuctions = {
+        "NOP",
+        "HALT",
+    };
     public CPU(){
 
     }
 
-    private void fetch(){
+    // Fetches the next instruction from main memory
+    private void loadInstruction(){
 
     }
     private void decode(){
@@ -17,12 +21,11 @@ public class CPU {
     }
     private void execute(){
 
-
     }
     public void run(){
 
         while (true) {
-            this.fetch();
+            loadInstruction();
             this.decode();
             this.execute();
 

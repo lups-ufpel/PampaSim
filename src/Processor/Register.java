@@ -2,20 +2,28 @@ package Processor;
 
 public final class Register {
 
+    private static final int W_SIZE = 16;
     private int value;
     
     public Register(){
 
-        this.value = 0; 
+        value = 0; 
     }
     public int getValue(){
-        return this.value;
+        return value;
     }
     public String getValueAsString(){
         
-        return Integer.toString(this.value);
+        return Integer.toString(value);
     }
-    public void setValue(int value) {
-        this.value = value;
+    public void setValue(int value) throws Exception {
+        if(value <= Math.pow(2, W_SIZE)){
+            this.value = value;
+        }
+        else{
+            throw new Exception(
+                        "Error: Register value overflow, current size is 65536 and value is" 
+                        + Integer.toString(value));
+        }
     }
 }
