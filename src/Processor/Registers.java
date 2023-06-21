@@ -23,11 +23,20 @@ public final class Registers {
     public int getProgramCounter(){
         return PC.getValue();
     }
+    public void setProgramCounter(int value){
+        PC.setValue(value);
+    }
     public int getStackPointer(){
         return SP.getValue();
     }
+    public void setStackPointer(int value){
+        SP.setValue(value);
+    }
     public int getInterruption(){
         return IE.getValue();
+    }
+    public void setInterruption(int value){
+        IE.setValue(value);
     }
     public int getGeneralPurposeReg(int index){
         if(index >= 0 && index <= NUM_REGISTERS){

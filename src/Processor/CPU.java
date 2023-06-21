@@ -2,14 +2,18 @@ package Processor;
 
 public class CPU {
 
-    private Registers registers;
-
+    
     public static final String[] Instuctions = {
         "NOP",
         "HALT",
     };
-    public CPU(){
 
+    private Registers registers;
+    private int programAddress;
+    public CPU(){
+        
+        registers = new Registers();
+        
     }
 
     // Fetches the next instruction from main memory
