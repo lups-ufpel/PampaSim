@@ -15,6 +15,9 @@ public final class Registers {
         SP = new Register();
         IE = new Register();
         GPR = new Register[NUM_REGISTERS];
+        for (int i = 0; i < NUM_REGISTERS; i++) {
+            GPR[i] = new Register();
+        }
     }
 
     public static int countRegisters(){
@@ -38,9 +41,12 @@ public final class Registers {
     public void setInterruption(int value){
         IE.setValue(value);
     }
-    public int getGeneralPurposeReg(int index){
+    public Register getInterruptionRegister(){
+        return IE;
+    }
+    public Register getGeneralPurposeReg(int index){
         if(index >= 0 && index <= NUM_REGISTERS){
-            return this.GPR[index].getValue();
+            return this.GPR[index];
         }
         else {
             throw new IllegalArgumentException("Invalid register index: " + index);
