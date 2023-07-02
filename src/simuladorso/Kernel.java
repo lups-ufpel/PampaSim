@@ -5,7 +5,6 @@ import java.util.UUID;
 public final class Kernel {
 	private static Kernel instance;
 	public Scheduler scheduler;
-	//private static int pid = 1;
 	
 	private Kernel() {
 		scheduler = new Scheduler(2);
@@ -23,8 +22,6 @@ public final class Kernel {
 	}
 
 	public String requestPid(){
-		//return Kernel.pid++;
-
 		UUID uuid = UUID.randomUUID();
         long mostSignificantBits = uuid.getMostSignificantBits();
         long leastSignificantBits = uuid.getLeastSignificantBits();

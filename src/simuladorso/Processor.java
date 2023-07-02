@@ -18,6 +18,6 @@ public class Processor {
     }
 
     public void cycle(Process process) {
-        cores.get(0).cycle(process);
+        cores.get(0).cycleWithScheduledService(process);
     }
 }
