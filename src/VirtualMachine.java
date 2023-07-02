@@ -4,7 +4,7 @@ enum ProcessState {
 }
 
 public class VirtualMachine {
-    
+
     public static void main(String[] args) {
         Cpu cpu = new Cpu();
         Kernel kernel = new Kernel();
@@ -14,7 +14,7 @@ public class VirtualMachine {
         kernel.fork();
         while(true){
             
-            PCB process = kernel.scheduler.executeProcess();
+            Process process = kernel.scheduler.executeProcess();
             System.out.println("Processo PID: "+process.getPid()+" pronto para executar");
             for(int i=1; i<=Kernel.timeSlice;i++){
                 cpu.cycle(process);
