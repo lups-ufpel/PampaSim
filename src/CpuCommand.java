@@ -1,7 +1,7 @@
 public class CpuCommand implements Command{
     public Cpu cpu; //deveria ser private
     public String msg;
-    public PCB processo;
+    public Process processo;
    
     public CpuCommand(Mensagem mensagem){//Cpu cpu, String msg, Processo proc){
         this.cpu = mensagem.cpu;
