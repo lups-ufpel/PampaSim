@@ -5,8 +5,13 @@ teste.txt
 src/.DS_Store
 .DS_Store
 <<<<<<< HEAD
+<<<<<<< HEAD
 .DS_Store
 bin/*
 =======
 bin/*
 >>>>>>> os
+=======
+bin/*.class
+bin/.DS_Store
+>>>>>>> 156456a8390ad03dacbca0849a070a3cb3ba4b36
