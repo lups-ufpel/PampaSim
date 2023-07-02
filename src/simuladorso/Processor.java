@@ -1,11 +1,14 @@
 package simuladorso;
 
+import java.util.ArrayList;
+
 public class Processor {
     private static Processor instance;
-    private Cpu[] cores;
+    private ArrayList<Cpu> cores;
 
     private Processor() {
-        cores = new Cpu[1];
+        cores = new ArrayList<Cpu>();
+        cores.add(0, new Cpu());
     }
 
     public static Processor getInstance() {
@@ -14,5 +17,7 @@ public class Processor {
         return instance;
     }
 
-
+    public void cycle(Process process) {
+        cores.get(0).cycle(process);
+    }
 }

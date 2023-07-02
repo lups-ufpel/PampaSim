@@ -1,17 +1,14 @@
 package simuladorso;
 
 import java.util.UUID;
-import java.math.BigInteger;
 
 public final class Kernel {
 	private static Kernel instance;
 	public Scheduler scheduler;
-	private int timeSlice;
 	//private static int pid = 1;
 	
 	private Kernel() {
-		timeSlice = 2;
-		scheduler = new Scheduler(timeSlice);
+		scheduler = new Scheduler(2);
 	}
 
 	public static Kernel getInstance() {
@@ -21,11 +18,11 @@ public final class Kernel {
 	}
 
 	public void fork() {
-		PCB pcb = new PCB(requestPid(), 1, 0,ProcessState.READY, 10);
-		scheduler.addNewProcess(pcb);
+		Process process = new Process(requestPid(), 1, ProcessState.READY, 10);
+		scheduler.addNewProcess(process);
 	}
 
-	public int requestPid(){
+	public String requestPid(){
 		//return Kernel.pid++;
 
 		UUID uuid = UUID.randomUUID();
@@ -35,6 +32,7 @@ public final class Kernel {
         long fixedNumber = Math.abs(mostSignificantBits + leastSignificantBits) % 1000000;
         // Format the fixed number as a 6-digit string
         String fixedUUID = String.format("%06d", fixedNumber);
+		
 		return fixedUUID;
 	}
 
@@ -44,13 +42,5 @@ public final class Kernel {
 
 	public void setScheduler(Scheduler scheduler) {
 		this.scheduler = scheduler;
-	}
-
-	public int getTimeSlice() {
-		return timeSlice;
-	}
-
-	public void setTimeSlice(int timeSlice) {
-		this.timeSlice = timeSlice;
 	}
 }

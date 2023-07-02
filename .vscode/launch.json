@@ -8,13 +8,13 @@
             "type": "java",
             "name": "Current File",
             "request": "launch",
-            "mainClass": "simuladorso.Main"
+            "mainClass": "simuladorso.VirtualMachine"
         },
         {
             "type": "java",
-            "name": "Main",
+            "name": "VirtualMachine",
             "request": "launch",
-            "mainClass": "simuladorso.Main",
+            "mainClass": "simuladorso.VirtualMachine",
             "projectName": "SimuladorSO_2658fba6"
         }
     ]
