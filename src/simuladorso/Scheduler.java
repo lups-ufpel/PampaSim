@@ -1,3 +1,5 @@
+package simuladorso;
+
 public class Scheduler {
 	private int quantum;
 	private FIFOQueue readyQueue;
@@ -16,9 +18,9 @@ public class Scheduler {
 	}
 
 	public void runProcess() {
-		if (this.readyQueue.isEmpty()) {
+		if (this.readyQueue.isEmpty())
 			throw new IllegalStateException("no process in readyQueue's");
-		}
+
 		PCB proc = selectNextProcess(readyQueue);
 		this.runningQueue.addProcess(proc);
 	}
@@ -27,6 +29,7 @@ public class Scheduler {
 		if (this.readyQueue.isEmpty()) {
 			throw new IllegalStateException("no process in readyQueue's");
 		}
+
 		PCB proc = selectNextProcess(readyQueue);
 		this.runningQueue.addProcess(proc);
 		return proc;
@@ -34,9 +37,11 @@ public class Scheduler {
 
 	public void preemptProcess() {
 		PCB proc = selectNextProcess(runningQueue);
+
 		if (proc == null) {
 			throw new IllegalStateException("no process executing in RunningQueue's");
 		}
+		
 		if (proc.getNumberOfInstructions() <= proc.programCounter) {
 			proc.setState(ProcessState.TERMINATED);
 			this.finishedQueue.addProcess(proc);

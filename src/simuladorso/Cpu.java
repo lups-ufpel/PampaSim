@@ -1,7 +1,14 @@
+package simuladorso;
+
 public class Cpu {
-    public int clock;
-    public Cpu (){
+    private int clock;
+
+    public Cpu() {
         this.clock = 1500; //MHz
+    }
+
+    public Cpu(int clock) {
+        this.clock = clock;
     }
 
     public void cycle(PCB process){
@@ -16,7 +23,8 @@ public class Cpu {
             }
         }
     }
-    public void executaProcesso(PCB proc){
+
+    public void executeProcess(PCB proc){
         int instrucoes = proc.getNumberOfInstructions();
 
         for(int i=1; i<=instrucoes; i++){
@@ -29,5 +37,13 @@ public class Cpu {
             }
         }
         System.out.println("Processo Concluído");
+    }
+
+    public int getClock() {
+        return clock;
+    }
+
+    public void setClock(int clock) {
+        this.clock = clock;
     }
 }

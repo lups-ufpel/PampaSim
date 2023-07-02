@@ -1,10 +1,12 @@
+package simuladorso;
+
 import java.util.ArrayList;
 
-public class SchedulerQueue {
+public class FIFOQueue implements SchedulerPolicy{
 
     private ArrayList<PCB> processQueue;
 
-    public SchedulerQueue(){
+    public FIFOQueue(){
         this.processQueue = new ArrayList<PCB>(15);
     }
     public boolean isEmpty(){

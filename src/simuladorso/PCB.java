@@ -1,3 +1,5 @@
+package simuladorso;
+
 public final class PCB {
 	private int pid;
 	private int numberOfInstructions;
