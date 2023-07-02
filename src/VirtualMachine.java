@@ -13,7 +13,6 @@ public class VirtualMachine {
         kernel.fork();
         kernel.fork();
         while(true){
-            
             Process process = kernel.scheduler.executeProcess();
             System.out.println("Processo PID: "+process.getPid()+" pronto para executar");
             for(int i=1; i<=Kernel.timeSlice;i++){

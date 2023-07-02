@@ -1,13 +1,13 @@
 
 public final class Process {
-	private int pid;
+	private String pid;
 	private int numberOfInstructions;
 	private int priority;
 	//private int arrivalTime;
 	public int programCounter;
 	private ProcessState state;
 
-	public Process(int pid, int priority, ProcessState state, int numberOfInstructions) {
+	public Process(String pid, int priority, ProcessState state, int numberOfInstructions) {
 		this.pid = pid;
 		this.state = state;
 		this.priority = priority;
@@ -15,7 +15,7 @@ public final class Process {
 		this.numberOfInstructions = numberOfInstructions;
 	}
 
-	public int getPid() {
+	public String getPid() {
 		return this.pid;
 	}
 
