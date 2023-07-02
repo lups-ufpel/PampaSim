@@ -4,4 +4,5 @@ teste.txt
 .DS_Store
 src/.DS_Store
 .DS_Store
-bin/*
+bin/*.class
+bin/.DS_Store
