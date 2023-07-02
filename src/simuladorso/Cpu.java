@@ -14,12 +14,11 @@ public class Cpu {
     public void cycle(Process process){
         if(process.programCounter < process.getNumberOfInstructions()){
             process.programCounter++;
-            System.out.println("Executando a instrução: "+process.programCounter);
+            System.out.println("Executando a instrução: " + process.programCounter);
             try {
-                // Pausa a execução por 3 segundos
-                Thread.sleep((5000)*100/this.clock);
+                Thread.sleep((5000) * 100 / this.clock);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
     }
