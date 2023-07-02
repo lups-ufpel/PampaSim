@@ -29,4 +29,7 @@ public final class Process {
 	public int getNumberOfInstructions(){
 		return this.numberOfInstructions;
 	}
+	public boolean isfinished(){
+		return programCounter >= numberOfInstructions;
+	}
 }

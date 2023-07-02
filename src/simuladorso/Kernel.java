@@ -17,7 +17,7 @@ public final class Kernel {
 	}
 
 	public void fork() {
-		Process process = new Process(requestPid(), 1, ProcessState.READY, 10);
+		Process process = new Process(requestPid(), 1, ProcessState.READY, 9);
 		scheduler.addNewProcess(process);
 	}
 

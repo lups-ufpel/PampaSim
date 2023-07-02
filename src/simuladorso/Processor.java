@@ -17,7 +17,11 @@ public class Processor {
         return instance;
     }
 
-    public void cycle(Process process) {
-        cores.get(0).cycleWithScheduledService(process);
+    public boolean cycle(Process process) {
+        if(process.isfinished()){
+            return false;
+        }
+        cores.get(0).cycleWithThreadSleep(process);
+        return true;
     }
 }

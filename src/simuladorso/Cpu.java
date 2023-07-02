@@ -24,7 +24,6 @@ public class Cpu {
     }
     // Executa um ciclo de instrução
     public void cycleWithThreadSleep(Process process){
-        if(process.programCounter < process.getNumberOfInstructions()){
             process.programCounter++;
             System.out.println("Executando a instrução: " + process.programCounter);
             try {
@@ -32,12 +31,10 @@ public class Cpu {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }
     }
     public void cycleWithScheduledService(Process process){
-        if (process.programCounter < process.getNumberOfInstructions()) {
             process.programCounter++;
-            //System.out.println("Executando a instrução: " + process.programCounter);
+            System.out.println("Executando a instrução: " + process.programCounter);
             try {
                 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
                 executorService.schedule(() -> {
@@ -47,8 +44,7 @@ public class Cpu {
                 executorService.awaitTermination((5000*100)/this.clock, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            }
-        }   
+            } 
     }
 
     // Executa todas as instruções de um processo
