@@ -11,7 +11,7 @@ public class Cpu {
         this.clock = clock;
     }
 
-    public void cycle(PCB process){
+    public void cycle(Process process){
         if(process.programCounter < process.getNumberOfInstructions()){
             process.programCounter++;
             System.out.println("Executando a instrução: "+process.programCounter);
@@ -24,7 +24,7 @@ public class Cpu {
         }
     }
 
-    public void executeProcess(PCB proc){
+    public void executeProcess(Process proc){
         int instrucoes = proc.getNumberOfInstructions();
 
         for(int i=1; i<=instrucoes; i++){

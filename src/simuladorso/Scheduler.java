@@ -1,43 +1,56 @@
 package simuladorso;
 
 public class Scheduler {
-	private int quantum;
+	// private int quantum;
 	private FIFOQueue readyQueue;
 	private FIFOQueue runningQueue;
 	private FIFOQueue finishedQueue;
 
-	public Scheduler(int quantum){
+	public Scheduler(/*int quantum*/){
 		this.readyQueue = new FIFOQueue();
 		this.runningQueue = new FIFOQueue();
 		this.finishedQueue = new FIFOQueue();
-		this.quantum = quantum;
+		// this.quantum = quantum;
 	}
 
-	public void addNewProcess(PCB processPcb) {
+	public void addNewProcess(Process processPcb) {
 		this.readyQueue.addProcess(processPcb);
 	}
 
 	public void runProcess() {
 		if (this.readyQueue.isEmpty())
 			throw new IllegalStateException("no process in readyQueue's");
+<<<<<<< HEAD:src/simuladorso/Scheduler.java
 
 		PCB proc = selectNextProcess(readyQueue);
+=======
+		}
+		Process proc = selectNextProcess(readyQueue);
+>>>>>>> os:src/Scheduler.java
 		this.runningQueue.addProcess(proc);
 	}
 
-	public PCB executeProcess() {
+	public Process executeProcess() {
 		if (this.readyQueue.isEmpty()) {
 			throw new IllegalStateException("no process in readyQueue's");
 		}
+<<<<<<< HEAD:src/simuladorso/Scheduler.java
 
 		PCB proc = selectNextProcess(readyQueue);
+=======
+		Process proc = selectNextProcess(readyQueue);
+>>>>>>> os:src/Scheduler.java
 		this.runningQueue.addProcess(proc);
 		return proc;
 	}
 
 	public void preemptProcess() {
+<<<<<<< HEAD:src/simuladorso/Scheduler.java
 		PCB proc = selectNextProcess(runningQueue);
 
+=======
+		Process proc = selectNextProcess(runningQueue);
+>>>>>>> os:src/Scheduler.java
 		if (proc == null) {
 			throw new IllegalStateException("no process executing in RunningQueue's");
 		}
@@ -57,7 +70,7 @@ public class Scheduler {
 			if (runningQueue.isEmpty()) {
 				if (!finishedQueue.isEmpty()) {
 					while (!finishedQueue.isEmpty()) {
-						PCB pcb = selectNextProcess(this.finishedQueue);
+						Process pcb = selectNextProcess(this.finishedQueue);
 						System.out.println("Processo de PID: " + pcb.getPid() + " executou com sucesso!");
 					}
 					return true;
@@ -70,7 +83,7 @@ public class Scheduler {
 		return false;
 	}
 
-	public PCB selectNextProcess(FIFOQueue queue) {
+	public Process selectNextProcess(FIFOQueue queue) {
 		return queue.getProcess();
 	}
 }

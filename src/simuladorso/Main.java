@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:src/simuladorso/Main.java
 package simuladorso;
 
 public class Main {
@@ -5,6 +6,14 @@ public class Main {
     /**
      * @param args the command line arguments
      */
+========
+
+enum ProcessState {
+	READY, RUNNING, WAITING, TERMINATED
+}
+
+public class VirtualMachine {
+>>>>>>>> os:src/VirtualMachine.java
 
     public static void main(String[] args) {
         Cpu cpu = new Cpu();
@@ -15,12 +24,10 @@ public class Main {
         kernel.fork();
         kernel.fork();
 
-        while(true){    
-            PCB process = kernel.scheduler.executeProcess();
-
-            System.out.println("Processo PID: " + process.getPid() + " pronto para executar");
-            
-            for (int i = 1; i <= kernel.getTimeSlice(); i++) {
+        while(true){
+            Process process = kernel.scheduler.executeProcess();
+            System.out.println("Processo PID: "+process.getPid()+" pronto para executar");
+            for(int i=1; i<=Kernel.timeSlice;i++){
                 cpu.cycle(process);
             }
 

@@ -1,12 +1,12 @@
-/bin/Processor/
-/uml_diagrams/
-/README.md
-/teste.txt
+uml_diagrams/
+README.txt
 teste.txt
-bin/.DS_Store
-bin/.DS_Store
 .DS_Store
 src/.DS_Store
 .DS_Store
+<<<<<<< HEAD
 .DS_Store
 bin/*
+=======
+bin/*
+>>>>>>> os

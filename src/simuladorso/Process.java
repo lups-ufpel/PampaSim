@@ -1,24 +1,21 @@
 package simuladorso;
-
-public final class PCB {
-	private int pid;
+public final class Process {
+	private String pid;
 	private int numberOfInstructions;
 	private int priority;
-	private int arrivalTime;
+	//private int arrivalTime;
 	public int programCounter;
 	private ProcessState state;
 
-	public PCB(int pid, int priority, int arrivalTime, ProcessState state, int numberOfInstructions) {
+	public Process(String pid, int priority, ProcessState state, int numberOfInstructions) {
 		this.pid = pid;
 		this.state = state;
 		this.priority = priority;
-		this.arrivalTime = arrivalTime;
 		this.programCounter = 0;
-		// this.programCounter = programCounter;
 		this.numberOfInstructions = numberOfInstructions;
 	}
 
-	public int getPid() {
+	public String getPid() {
 		return this.pid;
 	}
 
