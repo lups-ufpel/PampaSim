@@ -11,6 +11,14 @@ public class Cpu {
         this.clock = clock;
     }
 
+    public int getClock() {
+        return clock;
+    }
+
+    public void setClock(int clock) {
+        this.clock = clock;
+    }
+    // Executa um ciclo de instrução
     public void cycle(Process process){
         if(process.programCounter < process.getNumberOfInstructions()){
             process.programCounter++;
@@ -23,6 +31,7 @@ public class Cpu {
         }
     }
 
+    // Executa todas as instruções de um processo
     public void executeProcess(Process proc){
         int instrucoes = proc.getNumberOfInstructions();
 
@@ -36,13 +45,5 @@ public class Cpu {
             }
         }
         System.out.println("Processo Concluído");
-    }
-
-    public int getClock() {
-        return clock;
-    }
-
-    public void setClock(int clock) {
-        this.clock = clock;
     }
 }
