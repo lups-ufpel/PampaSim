@@ -2,18 +2,18 @@ import java.util.ArrayList;
 
 public class SchedulerQueue {
 
-    private ArrayList<PCB> processQueue;
+    private ArrayList<Process> processQueue;
 
     public SchedulerQueue(){
-        this.processQueue = new ArrayList<PCB>(15);
+        this.processQueue = new ArrayList<Process>(15);
     }
     public boolean isEmpty(){
         return processQueue.isEmpty();        
     }
-    public PCB getProcess(){
+    public Process getProcess(){
         return processQueue.remove(0);
     }
-    public void addProcess(PCB process){
+    public void addProcess(Process process){
         this.processQueue.add(process);
     }
 }

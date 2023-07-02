@@ -2,7 +2,6 @@ import java.math.BigInteger;
 import java.util.UUID;
 
 public final class Kernel {
-	//public Scheduler scheduler;
 	public Scheduler scheduler;
 	public static final int timeSlice = 2;
 	public Kernel(){
