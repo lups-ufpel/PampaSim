@@ -1,62 +1,26 @@
 package simuladorso;
 
-public class Scheduler {
-	private int timeSlice;
-	private FIFOQueue readyQueue;
-	private FIFOQueue runningQueue;
-	private FIFOQueue finishedQueue;
+import java.util.ArrayList;
 
-	public Scheduler(int timeSlice) {
-		this.readyQueue = new FIFOQueue();
-		this.runningQueue = new FIFOQueue();
-		this.finishedQueue = new FIFOQueue();
-		this.timeSlice = timeSlice;
+public abstract class Scheduler {
+	private static final int queueSize = 15;
+	protected ArrayList<Process> readyQueue;
+	protected ArrayList<Process> runningQueue;
+	protected ArrayList<Process> finishedQueue;
+
+	public Scheduler() {
+		this.readyQueue = new ArrayList<Process>(queueSize);
+		this.runningQueue = new ArrayList<Process>(queueSize);
+		this.finishedQueue = new ArrayList<Process>(queueSize);
 	}
-
-	public void addNewProcess(Process processPcb) {
-		this.readyQueue.addProcess(processPcb);
-	}
-
-	public void runProcess() {
-		if (this.readyQueue.isEmpty()) {
-			throw new IllegalStateException("no process in readyQueue's");
-		}
-
-		Process proc = selectNextProcess(readyQueue);
-		this.runningQueue.addProcess(proc);
-	}
-
-	public Process executeProcess() {
-		if (this.readyQueue.isEmpty()) {
-			throw new IllegalStateException("no process in readyQueue's");
-		}
-		Process proc = selectNextProcess(readyQueue);
-		this.runningQueue.addProcess(proc);
-		return proc;
-	}
-
-	public void preemptProcess() {
-		Process proc = selectNextProcess(runningQueue);
-		if (proc == null) {
-			throw new IllegalStateException("no process executing in RunningQueue's");
-		}
-		
-		if (proc.getNumberOfInstructions() <= proc.programCounter) {
-			proc.setState(ProcessState.TERMINATED);
-			this.finishedQueue.addProcess(proc);
-		} else {
-			proc.setState(ProcessState.READY);
-			this.readyQueue.addProcess(proc);
-		}
-
-	}
-
+	public abstract void addNewProcess(Process processPcb);
+	public abstract Process getNextProcess(ArrayList<Process> queue);
 	public boolean verifyAllQueues() {
 		if (readyQueue.isEmpty()) {
 			if (runningQueue.isEmpty()) {
 				if (!finishedQueue.isEmpty()) {
 					while (!finishedQueue.isEmpty()) {
-						Process process = selectNextProcess(this.finishedQueue);
+						Process process = getNextProcess(this.finishedQueue);
 						System.out.println("Processo de PID: " + process.getPid() + " executou com sucesso!");
 					}
 					return true;
@@ -68,16 +32,5 @@ public class Scheduler {
 		}
 		return false;
 	}
-
-	public Process selectNextProcess(FIFOQueue queue) {
-		return queue.getProcess();
-	}
-
-	public int getTimeSlice() {
-		return timeSlice;
-	}
-
-	public void setTimeSlice(int timeSlice) {
-		this.timeSlice = timeSlice;
-	}
+	
 }

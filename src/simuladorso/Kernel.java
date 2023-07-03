@@ -4,10 +4,8 @@ import java.util.UUID;
 
 public final class Kernel {
 	private static Kernel instance;
-	public Scheduler scheduler;
 	
 	private Kernel() {
-		scheduler = new Scheduler(2);
 	}
 
 	public static Kernel getInstance() {
@@ -15,12 +13,42 @@ public final class Kernel {
 			instance = new Kernel();
 		return instance;
 	}
-
-	public void fork() {
+	//Quando um processo é criado, o sistema o coloca em uma lista de processos no estado  de pronto
+	//onde aguarda uma oportunidade para ser executado
+	public void fork(Scheduler scheduler) {
 		Process process = new Process(requestPid(), 1, ProcessState.READY, 9);
-		scheduler.addNewProcess(process);
+		Mensagem novMensagem = new ForkCommand(scheduler, process);
+		sendMessage(novMensagem);
 	}
-
+	
+	//Requisita o próximo processo a ser executado de acordo com o algoritmo de escalonamento
+	public Process scheduleProcess(Scheduler scheduler){
+		Process process;
+		Mensagem mensagem = new ScheduleCommand(scheduler);
+		sendMessage(mensagem);
+		Object response = mensagem.getResponse();
+		if(response instanceof ProcessResponse){
+			process = ((ProcessResponse) response).getProcess();
+			if(process == null){
+				throw new IllegalStateException("no process in readyQueue's");
+			}
+			return process;
+		}
+		throw new IllegalStateException("Schedule command invalid response, expected: ProcessResponse received:"+response.toString());
+	}
+	//Remove o processo da lista executando e adiciona a lista de prontos ou finalizados
+	public void preemptProcess(Scheduler receiver){
+		Mensagem novMensagem = new PreemptCommand(receiver);
+		sendMessage(novMensagem);
+	}
+	public void sendMessage(Mensagem msg){
+		msg.execute();
+	}
+	// public boolean finishExecution(){
+	// 	return scheduler.verifyAllQueues();
+	// }
+	//Cada  processo  criado  pelo  simulador  recebe  uma  identificação  única  (PID  —  process  identification),
+	//O  número  é  criado  a  partir  da hora (hora, minutos e segundos) corrente.
 	public String requestPid(){
 		UUID uuid = UUID.randomUUID();
         long mostSignificantBits = uuid.getMostSignificantBits();
@@ -31,13 +59,5 @@ public final class Kernel {
         String fixedUUID = String.format("%06d", fixedNumber);
 		
 		return fixedUUID;
-	}
-
-	public Scheduler getScheduler() {
-		return scheduler;
-	}
-
-	public void setScheduler(Scheduler scheduler) {
-		this.scheduler = scheduler;
 	}
 }
