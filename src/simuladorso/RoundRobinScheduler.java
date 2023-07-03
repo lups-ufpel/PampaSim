@@ -18,8 +18,22 @@ public class RoundRobinScheduler extends Scheduler implements MessageHandler{
 	}
 
 	@Override
-	public void addNewProcess(Process processPcb) {
-		this.readyQueue.add(processPcb);
+	public void addProcess(Process processPcb){
+		ArrayList<Process> processQueue;
+		switch (processPcb.getState()) {
+			case READY:
+				processQueue = getReadyQueue();
+				break;
+			case RUNNING:
+				processQueue = getRunningQueue();
+				break;
+			case TERMINATED:
+				processQueue = getFinishedQueue();
+				break;
+			default:
+				throw new IllegalStateException("Process Illegal State");
+		}
+		processQueue.add(processPcb);
 	}
 
 	@Override

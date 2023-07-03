@@ -8,9 +8,9 @@ public class ScheduleCommand extends Comando{
     } 
     @Override
     public void execute() {
-        Process process = receiver.readyQueue.remove(0);
+        Process process = receiver.getNextProcess(receiver.getReadyQueue());
         process.setState(ProcessState.RUNNING);
-        this.receiver.runningQueue.add(process);
+        receiver.addProcess(process);
         this.response = new ProcessResponse(process);
     }
     public Object getResponse(){

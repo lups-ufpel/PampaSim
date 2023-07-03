@@ -10,7 +10,7 @@ public class ForkCommand extends Comando{
     }
     @Override
     public void execute() {
-        receiver.addNewProcess(process);
+        receiver.addProcess(process);
     }
     @Override
     public Object getResponse() {

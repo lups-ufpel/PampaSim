@@ -13,7 +13,7 @@ public class VirtualMachine {
         long startTime = System.currentTimeMillis();
         while(true) {
             process = kernel.scheduleProcess(sched);
-            
+            System.out.println("Processo PID: " + process.getPid() + " pronto para executar");
             for (int i = 1,quantum = sched.getTimeSlice(); i <= quantum; i++) {
                        if(!processor.cycle(process))break;
                     }
