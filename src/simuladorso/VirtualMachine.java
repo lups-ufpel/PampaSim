@@ -13,7 +13,7 @@ public class VirtualMachine {
         long startTime = System.currentTimeMillis();
         while(true) {
             process = kernel.scheduleProcess(sched);
-            System.out.println("Processo PID: " + process.getPid() + " pronto para executar");
+            
             for (int i = 1,quantum = sched.getTimeSlice(); i <= quantum; i++) {
                        if(!processor.cycle(process))break;
                     }
@@ -22,7 +22,7 @@ public class VirtualMachine {
             
             if (sched.verifyAllQueues())break;
          }
-        long endTime = System.currentTimeMillis();//System.nanoTime(); // Tempo final
+        long endTime = System.currentTimeMillis();
         double duration = (endTime - startTime) / 1000; // Duração em segundos
         System.out.println("Tempo de execução: " + duration + " segundos");
         System.out.println("Finalizando Execução do Simulador.");
