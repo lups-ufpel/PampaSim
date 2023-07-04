@@ -1,6 +1,10 @@
-package simuladorso;
+package simuladorso.Commands;
 
-public class PreemptCommand extends Comando{
+import simuladorso.Process;
+import simuladorso.ProcessState;
+import simuladorso.Scheduler;
+
+public class PreemptCommand extends Command {
     
     public PreemptCommand(Scheduler receiver){
         super(receiver);

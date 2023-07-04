@@ -1,6 +1,9 @@
-package simuladorso;
+package simuladorso.Commands;
 
-public class ForkCommand extends Comando{
+import simuladorso.Process;
+import simuladorso.Scheduler;
+
+public class ForkCommand extends Command{
 
     private Process process;
 

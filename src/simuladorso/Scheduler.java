@@ -13,17 +13,19 @@ public abstract class Scheduler {
 		this.runningQueue = new ArrayList<Process>(MAX_QUEUE_SIZE);
 		this.finishedQueue = new ArrayList<Process>(MAX_QUEUE_SIZE);
 	}
-	protected ArrayList<Process> getReadyQueue() {
+
+	public ArrayList<Process> getReadyQueue() {
         return readyQueue;
     }
 
-    protected ArrayList<Process> getRunningQueue() {
+    public ArrayList<Process> getRunningQueue() {
         return runningQueue;
     }
 
-    protected ArrayList<Process> getFinishedQueue() {
+    public ArrayList<Process> getFinishedQueue() {
         return finishedQueue;
     }
+	
 	public abstract void addProcess(Process processPcb);
 	public abstract Process getNextProcess(ArrayList<Process> queue);
 	

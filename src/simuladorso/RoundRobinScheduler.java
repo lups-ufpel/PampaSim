@@ -2,7 +2,10 @@ package simuladorso;
 
 import java.util.ArrayList;
 
-public class RoundRobinScheduler extends Scheduler implements MessageHandler{
+import simuladorso.Message.Message;
+import simuladorso.Message.MessageHandler;
+
+public class RoundRobinScheduler extends Scheduler implements MessageHandler {
     private int timeSlice;
 
 	public RoundRobinScheduler(int timeSlice){
@@ -40,8 +43,9 @@ public class RoundRobinScheduler extends Scheduler implements MessageHandler{
 	public Process getNextProcess(ArrayList<Process> queue) {
 		return queue.remove(0);
 	}
+
 	@Override
-	public void execute(Mensagem msg) {
+	public void execute(Message msg) {
 		msg.execute();
 	}
 

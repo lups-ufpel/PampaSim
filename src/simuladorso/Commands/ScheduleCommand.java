@@ -1,6 +1,11 @@
-package simuladorso;
+package simuladorso.Commands;
 
-public class ScheduleCommand extends Comando{
+import simuladorso.Process;
+import simuladorso.ProcessResponse;
+import simuladorso.ProcessState;
+import simuladorso.Scheduler;
+
+public class ScheduleCommand extends Command {
 
     private ProcessResponse response;
     public ScheduleCommand(Scheduler receiver){

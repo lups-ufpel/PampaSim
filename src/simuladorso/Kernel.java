@@ -2,6 +2,11 @@ package simuladorso;
 
 import java.util.UUID;
 
+import simuladorso.Commands.ForkCommand;
+import simuladorso.Commands.PreemptCommand;
+import simuladorso.Commands.ScheduleCommand;
+import simuladorso.Message.Message;
+
 public final class Kernel {
 	private static Kernel instance;
 	
@@ -17,14 +22,14 @@ public final class Kernel {
 	//onde aguarda uma oportunidade para ser executado
 	public void fork(Scheduler scheduler) {
 		Process process = new Process(requestPid(), 1, ProcessState.READY, 9);
-		Mensagem novMensagem = new ForkCommand(scheduler, process);
+		Message novMensagem = new ForkCommand(scheduler, process);
 		sendMessage(novMensagem);
 	}
 	
 	//Requisita o próximo processo a ser executado de acordo com o algoritmo de escalonamento
 	public Process scheduleProcess(Scheduler scheduler){
 		Process process;
-		Mensagem mensagem = new ScheduleCommand(scheduler);
+		Message mensagem = new ScheduleCommand(scheduler);
 		sendMessage(mensagem);
 		Object response = mensagem.getResponse();
 		if(response instanceof ProcessResponse){
@@ -36,14 +41,17 @@ public final class Kernel {
 		}
 		throw new IllegalStateException("Schedule command invalid response, expected: ProcessResponse received:"+response.toString());
 	}
+
 	//Remove o processo da lista executando e adiciona a lista de prontos ou finalizados
 	public void preemptProcess(Scheduler receiver){
-		Mensagem novMensagem = new PreemptCommand(receiver);
+		Message novMensagem = new PreemptCommand(receiver);
 		sendMessage(novMensagem);
 	}
-	public void sendMessage(Mensagem msg){
+
+	public void sendMessage(Message msg){
 		msg.execute();
 	}
+
 	// public boolean finishExecution(){
 	// 	return scheduler.verifyAllQueues();
 	// }
