@@ -1,4 +1,4 @@
-package ProcessManagement;
+package Kernel;
 
 public enum InterruptionTable {
     NONE,

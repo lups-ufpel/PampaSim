@@ -1,4 +1,4 @@
-package ProcessManagement;
+package Kernel;
 
 public class Interruption {
     private InterruptionTable interruptionTable;

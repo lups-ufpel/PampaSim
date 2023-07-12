@@ -1,13 +1,13 @@
 package Processor;
 
-import ProcessManagement.PCB;
+import Kernel.Process;
 
 public class Core {
-    public void execute(PCB pcb) {
-        if (pcb == null) {
+    public void execute(Process process) {
+        if (process == null) {
             System.out.println("No process to be executed");
             return;
         }
-        System.out.println("Executing process " + pcb.getPid());
+        System.out.println("Executing process " + process.getPid());
     }
 }

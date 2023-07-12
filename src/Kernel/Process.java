@@ -1,7 +1,7 @@
-package ProcessManagement;
+package Kernel;
 import Processor.Registers;
 
-public class PCB {
+public class Process {
     private int pid;
     private int parentPid;
     private int priority;
@@ -11,11 +11,12 @@ public class PCB {
     private Registers registers;
     private int stackPointer;
     private int stackSize;
+    private int PC;
     private int diskAddress;
     private Interruption interruption;
 
     // constructor will start with default values
-    public PCB(int pid) {
+    public Process(int pid) {
         this.pid = pid;
         this.parentPid = 0;
         this.priority = 0;
@@ -25,6 +26,7 @@ public class PCB {
         this.registers = new Registers();
         this.stackPointer = 0;
         this.stackSize = 0;
+        this.PC = 0;
         this.diskAddress = 0;
     }
 
@@ -86,6 +88,12 @@ public class PCB {
     }
     public void setStackSize(int stackSize) {
         this.stackSize = stackSize;
+    }
+    public int getPC() {
+        return PC;
+    }
+    public void setPC(int pC) {
+        PC = pC;
     }
     public int getDiskAddress() {
         return diskAddress;

@@ -1,38 +1,67 @@
 package Command.MainCommand;
 
-public class Message{
+public class Message {
     private Object sender;
-    private String call;
+    private String methodName;
     private Object param;
     private Object receiver;
 
-    
-    public Message(String call){
-        this.call = call;
+    /**
+     * Method call without parameters and with no receiver to modify
+     * 
+     * @param String methodName
+     */
+    public Message(String methodName) {
+        this.methodName = methodName;
         this.sender = null;
         this.param = null;
         this.receiver = null;
     }
-    public Message(String call, Object param){
-        this.call = call;
+
+    /**
+     * Method call with parameters and with no receiver to modify
+     * 
+     * @param String methodName
+     * @param Object param
+     */
+    public Message(String methodName, Object param) {
+        this.methodName = methodName;
         this.param = param;
         this.sender = null;
         this.receiver = null;
     }
-    public Message(String call, Object param, Object receiver){
-        this.call = call;
+
+    /**
+     * Method call with parameters and with a receiver to be modified
+     * 
+     * @param String   methodName
+     * @param param
+     * @param receiver
+     */
+    public Message(String methodName, Object param, Object receiver) {
+        this.methodName = methodName;
         this.param = param;
         this.receiver = receiver;
         this.sender = null;
     }
-    public Message(Object sender, String call, Object param, Object receiver) {
+
+    /**
+     * Method call with parameters, with a receiver to be modified and a sender
+     * 
+     * @param sender
+     * @param methodName
+     * @param param
+     * @param receiver
+     */
+    public Message(Object sender, String methodName, Object param, Object receiver) {
         this.sender = sender;
-        this.call = call;
+        this.methodName = methodName;
         this.param = param;
         this.receiver = receiver;
     }
-    public String getCall() {
-        return call;
+
+    public String getMethodName() {
+        return methodName;
     }
 
     public Object getSender() {

@@ -1,16 +1,21 @@
 package Processor;
 
+import VirtualMachine.Sbyte;
+
 public class Registers {
-    private Register[] registers;
+    private static final int REG_AMOUNT = 32;
+    private static final int REG_SIZE = 32;
+
+    private Sbyte registers[];
 
     public Registers() {
-        registers = new Register[32];
+        registers = new Sbyte[REG_AMOUNT];
         for (int i = 0; i < registers.length; i++) {
-            registers[i] = new Register("", 32);
+            registers[i] = new Sbyte("", REG_SIZE);
         }
     }
 
-    public Register getReg(int index) {
+    public Sbyte getReg(int index) {
         return registers[index];
     }
 

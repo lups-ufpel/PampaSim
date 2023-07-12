@@ -3,9 +3,9 @@ package Command.MainCommand;
 import Command.ClassCommanders.KernelCommand;
 import Command.ClassCommanders.ProcessCommand;
 import Command.ClassCommanders.SchedulerCommand;
-import ProcessManagement.Kernel;
-import ProcessManagement.PCB;
-import ProcessManagement.Scheduler;
+import Kernel.Kernel;
+import Kernel.Process;
+import Kernel.Scheduler;
 
 public class Invoker {
     private Kernel kernel;
@@ -13,7 +13,7 @@ public class Invoker {
 
     private static KernelCommand kernelCommand;
     private static SchedulerCommand schedulerCommand;
-    private static PCB pcb;
+    private static Process pcb;
 
     private static Invoker instance;
 
@@ -22,7 +22,8 @@ public class Invoker {
             return;
         }
         kernel = new Kernel();
-        scheduler = new Scheduler(kernel, 4);
+        scheduler = new Scheduler(kernel.getNewList(), kernel.getReadyList(), kernel.getWaitingList(),
+                kernel.getTerminatedList(), 4);
 
         kernelCommand = new KernelCommand(kernel);
         schedulerCommand = new SchedulerCommand(scheduler);
@@ -30,15 +31,9 @@ public class Invoker {
         instance = this;
     }
 
-    public Invoker getInstance() {
-        if (instance == null) {
-            instance = new Invoker();
-        }
-        return instance;
-    }
-
     public static Object invoke(String className, Message message) {
 
+        // Precisa inicializar o Invoker
         if (instance == null) {
             instance = new Invoker();
         }
@@ -46,12 +41,12 @@ public class Invoker {
             case "Kernel":
                 return kernelCommand.execute(message);
             case "Process":
-                if (message.getReceiver() instanceof PCB) {
-                    pcb = (PCB) message.getReceiver();
+                if (message.getReceiver() instanceof Process) {
+                    pcb = (Process) message.getReceiver();
                     ProcessCommand processCommand = new ProcessCommand(pcb);
                     return processCommand.execute(message);
                 }
-                System.out.println("Receiver is not a PCB");
+                System.out.println("Receiver is not a Process");
                 return null;
             case "Scheduler":
                 return schedulerCommand.execute(message);

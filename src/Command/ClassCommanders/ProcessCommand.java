@@ -1,29 +1,25 @@
 package Command.ClassCommanders;
 
+import Command.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
-
-// import java.util.HashMap;
-// import java.util.Map;
-// import java.util.function.Supplier;
-
-import ProcessManagement.PCB;
-import ProcessManagement.State;
+import Kernel.Process;
+import Kernel.State;
 import Processor.Registers;
 
 public class ProcessCommand implements Command {
 
-    private PCB pcb;
+    private Process pcb;
     // private Map<String, Supplier<Object>> methodMap;
 
-    public ProcessCommand(PCB pcb) {
+    public ProcessCommand(Process pcb) {
         this.pcb = pcb;
     }
 
     public Object execute(Message msg) {
 
         // Switch case to call the correct method from the PCB
-        switch (msg.getCall()) {
+        switch (msg.getMethodName()) {
             case "getPid":
                 return pcb.getPid();
             case "setPid":
@@ -77,12 +73,12 @@ public class ProcessCommand implements Command {
             case "getInterruption":
                 return pcb.getInterruption();
             case "setInterruption":
-                pcb.setInterruption((ProcessManagement.Interruption) msg.getParam());
+                pcb.setInterruption((Kernel.Interruption) msg.getParam());
                 break;
             case "hasInterruption":
                 return pcb.hasInterruption();
             default:
-                handleUnknownMethod(msg.getCall(), msg);
+                throw new IllegalMethodCall("Process", msg.getMethodName(), msg);
         }
         return null;
 
@@ -95,20 +91,6 @@ public class ProcessCommand implements Command {
         // handleUnknownMethod(msg.getCall(), msg);
         // return null;
         // }
-    }
-
-    private void handleUnknownMethod(String methodName, Message msg) {
-        System.out.println(
-                "\n\n====================================== FATAL ERROR ======================================\n*");
-        System.out.println("*\tNo method \"" + methodName + "\" found on Process, verify the method name.\n*");
-        System.out.println("*\tMessage content:");
-        System.out.println("*\t\tSender: " + msg.getSender());
-        System.out.println("*\t\tCalled method: " + msg.getCall());
-        System.out.println("*\t\tParams: " + msg.getParam());
-        System.out.println("*\t\tReceiver: " + msg.getReceiver());
-        System.out.println(
-                "*\n=========================================================================================\n");
-        System.exit(1);
     }
 
     // private void initializeMethodMap(Message msg) {

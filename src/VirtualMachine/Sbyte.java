@@ -1,10 +1,10 @@
-package Processor;
+package VirtualMachine;
 
-public class Register {
+public class Sbyte {
     private String value;
     private int size;
 
-    public Register(String value, int size) {
+    public Sbyte(String value, int size) {
         this.value = value;
         this.size = size;
     }
@@ -17,8 +17,7 @@ public class Register {
         if (newValue.length() <= size) {
             value = newValue;
         } else {
-            System.out.println("Error: Register size exceeded");
-            System.exit(0);
+            throw new IllegalArgumentException("Value is too big");
         }
     }
 }
