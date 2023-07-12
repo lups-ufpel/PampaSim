@@ -1,11 +1,15 @@
 package Command.MainCommand;
 
+import Command.IllegalClassCall;
+import Command.IllegalMethodCall;
+import Command.ClassCommanders.CoreCommand;
 import Command.ClassCommanders.KernelCommand;
 import Command.ClassCommanders.ProcessCommand;
 import Command.ClassCommanders.SchedulerCommand;
 import Kernel.Kernel;
 import Kernel.Process;
 import Kernel.Scheduler;
+import Processor.Core;
 
 public class Invoker {
     private Kernel kernel;
@@ -47,12 +51,17 @@ public class Invoker {
                     return processCommand.execute(message);
                 }
                 System.out.println("Receiver is not a Process");
-                return null;
+                throw new IllegalMethodCall(className, message);
             case "Scheduler":
                 return schedulerCommand.execute(message);
+            case "Core":
+                if (message.getReceiver() instanceof Core) {
+                    Core core = (Core) message.getReceiver();
+                    CoreCommand coreCommand = new CoreCommand(core);
+                    return coreCommand.execute(message);
+                }
             default:
-                System.out.println("Invalid command name");
-                return null;
+                throw new IllegalClassCall(className);
         }
     }
 }

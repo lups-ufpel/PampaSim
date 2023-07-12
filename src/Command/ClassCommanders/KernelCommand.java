@@ -23,7 +23,7 @@ public class KernelCommand implements Command {
             case "getList":
                 return kernel.getProcessList();
             default:
-                throw new IllegalMethodCall("Kernel", msg.getMethodName(), msg);
+                throw new IllegalMethodCall("Kernel", msg);
         }
     }
 }

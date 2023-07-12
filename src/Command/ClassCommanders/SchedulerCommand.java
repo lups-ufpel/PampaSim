@@ -20,7 +20,7 @@ public class SchedulerCommand implements Command {
                 scheduler.printLists();
                 return null;
             default:
-                throw new IllegalMethodCall("Scheduler", msg.getMethodName(), msg);
+                throw new IllegalMethodCall("Scheduler", msg);
         }
     }
 

@@ -78,7 +78,7 @@ public class ProcessCommand implements Command {
             case "hasInterruption":
                 return pcb.hasInterruption();
             default:
-                throw new IllegalMethodCall("Process", msg.getMethodName(), msg);
+                throw new IllegalMethodCall("Process", msg);
         }
         return null;
 

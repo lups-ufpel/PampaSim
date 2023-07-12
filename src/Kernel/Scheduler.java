@@ -48,13 +48,13 @@ public class Scheduler {
     public Process[] schedule() {
 
         // verify if there are any NEW process that can be moved to the ready list
-        for (int i = 0; i >= newList.size(); i++) {
+        for (int i = 0; i < newList.size(); i++) {
 
             // newList.get(i).setState(State.READY);
             Invoker.invoke("Process", new Message("setState", State.READY, newList.get(i)));
 
-            readyList.add(newList.remove(i));
-
+            readyList.add(newList.remove(0));
+            i--;
         }
 
         // verify if the waiting list has any process that can be moved to the ready
@@ -108,9 +108,11 @@ public class Scheduler {
             }
 
         } else {
-            // runningList[coreID].setState(State.READY);
-            Invoker.invoke("Process", new Message("setState", State.READY, runningList[coreID]));
-            readyList.add(runningList[coreID]);
+            if (runningList[coreID] != null) {
+                // runningList[coreID].setState(State.READY);
+                Invoker.invoke("Process", new Message("setState", State.READY, runningList[coreID]));
+                readyList.add(runningList[coreID]);
+            }
 
             runningList[coreID] = readyList.remove(0);
             runningList[coreID].setState(State.RUNNING);
@@ -121,17 +123,22 @@ public class Scheduler {
     public void printLists() {
         System.out.println("Ready List:");
         for (Process process : readyList) {
-            System.out.println(process.getPid());
+            System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Waiting List:");
         for (Process process : waitingList) {
-            System.out.println(process.getPid());
+            System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Running List:");
         for (int i = 0; i < runningList.length; i++) {
             if (runningList[i] != null) {
-                System.out.println("pid: " + runningList[i].getPid() + " clockCycles: " + clockCycles[i]);
+                System.out.println("pid: " + runningList[i].getPid() + " clockCycles: " + clockCycles[i] + " "
+                        + runningList[i].getState());
             }
         }
+        // System.out.println("New List:");
+        // for (Process process : newList) {
+        //     System.out.println(process.getPid() + " " + process.getState());
+        // }
     }
 }

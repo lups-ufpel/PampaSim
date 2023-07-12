@@ -3,12 +3,24 @@ package Command;
 import Command.MainCommand.Message;
 
 public class IllegalMethodCall extends RuntimeException {
+    /**
+     * No method found with the right name and parameters
+     * 
+     * @param className
+     * @param methodName
+     * @param msg
+     */
+    public IllegalMethodCall(String className, Message msg) {
+        Object receiver = msg.getReceiver() == null ? "void" : msg.getReceiver();
 
-    public IllegalMethodCall(String className, String methodName, Message msg) {
         System.out.println("\n===================================== FATAL ERROR =====================================");
-        System.out.println("*\tIllegal method call on Command/MainCommand/Message.java");
-        System.out.println("*\tNo method \"" + methodName + "(" + msg.getParam() + ")\" found");
-        System.out.println("*\tVerify the method name and parameters given.");
+        System.out.println("*\tIllegal method call on Command/ClassCommanders/" + className + "Command.java");
+        System.out.println("*");
+        System.out.println(
+                "*\tNo method \"" + msg.getMethodName() + "(" + msg.getParam() + ") -> Receiver(" + receiver
+                        + ")\" found");
+        System.out.println("*");
+        System.out.println("*\tVerify the method name, receiver and parameters given.");
         System.out.println("*");
         System.out.println("*\tMessage content:");
         System.out.println("*\t\tSender: " + msg.getSender());
