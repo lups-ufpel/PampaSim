@@ -1,4 +1,4 @@
-package Command;
+package Command.Errors;
 
 import Command.MainCommand.Message;
 

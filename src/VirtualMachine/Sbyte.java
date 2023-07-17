@@ -20,4 +20,8 @@ public class Sbyte {
             throw new IllegalArgumentException("Value is too big");
         }
     }
+
+    public void setValue(int newValue){
+        this.setValue(Integer.toString(newValue));
+    }
 }

@@ -1,15 +1,17 @@
 package Command.MainCommand;
 
-import Command.IllegalClassCall;
-import Command.IllegalMethodCall;
 import Command.ClassCommanders.CoreCommand;
 import Command.ClassCommanders.KernelCommand;
 import Command.ClassCommanders.ProcessCommand;
+import Command.ClassCommanders.SbyteCommand;
 import Command.ClassCommanders.SchedulerCommand;
+import Command.Errors.IllegalClassCall;
+import Command.Errors.IllegalMethodCall;
 import Kernel.Kernel;
 import Kernel.Process;
 import Kernel.Scheduler;
-import Processor.Core;
+import VirtualMachine.Sbyte;
+import VirtualMachine.Processor.Core;
 
 public class Invoker {
     private Kernel kernel;
@@ -59,6 +61,12 @@ public class Invoker {
                     Core core = (Core) message.getReceiver();
                     CoreCommand coreCommand = new CoreCommand(core);
                     return coreCommand.execute(message);
+                }
+            case "Sbyte":
+                if (message.getReceiver() instanceof Sbyte) {
+                    Sbyte sbyte = (Sbyte) message.getReceiver();
+                    SbyteCommand sbyteCommand = new SbyteCommand(sbyte);
+                    return sbyteCommand.execute(message);
                 }
             default:
                 throw new IllegalClassCall(className);

@@ -1,5 +1,8 @@
 package Kernel;
-import Processor.Registers;
+import java.util.ArrayList;
+
+import VirtualMachine.Sbyte;
+import VirtualMachine.Processor.Registers;
 
 public class Process {
     private int pid;
@@ -9,10 +12,9 @@ public class Process {
     private int arrivalTime;
     private State state;
     private Registers registers;
-    private int stackPointer;
+    private int pc;
     private int stackSize;
-    private int PC;
-    private int diskAddress;
+    private ArrayList<Sbyte> mem;
     private Interruption interruption;
 
     // constructor will start with default values
@@ -24,10 +26,8 @@ public class Process {
         this.arrivalTime = 0;
         this.state = State.NEW;
         this.registers = new Registers();
-        this.stackPointer = 0;
         this.stackSize = 0;
-        this.PC = 0;
-        this.diskAddress = 0;
+        this.interruption = new Interruption();
     }
 
     // getters and setters of all atributes
@@ -77,11 +77,14 @@ public class Process {
     public void setRegisters(Registers registers) {
         this.registers = registers;
     }
-    public int getStackPointer() {
-        return stackPointer;
+    public int getPc() {
+        return pc;
     }
-    public void setStackPointer(int stackPointer) {
-        this.stackPointer = stackPointer;
+    public void setPc(int pc) {
+        this.pc = pc;
+    }
+    public void incrementPc() {
+        this.pc++;
     }
     public int getStackSize() {
         return stackSize;
@@ -89,25 +92,16 @@ public class Process {
     public void setStackSize(int stackSize) {
         this.stackSize = stackSize;
     }
-    public int getPC() {
-        return PC;
+    public ArrayList<Sbyte> getMemory() {
+        return mem;
     }
-    public void setPC(int pC) {
-        PC = pC;
-    }
-    public int getDiskAddress() {
-        return diskAddress;
-    }
-    public void setDiskAddress(int diskAddress) {
-        this.diskAddress = diskAddress;
+    public void setMemory(ArrayList<Sbyte> mem) {
+        this.mem = mem;
     }
     public Interruption getInterruption() {
         return interruption;
     }
-    public void setInterruption(Interruption interruption) {
-        this.interruption = interruption;
-    }
     public boolean hasInterruption() {
-        return this.interruption.getInterruptionTable() != InterruptionTable.NONE;
+        return this.interruption.get() != InterruptionTable.NONE;
     }
 }

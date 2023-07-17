@@ -13,7 +13,7 @@ public class Scheduler {
     private Process runningList[];
     private int clockCycles[];
 
-    private int quantum = 3;
+    private int quantum = 4;
     // private int numberOfCores;
 
     public Scheduler(ArrayList<Process> newList, ArrayList<Process> readyList, ArrayList<Process> waitingList,
@@ -80,19 +80,18 @@ public class Scheduler {
                     readyList.add(runningList[coreID]);
                     runningList[coreID] = null;
                 }
-            }
-
-            if (runningList[coreID] == null) {
-                if (readyList.isEmpty()) {
-                    continue;
-                }
-                readyToRunning(coreID);
-            } else {
+                
                 clockCycles[coreID]++;
                 if (clockCycles[coreID] >= quantum) {
                     readyToRunning(coreID);
                 }
+            }else{
+                if (readyList.isEmpty()) {
+                    continue;
+                }
+                readyToRunning(coreID);
             }
+
         }
         return runningList;
     }

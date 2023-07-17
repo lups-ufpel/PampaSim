@@ -1,157 +1,119 @@
 package Command.ClassCommanders;
 
-import Command.IllegalMethodCall;
+import java.util.ArrayList;
+
+// import java.util.ArrayList;
+// import java.util.HashMap;
+// import java.util.Map;
+
+import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
 import Kernel.Process;
 import Kernel.State;
-import Processor.Registers;
+import VirtualMachine.Sbyte;
+import VirtualMachine.Processor.Registers;
 
 public class ProcessCommand implements Command {
+    private Process process;
 
-    private Process pcb;
-    // private Map<String, Supplier<Object>> methodMap;
+    // static map that maps the param type to the method that should be called
+    // private static Map<String, Object> methodMap = new HashMap<String, Object>()
+    // {{
+    // put("setPid", Integer.class);
+    // put("setParentPid", Integer.class);
+    // put("setPriority", Integer.class);
+    // put("setCpuPercentage", Integer.class);
+    // put("setArrivalTime", Integer.class);
+    // put("setState", State.class);
+    // put("setRegisters", Registers.class);
+    // put("setStackPointer", Integer.class);
+    // put("setStackSize", Integer.class);
+    // put("setMem", ArrayList.class);
+    // put("setDiskAddress", Integer.class);
 
-    public ProcessCommand(Process pcb) {
-        this.pcb = pcb;
+    // }};
+
+    // private void verifyParams(Message msg){
+    // // get the method name
+    // String methodName = msg.getMethodName();
+
+    // // get the param type
+    // Class<?> paramType = (Class<?>) methodMap.get(methodName);
+
+    // if (paramType == null) {
+    // return;
+    // }
+
+    // // get the param
+    // Object param = msg.getParam();
+
+    // // if the param is not of the correct type, throw an exception
+    // if (!paramType.isInstance(param)) {
+    // throw new IllegalMethodCall("Process", msg);
+    // }
+    // }
+
+    public ProcessCommand(Process process) {
+        this.process = process;
     }
 
     public Object execute(Message msg) {
-
-        // Switch case to call the correct method from the PCB
+        // verifyParams(msg);
+        // Switch case to call the correct method from the process
         switch (msg.getMethodName()) {
             case "getPid":
-                return pcb.getPid();
+                return process.getPid();
             case "setPid":
-                pcb.setPid((int) msg.getParam());
+                process.setPid((int) msg.getParam());
                 break;
             case "getParentPid":
-                return pcb.getParentPid();
+                return process.getParentPid();
             case "setParentPid":
-                pcb.setParentPid((int) msg.getParam());
+                process.setParentPid((int) msg.getParam());
                 break;
             case "getPriority":
-                return pcb.getPriority();
+                return process.getPriority();
             case "setPriority":
-                pcb.setPriority((int) msg.getParam());
+                process.setPriority((int) msg.getParam());
                 break;
             case "getCpuPercentage":
-                return pcb.getCpuPercentage();
+                return process.getCpuPercentage();
             case "setCpuPercentage":
-                pcb.setCpuPercentage((int) msg.getParam());
+                process.setCpuPercentage((int) msg.getParam());
                 break;
             case "getArrivalTime":
-                return pcb.getArrivalTime();
+                return process.getArrivalTime();
             case "setArrivalTime":
-                pcb.setArrivalTime((int) msg.getParam());
+                process.setArrivalTime((int) msg.getParam());
                 break;
             case "getState":
-                return pcb.getState();
+                return process.getState();
             case "setState":
-                pcb.setState((State) msg.getParam());
+                process.setState((State) msg.getParam());
                 break;
             case "getRegisters":
-                return pcb.getRegisters();
+                return process.getRegisters();
             case "setRegisters":
-                pcb.setRegisters((Registers) msg.getParam());
-                break;
-            case "getStackPointer":
-                return pcb.getStackPointer();
-            case "setStackPointer":
-                pcb.setStackPointer((int) msg.getParam());
+                process.setRegisters((Registers) msg.getParam());
                 break;
             case "getStackSize":
-                return pcb.getStackSize();
+                return process.getStackSize();
             case "setStackSize":
-                pcb.setStackSize((int) msg.getParam());
+                process.setStackSize((int) msg.getParam());
                 break;
-            case "getDiskAddress":
-                return pcb.getDiskAddress();
-            case "setDiskAddress":
-                pcb.setDiskAddress((int) msg.getParam());
+            case "getMemory":
+                return process.getMemory();
+            case "setMemory":
+                process.setMemory((ArrayList<Sbyte>) msg.getParam());
                 break;
             case "getInterruption":
-                return pcb.getInterruption();
-            case "setInterruption":
-                pcb.setInterruption((Kernel.Interruption) msg.getParam());
-                break;
+                return process.getInterruption();
             case "hasInterruption":
-                return pcb.hasInterruption();
+                return process.hasInterruption();
             default:
                 throw new IllegalMethodCall("Process", msg);
         }
         return null;
-
-        // initializeMethodMap(msg);
-
-        // Supplier<Object> method = methodMap.get(msg.getCall());
-        // if (method != null) {
-        // return method.get();
-        // } else {
-        // handleUnknownMethod(msg.getCall(), msg);
-        // return null;
-        // }
     }
-
-    // private void initializeMethodMap(Message msg) {
-    // methodMap = new HashMap<>();
-    // methodMap.put("getPid", pcb::getPid);
-    // methodMap.put("setPid", () -> {
-    // pcb.setPid((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getParentPid", pcb::getParentPid);
-    // methodMap.put("setParentPid", () -> {
-    // pcb.setParentPid((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getPriority", pcb::getPriority);
-    // methodMap.put("setPriority", () -> {
-    // pcb.setPriority((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getCpuPercentage", pcb::getCpuPercentage);
-    // methodMap.put("setCpuPercentage", () -> {
-    // pcb.setCpuPercentage((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getArrivalTime", pcb::getArrivalTime);
-    // methodMap.put("setArrivalTime", () -> {
-    // pcb.setArrivalTime((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getState", pcb::getState);
-    // methodMap.put("setState", () -> {
-    // pcb.setState((State) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getRegisters", pcb::getRegisters);
-    // methodMap.put("setRegisters", () -> {
-    // pcb.setRegisters((Registers) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getStackPointer", pcb::getStackPointer);
-    // methodMap.put("setStackPointer", () -> {
-    // pcb.setStackPointer((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getStackSize", pcb::getStackSize);
-    // methodMap.put("setStackSize", () -> {
-    // pcb.setStackSize((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getDiskAddress", pcb::getDiskAddress);
-    // methodMap.put("setDiskAddress", () -> {
-    // pcb.setDiskAddress((int) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("getInterruption", pcb::getInterruption);
-    // methodMap.put("setInterruption", () -> {
-    // pcb.setInterruption((ProcessManagement.Interruption) msg.getParam());
-    // return null;
-    // });
-    // methodMap.put("hasInterruption", pcb::hasInterruption);
-
-    // }
-
 }

@@ -1,6 +1,6 @@
 package Command.ClassCommanders;
 
-import Command.IllegalMethodCall;
+import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
 import Kernel.Kernel;

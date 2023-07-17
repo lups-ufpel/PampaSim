@@ -2,6 +2,7 @@ package Kernel;
 
 public enum InterruptionTable {
     NONE,
+    EXIT,
     KILL,
     FORK,
     ALLOC_MEM,

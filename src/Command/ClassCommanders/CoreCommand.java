@@ -1,10 +1,10 @@
 package Command.ClassCommanders;
 
-import Command.IllegalMethodCall;
+import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
-import Processor.Core;
 import Kernel.Process;
+import VirtualMachine.Processor.Core;
 
 public class CoreCommand implements Command {
 

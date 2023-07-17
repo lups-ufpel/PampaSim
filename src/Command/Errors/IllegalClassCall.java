@@ -1,4 +1,4 @@
-package Command;
+package Command.Errors;
 
 public class IllegalClassCall extends RuntimeException{
     public IllegalClassCall(String className){

@@ -2,8 +2,10 @@ package VirtualMachine;
 
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
+import Kernel.InterruptionTable;
 import Kernel.Process;
-import Processor.Core;
+import Kernel.State;
+import VirtualMachine.Processor.Core;
 
 public class VirtualMachine {
     private Core cores[];
@@ -32,11 +34,17 @@ public class VirtualMachine {
                 if (runningList[i] != null) {
                     System.out.print("Core " + i + ": ");
                     Invoker.invoke("Core", new Message("execute", runningList[i], cores[i]));
+                    if (runningList[i].hasInterruption()) {
+                        interruptionHandler(runningList[i]);
+                    }
                 } else {
                     System.out.println("Core " + i + " is null");
                 }
 
             }
+            // teste de interrupção
+            // if (runningList[2] != null)
+            // runningList[2].setInterruption(InterruptionTable.KILL);
             System.out.println("====================================");
             try {
                 Thread.sleep(1000);
@@ -45,6 +53,26 @@ public class VirtualMachine {
             }
 
         }
+    }
+
+    private void interruptionHandler(Process process) {
+        InterruptionTable interruption = (InterruptionTable) Invoker.invoke("Process",
+                new Message("getInterruption", null, process));
+        int pid = (int) Invoker.invoke("Process", new Message("getPid", null, process));
+        
+        System.out.println("------------------------------------");
+        System.out.println(pid + " -> interruption: " + interruption);
+        System.out.println("------------------------------------");
+
+        switch (interruption) {
+            case EXIT:
+                Invoker.invoke("Process", new Message("setState", State.TERMINATED, process));
+                break;
+
+            default:
+                break;
+        }
+
     }
 
 }
