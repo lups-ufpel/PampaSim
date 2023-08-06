@@ -7,9 +7,10 @@ import simuladorso.Kernel.Process;
 import simuladorso.Kernel.State;
 import simuladorso.VirtualMachine.Processor.Core;
 
-public class VirtualMachine {
+public class VirtualMachine implements Runnable {
     private Core cores[];
     private Process[] runningList;
+    private boolean running;
 
     public VirtualMachine(int numCores) {
         this.cores = new Core[numCores];
@@ -19,13 +20,14 @@ public class VirtualMachine {
 
         System.out.println("Virtual Machine created with " + numCores + " cores");
 
-        run();
+        running = true;
+
+        //run();
     }
 
-    private void run() {
-
-        while (true) {
-
+    @Override
+    public void run() {
+        while (running) {
             // runningCores = scheduler.schedule();
             runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
 
@@ -51,8 +53,15 @@ public class VirtualMachine {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
+    }
+
+    public void stop() {
+
+    }
+
+    public void restart() {
+
     }
 
     private void interruptionHandler(Process process) {

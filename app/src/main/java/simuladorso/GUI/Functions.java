@@ -8,7 +8,7 @@ public class Functions {
         bt.setText("Este botão foi clicado");
     }
 
-    public static void sair() {
+    public static void exit() {
         System.exit(0);
     }
 }

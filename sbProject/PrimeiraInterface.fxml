@@ -109,7 +109,7 @@
                   </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="207.0" prefWidth="179.0" style="-fx-background-color: #001e19;">
                      <children>
-                        <Button layoutX="32.0" layoutY="20.0" mnemonicParsing="false" text="Create process" />
+                        <Button fx:id="createProcessBtn" layoutX="32.0" layoutY="20.0" mnemonicParsing="false" text="Create process" />
                      </children>
                   </AnchorPane>
               </items>

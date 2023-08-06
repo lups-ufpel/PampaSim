@@ -15,33 +15,43 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import simuladorso.VirtualMachine.VirtualMachine;
 
 public class App extends Application {
-    public static void main(String[] args) throws Exception {
+
+    /*
+    public App(VirtualMachine vm) {
+        this.vm = vm;
+    }*/
+
+    public static void main(String[] args) {
+        launch();
+    }
+
+    public void run(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        MenuItem exitMenu;
+        Scene screen;
+        VirtualMachine vm;
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/PrimeiraInterface.fxml"));
         Parent root = fxmlLoader.load();
+
         Rectangle2D screenInfo = Screen.getPrimary().getBounds();
         double screenWidth = screenInfo.getWidth();
         double screenHeigth = screenInfo.getHeight();
 
-        /*Button createNewButton = (Button) fxmlLoader.getNamespace().get("createNew");
-        createNewButton.setOnAction(e -> Functions.mudarTexto(createNewButton));
-        */
-        MenuItem sairMenu = (MenuItem) fxmlLoader.getNamespace().get("sairMenu");
-        sairMenu.setOnAction(e -> Functions.sair());
+        exitMenu = (MenuItem) fxmlLoader.getNamespace().get("sairMenu");
+        exitMenu.setOnAction(e -> Functions.exit());
         
-        Scene tela = new Scene(root, screenWidth, screenHeigth-70);
+        screen = new Scene(root, screenWidth, screenHeigth-70);
         
-        primaryStage.setTitle("Interface do vinizão boladão");
-        primaryStage.setScene(tela);
+        primaryStage.setTitle("Simulador SO");
+        primaryStage.setScene(screen);
         primaryStage.show();
-
     }
-
 }
