@@ -26,10 +26,10 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'simuladorso.GUI.App'
+    mainClass = 'simuladorso.Main'
 }
 
-mainClassName = 'simuladorso.GUI.App'
+//mainClassName = 'simuladorso.GUI.App'
 jar {
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     manifest {

@@ -1,43 +1,48 @@
 package simuladorso;
 
-import simuladorso.Command.MainCommand.Invoker;
-import simuladorso.Command.MainCommand.Message;
-import simuladorso.GUI.App;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import simuladorso.GUI.Functions;
 import simuladorso.VirtualMachine.VirtualMachine;
 
-/**
- * Classe de teste para o escalonador
- */
+import java.net.URL;
 
-public class Main {
+public class Main extends Application {
     public static void main(String[] args) {
+        launch();
+    }
+
+    public void run(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        MenuItem exitMenu;
+        Scene screen;
         VirtualMachine vm;
-        App gui;
-        Thread threadGui;
 
-        if (args.length < 1)
-            vm = new VirtualMachine(4);
-        else
-            vm = new VirtualMachine(Integer.parseInt(args[1]));
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("/fxml/mainApp.fxml"));
+        VBox root = (VBox) fxmlLoader.load();
 
-        //gui = new App(vm);
-        //App.run(args);
-        //threadGui = new Thread(gui);
-        //threadGui.start();
+        Rectangle2D screenInfo = Screen.getPrimary().getBounds();
+        double screenWidth = screenInfo.getWidth();
+        double screenHeigth = screenInfo.getHeight();
 
-        vm.run();
+        exitMenu = (MenuItem) fxmlLoader.getNamespace().get("sairMenu");
+        exitMenu.setOnAction(e -> Functions.exit());
 
+        screen = new Scene(root, screenWidth, screenHeigth-70);
 
-        /*
-        for (int i = 0; i < 20; i++) {
-            Invoker.invoke("Kernel", new Message("newProcess"));
-            System.out.println("Processo " + i + " criado");
-        }
-
-        new VirtualMachine(4);
-        */
-
-        // SchedulerTest schedulerTest = new SchedulerTest();
-        // schedulerTest.test();
+        primaryStage.setTitle("Simulador SO");
+        primaryStage.setScene(screen);
+        primaryStage.show();
     }
 }
