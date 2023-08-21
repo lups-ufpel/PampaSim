@@ -9,25 +9,29 @@ import simuladorso.Kernel.Process;
 import simuladorso.Kernel.State;
 import simuladorso.Utils.Errors.IllegalClassCall;
 import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 import simuladorso.VirtualMachine.Processor.Core;
 
 public class VirtualMachine implements Runnable {
     private Core cores[];
     private Process[] runningList;
     private boolean running;
-    private Logger logger;
-    private final Invoker invoker = Invoker.getInstance();
+    private final Logger logger;
+    private final Invoker invoker;
 
     public VirtualMachine(int numCores) {
         this.cores = new Core[numCores];
+
         this.logger = new Logger();
-        this.logger.setLogLevel(LogType.INFO);
+        this.logger.setLogLevel(LogType.DEBUG);
+
+        this.invoker = new Invoker(this.logger);
 
         for (int i = 0; i < numCores; i++) {
             this.cores[i] = new Core();
         }
 
-        System.out.println("Virtual Machine created with " + numCores + " cores");
+        logger.info("Virtual Machine created with " + numCores + " cores");
 
         running = true;
     }
@@ -39,21 +43,21 @@ public class VirtualMachine implements Runnable {
 
     private void execute() {
         while (running) {
-            // runningCores = scheduler.schedule();
+            //runningCores = scheduler.schedule();
             try {
                 runningList = (Process[]) invoker.invoke("Scheduler", new Message("schedule"));
-            } catch (IllegalClassCall | IllegalMethodCall e) {
+            } catch (IllegalClassCall | IllegalMethodCall | OutOfMemoryException e) {
                 logger.warning(e.getMessage());
             }
 
             for (int i = 0; i < cores.length; i++) {
                 // cores[i].execute(runningCores[i]);
                 if (runningList[i] != null) {
-                    System.out.print("Core " + i + ": ");
+                    //logger.info("Core " + i + ": ");
 
                     try {
                         invoker.invoke("Core", new Message("execute", runningList[i], cores[i]));
-                    } catch (IllegalClassCall | IllegalMethodCall e) {
+                    } catch (IllegalClassCall | IllegalMethodCall | OutOfMemoryException e) {
                         logger.warning(e.getMessage());
                     }
 
@@ -61,7 +65,7 @@ public class VirtualMachine implements Runnable {
                         interruptionHandler(runningList[i]);
                     }
                 } else {
-                    System.out.println("Core " + i + " is null");
+                    logger.info("Core " + i + " is null");
                 }
 
             }
@@ -94,7 +98,7 @@ public class VirtualMachine implements Runnable {
             interruption = (InterruptionTable) invoker.invoke("Process",
                     new Message("getInterruption", null, process));
             pid = (int) invoker.invoke("Process", new Message("getPid", null, process));
-        } catch (IllegalMethodCall | IllegalClassCall e) {
+        } catch (IllegalMethodCall | IllegalClassCall | OutOfMemoryException e) {
             logger.warning(e.getMessage());
         }
 
@@ -110,7 +114,7 @@ public class VirtualMachine implements Runnable {
             case EXIT:
                 try {
                     invoker.invoke("Process", new Message("setState", State.TERMINATED, process));
-                } catch (IllegalClassCall | IllegalMethodCall e) {
+                } catch (IllegalClassCall | IllegalMethodCall | OutOfMemoryException e) {
                     logger.warning(e.getMessage());
                 }
                 break;
@@ -119,10 +123,6 @@ public class VirtualMachine implements Runnable {
                 break;
         }
 
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
     public Logger getLogger() {

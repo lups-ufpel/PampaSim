@@ -12,22 +12,26 @@ import simuladorso.GUI.Functions;
 import simuladorso.GUI.SimulatorGui;
 import simuladorso.Logger.LogType;
 import simuladorso.Logger.Logger;
+import simuladorso.Utils.Observer;
 import simuladorso.VirtualMachine.VirtualMachine;
 
 import java.net.URL;
 
 public class Main {
     public static void main(String[] args) {
+        CLI cli = new CLI();
+
         SimulatorGui gui = new SimulatorGui();
-        Logger guiLogger = new Logger();
+        Logger guiLogger = gui.getLogger();
         guiLogger.setLogLevel(LogType.DEBUG);
-        gui.setLogger(guiLogger);
+        guiLogger.subscribe(cli);
 
         VirtualMachine vm = new VirtualMachine(4);
-        Logger vmLogger = new Logger();
+        Logger vmLogger = vm.getLogger();
         vmLogger.setLogLevel(LogType.DEBUG);
-        vm.setLogger(vmLogger);
+        vmLogger.subscribe(cli);
 
         gui.run(args);
+        vm.run();
     }
 }

@@ -5,6 +5,7 @@ import simuladorso.Utils.Errors.IllegalMethodCall;
 import simuladorso.Utils.Command;
 import simuladorso.MessageBroker.Message;
 import simuladorso.Kernel.Kernel;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 
 public class KernelCommand implements Command {
     private Kernel kernel;
@@ -13,7 +14,7 @@ public class KernelCommand implements Command {
         this.kernel = kernel;
     }
 
-    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall {
+    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
 
         switch (msg.getAction()) {
             case "newProcess":

@@ -2,23 +2,25 @@ package simuladorso.MessageBroker;
 
 import simuladorso.Logger.Logger;
 
-import java.util.HashMap;
-
 public class MessageBroker implements Runnable {
-    private Logger logger;
-
-    private final HashMap<String, Messager> party = new HashMap<>();
+    private final Logger logger = new Logger();
 
     public MessageBroker() {
 
     }
 
-    public void subscribe(String id, Messager messager) {
-        
-    }
-
     @Override
     public void run() {
+
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public synchronized void handleMessage(Message message) {
+        logger.debug(String.format("MessageBroker received: %s", message.toString()));
+
 
     }
 }

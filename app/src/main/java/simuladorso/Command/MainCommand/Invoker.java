@@ -5,38 +5,45 @@ import simuladorso.Command.ClassCommanders.KernelCommand;
 import simuladorso.Command.ClassCommanders.ProcessCommand;
 import simuladorso.Command.ClassCommanders.SbyteCommand;
 import simuladorso.Command.ClassCommanders.SchedulerCommand;
+import simuladorso.Logger.Logger;
+import simuladorso.Utils.Command;
 import simuladorso.Utils.Errors.IllegalClassCall;
 import simuladorso.Utils.Errors.IllegalMethodCall;
 import simuladorso.Kernel.Kernel;
 import simuladorso.Kernel.Process;
 import simuladorso.Kernel.Scheduler;
 import simuladorso.MessageBroker.Message;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 import simuladorso.VirtualMachine.Sbyte;
 import simuladorso.VirtualMachine.Processor.Core;
 
+import java.util.HashMap;
+
 public class Invoker {
+    private final HashMap<String, Command> commandRoutes = new HashMap<>();
     private Kernel kernel;
     private Scheduler scheduler;
     private static KernelCommand kernelCommand;
     private static SchedulerCommand schedulerCommand;
     private static Process pcb;
-    private static Invoker instance;
+    private Logger logger;
 
-    private Invoker() {
-        kernel = new Kernel();
-        scheduler = new Scheduler(kernel.getNewList(), kernel.getReadyList(), kernel.getWaitingList(),
-                kernel.getTerminatedList(), 4);
-        kernelCommand = new KernelCommand(kernel);
-        schedulerCommand = new SchedulerCommand(scheduler);
+    public Invoker(Logger logger) {
+        this.logger = logger;
+
+        this.kernel = new Kernel(this);
+        this.scheduler = new Scheduler(kernel, 4, this);
+
+        this.kernelCommand = new KernelCommand(kernel);
+        this.schedulerCommand = new SchedulerCommand(scheduler);
+
+        this.commandRoutes.put("Kernel", kernelCommand);
+        this.commandRoutes.put("Scheduler", schedulerCommand);
     }
 
-    public static Invoker getInstance() {
-        if (instance == null)
-            instance = new Invoker();
-        return instance;
-    }
+    public Object invoke(String className, Message message) throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
+        logger.debug(message.toString());
 
-    public Object invoke(String className, Message message) throws IllegalMethodCall, IllegalClassCall {
         switch (className) {
             case "Kernel":
                 return kernelCommand.execute(message);

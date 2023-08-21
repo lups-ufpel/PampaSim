@@ -6,7 +6,7 @@ import simuladorso.Utils.Observer;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class Logger extends Observable {
+public class Logger extends Observable implements Observer {
     private final LinkedList<Log> logs = new LinkedList<>();
     private LogType logLevel;
     public Logger() {
@@ -63,5 +63,11 @@ public class Logger extends Observable {
 
     public LinkedList<Log> getLogs() {
         return logs;
+    }
+
+    @Override
+    public void update(Object object) {
+        if (object instanceof Log)
+            this.addLog((Log) object);
     }
 }

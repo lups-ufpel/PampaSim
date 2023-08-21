@@ -6,6 +6,7 @@ import simuladorso.Command.MainCommand.Invoker;
 import simuladorso.MessageBroker.Message;
 import simuladorso.Utils.Errors.IllegalClassCall;
 import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 import simuladorso.VirtualMachine.Sbyte;
 
 public class Kernel {
@@ -22,38 +23,36 @@ public class Kernel {
 
     // this list shall not be modified by other classes
     private ArrayList<Process> procList;
-    private final Invoker invoker;
+    private Invoker invoker;
 
-    public Kernel() {
+    public Kernel(Invoker invoker) {
         procList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
         terminatedList = new ArrayList<Process>();
         newList = new ArrayList<Process>();
+
         memoryManager = new MemoryManager(MEMORY_SIZE);
+
+        this.invoker = invoker;
     }
 
     public Process getProcess(int index) {
         return procList.get(index);
     }
 
-    public void newProcess() throws IllegalMethodCall, IllegalClassCall {
+    public void newProcess() throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
 
         // allocate memory for the process
         ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
 
         if (stack == null) {
-            logger.info("Not enough memory, process not created");
-            //System.out.println("Not enough memory, process not created");
-            return;
+            throw new OutOfMemoryException("Not enough memory, process wasn't created");
         }
 
         Process newProcess = new Process(procList.size());
 
-        // newProcess.setStackSize(INITIAL_STACK_SIZE);
         invoker.invoke("Process", new Message("setStackSize", INITIAL_STACK_SIZE, newProcess));
-        
-        // newProcess.setMemory(stack);
         invoker.invoke("Process", new Message("setMemory", stack, newProcess));
 
         procList.add(newProcess);
@@ -86,5 +85,4 @@ public class Kernel {
     public ArrayList<Process> getTerminatedList() {
         return terminatedList;
     }
-
 }

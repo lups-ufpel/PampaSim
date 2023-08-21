@@ -5,6 +5,7 @@ import simuladorso.Utils.Errors.IllegalMethodCall;
 import simuladorso.Utils.Command;
 import simuladorso.MessageBroker.Message;
 import simuladorso.Kernel.Scheduler;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 
 public class SchedulerCommand implements Command {
     private Scheduler scheduler;
@@ -13,7 +14,7 @@ public class SchedulerCommand implements Command {
         this.scheduler = scheduler;
     }
 
-    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall {
+    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
         switch (msg.getAction()) {
             case "schedule":
                 return scheduler.schedule();

@@ -2,16 +2,12 @@ package simuladorso.GUI;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import simuladorso.GUI.controller.FXMLMainAppController;
-import simuladorso.Logger.Log;
 import simuladorso.Logger.Logger;
 import simuladorso.MessageBroker.Message;
 import simuladorso.MessageBroker.Messager;
@@ -20,7 +16,7 @@ import simuladorso.VirtualMachine.VirtualMachine;
 import java.io.IOException;
 
 public class SimulatorGui extends Application implements Messager {
-    private Logger logger;
+    private final Logger logger = new Logger();
 
     public void run(String[] args) {
         launch(args);
@@ -74,12 +70,16 @@ public class SimulatorGui extends Application implements Messager {
         alert.showAndWait();
     }
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
+    public Logger getLogger() {
+        return this.logger;
     }
 
     public void subscribeToLogger(Logger logger) {
         //logger.subscribe(this);
+    }
+
+    public String getId() {
+        return "Gui";
     }
 
     public void receive(Message message) {

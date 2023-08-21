@@ -3,8 +3,8 @@ package simuladorso.MessageBroker;
 public class Message {
     private String action;
     private Object parameters;
-    private Object receiver;
-    private Object sender;
+    private String receiver;
+    private String sender;
 
     /**
      * Method call without parameters and with no receiver to modify
@@ -38,7 +38,7 @@ public class Message {
      * @param parameters
      * @param receiver
      */
-    public Message(String action, Object parameters, Object receiver) {
+    public Message(String action, Object parameters, String receiver) {
         this.action = action;
         this.parameters = parameters;
         this.receiver = receiver;
@@ -53,7 +53,7 @@ public class Message {
      * @param receiver
      * @param sender
      */
-    public Message(String action, Object parameters, Object receiver, Object sender) {
+    public Message(String action, Object parameters, String receiver, String sender) {
         this.action = action;
         this.parameters = parameters;
         this.receiver = receiver;
@@ -68,15 +68,15 @@ public class Message {
         return parameters;
     }
 
-    public Object getReceiver() {
+    public String getReceiverId() {
         return receiver;
     }
-    public Object getSender() {
+    public String getSenderId() {
         return sender;
     }
 
     @Override
     public String toString() {
-        return String.format("Action %s sended by %s to %s", getAction(), getSender(), getReceiver());
+        return String.format("Action %s sended by %s to %s", getAction(), getSenderId(), getReceiverId());
     }
 }

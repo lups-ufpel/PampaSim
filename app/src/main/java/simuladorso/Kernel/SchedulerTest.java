@@ -1,15 +1,17 @@
 package simuladorso.Kernel;
 
 import simuladorso.Command.MainCommand.Invoker;
+import simuladorso.Logger.Logger;
 import simuladorso.MessageBroker.Message;
 import simuladorso.Utils.Errors.IllegalClassCall;
 import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 
 public class SchedulerTest {
+    private final Logger logger = new Logger();
+    private final Invoker invoker = new Invoker(logger);
 
-    private final Invoker invoker = Invoker.getInstance();
-
-    public void test() throws IllegalMethodCall, IllegalClassCall {
+    public void test() throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
 
         Process[] runningList;
 

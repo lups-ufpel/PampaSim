@@ -6,6 +6,7 @@ import simuladorso.Command.MainCommand.Invoker;
 import simuladorso.MessageBroker.Message;
 import simuladorso.Utils.Errors.IllegalClassCall;
 import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Errors.OutOfMemoryException;
 
 public class Scheduler {
     private ArrayList<Process> readyList;
@@ -16,22 +17,19 @@ public class Scheduler {
     private int clockCycles[];
 
     private int quantum = 4;
-    // private int numberOfCores;
 
-    private final Invoker invoker = Invoker.getInstance();
+    private final Invoker invoker;
 
-    public Scheduler(ArrayList<Process> newList, ArrayList<Process> readyList, ArrayList<Process> waitingList,
-            ArrayList<Process> terminatedList, int numCores) {
-
-        this.newList = newList;
-        this.readyList = readyList;
-        this.waitingList = waitingList;
-        this.terminatedList = terminatedList;
-
-        // this.numberOfCores = numberOfCores;
+    public Scheduler(Kernel kernel, int numCores, Invoker invoker) {
+        this.newList = kernel.getNewList();
+        this.readyList = kernel.getReadyList();
+        this.waitingList = kernel.getWaitingList();
+        this.terminatedList = kernel.getTerminatedList();
 
         runningList = new Process[numCores];
         clockCycles = new int[numCores];
+
+        this.invoker = invoker;
     }
 
     /**
@@ -49,14 +47,10 @@ public class Scheduler {
      * 
      * @return PCB[] runningList
      */
-    public Process[] schedule() throws IllegalMethodCall, IllegalClassCall {
-
+    public Process[] schedule() throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
         // verify if there are any NEW process that can be moved to the ready list
         for (int i = 0; i < newList.size(); i++) {
-
-            // newList.get(i).setState(State.READY);
             invoker.invoke("Process", new Message("setState", State.READY, newList.get(i)));
-
             readyList.add(newList.remove(0));
             i--;
         }
@@ -100,7 +94,7 @@ public class Scheduler {
         return runningList;
     }
 
-    private void readyToRunning(int coreID) throws IllegalMethodCall, IllegalClassCall {
+    private void readyToRunning(int coreID) throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
 
         if (readyList.isEmpty()) {
 
