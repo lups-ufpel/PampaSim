@@ -1,8 +1,9 @@
 package simuladorso.Command.ClassCommanders;
 
-import simuladorso.Command.Errors.IllegalMethodCall;
-import simuladorso.Command.MainCommand.Command;
-import simuladorso.Command.MainCommand.Message;
+import simuladorso.Utils.Errors.IllegalClassCall;
+import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Command;
+import simuladorso.MessageBroker.Message;
 import simuladorso.Kernel.Kernel;
 
 public class KernelCommand implements Command {
@@ -12,14 +13,14 @@ public class KernelCommand implements Command {
         this.kernel = kernel;
     }
 
-    public Object execute(Message msg) {
+    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall {
 
-        switch (msg.getMethodName()) {
+        switch (msg.getAction()) {
             case "newProcess":
                 kernel.newProcess();
                 return null;
             case "getPCB":
-                return kernel.getProcess((int) msg.getParam());
+                return kernel.getProcess((int) msg.getParameters());
             case "getList":
                 return kernel.getProcessList();
             default:

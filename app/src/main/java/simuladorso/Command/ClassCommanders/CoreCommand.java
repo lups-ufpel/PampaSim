@@ -1,8 +1,8 @@
 package simuladorso.Command.ClassCommanders;
 
-import simuladorso.Command.Errors.IllegalMethodCall;
-import simuladorso.Command.MainCommand.Command;
-import simuladorso.Command.MainCommand.Message;
+import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Command;
+import simuladorso.MessageBroker.Message;
 import simuladorso.Kernel.Process;
 import simuladorso.VirtualMachine.Processor.Core;
 
@@ -14,16 +14,16 @@ public class CoreCommand implements Command {
         this.core = core;
     }
 
-    public Object execute(Message msg) {
-        switch (msg.getMethodName()) {
+    public Object execute(Message msg) throws IllegalMethodCall {
+        switch (msg.getAction()) {
             case "execute":
-                if (msg.getParam() == null || !(msg.getParam() instanceof Process)) {
-                    throw new IllegalMethodCall("Core", msg);
+                if (msg.getParameters() == null || !(msg.getParameters() instanceof Process)) {
+                    throw new IllegalMethodCall(String.format("Core : %s", msg.toString()));
                 }
-                core.execute((Process) msg.getParam());
+                core.execute((Process) msg.getParameters());
                 return null;
             default:
-                throw new IllegalMethodCall("Core", msg);
+                throw new IllegalMethodCall(String.format("Core : %s", msg.toString()));
         }
     }
 }

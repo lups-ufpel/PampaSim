@@ -5,10 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -20,9 +17,9 @@ import java.util.ResourceBundle;
 
 public class FXMLMainAppController implements Initializable {
     @FXML
-    ScrollPane cpusScrollPane;
+    Pane cpusPane;
     @FXML
-    ScrollPane processesScrollPane;
+    Pane queuesPane;
     @FXML
     Pane processInfoPane;
     @FXML
@@ -35,6 +32,16 @@ public class FXMLMainAppController implements Initializable {
     Slider quantumSlider;
     @FXML
     Slider waitTimeSlider;
+    @FXML
+    MenuItem exitMenuItem;
+
+    // Buttons
+    @FXML
+    Button deleteProcessBtn;
+
+    Stage mainStage;
+    int selectedProcessPid;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -67,5 +74,18 @@ public class FXMLMainAppController implements Initializable {
         if (buttonConfirmarClicked) {
             System.out.println("OK");
         }
+
+    }
+
+    public void handleRemoveProcessBtn(ActionEvent actionEvent) throws IOException {
+        throw new IOException();
+    }
+
+    public void handleExitMenuButton(ActionEvent actionEvent) {
+        this.mainStage.close();
+    }
+
+    public void setMainStage(Stage mainStage) {
+        this.mainStage = mainStage;
     }
 }

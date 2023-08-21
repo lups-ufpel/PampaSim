@@ -9,40 +9,25 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import simuladorso.GUI.Functions;
+import simuladorso.GUI.SimulatorGui;
+import simuladorso.Logger.LogType;
+import simuladorso.Logger.Logger;
 import simuladorso.VirtualMachine.VirtualMachine;
 
 import java.net.URL;
 
-public class Main extends Application {
+public class Main {
     public static void main(String[] args) {
-        launch();
-    }
+        SimulatorGui gui = new SimulatorGui();
+        Logger guiLogger = new Logger();
+        guiLogger.setLogLevel(LogType.DEBUG);
+        gui.setLogger(guiLogger);
 
-    public void run(String[] args) {
-        launch(args);
-    }
+        VirtualMachine vm = new VirtualMachine(4);
+        Logger vmLogger = new Logger();
+        vmLogger.setLogLevel(LogType.DEBUG);
+        vm.setLogger(vmLogger);
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        MenuItem exitMenu;
-        Scene screen;
-        VirtualMachine vm;
-
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/fxml/mainApp.fxml"));
-        VBox root = (VBox) fxmlLoader.load();
-
-        Rectangle2D screenInfo = Screen.getPrimary().getBounds();
-        double screenWidth = screenInfo.getWidth();
-        double screenHeigth = screenInfo.getHeight();
-
-        exitMenu = (MenuItem) fxmlLoader.getNamespace().get("sairMenu");
-        exitMenu.setOnAction(e -> Functions.exit());
-
-        screen = new Scene(root, screenWidth, screenHeigth-70);
-
-        primaryStage.setTitle("Simulador SO");
-        primaryStage.setScene(screen);
-        primaryStage.show();
+        gui.run(args);
     }
 }

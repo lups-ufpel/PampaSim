@@ -1,8 +1,9 @@
 package simuladorso.Command.ClassCommanders;
 
-import simuladorso.Command.Errors.IllegalMethodCall;
-import simuladorso.Command.MainCommand.Command;
-import simuladorso.Command.MainCommand.Message;
+import simuladorso.Utils.Errors.IllegalClassCall;
+import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Command;
+import simuladorso.MessageBroker.Message;
 import simuladorso.VirtualMachine.Sbyte;
 
 public class SbyteCommand implements Command {
@@ -13,14 +14,14 @@ public class SbyteCommand implements Command {
         this.sbyte = sbyte;
     }
 
-    public Object execute(Message msg) {
+    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall {
 
-        switch (msg.getMethodName()) {
+        switch (msg.getAction()) {
             case "getValue":
                 return sbyte.getValue();
             case "setValue":
-                if (msg.getParam() instanceof String || msg.getParam() instanceof Integer) {
-                    sbyte.setValue((String) msg.getParam());
+                if (msg.getParameters() instanceof String || msg.getParameters() instanceof Integer) {
+                    sbyte.setValue((String) msg.getParameters());
                 } else {
                     throw new IllegalMethodCall("Sbyte", msg);
                 }

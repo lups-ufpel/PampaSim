@@ -3,7 +3,9 @@ package simuladorso.Kernel;
 import java.util.ArrayList;
 
 import simuladorso.Command.MainCommand.Invoker;
-import simuladorso.Command.MainCommand.Message;
+import simuladorso.MessageBroker.Message;
+import simuladorso.Utils.Errors.IllegalClassCall;
+import simuladorso.Utils.Errors.IllegalMethodCall;
 import simuladorso.VirtualMachine.Sbyte;
 
 public class Kernel {
@@ -20,6 +22,7 @@ public class Kernel {
 
     // this list shall not be modified by other classes
     private ArrayList<Process> procList;
+    private final Invoker invoker;
 
     public Kernel() {
         procList = new ArrayList<Process>();
@@ -27,32 +30,31 @@ public class Kernel {
         waitingList = new ArrayList<Process>();
         terminatedList = new ArrayList<Process>();
         newList = new ArrayList<Process>();
-
         memoryManager = new MemoryManager(MEMORY_SIZE);
-
     }
 
     public Process getProcess(int index) {
         return procList.get(index);
     }
 
-    public void newProcess() {
+    public void newProcess() throws IllegalMethodCall, IllegalClassCall {
 
         // allocate memory for the process
         ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
 
         if (stack == null) {
-            System.out.println("Not enough memory, process not created");
+            logger.info("Not enough memory, process not created");
+            //System.out.println("Not enough memory, process not created");
             return;
         }
 
         Process newProcess = new Process(procList.size());
 
         // newProcess.setStackSize(INITIAL_STACK_SIZE);
-        Invoker.invoke("Process", new Message("setStackSize", INITIAL_STACK_SIZE, newProcess));
+        invoker.invoke("Process", new Message("setStackSize", INITIAL_STACK_SIZE, newProcess));
         
         // newProcess.setMemory(stack);
-        Invoker.invoke("Process", new Message("setMemory", stack, newProcess));
+        invoker.invoke("Process", new Message("setMemory", stack, newProcess));
 
         procList.add(newProcess);
         newList.add(newProcess);

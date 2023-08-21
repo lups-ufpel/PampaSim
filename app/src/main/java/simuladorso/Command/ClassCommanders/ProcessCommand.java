@@ -6,9 +6,10 @@ import java.util.ArrayList;
 // import java.util.HashMap;
 // import java.util.Map;
 
-import simuladorso.Command.Errors.IllegalMethodCall;
-import simuladorso.Command.MainCommand.Command;
-import simuladorso.Command.MainCommand.Message;
+import simuladorso.Utils.Errors.IllegalClassCall;
+import simuladorso.Utils.Errors.IllegalMethodCall;
+import simuladorso.Utils.Command;
+import simuladorso.MessageBroker.Message;
 import simuladorso.Kernel.Process;
 import simuladorso.Kernel.State;
 import simuladorso.VirtualMachine.Sbyte;
@@ -58,54 +59,54 @@ public class ProcessCommand implements Command {
         this.process = process;
     }
 
-    public Object execute(Message msg) {
+    public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall {
         // verifyParams(msg);
         // Switch case to call the correct method from the process
-        switch (msg.getMethodName()) {
+        switch (msg.getAction()) {
             case "getPid":
                 return process.getPid();
             case "setPid":
-                process.setPid((int) msg.getParam());
+                process.setPid((int) msg.getParameters());
                 break;
             case "getParentPid":
                 return process.getParentPid();
             case "setParentPid":
-                process.setParentPid((int) msg.getParam());
+                process.setParentPid((int) msg.getParameters());
                 break;
             case "getPriority":
                 return process.getPriority();
             case "setPriority":
-                process.setPriority((int) msg.getParam());
+                process.setPriority((int) msg.getParameters());
                 break;
             case "getCpuPercentage":
                 return process.getCpuPercentage();
             case "setCpuPercentage":
-                process.setCpuPercentage((int) msg.getParam());
+                process.setCpuPercentage((int) msg.getParameters());
                 break;
             case "getArrivalTime":
                 return process.getArrivalTime();
             case "setArrivalTime":
-                process.setArrivalTime((int) msg.getParam());
+                process.setArrivalTime((int) msg.getParameters());
                 break;
             case "getState":
                 return process.getState();
             case "setState":
-                process.setState((State) msg.getParam());
+                process.setState((State) msg.getParameters());
                 break;
             case "getRegisters":
                 return process.getRegisters();
             case "setRegisters":
-                process.setRegisters((Registers) msg.getParam());
+                process.setRegisters((Registers) msg.getParameters());
                 break;
             case "getStackSize":
                 return process.getStackSize();
             case "setStackSize":
-                process.setStackSize((int) msg.getParam());
+                process.setStackSize((int) msg.getParameters());
                 break;
             case "getMemory":
                 return process.getMemory();
             case "setMemory":
-                process.setMemory((ArrayList<Sbyte>) msg.getParam());
+                process.setMemory((ArrayList<Sbyte>) msg.getParameters());
                 break;
             case "getInterruption":
                 return process.getInterruption();

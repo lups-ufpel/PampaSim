@@ -3,7 +3,9 @@ package simuladorso.Kernel;
 import java.util.ArrayList;
 
 import simuladorso.Command.MainCommand.Invoker;
-import simuladorso.Command.MainCommand.Message;
+import simuladorso.MessageBroker.Message;
+import simuladorso.Utils.Errors.IllegalClassCall;
+import simuladorso.Utils.Errors.IllegalMethodCall;
 
 public class Scheduler {
     private ArrayList<Process> readyList;
@@ -15,6 +17,8 @@ public class Scheduler {
 
     private int quantum = 4;
     // private int numberOfCores;
+
+    private final Invoker invoker = Invoker.getInstance();
 
     public Scheduler(ArrayList<Process> newList, ArrayList<Process> readyList, ArrayList<Process> waitingList,
             ArrayList<Process> terminatedList, int numCores) {
@@ -45,13 +49,13 @@ public class Scheduler {
      * 
      * @return PCB[] runningList
      */
-    public Process[] schedule() {
+    public Process[] schedule() throws IllegalMethodCall, IllegalClassCall {
 
         // verify if there are any NEW process that can be moved to the ready list
         for (int i = 0; i < newList.size(); i++) {
 
             // newList.get(i).setState(State.READY);
-            Invoker.invoke("Process", new Message("setState", State.READY, newList.get(i)));
+            invoker.invoke("Process", new Message("setState", State.READY, newList.get(i)));
 
             readyList.add(newList.remove(0));
             i--;
@@ -96,7 +100,7 @@ public class Scheduler {
         return runningList;
     }
 
-    private void readyToRunning(int coreID) {
+    private void readyToRunning(int coreID) throws IllegalMethodCall, IllegalClassCall {
 
         if (readyList.isEmpty()) {
 
@@ -109,7 +113,7 @@ public class Scheduler {
         } else {
             if (runningList[coreID] != null) {
                 // runningList[coreID].setState(State.READY);
-                Invoker.invoke("Process", new Message("setState", State.READY, runningList[coreID]));
+                invoker.invoke("Process", new Message("setState", State.READY, runningList[coreID]));
                 readyList.add(runningList[coreID]);
             }
 
