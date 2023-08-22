@@ -8,7 +8,7 @@ import simuladorso.Utils.Errors.IllegalMethodCall;
 import simuladorso.Utils.Errors.OutOfMemoryException;
 
 public class SchedulerTest {
-    private final Logger logger = new Logger();
+    private final Logger logger = Logger.getInstance();
     private final Invoker invoker = new Invoker(logger);
 
     public void test() throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {

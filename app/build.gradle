@@ -29,7 +29,7 @@ application {
     mainClass = 'simuladorso.Main'
 }
 
-//mainClassName = 'simuladorso.GUI.App'
+mainClassName = 'simuladorso.Main'
 jar {
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     manifest {

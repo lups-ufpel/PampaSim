@@ -15,7 +15,6 @@ public class KernelCommand implements Command {
     }
 
     public Object execute(Message msg) throws IllegalMethodCall, IllegalClassCall, OutOfMemoryException {
-
         switch (msg.getAction()) {
             case "newProcess":
                 kernel.newProcess();

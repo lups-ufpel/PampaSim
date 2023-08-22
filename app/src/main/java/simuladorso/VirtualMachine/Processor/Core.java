@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import simuladorso.Kernel.Process;
+import simuladorso.Logger.Logger;
 import simuladorso.VirtualMachine.Sbyte;
 
 public class Core {
@@ -15,13 +16,13 @@ public class Core {
     String instruction;
 
     public void execute(Process process) {
-
         if (process == null) {
-        System.out.println("No process to be executed");
-        return;
+            Logger.getInstance().debug("No process to be executed");
+            return;
         }
-        System.out.println("Executing process " + process.getPid() + ", state: " +
-        process.getState());
+
+        Logger.getInstance().debug("Executing process " + process.getPid() + ", state: " +
+            process.getState());
 
         // int pc = process.getPc();
         // memory = process.getMemory();

@@ -53,7 +53,7 @@ public class Invoker {
                     ProcessCommand processCommand = new ProcessCommand(pcb);
                     return processCommand.execute(message);
                 }
-                System.out.println("Receiver is not a Process");
+                this.logger.warning("Object received is not a Process");
                 throw new IllegalMethodCall(className, message);
             case "Scheduler":
                 return schedulerCommand.execute(message);

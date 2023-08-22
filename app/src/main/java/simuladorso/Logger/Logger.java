@@ -9,9 +9,18 @@ import java.util.LinkedList;
 public class Logger extends Observable implements Observer {
     private final LinkedList<Log> logs = new LinkedList<>();
     private LogType logLevel;
-    public Logger() {
+
+    private static Logger instance;
+
+    private Logger() {
         super();
         this.logLevel = LogType.DEBUG;
+    }
+
+    public static Logger getInstance() {
+        if (instance == null)
+            instance = new Logger();
+        return instance;
     }
 
     private void addLog(Log log) {

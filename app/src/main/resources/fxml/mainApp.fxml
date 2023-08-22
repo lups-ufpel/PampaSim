@@ -86,6 +86,13 @@
                   <MenuItem mnemonicParsing="false" text="Unselect All" />
                 </items>
               </Menu>
+                  <Menu mnemonicParsing="false" text="VM">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#handleStartVMMenuButton" text="Start" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleStopVMMenuButton" text="Stop" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleRunningProcessMenuButton" text="Running Processes" />
+                    </items>
+                  </Menu>
               <Menu mnemonicParsing="false" text="Help">
                 <items>
                   <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
