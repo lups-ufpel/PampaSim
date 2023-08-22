@@ -3,7 +3,7 @@ package simuladorso.VirtualMachine.Processor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import simuladorso.Kernel.Process;
+import simuladorso.Os.Process;
 import simuladorso.Logger.Logger;
 import simuladorso.VirtualMachine.Sbyte;
 
@@ -20,9 +20,6 @@ public class Core {
             Logger.getInstance().debug("No process to be executed");
             return;
         }
-
-        Logger.getInstance().debug("Executing process " + process.getPid() + ", state: " +
-            process.getState());
 
         // int pc = process.getPc();
         // memory = process.getMemory();

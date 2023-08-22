@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class FXMLCreateProcessDialogController implements Initializable {
@@ -32,7 +33,7 @@ public class FXMLCreateProcessDialogController implements Initializable {
 
     private Stage dialogStage;
     private boolean createBtnClicked = false;
-    private ArrayList<String> params;
+    private List<String> params;
     private String[] cbxOptions = {"CPU Bound", "IO Bound", "CPU-IO Bound"};
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -44,7 +45,7 @@ public class FXMLCreateProcessDialogController implements Initializable {
         this.dialogStage = dialogStage;
     }
 
-    public void setParams(ArrayList<String> params) {
+    public void setParams(List<String> params) {
         this.params = params;
     }
 

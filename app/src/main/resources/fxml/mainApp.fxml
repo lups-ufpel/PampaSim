@@ -91,6 +91,7 @@
                       <MenuItem mnemonicParsing="false" onAction="#handleStartVMMenuButton" text="Start" />
                         <MenuItem mnemonicParsing="false" onAction="#handleStopVMMenuButton" text="Stop" />
                         <MenuItem mnemonicParsing="false" onAction="#handleRunningProcessMenuButton" text="Running Processes" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleRefreshCoresMenuButton" text="Refresh Cores" />
                     </items>
                   </Menu>
               <Menu mnemonicParsing="false" text="Help">
