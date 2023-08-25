@@ -3,11 +3,14 @@ package simuladorso.Logger;
 import simuladorso.Utils.Observable;
 import simuladorso.Utils.Observer;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class Logger extends Observable implements Observer {
+public class Logger implements Observer, Observable {
     private final LinkedList<Log> logs = new LinkedList<>();
+    private final LinkedList<Observer> observers = new LinkedList<>();
+
     private LogType logLevel;
 
     private static Logger instance;
@@ -78,5 +81,11 @@ public class Logger extends Observable implements Observer {
     public void update(Object object) {
         if (object instanceof Log)
             this.addLog((Log) object);
+    }
+
+    @Override
+    public void subscribe(Observer observer) {
+        if (observer != null)
+            observers.add(observer);
     }
 }

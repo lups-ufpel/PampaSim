@@ -1,8 +1,12 @@
 package simuladorso;
 
+import javafx.stage.Stage;
 import simuladorso.GUI.SimulatorGui;
 import simuladorso.Logger.Logger;
-import simuladorso.MessageBroker.MessageBroker;
+import simuladorso.Mediator.Mediator;
+import simuladorso.Mediator.MediatorAction;
+import simuladorso.Mediator.MediatorComponent;
+import simuladorso.Os.Os;
 import simuladorso.VirtualMachine.VirtualMachine;
 
 public class Main {
@@ -11,20 +15,28 @@ public class Main {
 
         Logger.getInstance().subscribe(cli);
 
-        MessageBroker mb = MessageBroker.getInstance();
+        Mediator mediator = new Mediator();
 
+        SimulatorGui.setMediator(mediator);
         SimulatorGui gui = new SimulatorGui();
+        mediator.registerComponent(MediatorComponent.GUI, gui);
 
-        VirtualMachine vm = new VirtualMachine(4);
+        VirtualMachine vm = new VirtualMachine(4, mediator);
+        mediator.registerComponent(MediatorComponent.VM, vm);
 
-        mb.setVm(vm);
-        mb.setKernel(vm.getOs().getKernel());
-        mb.setScheduler(vm.getOs().getScheduler());
+        Os os = new Os(mediator);
+        mediator.registerComponent(MediatorComponent.KERNEL, os.getKernel());
+        mediator.registerComponent(MediatorComponent.SCHEDULER, os.getScheduler());
 
         Thread vmThread = new Thread(vm);
         vmThread.setDaemon(true);
         vmThread.start();
 
+        Thread mediatorThread = new Thread(mediator);
+        mediatorThread.setDaemon(true);
+        mediatorThread.start();
+
         gui.run(args);
+        //gui.setMediator(mediator);
     }
 }

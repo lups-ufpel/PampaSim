@@ -8,12 +8,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import simuladorso.GUI.model.CoreInfo;
 import simuladorso.Logger.Logger;
-import simuladorso.MessageBroker.Message;
-import simuladorso.MessageBroker.MessageBroker;
-import simuladorso.MessageBroker.MessageType;
+import simuladorso.Mediator.Mediator;
+import simuladorso.Mediator.MediatorAction;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 
 public class FXMLMainAppController implements Initializable {
     @FXML
-    Pane cpusPane;
+    HBox cpusBox;
     @FXML
     Pane queuesPane;
     @FXML
@@ -48,14 +48,11 @@ public class FXMLMainAppController implements Initializable {
 
     Stage mainStage;
     int selectedProcessPid;
-    MessageBroker messageBroker;
+    Mediator mediator;
     Logger logger;
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.messageBroker = MessageBroker.getInstance();
-
 
     }
 
@@ -71,6 +68,7 @@ public class FXMLMainAppController implements Initializable {
         stage.setScene(scene);
 
         FXMLCreateProcessDialogController controller = loader.getController();
+        controller.setMediator(this.mediator);
         controller.setDialogStage(stage);
         controller.setParams(params);
 
@@ -83,9 +81,8 @@ public class FXMLMainAppController implements Initializable {
         List<String> params = new ArrayList<>();
         boolean buttonConfirmarClicked = showFXMLCreateProcessDialog(params);
         if (buttonConfirmarClicked) {
-            messageBroker.invoke(MessageType.KERNEL_NEW_PROCESS);
+            this.mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS);
         }
-
     }
 
     public void handleRemoveProcessBtn(ActionEvent actionEvent) throws IOException {
@@ -97,51 +94,37 @@ public class FXMLMainAppController implements Initializable {
     }
 
     public void handleStartVMMenuButton(ActionEvent actionEvent) {
-        this.messageBroker.invoke(MessageType.START_VM);
+        this.mediator.invoke(MediatorAction.START_VM);
     }
 
     public void handleStopVMMenuButton(ActionEvent actionEvent) throws Exception {
-        this.messageBroker.invoke(MessageType.STOP_VM);
+        this.mediator.invoke(MediatorAction.STOP_VM);
     }
 
-    public void handleRunningProcessMenuButton(ActionEvent actionEvent) {
-        LinkedList<Integer> pids = new LinkedList<>();
-        try {
-            pids.addAll((LinkedList<Integer>) this.messageBroker.invoke(MessageType.LIST_RUNNING_PROCESSES));
-        } catch (Exception e) {
-            Logger.getInstance().error("Couldn't cast running processes pids");
-        }
+    public void handleRunningProcessMenuButton(ActionEvent actionEvent) throws IOException {
 
-        System.out.println(pids);
     }
 
-    public void handleRefreshCoresMenuButton(ActionEvent actionEvent) {
-        LinkedList<CoreInfo> info = new LinkedList<>();
-
-        /*
-        try {
-            info.addAll(this.messageBroker.invoke(MessageType.LIST_CORES));
-        } catch (Exception e) {
-            Logger.getInstance().error(e.getMessage());
-        }
-
-        refreshCoresPane(info);
-
-         */
+    public void handleRefreshCoresMenuButton(ActionEvent actionEvent) throws IOException {
+        this.refreshCoresPane();
     }
 
-    public void refreshCoresPane(LinkedList<CoreInfo> info) {
-        this.cpusPane.getChildren().clear();
-    }
+    public void refreshCoresPane() throws IOException {
+        Integer[] pids = (Integer[]) this.mediator.invoke(MediatorAction.LIST_RUNNING_PROCESSES);
 
-    private void loadCpusPane() throws IOException {
-        int numCores = (Integer) messageBroker.invoke(MessageType.GET_NUM_CORES);
-        for (int i = 0; i < numCores; i++) {
+        this.cpusBox.getChildren().clear();
+
+        for (int i = 0; i < pids.length; i++) {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(this.getClass().getResource("fxml/cpuContainer.fxml"));
-            AnchorPane cpuContainer = loader.load();
-            FXMLCpuContainerController controller = loader.getController();
-            controller.setData(i, false, 0);
+            loader.setLocation(this.getClass().getResource("/fxml/cpuContainer.fxml"));
+            Pane cpuContainer = loader.load();
+            FXMLCoreContainerController controller = loader.getController();
+            if (pids[i] != null)
+                controller.setData(i, true, pids[i]);
+            else
+                controller.setData(i, false, 0);
+
+            this.cpusBox.getChildren().add(cpuContainer);
         }
     }
 
@@ -151,5 +134,9 @@ public class FXMLMainAppController implements Initializable {
 
     public void setLogger(Logger logger) {
         this.logger = logger;
+    }
+
+    public void setMediator(Mediator mediator) {
+        this.mediator = mediator;
     }
 }

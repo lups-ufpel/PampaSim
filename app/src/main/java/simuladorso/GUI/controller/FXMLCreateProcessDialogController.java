@@ -1,20 +1,16 @@
 package simuladorso.GUI.controller;
 
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
+import simuladorso.Mediator.Mediator;
+import simuladorso.Mediator.MediatorAction;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -35,6 +31,7 @@ public class FXMLCreateProcessDialogController implements Initializable {
     private boolean createBtnClicked = false;
     private List<String> params;
     private String[] cbxOptions = {"CPU Bound", "IO Bound", "CPU-IO Bound"};
+    private Mediator mediator;
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         processTypeCbx.getItems().addAll(cbxOptions);
@@ -66,5 +63,10 @@ public class FXMLCreateProcessDialogController implements Initializable {
 
         createBtnClicked = true;
         dialogStage.close();
+    }
+
+    public void setMediator(Mediator mediator) {
+        this.mediator = mediator;
+        this.processPidLbl.setText(String.valueOf((Integer) mediator.invoke(MediatorAction.GET_AVAILABLE_PID)));
     }
 }

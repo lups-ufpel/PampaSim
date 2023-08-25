@@ -1,6 +1,6 @@
 package simuladorso.Utils;
 
-import simuladorso.MessageBroker.Message;
+import simuladorso.Mediator.Message;
 
 public interface Command {
     public Object execute(Message message);

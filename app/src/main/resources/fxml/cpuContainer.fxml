@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="cpuContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="224.0" prefWidth="230.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="simuladorso.GUI.controller.FXMLCpuContainerController">
+<Pane fx:id="cpuContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="224.0" prefWidth="230.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="simuladorso.GUI.controller.FXMLCoreContainerController">
    <children>
       <ImageView fitHeight="187.0" fitWidth="273.0" layoutX="22.0" layoutY="19.0" opacity="0.29" pickOnBounds="true" preserveRatio="true">
          <image>

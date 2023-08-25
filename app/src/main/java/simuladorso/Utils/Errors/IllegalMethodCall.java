@@ -1,6 +1,6 @@
 package simuladorso.Utils.Errors;
 
-import simuladorso.MessageBroker.Message;
+import simuladorso.Mediator.Message;
 
 public class IllegalMethodCall extends Exception {
     public IllegalMethodCall(String message) {

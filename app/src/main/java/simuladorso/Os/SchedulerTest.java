@@ -1,11 +1,5 @@
 package simuladorso.Os;
 
-import simuladorso.Logger.Logger;
-import simuladorso.MessageBroker.Message;
-import simuladorso.Utils.Errors.IllegalClassCall;
-import simuladorso.Utils.Errors.IllegalMethodCall;
-import simuladorso.Utils.Errors.OutOfMemoryException;
-
 public class SchedulerTest {
     /*
     private final Logger logger = Logger.getInstance();

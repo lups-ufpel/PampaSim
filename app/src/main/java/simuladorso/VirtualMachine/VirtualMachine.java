@@ -1,31 +1,25 @@
 package simuladorso.VirtualMachine;
 
 import simuladorso.Logger.Logger;
-import simuladorso.MessageBroker.Message;
-import simuladorso.MessageBroker.MessageBroker;
-import simuladorso.MessageBroker.MessageType;
+import simuladorso.Mediator.Mediator;
+import simuladorso.Mediator.MediatorAction;
 import simuladorso.Os.InterruptionTable;
 import simuladorso.Os.Os;
 import simuladorso.Os.Process;
 import simuladorso.Os.State;
-import simuladorso.Utils.Errors.IllegalClassCall;
-import simuladorso.Utils.Errors.IllegalMethodCall;
-import simuladorso.Utils.Errors.OutOfMemoryException;
 import simuladorso.VirtualMachine.Processor.Core;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 public class VirtualMachine implements Runnable {
     private final Core[] cores;
     private Process[] runningList;
     private boolean running;
+    private final Object pauseLock = new Object();
     private final Logger logger = Logger.getInstance();
-    private final MessageBroker invoker;
-    private Os os;
+    private Mediator mediator;
 
-    public VirtualMachine(int numCores) {
+    public VirtualMachine(int numCores, Mediator mediator) {
         Thread.setDefaultUncaughtExceptionHandler(VirtualMachine::handleException);
 
         this.cores = new Core[numCores];
@@ -38,8 +32,7 @@ public class VirtualMachine implements Runnable {
 
         running = true;
 
-        this.invoker = MessageBroker.getInstance();
-        this.os = new Os(numCores);
+        this.mediator = mediator;
     }
 
     public static void handleException(Thread t, Throwable e) {
@@ -48,35 +41,46 @@ public class VirtualMachine implements Runnable {
 
     @Override
     public void run() {
-        this.invoker.invoke(MessageType.KERNEL_NEW_PROCESS);
-        this.invoker.invoke(MessageType.KERNEL_NEW_PROCESS);
-        this.invoker.invoke(MessageType.KERNEL_NEW_PROCESS);
-        this.invoker.invoke(MessageType.KERNEL_NEW_PROCESS);
-        this.invoker.invoke(MessageType.KERNEL_NEW_PROCESS);
-
         this.start();
+        this.execute();
     }
 
     private void execute() {
-        while (running) {
-            runningList = (Process[]) invoker.invoke(MessageType.SCHEDULER_SCHEDULE);
+        while (true) {
+            synchronized (this.pauseLock) {
+                while (!this.running) {
+                    try {
+                        this.pauseLock.wait();
+                    } catch (InterruptedException e) {
+                        this.logger.error("Error while lock pauseLock");
+                        return;
+                    }
+                }
+            }
 
-            for (int i = 0; i < cores.length; i++) {
+            try {
+                this.runningList = (Process[]) this.mediator.invoke(MediatorAction.SCHEDULER_SCHEDULE);
+            } catch (Exception e) {
+                this.logger.error("Error while trying to schedule processes: " + e.getMessage());
+            }
+
+            for (int i = 0; i < this.cores.length; i++) {
                 if (runningList[i] != null) {
-                    LinkedList<Object> param = new LinkedList<>();
-                    param.add(cores[i]);
-                    param.add(runningList[i]);
+                    Object[] param = new Object[2];
+                    param[0] = this.cores[i];
+                    param[1] = this.runningList[i];
 
-                    invoker.invoke(MessageType.CORE_EXECUTE, param);
+                    mediator.invoke(MediatorAction.CORE_EXECUTE, param);
 
-                    if (runningList[i].hasInterruption()) {
-                        interruptionHandler(runningList[i]);
+                    if (this.runningList[i].hasInterruption()) {
+                        this.interruptionHandler(this.runningList[i]);
                     }
                 } else {
                     logger.info("Core " + i + " is null");
                 }
-
             }
+
+            this.mediator.invoke(MediatorAction.UPDATE_CORES_INFO);
 
             try {
                 Thread.sleep(1000);
@@ -88,19 +92,15 @@ public class VirtualMachine implements Runnable {
 
     public void start() {
         this.logger.info("VM: Starting vm");
-
-        if (Thread.currentThread().isInterrupted())
-            Thread.currentThread().start();
-
-        this.running = true;
-        this.execute();
+        synchronized (this.pauseLock) {
+            this.running = true;
+            this.pauseLock.notify();
+        }
     }
 
     public void stop() {
         this.logger.info("VM: Stoping vm");
         this.running = false;
-
-        Thread.currentThread().interrupt();
     }
 
     private void interruptionHandler(Process process) {
@@ -108,12 +108,6 @@ public class VirtualMachine implements Runnable {
         int pid = process.getPid();
 
         logger.info(pid + " -> interruption: " + interruption);
-
-        /*
-        System.out.println("------------------------------------");
-        System.out.println(pid + " -> interruption: " + interruption);
-        System.out.println("------------------------------------");
-        */
 
         switch (interruption) {
             case EXIT:
@@ -139,13 +133,5 @@ public class VirtualMachine implements Runnable {
 
     public int getNumCores() {
         return this.cores.length;
-    }
-
-    public Os getOs() {
-        return os;
-    }
-
-    public void setOs(Os os) {
-        this.os = os;
     }
 }

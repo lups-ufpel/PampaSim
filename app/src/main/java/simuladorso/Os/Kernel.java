@@ -2,8 +2,8 @@ package simuladorso.Os;
 
 import java.util.ArrayList;
 
-import simuladorso.MessageBroker.Message;
-import simuladorso.MessageBroker.MessageBroker;
+import simuladorso.Mediator.Mediator;
+import simuladorso.Mediator.MediatorAction;
 import simuladorso.Utils.Errors.IllegalClassCall;
 import simuladorso.Utils.Errors.IllegalMethodCall;
 import simuladorso.Utils.Errors.OutOfMemoryException;
@@ -23,9 +23,9 @@ public class Kernel {
 
     // this list shall not be modified by other classes
     private ArrayList<Process> procList;
-    private MessageBroker invoker;
+    private Mediator mediator;
 
-    public Kernel() {
+    public Kernel(Mediator mediator) {
         procList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
@@ -34,7 +34,7 @@ public class Kernel {
 
         memoryManager = new MemoryManager(MEMORY_SIZE);
 
-        this.invoker = MessageBroker.getInstance();
+        this.mediator = mediator;
     }
 
     public Process getProcess(int index) {
@@ -50,12 +50,16 @@ public class Kernel {
             throw new OutOfMemoryException("Not enough memory, process wasn't created");
         }
 
-        Process newProcess = new Process(procList.size());
+        Process newProcess = new Process(this.getAvailablePid());
         newProcess.setStackSize(INITIAL_STACK_SIZE);
         newProcess.setMemory(stack);
 
         procList.add(newProcess);
         newList.add(newProcess);
+    }
+
+    public int getAvailablePid() {
+        return this.procList.size();
     }
 
     /**

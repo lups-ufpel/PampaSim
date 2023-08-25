@@ -2,11 +2,7 @@ package simuladorso.Os;
 
 import java.util.ArrayList;
 
-import simuladorso.MessageBroker.Message;
-import simuladorso.MessageBroker.MessageBroker;
-import simuladorso.Utils.Errors.IllegalClassCall;
-import simuladorso.Utils.Errors.IllegalMethodCall;
-import simuladorso.Utils.Errors.OutOfMemoryException;
+import simuladorso.Mediator.Mediator;
 
 public class Scheduler {
     private ArrayList<Process> readyList;
@@ -18,9 +14,9 @@ public class Scheduler {
 
     private int quantum = 4;
 
-    private final MessageBroker invoker;
+    private final Mediator mediator;
 
-    public Scheduler(Kernel kernel, int numCores) {
+    public Scheduler(Kernel kernel, int numCores, Mediator mediator) {
         this.newList = kernel.getNewList();
         this.readyList = kernel.getReadyList();
         this.waitingList = kernel.getWaitingList();
@@ -29,7 +25,7 @@ public class Scheduler {
         runningList = new Process[numCores];
         clockCycles = new int[numCores];
 
-        this.invoker = MessageBroker.getInstance();
+        this.mediator = mediator;
     }
 
     /**
@@ -85,7 +81,7 @@ public class Scheduler {
                     readyToRunning(coreId);
                 }
 
-            }else{
+            } else {
                 if (readyList.isEmpty()) {
                     continue;
                 }

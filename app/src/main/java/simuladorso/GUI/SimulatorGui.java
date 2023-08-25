@@ -10,13 +10,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import simuladorso.GUI.controller.FXMLMainAppController;
 import simuladorso.Logger.Logger;
-import simuladorso.MessageBroker.Message;
+import simuladorso.Mediator.Mediator;
+import simuladorso.Mediator.Message;
 import simuladorso.VirtualMachine.VirtualMachine;
 
 import java.io.IOException;
 
 public class SimulatorGui extends Application {
-    //private static final Logger logger = new Logger();
+    private static Mediator mediator;
+
+    private FXMLMainAppController mainAppController;
 
     public void run(String[] args) {
         launch(args);
@@ -26,7 +29,6 @@ public class SimulatorGui extends Application {
     public void start(Stage primaryStage) {
         MenuItem exitMenu;
         Scene screen;
-        VirtualMachine vm;
 
         Thread.setDefaultUncaughtExceptionHandler(SimulatorGui::showError);
 
@@ -45,9 +47,9 @@ public class SimulatorGui extends Application {
         try {
             screen = new Scene(root);
 
-            FXMLMainAppController controller = fxmlLoader.getController();
-            controller.setMainStage(primaryStage);
-            //controller.setLogger(this.logger);
+            this.mainAppController = fxmlLoader.getController();
+            this.mainAppController.setMediator(SimulatorGui.mediator);
+            this.mainAppController.setMainStage(primaryStage);
 
             primaryStage.setTitle("Simulador SO");
             primaryStage.setScene(screen);
@@ -74,15 +76,11 @@ public class SimulatorGui extends Application {
         alert.showAndWait();
     }
 
-    //public Logger getLogger() {
-        //return logger;
-    //}
-
-    public void subscribeToLogger(Logger logger) {
-        //logger.subscribe(this);
+    public static void setMediator(Mediator mediator) {
+        SimulatorGui.mediator = mediator;
     }
 
-    public void receive(Message message) {
-
+    public FXMLMainAppController getMainAppController() {
+        return mainAppController;
     }
 }
