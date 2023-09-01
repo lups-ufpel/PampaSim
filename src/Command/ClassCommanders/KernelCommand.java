@@ -22,6 +22,8 @@ public class KernelCommand implements Command {
                 return kernel.getProcess((int) msg.getParam());
             case "getList":
                 return kernel.getProcessList();
+            case "getProcess":
+                return kernel.getProcess((int) msg.getParam());
             default:
                 throw new IllegalMethodCall("Kernel", msg);
         }

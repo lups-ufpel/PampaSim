@@ -22,6 +22,11 @@ public class Sbyte {
     }
 
     public void setValue(int newValue){
-        this.setValue(Integer.toString(newValue));
+        String binary = Integer.toBinaryString(newValue);
+        if (binary.length() <= size) {
+            value = binary;
+        } else {
+            throw new IllegalArgumentException("Value is too big");
+        }
     }
 }
