@@ -43,7 +43,7 @@ public class Core {
 
         // Get 4 bytes from memory and concatenate them to form the instruction
         for (int i = 0; i < 4; i++) {
-            instruction += memory.get(pc.getValue()).getValue();
+            instruction += memory.get(pc.getValue()).getStringValue();
             registers.incrementPC();
         }
 
@@ -86,6 +86,7 @@ public class Core {
         imm = Integer.parseInt(instruction.substring(16, 32), 2);
 
         int aux;
+        String Saux;
         switch (opcode) {
             case "ADDI":
                 System.out.println("ADDI: $rt = $rs + imm => " + rtv + " = " + rsv + " + " + imm);
@@ -143,20 +144,26 @@ public class Core {
                 rt.setValue(memory.get(rsv + imm).getValue()); // Implementar com unsigned
                 break;
             case "LH": // Implementar com signed
-                aux = Integer.parseInt(memory.get(rsv + imm).getValue() + memory.get(rsv + imm + 1).getValue(),
-                        2) << 16;
+                Saux = memory.get(rsv + imm).getStringValue();
+                Saux += memory.get(rsv + imm + 1).getStringValue();
+
+                aux = Integer.parseInt(Saux, 2) << 16;
                 rt.setValue(aux);
                 break;
             case "LHU": // Implementar com unsigned
-                aux = Integer.parseInt(memory.get(rsv + imm).getValue() + memory.get(rsv + imm + 1).getValue(),
-                        2) << 16;
+                Saux = memory.get(rsv + imm).getStringValue();
+                Saux += memory.get(rsv + imm + 1).getStringValue();
+                
+                aux = Integer.parseInt(Saux, 2) << 16;
                 rt.setValue(aux);
                 break;
             case "LW": // Implementar com signed
-                aux = Integer.parseInt(
-                        memory.get(rsv + imm).getValue() + memory.get(rsv + imm + 1).getValue()
-                                + memory.get(rsv + imm + 2).getValue() + memory.get(rsv + imm + 3).getValue(),
-                        2);
+                Saux = memory.get(rsv + imm).getStringValue();
+                Saux += memory.get(rsv + imm + 1).getStringValue();
+                Saux += memory.get(rsv + imm + 2).getStringValue();
+                Saux += memory.get(rsv + imm + 3).getStringValue();
+
+                aux = Integer.parseInt(Saux, 2);
                 rt.setValue(aux);
                 break;
             default:

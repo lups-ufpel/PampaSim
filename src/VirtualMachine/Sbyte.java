@@ -1,32 +1,25 @@
 package VirtualMachine;
 
 public class Sbyte {
-    private String value;
-    private int size;
+    private byte value;
 
-    public Sbyte(String value, int size) {
-        this.value = value;
-        this.size = size;
-    }
-
-    public String getValue() {
+    public byte getValue() {
         return value;
     }
 
+    public String getStringValue() {
+        return String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
+    }
+
     public void setValue(String newValue) {
-        if (newValue.length() <= size) {
-            value = newValue;
+        if (newValue.length() <= 8) {
+            value = (byte) Integer.parseInt(newValue, 2);
         } else {
             throw new IllegalArgumentException("Value is too big");
         }
     }
 
-    public void setValue(int newValue){
-        String binary = Integer.toBinaryString(newValue);
-        if (binary.length() <= size) {
-            value = binary;
-        } else {
-            throw new IllegalArgumentException("Value is too big");
-        }
+    public void setValue(byte value) {
+        this.value = value;
     }
 }

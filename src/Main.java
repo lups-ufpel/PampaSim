@@ -66,7 +66,7 @@ public class Main {
         insertInstruction(instruction);
 
         for (int a = 0; a <= i; a++) {
-            System.out.println(memory.get(a).getValue());
+            System.out.println(memory.get(a).getStringValue());
         }
 
         new VirtualMachine(1);

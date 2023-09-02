@@ -3,7 +3,6 @@ package VirtualMachine;
 import java.util.ArrayList;
 
 public class Memory {
-    private static final int BYTE_SIZE = 8;
     private int capacity;
     private ArrayList<Sbyte> memory;
 
@@ -23,7 +22,7 @@ public class Memory {
         // if the memory was not allocated yet at that position
         if (memory.size() < end){
             for (int i = memory.size(); i < end; i++) {
-                memory.add(new Sbyte("", BYTE_SIZE));
+                memory.add(new Sbyte());
             }
         }
 
@@ -56,7 +55,7 @@ public class Memory {
         }
 
         for (int i = start; i < end; i++) {
-            memory.set(i, new Sbyte("", BYTE_SIZE));
+            memory.set(i, new Sbyte());
         }
     }
 }
