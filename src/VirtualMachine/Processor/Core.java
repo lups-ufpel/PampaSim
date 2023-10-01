@@ -3,7 +3,7 @@ package VirtualMachine.Processor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import Kernel.Process;
+import Kernel.ProcessLuan;
 import VirtualMachine.Sbyte;
 
 public class Core {
@@ -26,7 +26,7 @@ public class Core {
     int shamt; // shift amount
     int imm; // immediate value
 
-    public void execute(Process process) {
+    public void execute(ProcessLuan process) {
         instruction = "";
         if (process == null) {
             System.out.println("No process to be executed");

@@ -6,18 +6,18 @@ import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 
 public class Scheduler {
-    private ArrayList<Process> readyList;
-    private ArrayList<Process> waitingList;
-    private ArrayList<Process> terminatedList;
-    private ArrayList<Process> newList;
-    private Process runningList[];
+    private ArrayList<ProcessLuan> readyList;
+    private ArrayList<ProcessLuan> waitingList;
+    private ArrayList<ProcessLuan> terminatedList;
+    private ArrayList<ProcessLuan> newList;
+    private ProcessLuan runningList[];
     private int clockCycles[];
 
     private int quantum = 4;
     // private int numberOfCores;
 
-    public Scheduler(ArrayList<Process> newList, ArrayList<Process> readyList, ArrayList<Process> waitingList,
-            ArrayList<Process> terminatedList, int numCores) {
+    public Scheduler(ArrayList<ProcessLuan> newList, ArrayList<ProcessLuan> readyList, ArrayList<ProcessLuan> waitingList,
+            ArrayList<ProcessLuan> terminatedList, int numCores) {
 
         this.newList = newList;
         this.readyList = readyList;
@@ -26,7 +26,7 @@ public class Scheduler {
 
         // this.numberOfCores = numberOfCores;
 
-        runningList = new Process[numCores];
+        runningList = new ProcessLuan[numCores];
         clockCycles = new int[numCores];
     }
 
@@ -45,7 +45,7 @@ public class Scheduler {
      * 
      * @return PCB[] runningList
      */
-    public Process[] schedule() {
+    public ProcessLuan[] schedule() {
 
         // verify if there are any NEW process that can be moved to the ready list
         for (int i = 0; i < newList.size(); i++) {
@@ -121,11 +121,11 @@ public class Scheduler {
 
     public void printLists() {
         System.out.println("Ready List:");
-        for (Process process : readyList) {
+        for (ProcessLuan process : readyList) {
             System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Waiting List:");
-        for (Process process : waitingList) {
+        for (ProcessLuan process : waitingList) {
             System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Running List:");

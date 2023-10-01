@@ -3,13 +3,13 @@ package VirtualMachine;
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import Kernel.InterruptionTable;
-import Kernel.Process;
+import Kernel.ProcessLuan;
 import Kernel.State;
 import VirtualMachine.Processor.Core;
 
 public class VirtualMachine {
     private Core cores[];
-    private Process[] runningList;
+    private ProcessLuan[] runningList;
 
     public VirtualMachine(int numCores) {
         this.cores = new Core[numCores];
@@ -27,7 +27,7 @@ public class VirtualMachine {
         while (true) {
 
             // runningCores = scheduler.schedule();
-            runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
+            runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
 
             for (int i = 0; i < cores.length; i++) {
                 // cores[i].execute(runningCores[i]);
@@ -55,7 +55,7 @@ public class VirtualMachine {
         }
     }
 
-    private void interruptionHandler(Process process) {
+    private void interruptionHandler(ProcessLuan process) {
         InterruptionTable interruption = (InterruptionTable) Invoker.invoke("Process",
                 new Message("getInterruption", null, process));
         int pid = (int) Invoker.invoke("Process", new Message("getPid", null, process));

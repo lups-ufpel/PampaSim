@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
-import Kernel.Process;
+import Kernel.ProcessLuan;
 import Kernel.State;
 import VirtualMachine.Sbyte;
 import VirtualMachine.Processor.Registers;
 
 public class ProcessCommand implements Command {
-    private Process process;
+    private ProcessLuan process;
 
     // static map that maps the param type to the method that should be called
     // private static Map<String, Object> methodMap = new HashMap<String, Object>()
@@ -54,7 +54,7 @@ public class ProcessCommand implements Command {
     // }
     // }
 
-    public ProcessCommand(Process process) {
+    public ProcessCommand(ProcessLuan process) {
         this.process = process;
     }
 

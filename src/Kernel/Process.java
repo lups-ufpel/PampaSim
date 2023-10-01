@@ -1,107 +1,84 @@
 package Kernel;
-import java.util.ArrayList;
 
-import VirtualMachine.Sbyte;
-import VirtualMachine.Processor.Registers;
+public interface Process extends Comparable<Process> {
 
-public class Process {
-    private int pid;
-    private int parentPid;
-    private int priority;
-    private int cpuPercentage;
-    private int arrivalTime;
-    private State state;
-    private Registers registers;
-    private int pc;
-    private int stackSize;
-    private ArrayList<Sbyte> mem;
-    private Interruption interruption;
+    // A enum State dentro da classe Process é uma prática interessante pois facilita a compreensao
+    // de que o estado é algo único do processo e não de outras classes.
+    // Para definir um estado, basta usar Process.State.<ESTADO> (ex: Process.State.NEW)
+    enum State {
+        /**
+         * The Process has been just instantiated but not assigned to CPU Core.
+         */
+        NEW,
 
-    // constructor will start with default values
-    public Process(int pid) {
-        this.pid = pid;
-        this.parentPid = 0;
-        this.priority = 0;
-        this.cpuPercentage = 0;
-        this.arrivalTime = 0;
-        this.state = State.NEW;
-        this.registers = new Registers();
-        this.stackSize = 0;
-        this.interruption = new Interruption();
+        /**
+         * The Process has been assigned to a Scheduler Queue to be later executed.
+         */
+        READY,
+        /**
+         * The Process is currently being executed by a CPU Core.
+         */
+        RUNNING,
+
+        /**
+         * The Process is currently waiting for an I/O operation to be completed.
+         */
+        WAITING,
+        
+        /**
+         * The Process has been terminated.
+         */
+        TERMINATED
     }
 
-    // getters and setters of all atributes
-    public int getPid() {
-        return pid;
-    }
-    public void setPid(int pid) {
-        this.pid = pid;
-    }
-    public int getParentPid() {
-        return parentPid;
-    }
-    public void setParentPid(int parentPid) {
-        this.parentPid = parentPid;
-    }
-    public int getPriority() {
-        return priority;
-    }
-    public void setPriority(int priority) {
-        if (priority >= 0 && priority <= 5) {
-            this.priority = priority;
+
+    int getPid();
+
+    int getPriority();
+
+    Process setPriority(int priority);
+
+    int getCpuPercentage();
+
+    int getArrivalTime();
+
+    State getState();
+
+    int compareTo(Process process);
+
+
+    public class Interruption {
+        private int type;
+        private int value;
+
+        public Interruption() {
+            this.type = 0;
+            this.value = 0;
         }
-    }
-    public int getCpuPercentage() {
-        return cpuPercentage;
-    }
-    public void setCpuPercentage(int cpuPercentage) {
-        if (cpuPercentage >= 0 && cpuPercentage <= 100) {
-            this.cpuPercentage = cpuPercentage;
+
+        public Interruption(int type, int value) {
+            this.type = type;
+            this.value = value;
         }
-    }
-    public int getArrivalTime() {
-        return arrivalTime;
-    }
-    public void setArrivalTime(int arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-    public State getState() {
-        return state;
-    }
-    public void setState(State state) {
-        this.state = state;
-    }
-    public Registers getRegisters() {
-        return registers;
-    }
-    public void setRegisters(Registers registers) {
-        this.registers = registers;
-    }
-    public int getPc() {
-        return pc;
-    }
-    public void setPc(int pc) {
-        this.pc = pc;
-    }
-    public void incrementPc() {
-        this.pc++;
-    }
-    public int getStackSize() {
-        return stackSize;
-    }
-    public void setStackSize(int stackSize) {
-        this.stackSize = stackSize;
-    }
-    public ArrayList<Sbyte> getMemory() {
-        return mem;
-    }
-    public void setMemory(ArrayList<Sbyte> mem) {
-        this.mem = mem;
-    }
-    public Interruption getInterruption() {
-        return interruption;
-    }
-    public boolean hasInterruption() {
-        return this.interruption.get() != InterruptionTable.NONE;
+
+        public int getType() {
+            return type;
+        }
+
+        public void setType(int type) {
+            if (type >= 0 && type <= 3) {
+                this.type = type;
+            }
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            if (value >= 0 && value <= 255) {
+                this.value = value;
+            }
+        }
     }
 }

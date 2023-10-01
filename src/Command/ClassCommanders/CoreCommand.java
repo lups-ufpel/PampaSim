@@ -3,7 +3,7 @@ package Command.ClassCommanders;
 import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
-import Kernel.Process;
+import Kernel.ProcessLuan;
 import VirtualMachine.Processor.Core;
 
 public class CoreCommand implements Command {
@@ -17,10 +17,10 @@ public class CoreCommand implements Command {
     public Object execute(Message msg) {
         switch (msg.getMethodName()) {
             case "execute":
-                if (msg.getParam() == null || !(msg.getParam() instanceof Process)) {
+                if (msg.getParam() == null || !(msg.getParam() instanceof ProcessLuan)) {
                     throw new IllegalMethodCall("Core", msg);
                 }
-                core.execute((Process) msg.getParam());
+                core.execute((ProcessLuan) msg.getParam());
                 return null;
             default:
                 throw new IllegalMethodCall("Core", msg);
