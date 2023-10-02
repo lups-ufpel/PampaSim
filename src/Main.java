@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
-import VirtualMachine.VirtualMachine;
+import VirtualMachine.VirtualMachineLuan;
 import Kernel.Process;
 
 /**
@@ -69,7 +69,7 @@ public class Main {
             System.out.println(memory.get(a).getStringValue());
         }
 
-        new VirtualMachine(1);
+        new VirtualMachineLuan(1);
 
         // SchedulerTest schedulerTest = new SchedulerTest();
         // schedulerTest.test();
