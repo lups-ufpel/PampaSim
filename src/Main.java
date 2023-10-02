@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
-import VirtualMachine.VirtualMachineLuan;
+import VirtualMachine.*;
 import Kernel.Process;
 
 /**
@@ -24,61 +24,54 @@ public class Main {
 
         Process process = (Process) Invoker.invoke("Kernel", new Message("getProcess", 0));
 
-        memory = process.getMemory(); // get the memory block of the process
+        // memory = process.getMemory(); // get the memory block of the process
 
-        // Insert a program
-        /**
-         * ADDI 0, 0, 15
-         * ADDI 1, 1, 20
-         * ADD 3, 0, 1
-         */
+        // // Insert a program
+        // /**
+        //  * ADDI 0, 0, 15
+        //  * ADDI 1, 1, 20
+        //  * ADD 3, 0, 1
+        //  */
 
-        String op = "001000"; // ADDI
-        String rs = "00000"; // 0
-        String rt = "00000"; // 0
-        String Imm = "0000000000001111"; // 15
+        // String op = "001000"; // ADDI
+        // String rs = "00000"; // 0
+        // String rt = "00000"; // 0
+        // String Imm = "0000000000001111"; // 15
 
-        String instruction = op + rs + rt + Imm;
-        System.out.println(instruction);
+        // String instruction = op + rs + rt + Imm;
+        // System.out.println(instruction);
 
-        insertInstruction(instruction);
+        // insertInstruction(instruction);
 
-        op = "001000"; // ADDI
-        rs = "00001"; // 1
-        rt = "00001"; // 1
-        Imm = "0000000000010100"; // 20
+        // op = "001000"; // ADDI
+        // rs = "00001"; // 1
+        // rt = "00001"; // 1
+        // Imm = "0000000000010100"; // 20
 
-        instruction = op + rs + rt + Imm;
-        System.out.println(instruction);
+        // instruction = op + rs + rt + Imm;
+        // System.out.println(instruction);
 
-        insertInstruction(instruction);
+        // insertInstruction(instruction);
 
-        op = "000000"; // R-Format
-        rs = "00000"; // 0
-        rt = "00001"; // 1
-        String rd = "00011"; // 3
-        String shamt = "00000"; // 0
-        String funct = "100000"; // ADD
+        // op = "000000"; // R-Format
+        // rs = "00000"; // 0
+        // rt = "00001"; // 1
+        // String rd = "00011"; // 3
+        // String shamt = "00000"; // 0
+        // String funct = "100000"; // ADD
 
-        instruction = op + rs + rt + rd + shamt + funct;
-        System.out.println(instruction);
+        // instruction = op + rs + rt + rd + shamt + funct;
+        // System.out.println(instruction);
 
-        insertInstruction(instruction);
+        // insertInstruction(instruction);
 
-        for (int a = 0; a <= i; a++) {
-            System.out.println(memory.get(a).getStringValue());
-        }
+        // for (int a = 0; a <= i; a++) {
+        //     System.out.println(memory.get(a).getStringValue());
+        // }
 
-        new VirtualMachineLuan(1);
-
+        VmAbstract simple = new VirtualMachineSimple(1);
+        simple.run();
         // SchedulerTest schedulerTest = new SchedulerTest();
         // schedulerTest.test();
-    }
-
-    public static void insertInstruction(String instruction) {
-        for (int a = 0; a < 4; i++, a++) {
-            System.out.println(i);
-            memory.get(i).setValue(instruction.substring(8 * a, 8 * a + 8));
-        }
     }
 }

@@ -14,7 +14,7 @@ public abstract class VmAbstract {
         System.out.println("Virtual Machine created with " + numCores + " cores");
     }
 
-    protected abstract void run();
+    public abstract void run();
     protected void interruptionHandler(Process process){
         throw new UnsupportedOperationException("Unimplemented method 'interruptionHandler'");
     }
