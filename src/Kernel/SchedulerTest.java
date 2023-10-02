@@ -7,7 +7,7 @@ public class SchedulerTest {
 
     public void test() {
 
-        ProcessLuan[] runningList;
+        Process[] runningList;
 
         for (int i = 0; i < 6; i++) {
             // processes.newProcess();
@@ -19,7 +19,7 @@ public class SchedulerTest {
             // scheduler.schedule();
             // scheduler.printLists();
 
-            runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
+            runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
             Invoker.invoke("Scheduler", new Message("printLists"));
 
         }
@@ -31,7 +31,7 @@ public class SchedulerTest {
 
         // runningList = scheduler.schedule();
         // scheduler.printLists();
-        runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
+        runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
         Invoker.invoke("Scheduler", new Message("printLists"));
 
         System.out.println("####################################");
@@ -40,7 +40,7 @@ public class SchedulerTest {
         // System.out.println("Process " + runningList[0].getPid() + " is now waiting");
         // scheduler.printLists();
 
-        Invoker.invoke("Process", new Message("setState", State.WAITING, runningList[0]));
+        Invoker.invoke("Process", new Message("setState", Process.State.WAITING, runningList[0]));
         System.out.println("Process " + runningList[0].getPid() + " is now waiting");
         Invoker.invoke("Scheduler", new Message("printLists"));
 
@@ -52,22 +52,22 @@ public class SchedulerTest {
             // scheduler.schedule();
             // scheduler.printLists();
 
-            runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
+            runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
             Invoker.invoke("Scheduler", new Message("printLists"));
         }
 
-        ProcessLuan pcb_aux;
+        Process pcb_aux;
         // processes.getPCB(2).setState(State.READY);
-        pcb_aux = (ProcessLuan) Invoker.invoke("Kernel", new Message("getPCB", 2));
-        Invoker.invoke("Process", new Message("setState", State.READY, pcb_aux));
+        pcb_aux = (Process) Invoker.invoke("Kernel", new Message("getPCB", 2));
+        Invoker.invoke("Process", new Message("setState", Process.State.READY, pcb_aux));
 
         // processes.getPCB(4).setState(State.READY);
-        pcb_aux = (ProcessLuan) Invoker.invoke("Kernel", new Message("getPCB", 4));
-        Invoker.invoke("Process", new Message("setState", State.READY, pcb_aux));
+        pcb_aux = (Process) Invoker.invoke("Kernel", new Message("getPCB", 4));
+        Invoker.invoke("Process", new Message("setState", Process.State.READY, pcb_aux));
 
         // processes.getPCB(1).setState(State.READY);
-        pcb_aux = (ProcessLuan) Invoker.invoke("Kernel", new Message("getPCB", 1));
-        Invoker.invoke("Process", new Message("setState", State.READY, pcb_aux));
+        pcb_aux = (Process) Invoker.invoke("Kernel", new Message("getPCB", 1));
+        Invoker.invoke("Process", new Message("setState", Process.State.READY, pcb_aux));
 
         System.out.println("\n\nProcessess 2, 4 and 1 are now ready\n\n");
 
@@ -77,25 +77,25 @@ public class SchedulerTest {
             // runningList = scheduler.schedule();
             // scheduler.printLists();
 
-            runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
+            runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
             Invoker.invoke("Scheduler", new Message("printLists"));
 
         }
 
         for (int i = 0; i < runningList.length; i++) {
-            Invoker.invoke("Process", new Message("setState", State.TERMINATED, runningList[i]));
+            Invoker.invoke("Process", new Message("setState", Process.State.TERMINATED, runningList[i]));
         }
 
         System.out.println("Every running process has been terminated\n\n");
         System.out.println("Process 5 is now ready\n\n");
 
         // processes.getPCB(5).setState(State.READY);
-        pcb_aux = (ProcessLuan) Invoker.invoke("Kernel", new Message("getPCB", 5));
-        Invoker.invoke("Process", new Message("setState", State.READY, pcb_aux));
+        pcb_aux = (Process) Invoker.invoke("Kernel", new Message("getPCB", 5));
+        Invoker.invoke("Process", new Message("setState", Process.State.READY, pcb_aux));
 
         for (int i = 0; i < 3; i++) {
             System.out.println("------------------------------------");
-            runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
+            runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
             Invoker.invoke("Scheduler", new Message("printLists"));
         }
     }

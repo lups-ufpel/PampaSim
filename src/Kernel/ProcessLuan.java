@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import VirtualMachine.Sbyte;
 import VirtualMachine.Processor.Registers;
 
-public class ProcessLuan {
-    private int pid;
+public class ProcessLuan extends ProcessAbstract{
+    
     private int parentPid;
-    private int priority;
     private int cpuPercentage;
-    private int arrivalTime;
-    private State state;
     private Registers registers;
     private int pc;
     private int stackSize;
@@ -19,21 +16,14 @@ public class ProcessLuan {
 
     // constructor will start with default values
     public ProcessLuan(int pid) {
-        this.pid = pid;
+        super(pid);
         this.parentPid = 0;
-        this.priority = 0;
         this.cpuPercentage = 0;
-        this.arrivalTime = 0;
-        this.state = State.NEW;
         this.registers = new Registers();
         this.stackSize = 0;
         this.interruption = new Interruption();
     }
 
-    // getters and setters of all atributes
-    public int getPid() {
-        return pid;
-    }
     public void setPid(int pid) {
         this.pid = pid;
     }
@@ -43,9 +33,7 @@ public class ProcessLuan {
     public void setParentPid(int parentPid) {
         this.parentPid = parentPid;
     }
-    public int getPriority() {
-        return priority;
-    }
+    
     public void setPriority(int priority) {
         if (priority >= 0 && priority <= 5) {
             this.priority = priority;
@@ -59,16 +47,12 @@ public class ProcessLuan {
             this.cpuPercentage = cpuPercentage;
         }
     }
-    public int getArrivalTime() {
-        return arrivalTime;
-    }
+
     public void setArrivalTime(int arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
-    public State getState() {
-        return state;
-    }
-    public void setState(State state) {
+
+    public void setState(Process.State state) {
         this.state = state;
     }
     public Registers getRegisters() {
@@ -101,7 +85,7 @@ public class ProcessLuan {
     public Interruption getInterruption() {
         return interruption;
     }
-    public boolean hasInterruption() {
+    public boolean hasInterrupt() {
         return this.interruption.get() != InterruptionTable.NONE;
     }
 }

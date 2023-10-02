@@ -6,18 +6,18 @@ import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 
 public class Scheduler {
-    private ArrayList<ProcessLuan> readyList;
-    private ArrayList<ProcessLuan> waitingList;
-    private ArrayList<ProcessLuan> terminatedList;
-    private ArrayList<ProcessLuan> newList;
-    private ProcessLuan runningList[];
+    private ArrayList<Process> readyList;
+    private ArrayList<Process> waitingList;
+    private ArrayList<Process> terminatedList;
+    private ArrayList<Process> newList;
+    private Process runningList[];
     private int clockCycles[];
 
     private int quantum = 4;
     // private int numberOfCores;
 
-    public Scheduler(ArrayList<ProcessLuan> newList, ArrayList<ProcessLuan> readyList, ArrayList<ProcessLuan> waitingList,
-            ArrayList<ProcessLuan> terminatedList, int numCores) {
+    public Scheduler(ArrayList<Process> newList, ArrayList<Process> readyList, ArrayList<Process> waitingList,
+            ArrayList<Process> terminatedList, int numCores) {
 
         this.newList = newList;
         this.readyList = readyList;
@@ -26,7 +26,7 @@ public class Scheduler {
 
         // this.numberOfCores = numberOfCores;
 
-        runningList = new ProcessLuan[numCores];
+        runningList = new Process[numCores];
         clockCycles = new int[numCores];
     }
 
@@ -45,13 +45,13 @@ public class Scheduler {
      * 
      * @return PCB[] runningList
      */
-    public ProcessLuan[] schedule() {
+    public Process[] schedule() {
 
         // verify if there are any NEW process that can be moved to the ready list
         for (int i = 0; i < newList.size(); i++) {
 
             // newList.get(i).setState(State.READY);
-            Invoker.invoke("Process", new Message("setState", State.READY, newList.get(i)));
+            Invoker.invoke("Process", new Message("setState", Process.State.READY, newList.get(i)));
 
             readyList.add(newList.remove(0));
             i--;
@@ -59,7 +59,7 @@ public class Scheduler {
 
         // verify if the waiting list has any process that can be moved to the ready
         for (int i = 0; i < waitingList.size(); i++) {
-            if (waitingList.get(i).getState() == State.READY) {
+            if (waitingList.get(i).getState() == Process.State.READY) {
                 readyList.add(waitingList.remove(i));
                 i--;
             }
@@ -70,13 +70,13 @@ public class Scheduler {
             // waiting or terminated list (usefull code to check if the VM has changed the
             // process state)
             if (runningList[coreID] != null) {
-                if (runningList[coreID].getState() == State.TERMINATED) {
+                if (runningList[coreID].getState() == Process.State.TERMINATED) {
                     terminatedList.add(runningList[coreID]);
                     runningList[coreID] = null;
-                } else if (runningList[coreID].getState() == State.WAITING) {
+                } else if (runningList[coreID].getState() == Process.State.WAITING) {
                     waitingList.add(runningList[coreID]);
                     runningList[coreID] = null;
-                } else if (runningList[coreID].getState() == State.READY) {
+                } else if (runningList[coreID].getState() == Process.State.READY) {
                     readyList.add(runningList[coreID]);
                     runningList[coreID] = null;
                 }
@@ -101,7 +101,7 @@ public class Scheduler {
         if (readyList.isEmpty()) {
 
             // if the running process is not terminated, it will continue to run
-            if (runningList[coreID].getState() == State.TERMINATED) {
+            if (runningList[coreID].getState() == Process.State.TERMINATED) {
                 terminatedList.add(runningList[coreID]);
                 runningList[coreID] = null;
             }
@@ -109,23 +109,23 @@ public class Scheduler {
         } else {
             if (runningList[coreID] != null) {
                 // runningList[coreID].setState(State.READY);
-                Invoker.invoke("Process", new Message("setState", State.READY, runningList[coreID]));
+                Invoker.invoke("Process", new Message("setState", Process.State.READY, runningList[coreID]));
                 readyList.add(runningList[coreID]);
             }
 
             runningList[coreID] = readyList.remove(0);
-            runningList[coreID].setState(State.RUNNING);
+            runningList[coreID].setState(Process.State.RUNNING);
         }
         clockCycles[coreID] = 0;
     }
 
     public void printLists() {
         System.out.println("Ready List:");
-        for (ProcessLuan process : readyList) {
+        for (Process process : readyList) {
             System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Waiting List:");
-        for (ProcessLuan process : waitingList) {
+        for (Process process : waitingList) {
             System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Running List:");

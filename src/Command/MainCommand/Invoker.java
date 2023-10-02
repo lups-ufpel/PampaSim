@@ -8,7 +8,7 @@ import Command.ClassCommanders.SchedulerCommand;
 import Command.Errors.IllegalClassCall;
 import Command.Errors.IllegalMethodCall;
 import Kernel.Kernel;
-import Kernel.ProcessLuan;
+import Kernel.Process;
 import Kernel.Scheduler;
 import VirtualMachine.Sbyte;
 import VirtualMachine.Processor.Core;
@@ -19,7 +19,7 @@ public class Invoker {
 
     private static KernelCommand kernelCommand;
     private static SchedulerCommand schedulerCommand;
-    private static ProcessLuan pcb;
+    private static Process pcb;
 
     private static Invoker instance;
 
@@ -47,8 +47,8 @@ public class Invoker {
             case "Kernel":
                 return kernelCommand.execute(message);
             case "Process":
-                if (message.getReceiver() instanceof ProcessLuan) {
-                    pcb = (ProcessLuan) message.getReceiver();
+                if (message.getReceiver() instanceof Process) {
+                    pcb = (Process) message.getReceiver();
                     ProcessCommand processCommand = new ProcessCommand(pcb);
                     return processCommand.execute(message);
                 }

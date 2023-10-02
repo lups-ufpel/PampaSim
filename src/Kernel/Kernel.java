@@ -5,34 +5,35 @@ import java.util.ArrayList;
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
+import Kernel.Process;
 
 public class Kernel {
 
     private static final int MEMORY_SIZE = 1024;
     private static final int INITIAL_STACK_SIZE = 64;
 
-    private ArrayList<ProcessLuan> readyList;
-    private ArrayList<ProcessLuan> waitingList;
-    private ArrayList<ProcessLuan> terminatedList;
-    private ArrayList<ProcessLuan> newList;
+    private ArrayList<Process> readyList;
+    private ArrayList<Process> waitingList;
+    private ArrayList<Process> terminatedList;
+    private ArrayList<Process> newList;
 
     private MemoryManager memoryManager;
 
     // this list shall not be modified by other classes
-    private ArrayList<ProcessLuan> procList;
+    private ArrayList<Process> procList;
 
     public Kernel() {
-        procList = new ArrayList<ProcessLuan>();
-        readyList = new ArrayList<ProcessLuan>();
-        waitingList = new ArrayList<ProcessLuan>();
-        terminatedList = new ArrayList<ProcessLuan>();
-        newList = new ArrayList<ProcessLuan>();
+        procList = new ArrayList<Process>();
+        readyList = new ArrayList<Process>();
+        waitingList = new ArrayList<Process>();
+        terminatedList = new ArrayList<Process>();
+        newList = new ArrayList<Process>();
 
         memoryManager = new MemoryManager(MEMORY_SIZE);
 
     }
 
-    public ProcessLuan getProcess(int index) {
+    public Process getProcess(int index) {
         return procList.get(index);
     }
 
@@ -46,7 +47,7 @@ public class Kernel {
             return;
         }
 
-        ProcessLuan newProcess = new ProcessLuan(procList.size());
+        Process newProcess = new ProcessLuan(procList.size());
 
         // newProcess.setStackSize(INITIAL_STACK_SIZE);
         Invoker.invoke("Process", new Message("setStackSize", INITIAL_STACK_SIZE, newProcess));
@@ -63,25 +64,25 @@ public class Kernel {
      * 
      * @return
      */
-    public ArrayList<ProcessLuan> getProcessList() {
-        ArrayList<ProcessLuan> clonedList = new ArrayList<ProcessLuan>();
+    public ArrayList<Process> getProcessList() {
+        ArrayList<Process> clonedList = new ArrayList<Process>();
         clonedList.addAll(procList);
         return clonedList;
     }
 
-    public ArrayList<ProcessLuan> getReadyList() {
+    public ArrayList<Process> getReadyList() {
         return readyList;
     }
 
-    public ArrayList<ProcessLuan> getWaitingList() {
+    public ArrayList<Process> getWaitingList() {
         return waitingList;
     }
 
-    public ArrayList<ProcessLuan> getNewList() {
+    public ArrayList<Process> getNewList() {
         return newList;
     }
 
-    public ArrayList<ProcessLuan> getTerminatedList() {
+    public ArrayList<Process> getTerminatedList() {
         return terminatedList;
     }
 

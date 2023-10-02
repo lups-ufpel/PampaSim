@@ -3,13 +3,12 @@ package VirtualMachine;
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import Kernel.InterruptionTable;
-import Kernel.ProcessLuan;
-import Kernel.State;
+import Kernel.Process;
 import VirtualMachine.Processor.Core;
 
 public class VirtualMachine {
     private Core cores[];
-    private ProcessLuan[] runningList;
+    private Process[] runningList;
 
     public VirtualMachine(int numCores) {
         this.cores = new Core[numCores];
@@ -27,14 +26,14 @@ public class VirtualMachine {
         while (true) {
 
             // runningCores = scheduler.schedule();
-            runningList = (ProcessLuan[]) Invoker.invoke("Scheduler", new Message("schedule"));
+            runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
 
             for (int i = 0; i < cores.length; i++) {
                 // cores[i].execute(runningCores[i]);
                 if (runningList[i] != null) {
                     System.out.print("Core " + i + ": ");
                     Invoker.invoke("Core", new Message("execute", runningList[i], cores[i]));
-                    if (runningList[i].hasInterruption()) {
+                    if (runningList[i].hasInterrupt()) {
                         interruptionHandler(runningList[i]);
                     }
                 } else {
@@ -55,7 +54,7 @@ public class VirtualMachine {
         }
     }
 
-    private void interruptionHandler(ProcessLuan process) {
+    private void interruptionHandler(Process process) {
         InterruptionTable interruption = (InterruptionTable) Invoker.invoke("Process",
                 new Message("getInterruption", null, process));
         int pid = (int) Invoker.invoke("Process", new Message("getPid", null, process));
@@ -66,7 +65,7 @@ public class VirtualMachine {
 
         switch (interruption) {
             case EXIT:
-                Invoker.invoke("Process", new Message("setState", State.TERMINATED, process));
+                Invoker.invoke("Process", new Message("setState", Process.State.TERMINATED, process));
                 break;
 
             default:

@@ -9,13 +9,12 @@ import java.util.ArrayList;
 import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
-import Kernel.ProcessLuan;
-import Kernel.State;
+import Kernel.Process;
 import VirtualMachine.Sbyte;
 import VirtualMachine.Processor.Registers;
 
 public class ProcessCommand implements Command {
-    private ProcessLuan process;
+    private Process process;
 
     // static map that maps the param type to the method that should be called
     // private static Map<String, Object> methodMap = new HashMap<String, Object>()
@@ -54,8 +53,8 @@ public class ProcessCommand implements Command {
     // }
     // }
 
-    public ProcessCommand(ProcessLuan process) {
-        this.process = process;
+    public ProcessCommand(Process pcb) {
+        this.process = pcb;
     }
 
     public Object execute(Message msg) {
@@ -90,7 +89,7 @@ public class ProcessCommand implements Command {
             case "getState":
                 return process.getState();
             case "setState":
-                process.setState((State) msg.getParam());
+                process.setState((Process.State) msg.getParam());
                 break;
             case "getRegisters":
                 return process.getRegisters();
@@ -110,7 +109,7 @@ public class ProcessCommand implements Command {
             case "getInterruption":
                 return process.getInterruption();
             case "hasInterruption":
-                return process.hasInterruption();
+                return process.hasInterrupt();
             default:
                 throw new IllegalMethodCall("Process", msg);
         }

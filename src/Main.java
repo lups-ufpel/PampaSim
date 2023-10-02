@@ -4,7 +4,7 @@ import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
 import VirtualMachine.VirtualMachine;
-import Kernel.ProcessLuan;
+import Kernel.Process;
 
 /**
  * Classe de teste para o escalonador
@@ -22,7 +22,7 @@ public class Main {
             System.out.println("Processo " + i + " criado");
         }
 
-        ProcessLuan process = (ProcessLuan) Invoker.invoke("Kernel", new Message("getProcess", 0));
+        Process process = (Process) Invoker.invoke("Kernel", new Message("getProcess", 0));
 
         memory = process.getMemory(); // get the memory block of the process
 

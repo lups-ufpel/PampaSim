@@ -1,5 +1,10 @@
 package Kernel;
 
+import java.util.ArrayList;
+
+import VirtualMachine.Sbyte;
+import VirtualMachine.Processor.Registers;
+
 public interface Process extends Comparable<Process> {
 
     // A enum State dentro da classe Process é uma prática interessante pois facilita a compreensao
@@ -34,51 +39,59 @@ public interface Process extends Comparable<Process> {
 
     int getPid();
 
+    void setPid(int pid);
+
+    int getParentPid();
+
+    void setParentPid(int parentPid);
+
     int getPriority();
 
-    Process setPriority(int priority);
-
-    int getCpuPercentage();
+    void setPriority(int priority);
 
     int getArrivalTime();
 
+    void setArrivalTime(int arrivalTime);
+
+    int getLength();
+
+    void setLength(int length);
+
+    int getCpuPercentage();
+
+    void setCpuPercentage(int cpuPercentage);
+
     State getState();
 
+    void setState(State state);
+
     int compareTo(Process process);
+    
+    Registers getRegisters();
 
+    void setRegisters(Registers registers);
 
-    public class Interruption {
-        private int type;
-        private int value;
+    int getPc();
 
-        public Interruption() {
-            this.type = 0;
-            this.value = 0;
-        }
+    void setPc(int pc);
 
-        public Interruption(int type, int value) {
-            this.type = type;
-            this.value = value;
-        }
+    int getStackSize();
 
-        public int getType() {
-            return type;
-        }
+    void setStackSize(int stackSize);
 
-        public void setType(int type) {
-            if (type >= 0 && type <= 3) {
-                this.type = type;
-            }
-        }
+    void incrementPc();
 
-        public int getValue() {
-            return value;
-        }
+    Interruption getInterruption();
 
-        public void setValue(int value) {
-            if (value >= 0 && value <= 255) {
-                this.value = value;
-            }
-        }
-    }
+    void setInterruption(Interruption interruption);
+
+    void setQuantum(int quantum);
+
+    int getQuantum();
+
+    ArrayList<Sbyte> getMemory();
+
+    void setMemory(ArrayList<Sbyte> mem);
+
+    boolean hasInterrupt();
 }
