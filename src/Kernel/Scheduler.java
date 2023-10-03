@@ -2,9 +2,6 @@ package Kernel;
 
 import java.util.ArrayList;
 
-import Command.MainCommand.Invoker;
-import Command.MainCommand.Message;
-
 public class Scheduler {
     private ArrayList<Process> readyList;
     private ArrayList<Process> waitingList;
@@ -45,13 +42,14 @@ public class Scheduler {
      * 
      * @return PCB[] runningList
      */
-    public Process[] schedule() {
+    public Process[] schedule() {   
 
         // verify if there are any NEW process that can be moved to the ready list
         for (int i = 0; i < newList.size(); i++) {
 
-            // newList.get(i).setState(State.READY);
-            Invoker.invoke("Process", new Message("setState", Process.State.READY, newList.get(i)));
+
+            newList.get(i).setState(Process.State.READY);
+            //Invoker.invoke("Process", new Message("setState", Process.State.READY, newList.get(i)));
 
             readyList.add(newList.remove(0));
             i--;
@@ -108,8 +106,8 @@ public class Scheduler {
 
         } else {
             if (runningList[coreID] != null) {
-                // runningList[coreID].setState(State.READY);
-                Invoker.invoke("Process", new Message("setState", Process.State.READY, runningList[coreID]));
+                runningList[coreID].setState(Process.State.READY);
+                //Invoker.invoke("Process", new Message("setState", Process.State.READY, runningList[coreID]));
                 readyList.add(runningList[coreID]);
             }
 

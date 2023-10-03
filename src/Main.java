@@ -1,11 +1,8 @@
 import java.util.ArrayList;
-
-import Command.MainCommand.Invoker;
-import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
 import VirtualMachine.*;
+import Kernel.*;
 import Kernel.Process;
-
 /**
  * Classe de teste para o escalonador
  */
@@ -17,61 +14,13 @@ public class Main {
 
     public static void main(String[] args) {
 
-        for (int i = 0; i < 3; i++) {
-            Invoker.invoke("Kernel", new Message("newProcess"));
-            System.out.println("Processo " + i + " criado");
-        }
-
-        Process process = (Process) Invoker.invoke("Kernel", new Message("getProcess", 0));
-
-        // memory = process.getMemory(); // get the memory block of the process
-
-        // // Insert a program
-        // /**
-        //  * ADDI 0, 0, 15
-        //  * ADDI 1, 1, 20
-        //  * ADD 3, 0, 1
-        //  */
-
-        // String op = "001000"; // ADDI
-        // String rs = "00000"; // 0
-        // String rt = "00000"; // 0
-        // String Imm = "0000000000001111"; // 15
-
-        // String instruction = op + rs + rt + Imm;
-        // System.out.println(instruction);
-
-        // insertInstruction(instruction);
-
-        // op = "001000"; // ADDI
-        // rs = "00001"; // 1
-        // rt = "00001"; // 1
-        // Imm = "0000000000010100"; // 20
-
-        // instruction = op + rs + rt + Imm;
-        // System.out.println(instruction);
-
-        // insertInstruction(instruction);
-
-        // op = "000000"; // R-Format
-        // rs = "00000"; // 0
-        // rt = "00001"; // 1
-        // String rd = "00011"; // 3
-        // String shamt = "00000"; // 0
-        // String funct = "100000"; // ADD
-
-        // instruction = op + rs + rt + rd + shamt + funct;
-        // System.out.println(instruction);
-
-        // insertInstruction(instruction);
-
-        // for (int a = 0; a <= i; a++) {
-        //     System.out.println(memory.get(a).getStringValue());
-        // }
-
+        Kernel kernel = new Kernel();
+        
+        kernel.newProcess(Process.Type.SIMPLE);
+        kernel.newProcess(Process.Type.SIMPLE);
+        kernel.newProcess(Process.Type.SIMPLE);
+        
         VmAbstract simple = new VirtualMachineSimple(1);
         simple.run();
-        // SchedulerTest schedulerTest = new SchedulerTest();
-        // schedulerTest.test();
     }
 }

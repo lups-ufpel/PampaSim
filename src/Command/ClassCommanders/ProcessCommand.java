@@ -53,8 +53,8 @@ public class ProcessCommand implements Command {
     // }
     // }
 
-    public ProcessCommand(Process pcb) {
-        this.process = pcb;
+    public ProcessCommand(Process process) {
+        this.process = process;
     }
 
     public Object execute(Message msg) {

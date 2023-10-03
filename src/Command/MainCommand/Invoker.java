@@ -29,7 +29,7 @@ public class Invoker {
         }
         kernel = new Kernel();
         scheduler = new Scheduler(kernel.getNewList(), kernel.getReadyList(), kernel.getWaitingList(),
-                kernel.getTerminatedList(), 1);
+                kernel.getTerminatedList(), 4);
 
         kernelCommand = new KernelCommand(kernel);
         schedulerCommand = new SchedulerCommand(scheduler);

@@ -5,7 +5,7 @@ import VirtualMachine.Processor.Registers;
 import java.util.ArrayList;
 
 import VirtualMachine.Sbyte;
-public abstract class ProcessAbstract implements Process{
+public abstract class ProcessAbstract implements Process {
     
     protected int pid;
     protected int priority;

@@ -3,8 +3,8 @@ package Command.ClassCommanders;
 import Command.Errors.IllegalMethodCall;
 import Command.MainCommand.Command;
 import Command.MainCommand.Message;
-import VirtualMachine.Processor.Core;
 import Kernel.Process;
+import VirtualMachine.Processor.Core;
 
 public class CoreCommand implements Command {
 

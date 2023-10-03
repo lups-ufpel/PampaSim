@@ -1,13 +1,11 @@
 package VirtualMachine;
-
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import Kernel.InterruptionTable;
 import Kernel.Process;
 import VirtualMachine.Processor.CoreLuan;
-
 public class VirtualMachineLuan extends VmAbstract<CoreLuan>{
-
+    
     public VirtualMachineLuan(int numCores) {
         super(createCores(numCores));
         run();
@@ -23,9 +21,11 @@ public class VirtualMachineLuan extends VmAbstract<CoreLuan>{
 
     @Override
     public void run() {
+
          while (true) {
 
             // runningCores = scheduler.schedule();
+
             runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
 
             for (int i = 0; i < cores.length; i++) {
@@ -41,9 +41,6 @@ public class VirtualMachineLuan extends VmAbstract<CoreLuan>{
                 }
 
             }
-            //teste de interrupção
-            //if (runningList[2] != null)
-            //runningList[2].setInterruption(InterruptionTable.KILL);
             System.out.println("====================================");
             try {
                  Thread.sleep(1000);
