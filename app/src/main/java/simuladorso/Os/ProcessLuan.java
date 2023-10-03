@@ -1,11 +1,11 @@
 package simuladorso.Os;
 
+import simuladorso.Vm.Processor.Registers;
+import simuladorso.Vm.Sbyte;
+
 import java.util.ArrayList;
 
-import VirtualMachine.Sbyte;
-import VirtualMachine.Processor.Registers;
-
-public class ProcessLuan extends ProcessAbstract {
+public class ProcessLuan extends Process {
     
     private int parentPid;
     private int cpuPercentage;

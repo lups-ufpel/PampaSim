@@ -1,26 +1,22 @@
 package simuladorso.Os;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import simuladorso.VirtualMachine.Sbyte;
+import simuladorso.Vm.Sbyte;
 
-public class Kernel {
+public class OS {
+    protected Scheduler scheduler;
+    protected List<Process> readyList;
+    protected List<Process> waitingList;
+    protected List<Process> terminatedList;
+    protected List<Process> newList;
+    protected List<Process> procList;
+    protected MemoryManager memoryManager;
+    protected static final int MEMORY_SIZE = 1024;
+    protected static final int INITIAL_STACK_SIZE = 64;
 
-    private static final int MEMORY_SIZE = 1024;
-    private static final int INITIAL_STACK_SIZE = 64;
-
-    private ArrayList<Process> readyList;
-    private ArrayList<Process> waitingList;
-    private ArrayList<Process> terminatedList;
-    private ArrayList<Process> newList;
-
-    private MemoryManager memoryManager;
-
-    // this list shall not be modified by other classes
-    private ArrayList<Process> procList;
-    private Scheduler scheduler;
-
-    public Kernel() {
+    public OS() {
         procList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
@@ -67,24 +63,22 @@ public class Kernel {
      * @return
      */
     public ArrayList<Process> getProcessList() {
-        ArrayList<Process> clonedList = new ArrayList<Process>();
-        clonedList.addAll(procList);
-        return clonedList;
+        return new ArrayList<Process>(procList);
     }
 
-    public ArrayList<Process> getReadyList() {
+    public List<Process> getReadyList() {
         return readyList;
     }
 
-    public ArrayList<Process> getWaitingList() {
+    public List<Process> getWaitingList() {
         return waitingList;
     }
 
-    public ArrayList<Process> getNewList() {
+    public List<Process> getNewList() {
         return newList;
     }
 
-    public ArrayList<Process> getTerminatedList() {
+    public List<Process> getTerminatedList() {
         return terminatedList;
     }
 }

@@ -2,8 +2,8 @@ package simuladorso.Os;
 
 import java.util.ArrayList;
 
-import simuladorso.VirtualMachine.Memory;
-import simuladorso.VirtualMachine.Sbyte;
+import simuladorso.Vm.Memory;
+import simuladorso.Vm.Sbyte;
 import simuladorso.Os.MemoryAllocationAlgorithms.MemoryAllocationFactory;
 import simuladorso.Os.MemoryAllocationAlgorithms.MemoryAllocator;
 

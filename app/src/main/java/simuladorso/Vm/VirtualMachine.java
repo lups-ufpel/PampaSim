@@ -1,12 +1,13 @@
-package VirtualMachine;
-import VirtualMachine.Processor.Core;
-import Kernel.Process;
-public abstract class VmAbstract <T extends Core> {
+package simuladorso.Vm;
+
+import simuladorso.Vm.Processor.Core;
+
+public abstract class VirtualMachine<T extends Core> {
     
     protected T[] cores;
     protected Process[] runningList;
 
-    public VmAbstract(T[] corelist){
+    public VirtualMachine(T[] corelist){
         this.cores = corelist;
         System.out.println("Virtual Machine created with " +  getNumCores() + " cores");
     }

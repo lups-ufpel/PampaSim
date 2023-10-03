@@ -2,12 +2,9 @@ package simuladorso.Mediator.Handlers.Core;
 
 import simuladorso.Logger.Logger;
 import simuladorso.Mediator.Message;
-import simuladorso.Mediator.MediatorComponent;
 import simuladorso.Utils.Command;
-import simuladorso.VirtualMachine.Processor.Core;
+import simuladorso.Vm.Processor.Core;
 import simuladorso.Os.Process;
-
-import java.util.LinkedList;
 
 public class Execute implements Command {
     @Override

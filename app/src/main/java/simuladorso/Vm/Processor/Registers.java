@@ -1,4 +1,4 @@
-package simuladorso.VirtualMachine.Processor;
+package simuladorso.Vm.Processor;
 
 public class Registers {
     private static final int REG_AMOUNT = 32;

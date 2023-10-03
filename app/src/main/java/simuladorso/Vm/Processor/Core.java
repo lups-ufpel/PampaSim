@@ -1,11 +1,10 @@
-package simuladorso.VirtualMachine.Processor;
+package simuladorso.Vm.Processor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import simuladorso.Os.Process;
-import simuladorso.Logger.Logger;
-import simuladorso.VirtualMachine.Sbyte;
+import simuladorso.Vm.Sbyte;
 
 public abstract class Core {
     ArrayList<Sbyte> memory;
@@ -17,8 +16,6 @@ public abstract class Core {
     Registers registers;
     String instruction;
     Register pc;
-
-<<<<<<< HEAD:src/VirtualMachine/Processor/Core.java
     String opcode; // operation code
     Register rs; // source register
     Register rd; // destination register
@@ -29,13 +26,6 @@ public abstract class Core {
     int imm; // immediate value
 
     public abstract void execute(Process process);
-=======
-    public void execute(Process process) {
-        if (process == null) {
-            Logger.getInstance().debug("No process to be executed");
-            return;
-        }
->>>>>>> TesteGui:app/src/main/java/simuladorso/VirtualMachine/Processor/Core.java
 
     public void decodeIFormat() {
         throw new UnsupportedOperationException("Not supported yet.");

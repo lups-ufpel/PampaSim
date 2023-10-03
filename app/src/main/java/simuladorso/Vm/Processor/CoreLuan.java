@@ -1,11 +1,8 @@
-package VirtualMachine.Processor;
-
-import static VirtualMachine.Processor.Core.Funct;
-import static VirtualMachine.Processor.Core.Opcodes;
+package simuladorso.Vm.Processor;
 
 import java.util.HashMap;
 
-import Kernel.Process;
+import simuladorso.Os.Process;
 
 public class CoreLuan extends Core {
     

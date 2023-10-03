@@ -1,4 +1,4 @@
-package simuladorso.VirtualMachine;
+package simuladorso.Vm;
 
 import java.util.ArrayList;
 

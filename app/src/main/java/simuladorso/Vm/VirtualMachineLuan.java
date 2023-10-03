@@ -1,10 +1,7 @@
-package VirtualMachine;
-import Command.MainCommand.Invoker;
-import Command.MainCommand.Message;
-import Kernel.InterruptionTable;
-import Kernel.Process;
-import VirtualMachine.Processor.CoreLuan;
-public class VirtualMachineLuan extends VmAbstract<CoreLuan>{
+package simuladorso.Vm;
+
+import simuladorso.Vm.Processor.CoreLuan;
+public class VirtualMachineLuan extends VirtualMachine<CoreLuan> {
     
     public VirtualMachineLuan(int numCores) {
         super(createCores(numCores));

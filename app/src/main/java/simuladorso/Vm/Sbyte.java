@@ -1,4 +1,4 @@
-package simuladorso.VirtualMachine;
+package simuladorso.Vm;
 
 public class Sbyte {
     private byte value;

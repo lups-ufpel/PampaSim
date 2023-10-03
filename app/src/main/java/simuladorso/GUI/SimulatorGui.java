@@ -11,8 +11,7 @@ import javafx.stage.Stage;
 import simuladorso.GUI.controller.FXMLMainAppController;
 import simuladorso.Logger.Logger;
 import simuladorso.Mediator.Mediator;
-import simuladorso.Mediator.Message;
-import simuladorso.VirtualMachine.VirtualMachine;
+import simuladorso.Vm.VirtualMachine;
 
 import java.io.IOException;
 

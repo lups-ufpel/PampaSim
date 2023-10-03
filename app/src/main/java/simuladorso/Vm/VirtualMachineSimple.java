@@ -1,12 +1,10 @@
-package VirtualMachine;
+package simuladorso.Vm;
+
+import simuladorso.Vm.Processor.CoreSimple;
 
 import java.util.ArrayList;
 
-import Command.MainCommand.Invoker;
-import Command.MainCommand.Message;
-import Kernel.Process;
-import VirtualMachine.Processor.CoreSimple;
-public class VirtualMachineSimple extends VmAbstract<CoreSimple>{
+public class VirtualMachineSimple extends VirtualMachine<CoreSimple> {
 
     public VirtualMachineSimple(int numCores) {
         super(createCores(numCores));
@@ -22,10 +20,10 @@ public class VirtualMachineSimple extends VmAbstract<CoreSimple>{
 
     @Override
     public void run() {
-        ArrayList<Kernel.Process> processList = new ArrayList<>();
+        ArrayList<Process> processList = new ArrayList<>();
         while(true){
             runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
-            processList = (ArrayList<Kernel.Process>) Invoker.invoke("Kernel", new Message("getList"));
+            processList = (ArrayList<Process>) Invoker.invoke("Kernel", new Message("getList"));
             for(int i=0; i < cores.length; i++){
                 if(runningList[i] != null){
                     System.out.println("Running process " + runningList[i].getPid() + " on core " + i);
@@ -37,7 +35,7 @@ public class VirtualMachineSimple extends VmAbstract<CoreSimple>{
                     System.out.println("Core " + i + " is idle");
                 }
             }
-            for(Kernel.Process process : processList){
+            for(Process process : processList){
                 // print state of each process
                 System.out.println("Process " + process.getPid() + " is " + process.getState());
             }

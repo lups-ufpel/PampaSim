@@ -1,4 +1,4 @@
-package simuladorso.VirtualMachine.Processor;
+package simuladorso.Vm.Processor;
 
 public class Register {
     private static final int REG_SIZE = 32;

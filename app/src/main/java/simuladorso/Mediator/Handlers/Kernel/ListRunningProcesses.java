@@ -5,9 +5,7 @@ import simuladorso.Mediator.MediatorComponent;
 import simuladorso.Os.Process;
 import simuladorso.Logger.Logger;
 import simuladorso.Utils.Command;
-import simuladorso.VirtualMachine.VirtualMachine;
-
-import java.util.LinkedList;
+import simuladorso.Vm.VirtualMachine;
 
 public class ListRunningProcesses implements Command {
     @Override

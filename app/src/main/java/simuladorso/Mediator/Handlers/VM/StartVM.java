@@ -3,7 +3,7 @@ package simuladorso.Mediator.Handlers.VM;
 import simuladorso.Mediator.Message;
 import simuladorso.Mediator.MediatorComponent;
 import simuladorso.Utils.Command;
-import simuladorso.VirtualMachine.VirtualMachine;
+import simuladorso.Vm.VirtualMachine;
 
 public class StartVM implements Command {
     @Override

@@ -2,8 +2,8 @@ package simuladorso.Os.MemoryAllocationAlgorithms;
 
 import java.util.ArrayList;
 
-import simuladorso.VirtualMachine.Memory;
-import simuladorso.VirtualMachine.Sbyte;
+import simuladorso.Vm.Memory;
+import simuladorso.Vm.Sbyte;
 
 public class FirstFitMemoryAllocator implements MemoryAllocator {
 	private static final int MAP_SIZE = 16;
