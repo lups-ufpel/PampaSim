@@ -17,7 +17,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 3; i++) {
             Invoker.invoke("Kernel", new Message("newProcess"));
             System.out.println("Processo " + i + " criado");
         }

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
-import Kernel.Process;
 
 public class Kernel {
 
@@ -47,7 +46,8 @@ public class Kernel {
             return;
         }
 
-        Process newProcess = new ProcessLuan(procList.size());
+        //Process newProcess = new ProcessLuan(procList.size());
+        Process newProcess = new ProcessSimple(procList.size(),100);
 
         // newProcess.setStackSize(INITIAL_STACK_SIZE);
         Invoker.invoke("Process", new Message("setStackSize", INITIAL_STACK_SIZE, newProcess));

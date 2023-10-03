@@ -1,24 +1,25 @@
 package VirtualMachine;
 import VirtualMachine.Processor.Core;
 import Kernel.Process;
-public abstract class VmAbstract {
+public abstract class VmAbstract <T extends Core> {
     
-    protected Core cores[];
+    protected T[] cores;
     protected Process[] runningList;
 
-    public VmAbstract(int numCores){
-        this.cores = new Core[numCores];
-        for (int i = 0; i < numCores; i++) {
-            this.cores[i] = new Core();
-        }
-        System.out.println("Virtual Machine created with " + numCores + " cores");
+    public VmAbstract(T[] corelist){
+        this.cores = corelist;
+        System.out.println("Virtual Machine created with " +  getNumCores() + " cores");
     }
-
     public abstract void run();
     protected void interruptionHandler(Process process){
         throw new UnsupportedOperationException("Unimplemented method 'interruptionHandler'");
     }
+    
     protected void interruptionHandler(){
         throw new UnsupportedOperationException("Unimplemented method 'interruptionHandler'");
+    }
+
+    public int getNumCores(){
+        return cores.length;
     }
 }

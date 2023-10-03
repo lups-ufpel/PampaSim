@@ -4,13 +4,23 @@ import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
 import Kernel.InterruptionTable;
 import Kernel.Process;
+import VirtualMachine.Processor.CoreLuan;
 
-public class VirtualMachineLuan extends VmAbstract{
+public class VirtualMachineLuan extends VmAbstract<CoreLuan>{
 
     public VirtualMachineLuan(int numCores) {
-        super(numCores);
+        super(createCores(numCores));
         run();
     }
+    private static CoreLuan[] createCores(int numCores){
+        CoreLuan[] cores = new CoreLuan[numCores];
+        for(int i=0; i < numCores; i++){
+            cores[i] = new CoreLuan();
+        }
+        return cores;
+    }
+    
+
     @Override
     public void run() {
          while (true) {
