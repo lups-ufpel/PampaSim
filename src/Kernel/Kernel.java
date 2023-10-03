@@ -1,11 +1,7 @@
 package Kernel;
 
 import java.util.ArrayList;
-
-import Command.MainCommand.Invoker;
-import Command.MainCommand.Message;
 import VirtualMachine.Sbyte;
-
 public class Kernel {
 
     private static final int MEMORY_SIZE = 1024;
@@ -36,29 +32,29 @@ public class Kernel {
         return procList.get(index);
     }
 
-    public void newProcess() {
+    public void newProcess(Process.Type type) {
 
-        // allocate memory for the process
-        ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
-
-        if (stack == null) {
-            System.out.println("Not enough memory, process not created");
-            return;
+        Process newProcess;
+        if (type == Process.Type.COMPLETE) {
+            
+            ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
+            if (stack == null) {
+                throw new IllegalArgumentException("Not enough memory, Process Not Created");
+            }
+            newProcess = new ProcessLuan(procList.size());
+            newProcess.setStackSize(INITIAL_STACK_SIZE);
+            newProcess.setMemory(stack);
+        } 
+        else if (type == Process.Type.SIMPLE) {
+            newProcess = new ProcessSimple(procList.size());
+        } 
+        else {
+            throw new IllegalArgumentException("Invalid process type");
         }
-
-        //Process newProcess = new ProcessLuan(procList.size());
-        Process newProcess = new ProcessSimple(procList.size(),100);
-
-        // newProcess.setStackSize(INITIAL_STACK_SIZE);
-        Invoker.invoke("Process", new Message("setStackSize", INITIAL_STACK_SIZE, newProcess));
-        
-        // newProcess.setMemory(stack);
-        Invoker.invoke("Process", new Message("setMemory", stack, newProcess));
-
         procList.add(newProcess);
         newList.add(newProcess);
     }
-
+    
     /**
      * This method will return a clone of the process list
      * 

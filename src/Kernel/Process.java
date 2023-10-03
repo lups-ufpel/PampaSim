@@ -36,7 +36,19 @@ public interface Process extends Comparable<Process> {
         TERMINATED
     }
 
+    enum Type{
 
+        /**
+         * The Process does not have memory and Register requirements
+         */
+        SIMPLE,
+
+        /**
+         * The Process has memory and Register requirements
+         */
+        COMPLETE
+    }
+    
     int getPid();
 
     void setPid(int pid);

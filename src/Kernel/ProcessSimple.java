@@ -2,8 +2,8 @@ package Kernel;
 
 public class ProcessSimple extends ProcessAbstract{
 
-    public ProcessSimple(int pid, int length) {
-        super(pid, length);
+    public ProcessSimple(int pid) {
+        super(pid);
     }
     public void setState(Process.State state){
         this.state = state;
@@ -11,5 +11,9 @@ public class ProcessSimple extends ProcessAbstract{
     @Override
     public boolean hasInterrupt() {
         return false;
+    }
+    @Override
+    public void setLength(int length){
+        this.length = 100;
     }
 }
