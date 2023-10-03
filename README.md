@@ -1,4 +1,17 @@
-## Rodando esta versão:
-No diretório SimuladorSO/src/ dê o seguinte comando:
+# Simulador SO
 
-javac *.java; java Main;
+How to run: `./gradlew run`
+
+<br>
+
+How to build (distribution): `./gradlew build`
+
+It will be at ./app/build/distributions
+
+<br>
+
+How to generate jar file: `./gradlew jar`
+
+Attention: jar isn't working yet.
+
+<br>
