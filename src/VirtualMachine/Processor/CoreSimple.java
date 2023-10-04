@@ -1,6 +1,6 @@
 package VirtualMachine.Processor;
 
-import Kernel.Process;
+import Os.Process;
 
 public class CoreSimple extends Core{
 

@@ -3,7 +3,7 @@ package VirtualMachine.Processor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import Kernel.Process;
+import Os.Process;
 import VirtualMachine.Sbyte;
 
 public abstract class Core {
