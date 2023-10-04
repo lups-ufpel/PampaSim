@@ -1,77 +1,44 @@
-import java.util.ArrayList;
-
-import Command.MainCommand.Invoker;
-import Command.MainCommand.Message;
-import VirtualMachine.Sbyte;
+import Mediator.Mediator;
+import Mediator.MediatorAction;
+import Mediator.MediatorComponent;
 import VirtualMachine.*;
-import Kernel.Process;
-
-/**
- * Classe de teste para o escalonador
- */
+import VirtualMachine.Processor.CoreSimple;
+import Os.Os;
+import Os.Scheduler;
+import Os.SchedulerLuan;
+import Os.Process;
 
 public class Main {
 
-    static int i = 0;
-    static ArrayList<Sbyte> memory;
-
     public static void main(String[] args) {
+        //CLI cli = new CLI();
 
-        for (int i = 0; i < 3; i++) {
-            Invoker.invoke("Kernel", new Message("newProcess"));
-            System.out.println("Processo " + i + " criado");
-        }
-
-        Process process = (Process) Invoker.invoke("Kernel", new Message("getProcess", 0));
-
-        // memory = process.getMemory(); // get the memory block of the process
-
-        // // Insert a program
-        // /**
-        //  * ADDI 0, 0, 15
-        //  * ADDI 1, 1, 20
-        //  * ADD 3, 0, 1
-        //  */
-
-        // String op = "001000"; // ADDI
-        // String rs = "00000"; // 0
-        // String rt = "00000"; // 0
-        // String Imm = "0000000000001111"; // 15
-
-        // String instruction = op + rs + rt + Imm;
-        // System.out.println(instruction);
-
-        // insertInstruction(instruction);
-
-        // op = "001000"; // ADDI
-        // rs = "00001"; // 1
-        // rt = "00001"; // 1
-        // Imm = "0000000000010100"; // 20
-
-        // instruction = op + rs + rt + Imm;
-        // System.out.println(instruction);
-
-        // insertInstruction(instruction);
-
-        // op = "000000"; // R-Format
-        // rs = "00000"; // 0
-        // rt = "00001"; // 1
-        // String rd = "00011"; // 3
-        // String shamt = "00000"; // 0
-        // String funct = "100000"; // ADD
-
-        // instruction = op + rs + rt + rd + shamt + funct;
-        // System.out.println(instruction);
-
-        // insertInstruction(instruction);
-
-        // for (int a = 0; a <= i; a++) {
-        //     System.out.println(memory.get(a).getStringValue());
-        // }
-
-        VmAbstract simple = new VirtualMachineSimple(1);
-        simple.run();
-        // SchedulerTest schedulerTest = new SchedulerTest();
-        // schedulerTest.test();
+        final int numCores = 2;
+        final Process.Type proc_type = Process.Type.SIMPLE;
+        // Criando os componentes básicos para o cenário de simulação
+        Mediator mediator = new Mediator();
+        Vm <CoreSimple> vm = new VmSimple(numCores,mediator);
+        Os kernel = new Os();
+        Scheduler scheduler = new SchedulerLuan(kernel.getNewList(), 
+                                                kernel.getReadyList(), 
+                                                kernel.getWaitingList(), 
+                                                kernel.getTerminatedList(),
+                                                numCores, mediator);
+        //Mediator.setMediator(mediator);
+        //SimulatorGui gui = new SimulatorGui();
+        //mediator.registerComponent(MediatorComponent.GUI, gui);
+       
+        mediator.registerComponent(MediatorComponent.VM, vm);
+        mediator.registerComponent(MediatorComponent.OS, kernel);
+        mediator.registerComponent(MediatorComponent.SCHEDULER, scheduler);
+        
+        
+        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        
+        // Executa a simulação
+        vm.run();
     }
 }
