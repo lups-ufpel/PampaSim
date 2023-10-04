@@ -6,7 +6,6 @@ public class Registers {
     private Register registers[];
 
     private Register PC;
-    private Register RA;
     private Register HI;
     private Register LO;
 
@@ -16,7 +15,6 @@ public class Registers {
             registers[i] = new Register();
         }
         PC = new Register();
-        RA = new Register();
         HI = new Register();
         LO = new Register();
     }
@@ -30,18 +28,34 @@ public class Registers {
     }
 
     public Register getReg(String reg) {
-        if (reg.equals("PC")) {
-            return PC;
-        } else if (reg.equals("RA")) {
-            return RA;
-        } else if (reg.equals("HI")) {
-            return HI;
-        } else if (reg.equals("LO")) {
-            return LO;
+        switch (reg) {
+            case "PC":
+                return PC;
+            case "RA":
+                return registers[31];
+            case "HI":
+                return HI;
+            case "LO":
+                return LO;
+            case "at":
+                return registers[1];
+            case "V0":
+                return registers[2];
+            case "V1":
+                return registers[3];
+            case "A0":
+                return registers[4];
+            case "A1":
+                return registers[5];
+            case "A2":
+                return registers[6];
+            case "A3":
+                return registers[7];
+            default:
+                // Converts from String to binary
+                int regIndex = Integer.parseInt(reg.substring(1), 2);
+                return registers[regIndex];
         }
-        // Converts from String to binary
-        int regIndex = Integer.parseInt(reg.substring(1), 2);
-        return registers[regIndex];
     }
 
     public void incrementPC() {

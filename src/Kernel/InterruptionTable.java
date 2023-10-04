@@ -2,9 +2,16 @@ package Kernel;
 
 public enum InterruptionTable {
     NONE,
-    EXIT,
-    KILL,
-    FORK,
+    PRINT_INT,
+    PRINT_STR,
+    READ_INT,
+    READ_STR,
     ALLOC_MEM,
-    LOAD_FILE,
+    EXIT,
+    PRINT_CHAR,
+    READ_CHAR,
+    OPEN_FILE,
+    READ_FILE,
+    WRITE_FILE,
+    CLOSE_FILE,
 }

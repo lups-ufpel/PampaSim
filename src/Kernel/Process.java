@@ -101,6 +101,7 @@ public class Process {
     public Interruption getInterruption() {
         return interruption;
     }
+    
     public boolean hasInterruption() {
         return this.interruption.get() != InterruptionTable.NONE;
     }

@@ -17,10 +17,10 @@ public class SbyteCommand implements Command {
 
         switch (msg.getMethodName()) {
             case "getValue":
-                return sbyte.getValue();
+                return sbyte.getByte();
             case "setValue":
                 if (msg.getParam() instanceof String || msg.getParam() instanceof Integer) {
-                    sbyte.setValue((String) msg.getParam());
+                    sbyte.setByte((String) msg.getParam());
                 } else {
                     throw new IllegalMethodCall("Sbyte", msg);
                 }

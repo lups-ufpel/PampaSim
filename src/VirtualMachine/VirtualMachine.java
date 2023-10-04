@@ -2,6 +2,7 @@ package VirtualMachine;
 
 import Command.MainCommand.Invoker;
 import Command.MainCommand.Message;
+import Kernel.Interruption;
 import Kernel.InterruptionTable;
 import Kernel.Process;
 import Kernel.State;
@@ -38,7 +39,7 @@ public class VirtualMachine {
                         interruptionHandler(runningList[i]);
                     }
                 } else {
-                    System.out.println("Core " + i + " is null");
+                    System.out.println("Core " + i + " has nothing to execute");
                 }
 
             }
@@ -56,12 +57,15 @@ public class VirtualMachine {
     }
 
     private void interruptionHandler(Process process) {
-        InterruptionTable interruption = (InterruptionTable) Invoker.invoke("Process",
+        Interruption interrupt = (Interruption) Invoker.invoke("Process",
                 new Message("getInterruption", null, process));
+
+        InterruptionTable interruption = interrupt.get();
+
         int pid = (int) Invoker.invoke("Process", new Message("getPid", null, process));
-        
+
         System.out.println("------------------------------------");
-        System.out.println(pid + " -> interruption: " + interruption);
+        System.out.println("Process " + pid + " -> interruption: " + interruption);
         System.out.println("------------------------------------");
 
         switch (interruption) {
