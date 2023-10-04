@@ -7,6 +7,7 @@ public enum InterruptionTable {
     READ_INT,
     READ_STR,
     ALLOC_MEM,
+    FREE_MEM,
     EXIT,
     PRINT_CHAR,
     READ_CHAR,
