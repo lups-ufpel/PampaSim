@@ -1,4 +1,5 @@
 import Mediator.Mediator;
+import Mediator.MediatorDefault;
 import VirtualMachine.*;
 import VirtualMachine.Processor.CoreSimple;
 import Os.Os;
@@ -14,7 +15,7 @@ public class Main {
         final int numCores = 2;
         final Process.Type proc_type = Process.Type.SIMPLE;
         // Criando os componentes básicos para o cenário de simulação
-        Mediator mediator = new Mediator();
+        Mediator mediator = new MediatorDefault();
         Vm <CoreSimple> vm = new VmSimple(numCores,mediator);
         Os kernel = new Os();
         Scheduler scheduler = new SchedulerLuan(kernel.getNewList(), 
