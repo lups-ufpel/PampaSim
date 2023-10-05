@@ -1,7 +1,7 @@
 package Mediator.Handlers.Kernel;
 
 import Mediator.Message;
-import Mediator.MediatorComponent;
+import Mediator.Mediator;
 import Os.Process;
 import Logger.Logger;
 import Utils.Command;
@@ -10,7 +10,7 @@ import VirtualMachine.Vm;
 public class ListRunningProcesses implements Command {
     @Override
     public Object execute(Message message) {
-        Vm vm = (Vm) message.getComponents().get(MediatorComponent.VM);
+        Vm vm = (Vm) message.getComponents().get(Mediator.Component.VM);
 
         Process[] running;
         Integer[] pids;

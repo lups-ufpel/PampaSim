@@ -3,15 +3,13 @@ package VirtualMachine;
 import java.util.ArrayList;
 import VirtualMachine.Processor.CoreSimple;
 import Mediator.Mediator;
-import Mediator.MediatorAction;
 public class VmSimple extends Vm<CoreSimple>{
-
     public VmSimple(int numCores, Mediator mediator) {
         super(createCores(numCores));
-        this.Mediator = mediator;
+        this.mediator = mediator;
     }
 
-    private static CoreSimple[] createCores(int numCores){
+    private static CoreSimple[] createCores(int numCores) {
         CoreSimple[] cores = new CoreSimple[numCores];
         for(int i=0; i < numCores; i++){
             cores[i] = new CoreSimple();
@@ -23,7 +21,7 @@ public class VmSimple extends Vm<CoreSimple>{
     public void run() {
         ArrayList<Os.Process> processList = new ArrayList<>();
         while(true){
-            runningList = (Os.Process[]) Mediator.invoke(MediatorAction.SCHEDULER_SCHEDULE);
+            runningList = (Os.Process[]) mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
             //runningList = (Process[]) Invoker.invoke("Scheduler", new Message("schedule"));
             //processList = (ArrayList<Os.Process>) Invoker.invoke("Kernel", new Message("getList"));
             //processList = (ArrayList<Os.Process>) Mediator.invoke(MediatorAction.KERNEL_GET_LIST);
@@ -31,7 +29,7 @@ public class VmSimple extends Vm<CoreSimple>{
                 if(runningList[i] != null){
                     System.out.println("Running process " + runningList[i].getPid() + " on core " + i);
                     //Invoker.invoke("Core", new Message("execute", runningList[i],cores[i]));
-                    Mediator.invoke(MediatorAction.CORE_EXECUTE, new Object[]{runningList[i], cores[i]});
+                    mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{runningList[i], cores[i]});
                     if (runningList[i].hasInterrupt()) {
                         interruptionHandler(runningList[i]);
                     }

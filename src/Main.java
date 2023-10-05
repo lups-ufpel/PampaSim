@@ -1,6 +1,4 @@
 import Mediator.Mediator;
-import Mediator.MediatorAction;
-import Mediator.MediatorComponent;
 import VirtualMachine.*;
 import VirtualMachine.Processor.CoreSimple;
 import Os.Os;
@@ -28,15 +26,15 @@ public class Main {
         //SimulatorGui gui = new SimulatorGui();
         //mediator.registerComponent(MediatorComponent.GUI, gui);
        
-        mediator.registerComponent(MediatorComponent.VM, vm);
-        mediator.registerComponent(MediatorComponent.OS, kernel);
-        mediator.registerComponent(MediatorComponent.SCHEDULER, scheduler);
+        mediator.registerComponent(Mediator.Component.VM, vm);
+        mediator.registerComponent(Mediator.Component.OS, kernel);
+        mediator.registerComponent(Mediator.Component.SCHEDULER, scheduler);
         
         
-        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
-        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
-        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
-        mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type});
         
         // Executa a simulação
         vm.run();

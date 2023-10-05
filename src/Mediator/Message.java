@@ -3,23 +3,23 @@ package Mediator;
 import java.util.HashMap;
 
 public class Message {
-    private MediatorAction action;
+    private Mediator.Action action;
     private Object[] parameters;
-    private HashMap<MediatorComponent, Object> components;
+    private HashMap<Mediator.Component, Object> components;
 
-    public Message(MediatorAction action, Object[] parameters, HashMap<MediatorComponent, Object> components) {
+    public Message(Mediator.Action action, Object[] parameters, HashMap<Mediator.Component, Object> components) {
         this.action = action;
         this.parameters = parameters;
         this.components = components;
     }
 
-    public Message(MediatorAction action, Object[] parameters) {
+    public Message(Mediator.Action action, Object[] parameters) {
         this.action = action;
         this.parameters = parameters;
         this.components = null;
     }
 
-    public MediatorAction getAction() {
+    public Mediator.Action getAction() {
         return action;
     }
 
@@ -27,11 +27,11 @@ public class Message {
         return parameters;
     }
 
-    public HashMap<MediatorComponent, Object> getComponents() {
+    public HashMap<Mediator.Component, Object> getComponents() {
         return components;
     }
 
-    public void setComponents(HashMap<MediatorComponent, Object> components) {
+    public void setComponents(HashMap<Mediator.Component, Object> components) {
         this.components = components;
     }
 

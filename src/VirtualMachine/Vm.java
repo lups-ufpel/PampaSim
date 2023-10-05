@@ -6,7 +6,7 @@ public abstract class Vm <T extends Core> {
     
     protected T[] cores;
     protected Process[] runningList;
-    protected Mediator Mediator;
+    protected Mediator mediator;
 
     public Vm(T[] corelist){
         this.cores = corelist;
