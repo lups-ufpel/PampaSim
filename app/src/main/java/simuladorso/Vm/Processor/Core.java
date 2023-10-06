@@ -3,8 +3,9 @@ package simuladorso.Vm.Processor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import simuladorso.Os.Process;
-import simuladorso.Vm.Sbyte;
+import Os.Interruption;
+import Os.Process;
+import VirtualMachine.Sbyte;
 
 public abstract class Core {
     ArrayList<Sbyte> memory;
@@ -16,6 +17,8 @@ public abstract class Core {
     Registers registers;
     String instruction;
     Register pc;
+    Interruption interruption;
+
     String opcode; // operation code
     Register rs; // source register
     Register rd; // destination register
@@ -24,14 +27,13 @@ public abstract class Core {
     int rtv; // target register value
     int shamt; // shift amount
     int imm; // immediate value
-
     public abstract void execute(Process process);
 
-    public void decodeIFormat() {
+    protected void decodeIFormat() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void decodeRFormat() {
+    protected void decodeRFormat() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
