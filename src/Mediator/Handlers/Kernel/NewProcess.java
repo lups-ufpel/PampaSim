@@ -17,9 +17,17 @@ public class NewProcess implements Command {
     public Object execute(Message message) {
         Os os = (Os) message.getComponents().get(Mediator.Component.OS);
         Process.Type pt = (Process.Type) message.getParameters()[0];
-
-        os.newProcess(pt);
-
+        switch(pt) {
+            case SIMPLE:
+                int size = (int) message.getParameters()[1];
+                os.newProcess(size);
+                break;
+            case COMPLETE:
+                os.newProcess();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid process type");
+        }
         return null;
     }
 }

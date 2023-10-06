@@ -29,25 +29,21 @@ public class Os {
         return procList.get(index);
     }
 
-    public void newProcess(Process.Type type) {
+    public void newProcess() {
 
         Process newProcess;
-        if (type == Process.Type.COMPLETE) {
-            
-            ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
-            if (stack == null) {
-                throw new IllegalArgumentException("Not enough memory, Process Not Created");
-            }
-            newProcess = new ProcessLuan(procList.size());
-            newProcess.setStackSize(INITIAL_STACK_SIZE);
-            newProcess.setMemory(stack);
-        } 
-        else if (type == Process.Type.SIMPLE) {
-            newProcess = new ProcessSimple(procList.size());
-        } 
-        else {
-            throw new IllegalArgumentException("Invalid process type");
+        ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
+        if (stack == null) {
+            throw new IllegalArgumentException("Not enough memory, Process Not Created");
         }
+        newProcess = new ProcessLuan(procList.size());
+        newProcess.setStackSize(INITIAL_STACK_SIZE);
+        newProcess.setMemory(stack);
+        procList.add(newProcess);
+        newList.add(newProcess);
+    }
+    public void newProcess(int length){
+        Process newProcess = new ProcessSimple(procList.size(), length);
         procList.add(newProcess);
         newList.add(newProcess);
     }

@@ -8,7 +8,9 @@ import VirtualMachine.Vm;
 public class GetNumCores implements Command {
     @Override
     public Object execute(Message message) {
-        Vm vm = (Vm) message.getComponents().get(Mediator.Component.VM);
+
+        //The unbounded wildcard ? is useful in cases where it doesn't matter what the generic type is.
+        Vm<?> vm = (Vm<?>) message.getComponents().get(Mediator.Component.VM);
         return vm.getNumCores();
     }
 }

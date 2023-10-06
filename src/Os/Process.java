@@ -18,7 +18,6 @@ public abstract class Process {
         this.pid = pid;
         this.priority = 0;
         this.arrivalTime = 0;
-        this.length = 0;
         this.state = Process.State.NEW;
     }
     // Setting length
