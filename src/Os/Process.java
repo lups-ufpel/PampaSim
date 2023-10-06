@@ -5,6 +5,13 @@ import VirtualMachine.Sbyte;
 
 import java.util.ArrayList;
 
+/**
+ * This abstract class represents a process in an operating system.
+ * It contains the process ID, priority, arrival time, length, and state.
+ * It also includes methods to get and set these attributes, as well as methods for CPU percentage, parent process ID, program counter, stack size, interruption, quantum, registers, and memory.
+ * The class implements the Comparable interface to allow for comparison of processes based on priority, arrival time, and process ID.
+ * The State enum represents the different states a process can be in, and the Type enum represents the different types of processes.
+ */
 public abstract class Process {
     
     protected int pid;
@@ -13,7 +20,8 @@ public abstract class Process {
     protected int length;
     protected Process.State state;
 
-    // Simple as it is
+
+    //doc 
     public Process(int pid) {
         this.pid = pid;
         this.priority = 0;
@@ -26,46 +34,101 @@ public abstract class Process {
         this.length = length;
     }
 
+    /**
+     * Returns the process ID (PID) of this process.
+     *
+     * @return the PID of this process
+     */
     public int getPid() {
         return pid;
     }
     
+    /**
+     * Sets the process ID (PID) of this process.
+     *
+     * @param pid the PID to set
+     */
     public void setPid(int pid){
         this.pid = pid;
     }
 
+    /**
+     * Returns the priority of this process.
+     *
+     * @return the priority of this process
+     */
     public int getPriority(){
         return priority;
     }
 
+    /**
+     * Sets the priority of this process.
+     *
+     * @param priority the priority to set
+     */
     public void setPriority(int priority){
         this.priority = priority;
     }
 
+    /**
+     * Returns the arrival time of this process.
+     *
+     * @return the arrival time of this process
+     */
     public int getArrivalTime(){
         return arrivalTime;
     }
 
+    /**
+     * Sets the arrival time of this process.
+     *
+     * @param arrivalTime the arrival time to set
+     */
     public void setArrivalTime(int arrivalTime){
         this.arrivalTime = arrivalTime;
     }
 
+    /**
+     * Returns the state of this process.
+     *
+     * @return the state of this process
+     */
     public State getState(){
         return state;
     }
 
+    /**
+     * Sets the state of this process.
+     *
+     * @param state the state to set
+     */
     public void setState(State state){
         this.state = state;
     }
 
+    /**
+     * Returns the length of this process.
+     *
+     * @return the length of this process
+     */
     public int getLength(){
         return length;
     }
 
+    /**
+     * Sets the length of this process.
+     *
+     * @param length the length to set
+     */
     public void setLength(int length){
         this.length = length;
     }
 
+    /**
+     * Returns the CPU percentage of this process.
+     *
+     * @return the CPU percentage of this process
+     */
     public int getCpuPercentage(){
         return 0;
     }
