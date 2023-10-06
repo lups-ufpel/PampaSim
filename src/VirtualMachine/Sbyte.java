@@ -3,15 +3,15 @@ package VirtualMachine;
 public class Sbyte {
     private byte value;
 
-    public byte getValue() {
+    public byte getByte() {
         return value;
     }
 
-    public String getStringValue() {
+    public String getStringByte() {
         return String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
     }
 
-    public void setValue(String newValue) {
+    public void setByte(String newValue) {
         if (newValue.length() <= 8) {
             value = (byte) Integer.parseInt(newValue, 2);
         } else {
@@ -19,7 +19,7 @@ public class Sbyte {
         }
     }
 
-    public void setValue(byte value) {
+    public void setByte(byte value) {
         this.value = value;
     }
 }

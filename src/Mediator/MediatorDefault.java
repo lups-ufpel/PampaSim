@@ -6,6 +6,7 @@ import Mediator.Handlers.Core.ListCores;
 //import Mediator.Handlers.Gui.UpdateCoresInfo;
 import Mediator.Handlers.Kernel.*;
 import Mediator.Handlers.Process.GetAvailablePid;
+import Mediator.Handlers.Process.GetPid;
 import Mediator.Handlers.Scheduler.Schedule;
 import Mediator.Handlers.VM.StartVM;
 import Mediator.Handlers.VM.StopVM;
@@ -33,6 +34,7 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.LIST_CORES, new ListCores());
         handlers.put(Action.GET_NUM_CORES, new GetNumCores());
         handlers.put(Action.GET_AVAILABLE_PID, new GetAvailablePid());
+        handlers.put(Action.PROCESS_GET_PID, new GetPid());
         //handlers.put(Action.UPDATE_CORES_INFO, new UpdateCoresInfo());
     }
 

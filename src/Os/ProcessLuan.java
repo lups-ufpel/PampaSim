@@ -1,6 +1,7 @@
 package Os;
 import java.util.ArrayList;
 
+import Os.Interruption.InterruptionTable;
 import VirtualMachine.Sbyte;
 import VirtualMachine.Processor.Registers;
 

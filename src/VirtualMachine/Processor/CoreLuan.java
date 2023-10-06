@@ -1,5 +1,7 @@
 package VirtualMachine.Processor;
 import java.util.HashMap;
+
+import Os.Interruption.InterruptionTable;
 import Os.Process;
 
 public class CoreLuan extends Core {
@@ -11,40 +13,43 @@ public class CoreLuan extends Core {
             System.out.println("No process to be executed");
             return;
         }
-        System.out.println("Executing process " + process.getPid() + ", state: " + process.getState());
+        System.out.println("Executing process " + process.getPid() + ", state: " +
+                process.getState());
+
         registers = process.getRegisters();
+
         pc = registers.getReg("PC");
         memory = process.getMemory();
         registers = process.getRegisters();
+        interruption = process.getInterruption();
+
         // Get 4 bytes from memory and concatenate them to form the instruction
         for (int i = 0; i < 4; i++) {
-            instruction += memory.get(pc.getValue()).getStringValue();
+            instruction += memory.get(pc.getValue()).getStringByte();
             registers.incrementPC();
         }
 
         opcode = Opcodes.get(instruction.substring(0, 6));
-
+        System.out.println("Opcode: " + opcode);
+        
         if (opcode == "RFORMAT") {
             decodeRFormat();
             return;
-        } 
-        else if (opcode == "J") {
+        } else if (opcode == "J") {
             imm = Integer.parseInt(instruction.substring(6, 32), 2);
             pc.setValue(pc.getValue() + (imm << 2));
             return;
-        } 
-        else if (opcode == "JAL") {
+        } else if (opcode == "JAL") {
             imm = Integer.parseInt(instruction.substring(6, 32), 2);
             registers.getReg("RA").setValue(pc.getValue());
             pc.setValue(pc.getValue() + (imm << 2));
             return;
-        } 
-        else {
+        } else {
             decodeIFormat();
         }
-            
-    }
 
+    }
+ 
         // returns 0 if R-format, 1 if I-format, 2 if J-format
         // private int getInstructionFormat() {
 
@@ -57,17 +62,21 @@ public class CoreLuan extends Core {
         rt = registers.getReg(instruction.substring(11, 16));
         rtv = rt.getValue();
 
-        System.out.println("rs: " + instruction.substring(6, 11) + " rt: " + instruction.substring(11, 16) + " imm: "
-                + instruction.substring(16, 32));
-        System.out.println("rs value: " + rs.getValue() + " rt value: " + rtv);
+        // System.out.println("rs: " + instruction.substring(6, 11) + " rt: " +
+        // instruction.substring(11, 16) + " imm: "
+        // + instruction.substring(16, 32));
+        // System.out.println("rs value: " + rs.getValue() + " rt value: " + rtv);
 
         imm = Integer.parseInt(instruction.substring(16, 32), 2);
+
+        System.out.println("I-Format instruction: " + opcode);
 
         int aux;
         String Saux;
         switch (opcode) {
             case "ADDI":
-                System.out.println("ADDI: $rt = $rs + imm => " + rtv + " = " + rsv + " + " + imm);
+                System.out.println("ADDI: $rt = $rs + imm => $" + Integer.parseInt(instruction.substring(11, 16), 2) + " = " + rsv + " + " +
+                        imm);
                 rt.setValue(rsv + imm);
                 break;
             case "ADDIU":
@@ -116,33 +125,89 @@ public class CoreLuan extends Core {
                 }
                 break;
             case "LB":
-                rt.setValue(memory.get(rsv + imm).getValue());// Implementar com signed
+                rt.setValue(memory.get(rsv + imm).getByte());
                 break;
             case "LBU":
-                rt.setValue(memory.get(rsv + imm).getValue()); // Implementar com unsigned
+                rt.setValue(memory.get(rsv + imm).getByte() & 0xFF);
                 break;
-            case "LH": // Implementar com signed
-                Saux = memory.get(rsv + imm).getStringValue();
-                Saux += memory.get(rsv + imm + 1).getStringValue();
+            case "LH":
+                Saux = memory.get(rsv + imm).getStringByte();
+                Saux += memory.get(rsv + imm + 1).getStringByte();
 
-                aux = Integer.parseInt(Saux, 2) << 16;
+                aux = (short) Integer.parseInt(Saux, 2);
                 rt.setValue(aux);
                 break;
-            case "LHU": // Implementar com unsigned
-                Saux = memory.get(rsv + imm).getStringValue();
-                Saux += memory.get(rsv + imm + 1).getStringValue();
-                
-                aux = Integer.parseInt(Saux, 2) << 16;
-                rt.setValue(aux);
-                break;
-            case "LW": // Implementar com signed
-                Saux = memory.get(rsv + imm).getStringValue();
-                Saux += memory.get(rsv + imm + 1).getStringValue();
-                Saux += memory.get(rsv + imm + 2).getStringValue();
-                Saux += memory.get(rsv + imm + 3).getStringValue();
+            case "LHU":
+                Saux = memory.get(rsv + imm).getStringByte();
+                Saux += memory.get(rsv + imm + 1).getStringByte();
 
                 aux = Integer.parseInt(Saux, 2);
                 rt.setValue(aux);
+                break;
+            case "LW":
+                Saux = memory.get(rsv + imm).getStringByte();
+                Saux += memory.get(rsv + imm + 1).getStringByte();
+                Saux += memory.get(rsv + imm + 2).getStringByte();
+                Saux += memory.get(rsv + imm + 3).getStringByte();
+
+                aux = Integer.parseInt(Saux, 2);
+                rt.setValue(aux);
+                break;
+            case "SB":
+                memory.get(rsv + imm).setByte((byte) rtv);
+                break;
+            case "SH":
+                memory.get(rsv + imm).setByte((byte) ((rtv >> 8) & 0xFF));
+                memory.get(rsv + imm + 1).setByte((byte) (rtv & 0xFF));
+                break;
+            case "SW":
+                memory.get(rsv + imm).setByte((byte) ((rtv >> 24) & 0xFF));
+                memory.get(rsv + imm + 1).setByte((byte) ((rtv >> 16) & 0xFF));
+                memory.get(rsv + imm + 2).setByte((byte) ((rtv >> 8) & 0xFF));
+                memory.get(rsv + imm + 3).setByte((byte) (rtv & 0xFF));
+                break;
+            case "SYSCALL":
+                System.out.println("||SYSCALL|| V0 = " + registers.getReg("V0").getValue());
+                switch (registers.getReg("V0").getValue()) {
+                    case 1:
+                        interruption.set(InterruptionTable.PRINT_INT);
+                        break;
+                    case 4:
+                        interruption.set(InterruptionTable.PRINT_STR);
+                        break;
+                    case 5:
+                        interruption.set(InterruptionTable.READ_INT);
+                        break;
+                    case 8:
+                        interruption.set(InterruptionTable.READ_STR);
+                        break;
+                    case 9:
+                        interruption.set(InterruptionTable.ALLOC_MEM);
+                        break;
+                    case 10:
+                        interruption.set(InterruptionTable.EXIT);
+                        break;
+                    case 11:
+                        interruption.set(InterruptionTable.PRINT_CHAR);
+                        break;
+                    case 12:
+                        interruption.set(InterruptionTable.READ_CHAR);
+                        break;
+                    case 13:
+                        interruption.set(InterruptionTable.OPEN_FILE);
+                        break;
+                    case 14:
+                        interruption.set(InterruptionTable.READ_FILE);
+                        break;
+                    case 15:
+                        interruption.set(InterruptionTable.WRITE_FILE);
+                        break;
+                    case 16:
+                        interruption.set(InterruptionTable.CLOSE_FILE);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             default:
                 break;
@@ -157,12 +222,14 @@ public class CoreLuan extends Core {
         rd = registers.getReg(instruction.substring(16, 21));
         shamt = Integer.parseInt(instruction.substring(21, 26), 2);
 
+        System.out.println("R-Format instruction: " + function);
+
         switch (function) {
             // Arithmetic and Logic (ArithLog) instructions
             case "ADD":
-                System.out.println("ADD: $rd = $rs + $rt => " + rtv + " = " + rsv + " + " + imm);
+                System.out.println("ADD: $rd = $rs + $rt => $" + Integer.parseInt(instruction.substring(16, 21), 2) + " = " + rsv + " + " + rtv);
                 rd.setValue(rsv + rtv);
-                System.out.println(rd.getValue());
+                // System.out.println(rd.getValue());
                 break;
             case "ADDU":
                 // Usa o tipo long para realizar a soma sem sinal e reconverte para int
@@ -254,7 +321,7 @@ public class CoreLuan extends Core {
             default:
                 break;
         }
-    }
+    }    
     
     public CoreLuan() {
         instruction = "";
@@ -301,6 +368,7 @@ public class CoreLuan extends Core {
         Opcodes.put("000011", "JAL"); // $ra = pc + 4, pc = imm | Jump and Link
 
         Opcodes.put("011010", "SYSCALL"); // System Call
+
         /**
          * syscall codes:
          * $v0 = 1 -> Escreve inteiro na saída padrão -> print($a0)

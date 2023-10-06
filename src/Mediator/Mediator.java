@@ -10,6 +10,7 @@ public interface Mediator {
 
     public Object invoke(Action action, Object[] parameters);
 
+    //Mediator interface is just used as a namespace for the enum.
     public enum Action {
         KERNEL_GET_LIST,
         KERNEL_GET_PROCESS,
@@ -32,12 +33,16 @@ public interface Mediator {
         STOP_VM,
         GET_AVAILABLE_PID,
         UPDATE_CORES_INFO,
+        MEM_ALLOC,
+        MEM_FREE,
+        
     }
     public enum Component {
         VM,
         OS,
         GUI,
         CLI,
-        SCHEDULER
+        SCHEDULER,
+        MEM_MANAGER
     }
 }
