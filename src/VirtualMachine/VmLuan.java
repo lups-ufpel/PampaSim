@@ -5,18 +5,17 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import Mediator.Mediator;
-import Os.Interruption.InterruptionTable;
+import Os.Interruption;
 import Os.Process;
 import VirtualMachine.Processor.CoreLuan;
 import VirtualMachine.Processor.Registers;
 
 public class VmLuan extends Vm<CoreLuan> {
-
-    private InterruptionTable interruption;
     
-    public VmLuan(int numCores) {
+    public Interruption interruption;
+    public VmLuan(int numCores, Mediator mediator) {
         super(createCores(numCores));
-        run();
+        this.mediator = mediator;
     }
 
     private static CoreLuan[] createCores(int numCores){
@@ -53,6 +52,20 @@ public class VmLuan extends Vm<CoreLuan> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            // percorra todos os processos em runningList se todos existiverem em stado Terminated retorne true
+            boolean allTerminated = true;
+            for (int i = 0; i < runningList.length; i++) {
+                if (runningList[i] != null) {
+                    if (runningList[i].getState() != Process.State.TERMINATED) {
+                        allTerminated = false;
+                        break;
+                    }
+                }
+            }
+            if (allTerminated) {
+                System.out.println("All processes terminated");
+                return;
+            }
         }
     }
 
@@ -60,6 +73,7 @@ public class VmLuan extends Vm<CoreLuan> {
     public void interruptionHandler(Process process) {
         // Interruption interrupt = (Interruption) Invoker.invoke("Process",
         //         new Message("getInterruption", null, process));
+        interruption = process.getInterruption();
 
         //InterruptionTable interruption = interrupt.get();
         int pid = (int) mediator.invoke(Mediator.Action.PROCESS_GET_PID, new Object[]{process});
@@ -68,10 +82,10 @@ public class VmLuan extends Vm<CoreLuan> {
         ArrayList<Sbyte> memory = process.getMemory();
 
         System.out.println("------------------------------------");
-        System.out.println("Process " + pid + " -> interruption: " + interruption);
+        System.out.println("Process " + pid + " -> interruption: " + interruption.get());
         System.out.println("------------------------------------");
 
-        switch (interruption) {
+        switch (interruption.get()) {
             case PRINT_INT:
                 System.out.println("Process " + pid + " -> print: " + registers.getReg("A0").getValue());
                 break;
@@ -104,7 +118,7 @@ public class VmLuan extends Vm<CoreLuan> {
             case ALLOC_MEM:
                 System.out.println("||SYSCALL|| ALLOC_MEM");
 
-                int size = registers.getReg("A0").getValue();
+                //int size = registers.getReg("A0").getValue();
                 //int address = (int) Invoker.invoke("MemoryManager", new Message("allocMemory", size));
                 //registers.getReg("V0").setValue(address);
                 break;

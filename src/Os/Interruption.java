@@ -17,16 +17,16 @@ public class Interruption {
         WRITE_FILE,
         CLOSE_FILE,
     }
-    private InterruptionTable interruptionTable;
+    private InterruptionTable interruption_state;
 
     public Interruption(){
-        this.interruptionTable = InterruptionTable.NONE;
+        this.interruption_state = InterruptionTable.NONE;
     }
     
     public InterruptionTable get() {
-        return interruptionTable;
+        return interruption_state;
     }
-    public void set(InterruptionTable interruptionTable) {
-        this.interruptionTable = interruptionTable;
+    public void set(InterruptionTable interruption_state) {
+        this.interruption_state = interruption_state;
     }
 }

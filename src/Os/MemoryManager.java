@@ -10,7 +10,7 @@ import VirtualMachine.Sbyte;
 public class MemoryManager {
 	private static final int MAP_SIZE = 16;
 
-    private Memory memory;
+    public Memory memory;
     private int mapCapacity;
     private boolean memoryMap[];
 	private MemoryAllocator algorithmAllocator;

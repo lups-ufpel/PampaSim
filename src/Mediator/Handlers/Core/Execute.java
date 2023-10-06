@@ -15,8 +15,8 @@ public class Execute implements Command {
 
         try {
             params = (Object[]) message.getParameters();
-            core = (Core) params[0];
-            process = (Process) params[1];
+            core = (Core) params[1];
+            process = (Process) params[0];
         } catch (Exception e) {
             //Logger.getInstance().error(e.getMessage());
             return null;
