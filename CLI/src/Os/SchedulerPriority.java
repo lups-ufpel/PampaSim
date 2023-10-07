@@ -51,29 +51,39 @@ public class SchedulerPriority extends Scheduler{
         
         //modify the following code to implement the priority scheduler
         for (int coreId = 0; coreId < runningList.length; coreId++) {
-            // verify if the running list has any process that can be moved to the ready, waiting or terminated list (usefull code to check if the VM has changed the process state)
-            // if the process is terminated or waiting, it will be removed from the running
-            if (runningList[coreId] != null) {
-                if (runningList[coreId].getState() == Process.State.TERMINATED) {
-                    terminatedList.add(runningList[coreId]);
-                    runningList[coreId] = null;
-                } else if (runningList[coreId].getState() == Process.State.WAITING) {
-                    waitingList.add(runningList[coreId]);
-                    runningList[coreId] = null;
-                } else if (runningList[coreId].getState() == Process.State.READY) {
-                    readyList.add(runningList[coreId]);
-                    runningList[coreId] = null;
+            Process currentProcess = runningList[coreId];
+        
+            if (currentProcess != null) {
+                clockCycles[coreId]++;
+                switch (currentProcess.getState()) {
+                    case TERMINATED:
+                        terminatedList.add(currentProcess);
+                        runningList[coreId] = null;
+                        break;
+                    case WAITING:
+                        waitingList.add(currentProcess);
+                        runningList[coreId] = null;
+                        break;
+                    case READY:
+                        readyList.add(currentProcess);
+                        runningList[coreId] = null;
+                        break;
+                    case RUNNING:
+                        
+                        if(!readyList.isEmpty()){
+                            if(clockCycles[coreId] >= time_slice * currentProcess.getPriority()){
+                                readyToRunning(coreId);
+                            }
+                        };
+                        break;
+                    default:
+                        throw new RuntimeException(currentProcess.getState() + ": Process in an invalid state to schedule");
                 }
-            } else {
-                if (readyList.isEmpty()) {
-                    continue;
-                }
-                readyToRunning(coreId);
+            }
+            else{
+                if(!readyList.isEmpty()) readyToRunning(coreId);
             }
         }
         return runningList;
-    
-    
-    }
-    
+    }   
 }

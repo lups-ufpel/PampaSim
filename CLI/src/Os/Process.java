@@ -14,24 +14,25 @@ import java.util.ArrayList;
  */
 public abstract class Process {
     
-    protected int pid;
-    protected int priority;
-    protected int arrivalTime;
-    protected int length;
-    protected Process.State state;
-
-
+    final int DEFAULT_PRIORITY = 1;
+    final int ARRIVAL_TIME = 0;
+    final Process.State INITIAL_STATE = Process.State.NEW;
+    Process.State state;
+    int pid;
+    int priority;
+    int arrivalTime;
+    int length;
     //doc 
     public Process(int pid) {
         this.pid = pid;
-        this.priority = 0;
-        this.arrivalTime = 0;
-        this.state = Process.State.NEW;
+        this.priority = DEFAULT_PRIORITY;
+        this.arrivalTime = DEFAULT_PRIORITY;
+        this.state = INITIAL_STATE;
     }
-    public Process(int pid, int priority) {
+    public Process(int pid,int priority ) {
         this.pid = pid;
         this.priority = priority;
-        this.arrivalTime = 0;
+        this.arrivalTime = ARRIVAL_TIME;
         this.state = Process.State.NEW;
     }
     public Process(int pid, int priority, int length) {

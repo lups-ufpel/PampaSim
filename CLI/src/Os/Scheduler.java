@@ -3,22 +3,30 @@ import java.util.List;
 import Mediator.Mediator;
 
 public abstract class Scheduler {
-    protected List<Process> readyList;
-    protected List<Process> waitingList;
-    protected List<Process> terminatedList;
-    protected List<Process> newList;
-    protected Process[] runningList;
-    protected int[] clockCycles;
-    protected int quantum = 4;
+    
+    final int DEFAULT_TIME_SLICE = 4;
+    List<Process> readyList;
+    List<Process> waitingList;
+    List<Process> terminatedList;
+    List<Process> newList;
+    Process[] runningList;
+    int[] clockCycles; //keep track how many clock cycles each process has already executed 
+    int time_slice;// this is the default time slice for accounting each process usage in the CPU
+    
 
-    public Scheduler(List<Process> newList, List<Process> readyList, List<Process> waitingList, List<Process> terminatedList, int numCores, Mediator mediator) {
+    public Scheduler(List<Process> newList, 
+                    List<Process> readyList, 
+                    List<Process> waitingList, 
+                    List<Process> terminatedList, 
+                    int numCores,
+                    Mediator mediator){
         this.newList = newList;
         this.readyList = readyList;
         this.waitingList = waitingList;
         this.terminatedList = terminatedList;
-
         runningList = new Process[numCores];
         clockCycles = new int[numCores];
+        time_slice = DEFAULT_TIME_SLICE;
     }
 
     /**

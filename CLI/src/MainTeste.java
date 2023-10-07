@@ -10,7 +10,7 @@ import Os.Process;
 
 public class MainTeste {
 
-    static final Process.Type proc_type = Process.Type.SIMPLE;
+    static final Process.Type proc_type = Process.Type.SIMPLE_WITH_PRIORITY;
     static final int numCores = 2;
     
     //Componentes principais
@@ -19,8 +19,8 @@ public class MainTeste {
     static Scheduler scheduler;
     static  Vm <? extends Core> vm;
     public static void main(String[] args){
-        fcfsTest();
-        //priorityTest();
+        //fcfsTest();
+        priorityTest();
     }
     public static void fcfsTest(){
         mediator = new MediatorDefault();

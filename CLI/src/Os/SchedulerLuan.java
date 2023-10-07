@@ -47,7 +47,7 @@ public class SchedulerLuan extends Scheduler {
 
                 clockCycles[coreId]++;
 
-                if (clockCycles[coreId] >= quantum) {
+                if (clockCycles[coreId] >= time_slice * runningList[coreId].getPriority()) {
                     readyToRunning(coreId);
                 }
 
