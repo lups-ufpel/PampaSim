@@ -9,15 +9,16 @@ public class CoreSimple extends Core{
     }
     @Override
     public void execute(Process process) {
-        System.out.println("number of instructions left: " + process.getLength());
-        process.setLength(process.getLength() - 1);
-        if(process.getLength() <= 0){
+        
+        process.setburstTime(process.getburstTime() - 1);
+        if(process.getburstTime() <= 0){
             process.setState(Process.State.TERMINATED);
             System.out.println("Process " + process.getPid() + " terminated");
             return;
         }
         System.out.println("Executing process " + process.getPid() + ", state: " +
             process.getState());
+        System.out.println("number of instructions left to execute: " + process.getburstTime());
     }
     
 }

@@ -7,49 +7,24 @@ import java.util.ArrayList;
 
 /**
  * This abstract class represents a process in an operating system.
- * It contains the process ID, priority, arrival time, length, and state.
+ * It contains the process ID, priority, arrival time, burstTime, and state.
  * It also includes methods to get and set these attributes, as well as methods for CPU percentage, parent process ID, program counter, stack size, interruption, quantum, registers, and memory.
  * The class implements the Comparable interface to allow for comparison of processes based on priority, arrival time, and process ID.
  * The State enum represents the different states a process can be in, and the Type enum represents the different types of processes.
  */
 public abstract class Process {
     
-    final int DEFAULT_PRIORITY = 1;
-    final int ARRIVAL_TIME = 0;
+    static final int DEFAULT_PRIORITY = 1;
+    static final int ARRIVAL_TIME = 0;
     final Process.State INITIAL_STATE = Process.State.NEW;
     Process.State state;
     int pid;
     int priority;
     int arrivalTime;
-    int length;
-    //doc 
+    int burstTime;
     public Process(int pid) {
         this.pid = pid;
-        this.priority = DEFAULT_PRIORITY;
-        this.arrivalTime = DEFAULT_PRIORITY;
-        this.state = INITIAL_STATE;
     }
-    public Process(int pid,int priority ) {
-        this.pid = pid;
-        this.priority = priority;
-        this.arrivalTime = ARRIVAL_TIME;
-        this.state = Process.State.NEW;
-    }
-    public Process(int pid, int priority, int length) {
-        this.pid = pid;
-        this.priority = priority;
-        this.arrivalTime = 0;
-        this.state = Process.State.NEW;
-        this.length = length;
-    }
-    public Process(int pid, int priority, int length, int arrivalTime) {
-        this.pid = pid;
-        this.priority = priority;
-        this.arrivalTime = arrivalTime;
-        this.state = Process.State.NEW;
-    }
-
-
     /**
      * Returns the process ID (PID) of this process.
      *
@@ -123,21 +98,21 @@ public abstract class Process {
     }
 
     /**
-     * Returns the length of this process.
+     * Returns the burstTime of this process.
      *
-     * @return the length of this process
+     * @return the burstTime of this process
      */
-    public int getLength(){
-        return length;
+    public int getburstTime(){
+        return burstTime;
     }
 
     /**
-     * Sets the length of this process.
+     * Sets the burstTime of this process.
      *
-     * @param length the length to set
+     * @param burstTime the burstTime to set
      */
-    public void setLength(int length){
-        this.length = length;
+    public void setburstTime(int burstTime){
+        this.burstTime = burstTime;
     }
 
     /**
@@ -209,27 +184,6 @@ public abstract class Process {
         System.out.println("This process does not have memory");
         System.out.println("You should override this method in the child class");
     }
-
-    public int compareTo(Process process) {
-        int priorityComparison = Integer.compare(this.getPriority(), process.getPriority());
-        
-        if (priorityComparison == 0) {
-            // If priorities are equal, compare by arrivalTime
-            int arrivalTimeComparison = Integer.compare(this.getArrivalTime(), process.getArrivalTime());
-            if( arrivalTimeComparison == 0){
-                // If arrivalTimes are equal, compare by pid
-                return Integer.compare(this.getPid(), process.getPid());
-            }
-            else{
-                // If arrivalTimes are not equal, return the result of the arrivalTime comparison
-                return arrivalTimeComparison;
-            }
-        } else {
-            // If priorities are not equal, return the result of the priority comparison
-            return priorityComparison;
-        }
-    }
-
     public enum State {
         /**
          * The Process has been just instantiated but not assigned to CPU Core.

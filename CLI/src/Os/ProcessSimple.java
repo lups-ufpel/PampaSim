@@ -1,15 +1,12 @@
 package Os;
 
 public class ProcessSimple extends Process{
-
-    public ProcessSimple(int pid) {
+    
+    public ProcessSimple(int pid, int burstTime, int priority, int arrivalTime) {
         super(pid);
-    }
-    public ProcessSimple(int pid, int priority) {
-        super(pid, priority);
-    }
-    public ProcessSimple(int pid, int length, int priority) {
-        super(pid, priority, length);
+        this.burstTime = burstTime;
+        this.priority = priority;
+        this.arrivalTime = arrivalTime;
     }
     public void setState(Process.State state){
         this.state = state;

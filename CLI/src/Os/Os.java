@@ -12,8 +12,8 @@ public class Os {
     protected List<Process> newList;
     protected List<Process> procList;
     protected MemoryManager memoryManager;
-    protected static final int MEMORY_SIZE = 1024;
-    protected static final int INITIAL_STACK_SIZE = 64;
+    protected final int MEMORY_SIZE = 1024;
+    protected final int INITIAL_STACK_SIZE = 64;
 
     public Os() {
         procList = new ArrayList<Process>();
@@ -28,30 +28,51 @@ public class Os {
     public Process getProcess(int index) {
         return procList.get(index);
     }
-
-    public void newProcess() {
-
+    public void createNewProcess(Object[] attributes) {
         Process newProcess;
-        ArrayList<Sbyte> stack = memoryManager.allocMemory(INITIAL_STACK_SIZE);
+        Process.Type type = (Process.Type) attributes[0];
+    
+        switch (type) {
+            case SIMPLE:
+                newProcess = createSimpleProcess(attributes);
+                break;
+            case COMPLETE:
+                newProcess = createCompleteProcess();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid process type");
+        }
+    
+        procList.add(newProcess);
+        newList.add(newProcess);
+    }
+    
+    private Process createSimpleProcess(Object[] attributes) {
+        int burstTime = (int) attributes[1];
+        int priority = (int) attributes[2];
+        int arrivalTime = (int) attributes[3];
+        
+        return new ProcessSimple(procList.size(),burstTime, priority, arrivalTime);
+    }
+    
+    private Process createCompleteProcess() {
+        ArrayList<Sbyte> stack = allocateMemory(INITIAL_STACK_SIZE);
+        
+        ProcessLuan newProcess = new ProcessLuan(procList.size());
+        newProcess.setStackSize(INITIAL_STACK_SIZE);
+        newProcess.setMemory(stack);
+    
+        return newProcess;
+    }
+    
+    private ArrayList<Sbyte> allocateMemory(int size) {
+        ArrayList<Sbyte> stack = memoryManager.allocMemory(size);
         if (stack == null) {
             throw new IllegalArgumentException("Not enough memory, Process Not Created");
         }
-        newProcess = new ProcessLuan(procList.size());
-        newProcess.setStackSize(INITIAL_STACK_SIZE);
-        newProcess.setMemory(stack);
-        procList.add(newProcess);
-        newList.add(newProcess);
+        return stack;
     }
-    public void newProcess(int length){
-        Process newProcess = new ProcessSimple(procList.size(), length,0);
-        procList.add(newProcess);
-        newList.add(newProcess);
-    }
-    public void newProcess(int length, int priority){
-        Process newProcess = new ProcessSimple(procList.size(), length, priority);
-        procList.add(newProcess);
-        newList.add(newProcess);
-    }
+    
 
     public int getAvailablePid() {
         return this.procList.size();

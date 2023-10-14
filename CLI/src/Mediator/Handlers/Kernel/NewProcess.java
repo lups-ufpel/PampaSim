@@ -4,7 +4,6 @@ package Mediator.Handlers.Kernel;
 import Mediator.Message;
 import Mediator.Mediator;
 import Os.Os;
-import Os.Process;
 import Utils.Command;
 //import Utils.Errors.IllegalClassCall;
 //import Utils.Errors.IllegalMethodCall;
@@ -16,25 +15,8 @@ public class NewProcess implements Command {
     @Override
     public Object execute(Message message) {
         Os os = (Os) message.getComponents().get(Mediator.Component.OS);
-        Process.Type pt = (Process.Type) message.getParameters()[0];
-        switch(pt) {
-            case SIMPLE:
-                int size = (int) message.getParameters()[1];
-                os.newProcess(size);
-                break;
-            case COMPLETE:
-                os.newProcess();
-                break;
-            case SIMPLE_WITH_PRIORITY:
-                int size2 = (int) message.getParameters()[1];
-                System.out.println("length = " + size2);
-                int priority = (int) message.getParameters()[2];
-                System.out.println("priority = " + priority);
-                os.newProcess(size2, priority);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid process type");
-        }
+        Object[] attributes = message.getParameters();
+        os.createNewProcess(attributes);
         return null;
     }
 }
