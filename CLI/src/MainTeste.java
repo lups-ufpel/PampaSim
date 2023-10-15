@@ -24,15 +24,15 @@ public class MainTeste {
     }
     public static void fcfsTest(){
         mediator = new MediatorDefault();
-        kernel = new Os();
-        scheduler = new SchedulerFCFS(1, mediator);
+        kernel = new Os(mediator);
+        scheduler = new SchedulerFCFS(numCores, mediator);
         vm = new VmSimple(numCores, mediator);
         registerComponent();
         // (tipo, burstTime, prioridade, arrivaltime)
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 5, 1, 0});
-        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 10, 1, 0});
-        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 3, 1, 0});
-        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 1, 1, 0});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 4, 1, 0});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 4, 1, 0});
+        mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 2, 1, 0});
         vm.run();
     }
     // public static void priorityTest() {

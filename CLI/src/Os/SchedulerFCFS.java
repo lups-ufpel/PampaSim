@@ -1,7 +1,6 @@
 package Os;
 
 //import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,23 +13,33 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
         super(numCores, mediator);
     }
     @Override
-    public Process[] schedule(){
+    public List<Process> schedule(){
         moveFromRunningToFinishedList();
         movefromRunningToWaintingList();
         movefromWaitingToReadyList();
         if(newProcessCanExecute()){
             movefromNewToReadList();
         }
-        if(isThereReadyProcesses()){
-            for(int coreId = 0; coreId < runningList.length; coreId++){
-                if(runningList[coreId] == null){
-                    runningList[coreId] = dequeue(readyList);
-                    runningList[coreId].setState(Process.State.RUNNING);
+        for(int coreId = 0; coreId < numCores; coreId++){
+            if(isThereReadyProcesses()){
+                Process p = dequeue(readyList);
+                p.setState(Process.State.RUNNING);
+                if(coreId >= runningList.size()){
+                    runningList.add(p);
+                }
+                else if(runningList.get(coreId) == null){
+                    runningList.set(coreId, p);
                 }
             }
-        }
+        }   
         return runningList;
     }
+    @Override
+    public void addNewProcess(Process p){
+        p.setState(Process.State.READY);
+        enqueue(p, newList);
+    }
+
     @Override
     protected Process dequeue(List<Process> processQueue){
         return processQueue.remove(0);
@@ -46,7 +55,12 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
         return inputList.stream()
             .filter(process -> process.getState() == state)
             .collect(Collectors.toList());
-    }    
+    }
+    private List<Process> filterNonNullProcesses(List<Process> inputList) {
+        return inputList.stream()
+            .filter(process -> process != null)
+            .collect(Collectors.toList());
+    }
     public void movefromNewToReadList(){
         List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
@@ -58,29 +72,30 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
         removeProcessFromWaitingList(Process.State.READY);
     }
     public void movefromRunningToWaintingList(){
-
-        List<Process> waitingList = filterProcessesByState(Arrays.asList(runningList), Process.State.WAITING);
+        List<Process> nonNullProcessesList = filterNonNullProcesses(runningList);
+        List<Process> waitingList = filterProcessesByState(nonNullProcessesList, Process.State.WAITING);
         this.waitingList.addAll(waitingList);
         removeProcessFromRunningList(Process.State.WAITING);
     }
     public void moveFromRunningToFinishedList() {
-    List<Process> finishedList = filterProcessesByState(Arrays.asList(runningList), Process.State.TERMINATED);
-    terminatedList.addAll(finishedList);
-    removeProcessFromRunningList(Process.State.TERMINATED);
+        List<Process> nonNullProcessesList = filterNonNullProcesses(runningList);
+        List<Process> finishedList = filterProcessesByState(nonNullProcessesList, Process.State.TERMINATED);
+        terminatedList.addAll(finishedList);
+        removeProcessFromRunningList(Process.State.TERMINATED);
     }
     public void removeProcessFromRunningList(Process.State state) {
-        runningList = Arrays.stream(runningList)
-                .map(process -> (process.getState() == state) ? null : process)
-                .toArray(Process[]::new);
+        runningList = runningList.stream()
+                .map(process -> (process!= null && process.getState() == state) ? null : process)
+                .collect(Collectors.toList());
     }
     public void removeProcessFromWaitingList(Process.State state) {
         waitingList = waitingList.stream()
-                .map(process -> (process.getState() == state) ? null : process)
+                .filter(process -> process.getState() != state)
                 .collect(Collectors.toList()); 
     }
     public void removeProcesFromNewList(Process.State state){
         newList = newList.stream()
-                .map(process -> (process.getState() == state) ? null : process)
+                .filter(process -> process.getState() != state)
                 .collect(Collectors.toList()); 
     }
 }

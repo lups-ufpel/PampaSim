@@ -2,6 +2,7 @@ package VirtualMachine;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import Mediator.Mediator;
@@ -31,15 +32,13 @@ public class VmLuan extends Vm<CoreLuan> {
     public void run() {
         
         while(true){
-            runningList = (Os.Process[]) mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
+            runningList = (List<Process>) mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
             for(int i = 0; i < cores.length; i++){
-                if(runningList[i] != null){
+                if(runningList.get(i) != null){
                     System.out.print("Core " + i + ": ");
-                    //System.out.println("Running process " + runningList[i].getPid() + " on core " + i);
-                    //Invoker.invoke("Core", new Message("execute", runningList[i],cores[i]));
-                    mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{runningList[i], cores[i]});
-                    if (runningList[i].hasInterrupt()) {
-                        interruptionHandler(runningList[i]);
+                    mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{runningList.get(i), cores[i]});
+                    if (runningList.get(i).hasInterrupt()) {
+                        interruptionHandler(runningList.get(i));
                     }
                 } 
                 else {
@@ -54,9 +53,9 @@ public class VmLuan extends Vm<CoreLuan> {
             }
             // percorra todos os processos em runningList se todos existiverem em stado Terminated retorne true
             boolean allTerminated = true;
-            for (int i = 0; i < runningList.length; i++) {
-                if (runningList[i] != null) {
-                    if (runningList[i].getState() != Process.State.TERMINATED) {
+            for (Process process : runningList) {
+                if (process != null) {
+                    if (process.getState() != Process.State.TERMINATED) {
                         allTerminated = false;
                         break;
                     }

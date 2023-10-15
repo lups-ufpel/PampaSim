@@ -18,6 +18,7 @@ public interface Mediator {
         CORE_EXECUTE,
         PROCESS_GET_PID,
         SCHEDULER_SCHEDULE,
+        SCHEDULER_ADD_TO_QUEUE,
         SBYTE_GET_VALUE,
         SBYTE_SET_VALUE,
         GET_PROCESS_BY_PID,

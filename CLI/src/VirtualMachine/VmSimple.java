@@ -1,6 +1,7 @@
 package VirtualMachine;
 
 import VirtualMachine.Processor.CoreSimple;
+import java.util.List;
 import Mediator.Mediator;
 
 public class VmSimple extends Vm<CoreSimple> {
@@ -20,19 +21,22 @@ public class VmSimple extends Vm<CoreSimple> {
         }
         return cores;
     }
-    public Os.Process[] getRunningProcesses(){
-        return (Os.Process[]) mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
+    //@SuppressWarnings("unchecked")
+    public List<Os.Process> getRunningProcesses() {
+        return (List<Os.Process>) mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
     }
-    public void executeProcess(Os.Process[] processes){
-        for(int currCoreId=0; currCoreId < numCores; currCoreId++){
-
-            if(runningList[currCoreId] != null){
-                mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{runningList[currCoreId], cores[currCoreId]});
-                if (runningList[currCoreId].hasInterrupt()) {
-                    interruptionHandler(runningList[currCoreId]);
+    public void executeProcess(List<Os.Process> processes){
+        Os.Process proc;
+        for(int coreId =0; coreId < numCores; coreId++){
+            proc = processes.get(coreId);
+            if(proc != null){
+                mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{proc, cores[coreId]});
+                if (proc.hasInterrupt()) {
+                    interruptionHandler(proc);
                 }
-            } else {
-                System.out.println("Core " + currCoreId + " is idle");
+            }
+            else{
+                System.out.println("Core " + coreId + " is idle");
             }
         }
     }
@@ -49,7 +53,6 @@ public class VmSimple extends Vm<CoreSimple> {
             }
         }
     }
-
     @Override
     public void interruptionHandler() {
         throw new UnsupportedOperationException("Unimplemented method 'interruptionHandler'");

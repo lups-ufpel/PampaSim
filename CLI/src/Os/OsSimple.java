@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import VirtualMachine.Sbyte;
-
 public class OsSimple {
 
     private Scheduler scheduler;
@@ -75,7 +74,7 @@ public class OsSimple {
                 throw new IllegalArgumentException(getProcessTypeErrorMessage());
         }
         processList.add(process);
-        scheduler.newToReady(process);
+        //mediator.invoke(Mediator.Action.SCHEDULER_ADD_TO_QUEUE, new Object[]{newProcess, newList});
         //adicionar o processo no escalonamento
     }
     public String getProcessTypeErrorMessage(){

@@ -8,6 +8,7 @@ import Mediator.Handlers.Kernel.*;
 import Mediator.Handlers.Process.GetAvailablePid;
 import Mediator.Handlers.Process.GetPid;
 import Mediator.Handlers.Scheduler.Schedule;
+import Mediator.Handlers.Scheduler.SchedulerAddToQueue;
 import Mediator.Handlers.VM.StartVM;
 import Mediator.Handlers.VM.StopVM;
 import Logger.Logger;
@@ -29,6 +30,7 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.START_VM, new StartVM());
         handlers.put(Action.STOP_VM, new StopVM());
         handlers.put(Action.SCHEDULER_SCHEDULE, new Schedule());
+        handlers.put(Action.SCHEDULER_ADD_TO_QUEUE,new SchedulerAddToQueue());
         handlers.put(Action.KERNEL_NEW_PROCESS, new NewProcess());
         handlers.put(Action.CORE_EXECUTE, new Execute());
         handlers.put(Action.LIST_CORES, new ListCores());

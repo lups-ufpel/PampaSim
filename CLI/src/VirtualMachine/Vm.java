@@ -1,11 +1,13 @@
 package VirtualMachine;
 import VirtualMachine.Processor.Core;
+import java.util.List;
 import Mediator.Mediator;
 import Os.Process;
+
 public abstract class Vm <T extends Core> {
     protected final int numCores;
     protected final T[] cores;
-    protected Process[] runningList;
+    protected List<Process> runningList;
     protected Mediator mediator;
 
     public Vm(T[] corelist){

@@ -3,26 +3,27 @@ package Os;
 import java.util.ArrayList;
 import java.util.List;
 import VirtualMachine.Sbyte;
+import Mediator.Mediator;
 
 public class Os {
-    protected Scheduler scheduler;
     protected List<Process> readyList;
     protected List<Process> waitingList;
     protected List<Process> terminatedList;
     protected List<Process> newList;
     protected List<Process> procList;
     protected MemoryManager memoryManager;
+    protected Mediator mediator;
     protected final int MEMORY_SIZE = 1024;
     protected final int INITIAL_STACK_SIZE = 64;
 
-    public Os() {
+    public Os(Mediator mediator) {
         procList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
         terminatedList = new ArrayList<Process>();
         newList = new ArrayList<Process>();
-
         memoryManager = new MemoryManager(MEMORY_SIZE);
+        this.mediator = mediator;
     }
 
     public Process getProcess(int index) {
@@ -31,7 +32,7 @@ public class Os {
     public void createNewProcess(Object[] attributes) {
         Process newProcess;
         Process.Type type = (Process.Type) attributes[0];
-    
+
         switch (type) {
             case SIMPLE:
                 newProcess = createSimpleProcess(attributes);
@@ -42,9 +43,9 @@ public class Os {
             default:
                 throw new IllegalArgumentException("Invalid process type");
         }
-    
+
         procList.add(newProcess);
-        newList.add(newProcess);
+        mediator.invoke(Mediator.Action.SCHEDULER_ADD_TO_QUEUE, new Object[]{newProcess});
     }
     
     private Process createSimpleProcess(Object[] attributes) {

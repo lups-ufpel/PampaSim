@@ -5,21 +5,21 @@ import Mediator.Mediator;
 
 public abstract class Scheduler {
 
+    int numCores;
     List<Process> readyList;
     List<Process> waitingList;
     List<Process> terminatedList;
     List<Process> newList;
-    Process[] runningList;
-    List<Process> execList;
-    int[] clockCycles; //keep track how many clock cycles each process has already executed 
+    List<Process> runningList;
+    int[] clockCycles; //keep track how many clock cycles each process has already executed
 
     public Scheduler(int numCores,Mediator mediator){
+        this.numCores = numCores;
         newList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
         terminatedList = new ArrayList<Process>();
-        runningList = new Process[numCores];
-        execList = new ArrayList<Process>();
+        runningList = new ArrayList<Process>(numCores);
         clockCycles = new int[numCores];
     }
 
@@ -38,28 +38,28 @@ public abstract class Scheduler {
      * 
      * @return PCB[] runningList
      */
-    public abstract Process[] schedule();
+    public abstract List<Process> schedule();
 
     protected void readyToRunning(int coreID) {
         if (readyList.isEmpty()) {
             
             //if currrent process is terminated it is moved to the terminated list
-            if (runningList[coreID].getState() == Process.State.TERMINATED) {
-                terminatedList.add(runningList[coreID]);
-                runningList[coreID] = null;
+            if (runningList.get(coreID).getState() == Process.State.TERMINATED) {
+                terminatedList.add(runningList.get(coreID));
+                runningList.set(coreID, null);
             }
 
         } 
         else {
-            if (runningList[coreID] != null) {
+            if (runningList.get(coreID) != null) {
                 
-                runningList[coreID].setState(Process.State.READY);
+                runningList.get(coreID).setState(Process.State.READY);
                 //Invoker.invoke("Process", new Message("setState", Process.State.READY, runningList[coreID]));
-                readyList.add(runningList[coreID]);
+                readyList.add(runningList.get(coreID));
             }
 
-            runningList[coreID] = readyList.remove(0);
-            runningList[coreID].setState(Process.State.RUNNING);
+            runningList.set(coreID, readyList.remove(0));
+            runningList.get(coreID).setState(Process.State.RUNNING);
         }
         clockCycles[coreID] = 0;
     }
@@ -67,8 +67,11 @@ public abstract class Scheduler {
         p.setState(Process.State.READY);
         enqueue(p, readyList);
     }
-    protected void enqueue(Process p, List<Process> processQueue){
-        processQueue.add(p);
+    protected void enqueue(Process p, List<Process> procQueue){
+        procQueue.add(p);
+    }
+    public void addNewProcess(Process p ){
+        enqueue(p, newList);
     }
     protected Process dequeue(List<Process> processQueue){
         return processQueue.remove(0);
@@ -83,10 +86,10 @@ public abstract class Scheduler {
             System.out.println(process.getPid() + " " + process.getState());
         }
         System.out.println("Running List:");
-        for (int i = 0; i < runningList.length; i++) {
-            if (runningList[i] != null) {
-                System.out.println("pid: " + runningList[i].getPid() + " clockCycles: " + clockCycles[i] + " "
-                        + runningList[i].getState());
+        for (int i = 0; i < runningList.size(); i++) {
+            if (runningList.get(i) != null) {
+                System.out.println("pid: " + runningList.get(i).getPid() + " clockCycles: " + clockCycles[i] + " "
+                        + runningList.get(i).getState());
             }
         }
     }
