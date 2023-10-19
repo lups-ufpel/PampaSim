@@ -1,7 +1,10 @@
 package org.simuladorso.Mediator;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 public interface Mediator {
-    
+
+    static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class.getSimpleName());
     public void registerComponent(Component componentType, Object component);
 
     public Object invoke(Message message);

@@ -9,7 +9,7 @@ public class Schedule implements Command {
     @Override
     public Object execute(Message message) {
         Scheduler scheduler = (Scheduler) message.getComponents().get(Mediator.Component.SCHEDULER);
-
+        // Ih si a gente implementasse algo para dizer qual política de escalonamento queremos utilizar ?
         return scheduler.schedule();
     }
 }

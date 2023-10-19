@@ -10,8 +10,7 @@ import org.simuladorso.VirtualMachine.*;
 public class Main {
 
     static final Process.Type proc_type = Process.Type.SIMPLE;
-    static final int numCores = 2;
-
+    static final int NUMCORES = 2;
     static Mediator mediator;
     static Os kernel;
     static Scheduler scheduler;
@@ -20,10 +19,11 @@ public class Main {
         fcfsTest();
     }
     public static void fcfsTest(){
+
         mediator = new MediatorDefault();
         kernel = new Os(mediator);
-        scheduler = new SchedulerFCFS(numCores, mediator);
-        vm = new VmSimple(numCores, mediator);
+        scheduler = new SchedulerFCFS(NUMCORES, mediator);
+        vm = new VmSimple(NUMCORES, mediator);
         registerComponent();
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 5, 1, 0});
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 4, 1, 0});

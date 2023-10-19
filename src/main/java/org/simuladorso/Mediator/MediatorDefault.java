@@ -11,6 +11,7 @@ import org.simuladorso.Utils.Command;
 import java.util.HashMap;
 
 public class MediatorDefault implements Runnable, Mediator {
+
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
     public MediatorDefault() {
@@ -40,18 +41,26 @@ public class MediatorDefault implements Runnable, Mediator {
     }
     @Override
     public void registerComponent(Component componentType, Object component) {
+        // Handle when ComponentType is Missing but component is valid.
         if (componentType != null && component != null) {
             this.components.put(componentType, component);
+            LOGGER.info("Component of {} and type of {} has been successfully registered", component.getClass().getSimpleName(), componentType.toString());
         }
+        else{
+            LOGGER.error("REGISTERING A COMPONENT WITH NULL TYPE OR OBJECT PARAMS: [{} {}]",componentType,component);
+        }
+
     }
     @Override
     public Object invoke(Message message) {
+
+        LOGGER.debug("MessageBroker received: {}", message.toString());
         //Logger.getInstance().debug(String.format("MessageBroker received: %s", message.toString()));
 
         Command executor = handlers.get(message.getAction());
 
         if (executor == null) {
-            System.out.println("placeholder");
+            LOGGER.error("Message action passed not implemented: {}",message.getAction());
             //Logger.getInstance().error("Message action passed not implemented: " + message.getAction());
         }
 
