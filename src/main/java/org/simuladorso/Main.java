@@ -16,22 +16,34 @@ public class Main {
     static Scheduler scheduler;
     static  Vm <? extends Core> vm;
     public static void main(String[] args){
-        fcfsTest();
+        sjfTest();
+        //fcfsTest();
+    }
+    public static void sjfTest(){
+
+        registerComponent();
+        createProcesses();
+        vm.run();
+
     }
     public static void fcfsTest(){
 
-        mediator = new MediatorDefault();
-        kernel = new Os(mediator);
-        scheduler = new SchedulerFCFS(NUMCORES, mediator);
-        vm = new VmSimple(NUMCORES, mediator);
         registerComponent();
+        createProcesses();
+        vm.run();
+    }
+    public static void createProcesses(){
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 5, 1, 0});
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 4, 1, 0});
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 8, 1, 0});
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{proc_type, 2, 1, 0});
-        vm.run();
     }
     public static void registerComponent(){
+        mediator = new MediatorDefault();
+        kernel = new Os(mediator);
+        //scheduler = new SchedulerFCFS(NUMCORES, mediator);
+        scheduler = new SchedulerSJF(NUMCORES,mediator);
+        vm = new VmSimple(NUMCORES, mediator);
         mediator.registerComponent(Mediator.Component.OS, kernel);
         mediator.registerComponent(Mediator.Component.SCHEDULER, scheduler);
         mediator.registerComponent(Mediator.Component.VM, vm);

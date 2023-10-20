@@ -19,12 +19,12 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
 
         // Step 1: Move process to the appropriate lists
         moveFromRunningToFinishedList();
-        movefromRunningToWaintingList();
-        movefromWaitingToReadyList();
+        moveFromRunningToWaitingList();
+        moveFromWaitingToReadyList();
 
         // Step 2: Check if a new process can execute and move it if necessary
         if(newProcessCanExecute()){
-            movefromNewToReadList();
+            moveFromNewToReadList();
         }
 
         // Step 3: Assign processes to cores
@@ -62,12 +62,6 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
         LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
     }
     @Override
-    public void addNewProcess(Process p){
-        p.setState(Process.State.READY);
-        enqueue(p, newList);
-    }
-
-    @Override
     protected Process dequeue(List<Process> processQueue){
         return processQueue.remove(0);
     }
@@ -89,17 +83,17 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
             .filter(process -> process != null)
             .collect(Collectors.toList());
     }
-    public void movefromNewToReadList(){
+    public void moveFromNewToReadList(){
         List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcesFromNewList(Process.State.READY);
     }
-    public void movefromWaitingToReadyList(){
+    public void moveFromWaitingToReadyList(){
         List<Process> readyList = filterProcessesByState(waitingList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcessFromWaitingList(Process.State.READY);
     }
-    public void movefromRunningToWaintingList(){
+    public void moveFromRunningToWaitingList(){
         List<Process> nonNullProcessesList = filterNonNullProcesses(runningList);
         List<Process> waitingList = filterProcessesByState(nonNullProcessesList, Process.State.WAITING);
         this.waitingList.addAll(waitingList);

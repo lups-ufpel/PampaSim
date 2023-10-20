@@ -4,20 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Refatorando e resolvendo bugs no Escalonador">
+    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Melhorando os logs de execucao do processoSimples">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/NewProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/NewProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/ProcessSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/ProcessSimple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Scheduler/SchedulerAddToQueue.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Scheduler/SchedulerAddToQueue.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/Core.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/Core.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/CoreSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/CoreSimple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Vm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Vm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/VmSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/VmSimple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/log4j2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,6 +93,7 @@
       <workItem from="1697740534761" duration="5234000" />
       <workItem from="1697750775364" duration="10851000" />
       <workItem from="1697765544079" duration="3736000" />
+      <workItem from="1697769706978" duration="7339000" />
     </task>
     <task id="LOCAL-00001" summary="Projeto organizado no padrão de diretorios do Maven">
       <option name="closed" value="true" />
@@ -132,7 +127,15 @@
       <option name="project" value="LOCAL" />
       <updated>1697761021848</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Melhorando os logs de execucao do processoSimples">
+      <option name="closed" value="true" />
+      <created>1697769739998</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1697769739998</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,7 +156,8 @@
     <MESSAGE value="Projeto organizado no padrão de diretorios do Maven" />
     <MESSAGE value="Removido os comentários Todos" />
     <MESSAGE value="Refatorando e resolvendo bugs no Escalonador" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refatorando e resolvendo bugs no Escalonador" />
+    <MESSAGE value="Melhorando os logs de execucao do processoSimples" />
+    <option name="LAST_COMMIT_MESSAGE" value="Melhorando os logs de execucao do processoSimples" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

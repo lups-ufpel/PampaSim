@@ -76,6 +76,7 @@ public abstract class Scheduler {
         procQueue.add(p);
     }
     public void addNewProcess(Process p ){
+        p.setState(Process.State.READY);
         enqueue(p, newList);
     }
     protected Process dequeue(List<Process> processQueue){
