@@ -4,6 +4,8 @@ import org.simuladorso.Os.Process;
 import org.simuladorso.VirtualMachine.Processor.CoreSimple;
 import org.simuladorso.Mediator.Mediator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class VmSimple extends Vm<CoreSimple> {
@@ -23,31 +25,45 @@ public class VmSimple extends Vm<CoreSimple> {
         }
         return cores;
     }
-    //@SuppressWarnings("unchecked")
     public List<Process> getRunningProcesses() {
-        return (List<Process>) mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
+        List<Process> processes;
+        try {
+            Object result = mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
+            processes = (List<Process>) result;
+            LOGGER.debug("List of Processes to be Scheduled: {}", Arrays.toString(processes.toArray()));
+            return processes;
+        } catch (Exception e) {
+            // Handle the error, log it, or return an empty list
+            LOGGER.error("Error in method getRunningProcesses: {}", e.getMessage() );
+            throw new RuntimeException();
+        }
     }
-    public void executeProcess(List<Process> processes){
+
+
+    public void executeProcesses(List<Process> processes){
         Process proc;
         for(int coreId =0; coreId < numCores; coreId++){
             proc = processes.get(coreId);
             if(proc != null){
                 mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{proc, cores[coreId]});
                 if (proc.hasInterrupt()) {
+                    LOGGER.debug("Process of PID {} has requested an interruption",proc.getPid());
                     interruptionHandler(proc);
                 }
             }
             else{
-                System.out.println("Core " + coreId + " is idle");
+                LOGGER.info("Core [{}] is idle",coreId);
             }
         }
     }
     @Override
     public void run() {
+
         while(!Thread.currentThread().isInterrupted()){
+
             runningList = getRunningProcesses();
-            executeProcess(runningList);
-            System.out.println("====================================");
+            executeProcesses(runningList);
+            System.out.println("===================================="); //1
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

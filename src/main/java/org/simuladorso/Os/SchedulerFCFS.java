@@ -1,6 +1,7 @@
 package org.simuladorso.Os;
 
 //import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,25 +16,50 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
     }
     @Override
     public List<Process> schedule(){
+
+        // Step 1: Move process to the appropriate lists
         moveFromRunningToFinishedList();
         movefromRunningToWaintingList();
         movefromWaitingToReadyList();
+
+        // Step 2: Check if a new process can execute and move it if necessary
         if(newProcessCanExecute()){
             movefromNewToReadList();
         }
-        for(int coreId = 0; coreId < numCores; coreId++){
-            if(isThereReadyProcesses()){
-                Process p = dequeue(readyList);
-                p.setState(Process.State.RUNNING);
-                if(coreId >= runningList.size()){
-                    runningList.add(p);
-                }
-                else if(runningList.get(coreId) == null){
-                    runningList.set(coreId, p);
-                }
+
+        // Step 3: Assign processes to cores
+        for (int coreId = 0; coreId < numCores; coreId++){
+
+            if(isThereReadyProcesses() && isCoreIdle(coreId)){
+
+                assignProcessToCore(coreId);
             }
-        }   
+        }
         return runningList;
+    }
+
+    private boolean hasEmptySlots(List<Process> queue, int numOfSlots) {
+        LOGGER.debug("hasEmptySlots ? [{}] queue size {} and num of slots {} ", numOfSlots>=queue.size(), queue.size(), numOfSlots);
+        return numOfSlots >= queue.size();
+    }
+    private boolean isCoreEmpty(int coreId) {
+        LOGGER.debug("isCoreEmpty ? [{}] core {} has this current process {}", runningList.get(coreId) == null, coreId, runningList.get(coreId));
+        return runningList.get(coreId) == null;
+    }
+    private boolean isCoreIdle(int coreId) {
+        return hasEmptySlots(runningList,coreId) || isCoreEmpty(coreId);
+    }
+    public void assignProcessToCore(int coreId){
+        Process p;
+        p = dequeue(readyList);
+        p.setState(Process.State.RUNNING);
+        if(hasEmptySlots(runningList,coreId)){
+            runningList.add(p);
+        }
+        else{
+            runningList.set(coreId, p);
+        }
+        LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
     }
     @Override
     public void addNewProcess(Process p){
@@ -47,6 +73,7 @@ public class SchedulerFCFS extends SpaceSharedScheduler {
     }
 
     public boolean isThereReadyProcesses(){
+        LOGGER.debug("isThereReadyProcesses ? [{}] -> list = {}", !readyList.isEmpty(), Arrays.toString(readyList.toArray()));
         return !readyList.isEmpty();
     }
     public boolean newProcessCanExecute(){

@@ -53,8 +53,8 @@ public class Os {
         int burstTime = (int) attributes[1];
         int priority = (int) attributes[2];
         int arrivalTime = (int) attributes[3];
-        
-        return new ProcessSimple(procList.size(),burstTime, priority, arrivalTime);
+        int pid = procList.size() + 1;
+        return new ProcessSimple(pid,burstTime, priority, arrivalTime);
     }
     
     private Process createCompleteProcess() {

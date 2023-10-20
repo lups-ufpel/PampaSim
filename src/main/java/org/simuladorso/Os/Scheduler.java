@@ -3,6 +3,8 @@ package org.simuladorso.Os;
 import java.util.ArrayList;
 import java.util.List;
 import org.simuladorso.Mediator.Mediator;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.simuladorso.Os.Process;
 
 public abstract class Scheduler {
@@ -14,6 +16,7 @@ public abstract class Scheduler {
     List<Process> newList;
     List<Process> runningList;
     int[] clockCycles; //keep track how many clock cycles each process has already executed
+    Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public Scheduler(int numCores,Mediator mediator){
         this.numCores = numCores;

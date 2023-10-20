@@ -20,7 +20,7 @@ public abstract class Process {
     int pid;
     int priority;
     int arrivalTime;
-    int burstTime;
+    int currentBustTime;
     public Process(int pid) {
         this.pid = pid;
     }
@@ -101,8 +101,8 @@ public abstract class Process {
      *
      * @return the burstTime of this process
      */
-    public int getburstTime(){
-        return burstTime;
+    public int getCurrentBustTime(){
+        return currentBustTime;
     }
 
     /**
@@ -110,8 +110,14 @@ public abstract class Process {
      *
      * @param burstTime the burstTime to set
      */
-    public void setburstTime(int burstTime){
-        this.burstTime = burstTime;
+    public void setCurrentBustTime(int burstTime){
+        this.currentBustTime = burstTime;
+    }
+
+    public int getBurstTime(){ return currentBustTime; }
+
+    public void forwardProcessExecution(){
+        setCurrentBustTime(currentBustTime + 1);
     }
 
     /**

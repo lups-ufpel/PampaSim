@@ -26,6 +26,12 @@
             <AppenderRef ref="debugFile" level="debug"/>
             <AppenderRef ref="infoFile" level="info"/>
         </Logger>
+        <Logger name="SchedulerFCFS" level="trace" additivity="true">
+            <AppenderRef ref="debugFile" level="debug"/>
+        </Logger>
+        <Logger name="CoreSimple" level="trace" additivity="true">
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
         <Root level="TRACE">
             <AppenderRef ref="allLevelsFile"/>
         </Root>

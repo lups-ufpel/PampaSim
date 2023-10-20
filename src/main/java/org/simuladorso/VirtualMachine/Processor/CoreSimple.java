@@ -6,20 +6,22 @@ import org.simuladorso.Os.Process;
 public class CoreSimple extends Core{
 
     public CoreSimple(){
-        System.out.println("SimpleCore created");
+        LOGGER.info("Component {} was created",getClass().getSimpleName());
     }
     @Override
     public void execute(Process process) {
-        
-        process.setburstTime(process.getburstTime() - 1);
-        if(process.getburstTime() <= 0){
+
+
+        process.forwardProcessExecution();
+        int ticks_executed = process.getCurrentBustTime();
+        int total_ticks = process.getBurstTime();
+        LOGGER.info("Process of PID {} executed {} instr out of {}.",process.getPid(), ticks_executed,process.getBurstTime());
+
+        if(ticks_executed >= total_ticks){
             process.setState(Process.State.TERMINATED);
-            System.out.println("Process " + process.getPid() + " terminated");
-            return;
+            LOGGER.info("Process of PID {} has terminated",process.getPid());
         }
-        System.out.println("Executing process " + process.getPid() + ", state: " +
-            process.getState());
-        System.out.println("number of instructions left to execute: " + process.getburstTime());
+
     }
     
 }

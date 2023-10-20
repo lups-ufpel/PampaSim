@@ -18,7 +18,7 @@ public class NewProcess implements Command {
         Object[] attributes = message.getParameters();
 
 
-        LOGGER.info("Executing {} Command ..,", COMMAND_NAME);
+        LOGGER.info("Executing {} Command ...", COMMAND_NAME);
 
         if( os != null){
 

@@ -4,8 +4,12 @@ import org.simuladorso.VirtualMachine.Processor.Core;
 import java.util.List;
 import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.Os.Process;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class Vm <T extends Core> {
+
+    final Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
     protected final int numCores;
     protected final T[] cores;
     protected List<Process> runningList;

@@ -6,10 +6,13 @@ import java.util.HashMap;
 import org.simuladorso.Os.Process;
 import org.simuladorso.Os.Interruption;
 import org.simuladorso.VirtualMachine.Sbyte;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class Core {
-    ArrayList<Sbyte> memory;
 
+    final Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
+    ArrayList<Sbyte> memory;
     // HashMap containing the binary instructions and their respective opcode
     protected static HashMap<String, String> Opcodes;
     protected static HashMap<String, String> Funct;
