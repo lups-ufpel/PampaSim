@@ -21,6 +21,22 @@ public abstract class Process {
     int priority;
     int arrivalTime;
     int currentBustTime;
+    int currentQuantum;
+
+
+    public void incrQuantum(){
+        currentQuantum +=1;
+    }
+    public void resetQuantum(){
+        currentQuantum = 0;
+    }
+    public int getCurrentQuantum() {
+        return currentQuantum;
+    }
+
+    public void setCurrentQuantum(int currentQuantum) {
+        this.currentQuantum = currentQuantum;
+    }
     public Process(int pid) {
         this.pid = pid;
     }

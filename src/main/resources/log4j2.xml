@@ -4,6 +4,9 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss} [%1c.%t line:%L] %-5p - %m%n"/>
         </Console>
+        <Console name="ConsoleMain" target="SYSTEM_OUT">
+                <PatternLayout pattern="%-5p %m%n"/>
+        </Console>
         <File name="allLevelsFile" fileName="target/test.log">
             <PatternLayout pattern="%d %p %c{1.} [%t] %m%n"/>
         </File>
@@ -31,6 +34,9 @@
         </Logger>
         <Logger name="CoreSimple" level="trace" additivity="true">
             <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="Main" level="trace" additivity="true">
+            <AppenderRef ref="ConsoleMain" level="info"/>
         </Logger>
         <Root level="TRACE">
             <AppenderRef ref="allLevelsFile"/>

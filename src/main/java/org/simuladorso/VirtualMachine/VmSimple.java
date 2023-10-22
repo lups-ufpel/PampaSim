@@ -9,7 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class VmSimple extends Vm<CoreSimple> {
-    
+
+
     public VmSimple(int numCores, Mediator mediator) {
         super(createCores(numCores));
         if(mediator == null || numCores <= 0){
@@ -60,7 +61,8 @@ public class VmSimple extends Vm<CoreSimple> {
     public void run() {
 
         while(!Thread.currentThread().isInterrupted()){
-
+            SIM_CLOCK.incrTick();
+            LOGGER.debug("Current Tick: [{}]",SIM_CLOCK.getTick());
             runningList = getRunningProcesses();
             executeProcesses(runningList);
             System.out.println("===================================="); //1
@@ -75,5 +77,4 @@ public class VmSimple extends Vm<CoreSimple> {
     public void interruptionHandler() {
         throw new UnsupportedOperationException("Unimplemented method 'interruptionHandler'");
     }
-    
 }

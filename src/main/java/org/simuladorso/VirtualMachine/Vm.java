@@ -1,5 +1,6 @@
 package org.simuladorso.VirtualMachine;
 
+import org.simuladorso.Utils.SimulatorClock;
 import org.simuladorso.VirtualMachine.Processor.Core;
 import java.util.List;
 import org.simuladorso.Mediator.Mediator;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Vm <T extends Core> {
 
     final Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
+    public final SimulatorClock SIM_CLOCK = new SimulatorClock();
     protected final int numCores;
     protected final T[] cores;
     protected List<Process> runningList;

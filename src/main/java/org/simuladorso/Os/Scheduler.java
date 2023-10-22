@@ -15,17 +15,15 @@ public abstract class Scheduler {
     List<Process> terminatedList;
     List<Process> newList;
     List<Process> runningList;
-    int[] clockCycles; //keep track how many clock cycles each process has already executed
     Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    public Scheduler(int numCores,Mediator mediator){
+    public Scheduler(int numCores,Mediator mediator) {
         this.numCores = numCores;
         newList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
         terminatedList = new ArrayList<Process>();
         runningList = new ArrayList<Process>(numCores);
-        clockCycles = new int[numCores];
     }
 
     /**
@@ -44,30 +42,6 @@ public abstract class Scheduler {
      * @return PCB[] runningList
      */
     public abstract List<Process> schedule();
-
-    protected void readyToRunning(int coreID) {
-        if (readyList.isEmpty()) {
-            
-            //if currrent process is terminated it is moved to the terminated list
-            if (runningList.get(coreID).getState() == Process.State.TERMINATED) {
-                terminatedList.add(runningList.get(coreID));
-                runningList.set(coreID, null);
-            }
-
-        } 
-        else {
-            if (runningList.get(coreID) != null) {
-                
-                runningList.get(coreID).setState(Process.State.READY);
-                //Invoker.invoke("Process", new Message("setState", Process.State.READY, runningList[coreID]));
-                readyList.add(runningList.get(coreID));
-            }
-
-            runningList.set(coreID, readyList.remove(0));
-            runningList.get(coreID).setState(Process.State.RUNNING);
-        }
-        clockCycles[coreID] = 0;
-    }
     public void newToReady(Process p){
         p.setState(Process.State.READY);
         enqueue(p, readyList);
@@ -81,22 +55,5 @@ public abstract class Scheduler {
     }
     protected Process dequeue(List<Process> processQueue){
         return processQueue.remove(0);
-    }   
-    public void printLists() {
-        System.out.println("Ready List:");
-        for (Process process : readyList) {
-            System.out.println(process.getPid() + " " + process.getState());
-        }
-        System.out.println("Waiting List:");
-        for (Process process : waitingList) {
-            System.out.println(process.getPid() + " " + process.getState());
-        }
-        System.out.println("Running List:");
-        for (int i = 0; i < runningList.size(); i++) {
-            if (runningList.get(i) != null) {
-                System.out.println("pid: " + runningList.get(i).getPid() + " clockCycles: " + clockCycles[i] + " "
-                        + runningList.get(i).getState());
-            }
-        }
     }
 }
