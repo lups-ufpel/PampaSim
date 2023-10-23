@@ -36,6 +36,7 @@ public interface Mediator {
         START_VM,
         STOP_VM,
         GET_AVAILABLE_PID,
+        GET_TIME,
         UPDATE_CORES_INFO,
         MEM_ALLOC,
         MEM_FREE,

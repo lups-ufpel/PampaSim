@@ -13,7 +13,7 @@ public class Main {
 
     static final Logger LOGGER = LoggerFactory.getLogger("Main");
     static final Process.Type PROCESS_TYPE = Process.Type.SIMPLE;
-    static final int CORES = 2;
+    static final int CORES = 1;
     
     static Mediator mediator = new MediatorDefault();
     static Os kernel;

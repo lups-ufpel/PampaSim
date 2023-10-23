@@ -47,6 +47,7 @@ public class Os {
 
         procList.add(newProcess);
         mediator.invoke(Mediator.Action.SCHEDULER_ADD_TO_QUEUE, new Object[]{newProcess});
+        System.out.println("Created process state " + newProcess.getState());
     }
     
     private Process createSimpleProcess(Object[] attributes) {

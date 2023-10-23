@@ -46,6 +46,7 @@ public abstract class TimeSharedScheduler extends Scheduler{
     protected abstract Process dequeue(List<Process> processQueue);
 
     public boolean newProcessCanExecute(){
+
         return !newList.isEmpty();
     }
 
@@ -113,7 +114,10 @@ public abstract class TimeSharedScheduler extends Scheduler{
         removeProcessFromWaitingList(Process.State.READY);
     }
     public void moveFromNewToReadList(){
-        List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
+        //List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
+        List<Process> readyList = newList.stream()
+                .filter(this::isProcessSubmitted)
+                .toList();
         this.readyList.addAll(readyList);
         removeProcessFromNewList(Process.State.READY);
     }

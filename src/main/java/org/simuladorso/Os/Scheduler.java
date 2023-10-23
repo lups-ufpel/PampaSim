@@ -3,9 +3,9 @@ package org.simuladorso.Os;
 import java.util.ArrayList;
 import java.util.List;
 import org.simuladorso.Mediator.Mediator;
+import org.simuladorso.Mediator.MediatorDefault;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import org.simuladorso.Os.Process;
 
 public abstract class Scheduler {
 
@@ -16,14 +16,17 @@ public abstract class Scheduler {
     List<Process> newList;
     List<Process> runningList;
     Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
+    Mediator mediator;
 
     public Scheduler(int numCores,Mediator mediator) {
         this.numCores = numCores;
+        this.mediator = mediator;
         newList = new ArrayList<Process>();
         readyList = new ArrayList<Process>();
         waitingList = new ArrayList<Process>();
         terminatedList = new ArrayList<Process>();
         runningList = new ArrayList<Process>(numCores);
+
     }
 
     /**
@@ -49,8 +52,18 @@ public abstract class Scheduler {
     protected void enqueue(Process p, List<Process> procQueue){
         procQueue.add(p);
     }
+    protected boolean isProcessSubmitted(Process p){
+        int curr_tick = (int) mediator.invoke(Mediator.Action.GET_TIME);
+        return p.getArrivalTime() <= curr_tick;
+    }
     public void addNewProcess(Process p ){
-        p.setState(Process.State.READY);
+
+        if(isProcessSubmitted(p)){
+            p.setState(Process.State.READY);
+        }
+        else{
+            p.setState(Process.State.NEW);
+        }
         enqueue(p, newList);
     }
     protected Process dequeue(List<Process> processQueue){

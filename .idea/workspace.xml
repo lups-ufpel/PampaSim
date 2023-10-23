@@ -4,22 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Melhorando os logs de execucao do processoSimples">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerRoundRobin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Implementando um temporizador de simulacao">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Mediator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Mediator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerPriority.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerPriority.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Vm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Vm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/VmSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/VmSimple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/log4j2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,27 +63,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;android.gradle.sync.needed&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/joao/simuladorso&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.mocha.mocha_node_package_dir&quot;: &quot;&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "android.gradle.sync.needed": "true",
+    "git-widget-placeholder": "jansoares",
+    "last_opened_file_path": "/Users/joao/simuladorso",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.mocha.mocha_node_package_dir": "",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="Push.Settings">
     <option name="SHOW_DETAILS_PANEL" value="false" />
   </component>
@@ -141,6 +134,7 @@
       <workItem from="1697925199904" duration="14489000" />
       <workItem from="1698011354342" duration="3330000" />
       <workItem from="1698014712350" duration="32000" />
+      <workItem from="1698014750058" duration="2806000" />
     </task>
     <task id="LOCAL-00001" summary="Projeto organizado no padrão de diretorios do Maven">
       <option name="closed" value="true" />
@@ -182,7 +176,15 @@
       <option name="project" value="LOCAL" />
       <updated>1697769739998</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Implementando um temporizador de simulacao">
+      <option name="closed" value="true" />
+      <created>1698014815470</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1698014815470</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,7 +206,8 @@
     <MESSAGE value="Removido os comentários Todos" />
     <MESSAGE value="Refatorando e resolvendo bugs no Escalonador" />
     <MESSAGE value="Melhorando os logs de execucao do processoSimples" />
-    <option name="LAST_COMMIT_MESSAGE" value="Melhorando os logs de execucao do processoSimples" />
+    <MESSAGE value="Implementando um temporizador de simulacao" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implementando um temporizador de simulacao" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

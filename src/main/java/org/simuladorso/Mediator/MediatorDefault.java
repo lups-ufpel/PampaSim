@@ -32,6 +32,7 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.GET_NUM_CORES, new GetNumCores());
         handlers.put(Action.GET_AVAILABLE_PID, new GetAvailablePid());
         handlers.put(Action.PROCESS_GET_PID, new GetPid());
+        handlers.put(Action.GET_TIME, new GetTick());
         //handlers.put(Action.UPDATE_CORES_INFO, new UpdateCoresInfo());
     }
 
