@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Implementando temporizador no escalonador&#10;Código esta com bug">
+    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +24,6 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="5392a97d843623b71e5b564dc23052ae376d421d" />
         <entry key="$PROJECT_DIR$" value="TesteGui" />
       </map>
     </option>
@@ -60,28 +59,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "android.gradle.sync.needed": "true",
-    "git-widget-placeholder": "jansoares",
-    "last_opened_file_path": "/Users/joao/simuladorso",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.mocha.mocha_node_package_dir": "",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;android.gradle.sync.needed&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;jansoares&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/joao/simuladorso&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.mocha.mocha_node_package_dir&quot;: &quot;&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="Push.Settings">
     <option name="SHOW_DETAILS_PANEL" value="false" />
   </component>
@@ -132,7 +131,8 @@
       <workItem from="1697925199904" duration="14489000" />
       <workItem from="1698011354342" duration="3330000" />
       <workItem from="1698014712350" duration="32000" />
-      <workItem from="1698014750058" duration="4942000" />
+      <workItem from="1698014750058" duration="5250000" />
+      <workItem from="1698091927271" duration="1132000" />
     </task>
     <task id="LOCAL-00001" summary="Projeto organizado no padrão de diretorios do Maven">
       <option name="closed" value="true" />
@@ -190,7 +190,15 @@
       <option name="project" value="LOCAL" />
       <updated>1698019558202</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior.">
+      <option name="closed" value="true" />
+      <created>1698021715039</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1698021715039</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -226,7 +234,8 @@
     <MESSAGE value="Melhorando os logs de execucao do processoSimples" />
     <MESSAGE value="Implementando um temporizador de simulacao" />
     <MESSAGE value="Implementando temporizador no escalonador&#10;Código esta com bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implementando temporizador no escalonador&#10;Código esta com bug" />
+    <MESSAGE value="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior." />
+    <option name="LAST_COMMIT_MESSAGE" value="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

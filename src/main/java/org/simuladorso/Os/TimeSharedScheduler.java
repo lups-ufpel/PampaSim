@@ -4,6 +4,7 @@ import org.simuladorso.Mediator.Mediator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class TimeSharedScheduler extends Scheduler{
@@ -15,40 +16,7 @@ public abstract class TimeSharedScheduler extends Scheduler{
         clockCycles = new int[numCores];
         QUANTUM = quantum;
     }
-
-    @Override
-    public List<Process> schedule() {
-        // Step 1: Move process to the appropriate lists
-        moveFromRunningToFinishedList();
-        moveFromRunningToWaitingList();
-        moveFromWaitingToReadyList();
-
-
-        // Step 1.1 PREEMPT CURRENTLY RUNNING PROCESSES
-        moveFromRunningToReadyList();
-
-        // Step 2: Check if a new process can execute and move it if necessary
-        if(newProcessCanExecute()) {
-            moveFromNewToReadList();
-        }
-
-        // Step 3: Assign processes to cores
-        for (int coreId = 0; coreId < numCores; coreId++) {
-
-            if(isThereReadyProcesses() && isCoreIdle(coreId)){
-
-                assignProcessToCore(coreId);
-            }
-        }
-        return runningList;
-
-    }
     protected abstract Process dequeue(List<Process> processQueue);
-
-    public boolean newProcessCanExecute(){
-
-        return !newList.isEmpty();
-    }
 
     public void assignProcessToCore(int coreId) {
         Process p;
@@ -61,14 +29,6 @@ public abstract class TimeSharedScheduler extends Scheduler{
             runningList.set(coreId, p);
         }
         LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
-    }
-    public boolean isThereReadyProcesses(){
-        LOGGER.debug("isThereReadyProcesses ? [{}] -> list = {}", !readyList.isEmpty(), Arrays.toString(readyList.toArray()));
-        return !readyList.isEmpty();
-    }
-    boolean hasEmptySlots(List<Process> queue, int numOfSlots) {
-        LOGGER.debug("hasEmptySlots ? [{}] queue size {} and num of slots {} ", numOfSlots>=queue.size(), queue.size(), numOfSlots);
-        return numOfSlots >= queue.size();
     }
     private boolean isCoreEmpty(int coreId) {
         LOGGER.debug("isCoreEmpty ? [{}] core {} has this current process {}", runningList.get(coreId) == null, coreId, runningList.get(coreId));
@@ -123,27 +83,12 @@ public abstract class TimeSharedScheduler extends Scheduler{
     }
     private List<Process> filterNonNullProcesses(List<Process> inputList) {
         return inputList.stream()
-                .filter(process -> process != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
     private List<Process> filterProcessesByState(List<Process> inputList, Process.State state) {
         return inputList.stream()
                 .filter(process -> process.getState() == state)
-                .collect(Collectors.toList());
-    }
-    public void removeProcessFromRunningList(Process.State state) {
-        runningList = runningList.stream()
-                .map(process -> (process!= null && process.getState() == state) ? null : process)
-                .collect(Collectors.toList());
-    }
-    public void removeProcessFromWaitingList(Process.State state) {
-        waitingList = waitingList.stream()
-                .filter(process -> process.getState() != state)
-                .collect(Collectors.toList());
-    }
-    public void removeProcessFromNewList(Process.State state){
-        newList = newList.stream()
-                .filter(process -> process.getState() != state)
                 .collect(Collectors.toList());
     }
 }
