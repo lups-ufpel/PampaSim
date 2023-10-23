@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Implementando um temporizador de simulacao">
+    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Implementando temporizador no escalonador&#10;Código esta com bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Mediator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Mediator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" afterDir="false" />
     </list>
@@ -28,6 +24,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
+        <entry key="$PROJECT_DIR$" value="5392a97d843623b71e5b564dc23052ae376d421d" />
         <entry key="$PROJECT_DIR$" value="TesteGui" />
       </map>
     </option>
@@ -111,6 +108,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
   </component>
@@ -134,7 +132,7 @@
       <workItem from="1697925199904" duration="14489000" />
       <workItem from="1698011354342" duration="3330000" />
       <workItem from="1698014712350" duration="32000" />
-      <workItem from="1698014750058" duration="2806000" />
+      <workItem from="1698014750058" duration="4942000" />
     </task>
     <task id="LOCAL-00001" summary="Projeto organizado no padrão de diretorios do Maven">
       <option name="closed" value="true" />
@@ -184,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1698014815470</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Implementando temporizador no escalonador&#10;Código esta com bug">
+      <option name="closed" value="true" />
+      <created>1698019558202</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1698019558202</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,7 +201,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="jansoares" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -207,7 +225,8 @@
     <MESSAGE value="Refatorando e resolvendo bugs no Escalonador" />
     <MESSAGE value="Melhorando os logs de execucao do processoSimples" />
     <MESSAGE value="Implementando um temporizador de simulacao" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implementando um temporizador de simulacao" />
+    <MESSAGE value="Implementando temporizador no escalonador&#10;Código esta com bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implementando temporizador no escalonador&#10;Código esta com bug" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

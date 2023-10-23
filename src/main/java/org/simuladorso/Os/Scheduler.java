@@ -57,13 +57,7 @@ public abstract class Scheduler {
         return p.getArrivalTime() <= curr_tick;
     }
     public void addNewProcess(Process p ){
-
-        if(isProcessSubmitted(p)){
-            p.setState(Process.State.READY);
-        }
-        else{
-            p.setState(Process.State.NEW);
-        }
+        p.setState(Process.State.NEW);
         enqueue(p, newList);
     }
     protected Process dequeue(List<Process> processQueue){

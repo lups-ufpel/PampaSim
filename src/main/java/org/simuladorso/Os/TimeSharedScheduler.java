@@ -87,7 +87,7 @@ public abstract class TimeSharedScheduler extends Scheduler{
 
         p.incrQuantum();
 
-        if(p.currentQuantum > QUANTUM){
+        if(p.currentQuantum >= QUANTUM){
             p.setState(Process.State.READY);
             p.resetQuantum();
             return true;
@@ -114,10 +114,10 @@ public abstract class TimeSharedScheduler extends Scheduler{
         removeProcessFromWaitingList(Process.State.READY);
     }
     public void moveFromNewToReadList(){
-        //List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
-        List<Process> readyList = newList.stream()
+        newList.stream()
                 .filter(this::isProcessSubmitted)
-                .toList();
+                .forEach(process -> process.setState(Process.State.READY));
+        List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcessFromNewList(Process.State.READY);
     }
