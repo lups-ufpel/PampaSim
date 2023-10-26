@@ -13,9 +13,9 @@ public class CoreSimple extends Core{
 
 
         process.forwardProcessExecution();
-        int ticks_executed = process.getCurrentBustTime();
-        int total_ticks = process.getBurstTime();
-        LOGGER.info("Process of PID {} executed {} instr out of {}.",process.getPid(), ticks_executed,process.getBurstTime());
+        int ticks_executed = process.getCurrentBurst();
+        int total_ticks = process.getTotalBurst();
+        LOGGER.info("Process of PID {} executed {} instr out of {}.",process.getPid(),ticks_executed, total_ticks);
 
         if(ticks_executed >= total_ticks){
             process.setState(Process.State.TERMINATED);

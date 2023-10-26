@@ -4,136 +4,79 @@ import org.simuladorso.VirtualMachine.Processor.Registers;
 import org.simuladorso.VirtualMachine.Sbyte;
 import java.util.ArrayList;
 
-/**
- * This abstract class represents a process in an operating system.
- * It contains the process ID, priority, arrival time, burstTime, and state.
- * It also includes methods to get and set these attributes, as well as methods for CPU percentage, parent process ID, program counter, stack size, interruption, quantum, registers, and memory.
- * The class implements the Comparable interface to allow for comparison of processes based on priority, arrival time, and process ID.
- * The State enum represents the different states a process can be in, and the Type enum represents the different types of processes.
- */
-public abstract class Process {
-    
-    static final int DEFAULT_PRIORITY = 1;
-    static final int ARRIVAL_TIME = 0;
-    final Process.State INITIAL_STATE = Process.State.NEW;
+public class Process {
+
     Process.State state;
-    int pid;
+
+    final PidAllocator.Pid pid;
+    final int arrivalTime;
+    final int totalBurst;
+
     int priority;
-    int arrivalTime;
-    int currentBustTime;
+    int currentBurst;
     int currentQuantum;
 
+    private Registers registers;
+    private ArrayList<Sbyte> mem;
+    private Interruption interruption;
 
+
+
+    public ArrayList<Sbyte> getMem() {
+        return mem;
+    }
+
+    public void setMem(ArrayList<Sbyte> mem) {
+        this.mem = mem;
+    }
+
+
+
+    public Process(PidAllocator.Pid pid, int priority, int totalBurst, int arrivalTime) {
+        this.pid = pid;
+        this.priority = priority;
+        this.totalBurst = totalBurst;
+        this.arrivalTime = arrivalTime;
+        this.currentBurst = 0;
+    }
+
+    public int getPid() {
+        return pid.getNum();
+    }
+    public int getPriority(){
+        return priority;
+    }
+    public void setPriority(int priority){
+        this.priority = priority;
+    }
+    public int getArrivalTime(){
+        return arrivalTime;
+    }
+    public int getCurrentQuantum() {
+        return currentQuantum;
+    }
+    public void setCurrentQuantum(int currentQuantum) {
+        this.currentQuantum = currentQuantum;
+    }
+    public State getState(){
+        return state;
+    }
+    public void setState(State state){
+        this.state = state;
+    }
+    public int getTotalBurst(){ return totalBurst; }
+    public int getCurrentBurst() {
+        return currentBurst;
+    }
+
+    public void forwardProcessExecution(){
+        this.currentBurst +=1;
+    }
     public void incrQuantum(){
         currentQuantum +=1;
     }
     public void resetQuantum(){
         currentQuantum = 0;
-    }
-    public int getCurrentQuantum() {
-        return currentQuantum;
-    }
-
-    public void setCurrentQuantum(int currentQuantum) {
-        this.currentQuantum = currentQuantum;
-    }
-    public Process(int pid) {
-        this.pid = pid;
-    }
-    /**
-     * Returns the process ID (PID) of this process.
-     *
-     * @return the PID of this process
-     */
-    public int getPid() {
-        return pid;
-    }
-    
-    /**
-     * Sets the process ID (PID) of this process.
-     *
-     * @param pid the PID to set
-     */
-    public void setPid(int pid){
-        this.pid = pid;
-    }
-
-    /**
-     * Returns the priority of this process.
-     *
-     * @return the priority of this process
-     */
-    public int getPriority(){
-        return priority;
-    }
-
-    /**
-     * Sets the priority of this process.
-     *
-     * @param priority the priority to set
-     */
-    public void setPriority(int priority){
-        this.priority = priority;
-    }
-
-    /**
-     * Returns the arrival time of this process.
-     *
-     * @return the arrival time of this process
-     */
-    public int getArrivalTime(){
-        return arrivalTime;
-    }
-
-    /**
-     * Sets the arrival time of this process.
-     *
-     * @param arrivalTime the arrival time to set
-     */
-    public void setArrivalTime(int arrivalTime){
-        this.arrivalTime = arrivalTime;
-    }
-
-    /**
-     * Returns the state of this process.
-     *
-     * @return the state of this process
-     */
-    public State getState(){
-        return state;
-    }
-
-    /**
-     * Sets the state of this process.
-     *
-     * @param state the state to set
-     */
-    public void setState(State state){
-        this.state = state;
-    }
-
-    /**
-     * Returns the burstTime of this process.
-     *
-     * @return the burstTime of this process
-     */
-    public int getCurrentBustTime(){
-        return currentBustTime;
-    }
-
-    /**
-     * Sets the burstTime of this process.
-     *
-     * @param burstTime the burstTime to set
-     */
-    public void setCurrentBustTime(int burstTime){
-        this.currentBustTime = burstTime;
-    }
-
-    public int getBurstTime(){ return currentBustTime; }
-
-    public void forwardProcessExecution(){
-        setCurrentBustTime(currentBustTime + 1);
     }
 
     /**
@@ -180,15 +123,8 @@ public abstract class Process {
         System.out.println("This process does not have an interruption");
         System.out.println("You should override this method in the child class");
     }
-    public int getQuantum(){
-        return 0;
-    }
-    public void setQuantum(int quantum){
-        System.out.println("This process does not have a quantum");
-        System.out.println("You should override this method in the child class");
-    }
     public boolean hasInterrupt(){
-        throw new UnsupportedOperationException("Unimplemented method 'hasInterrupt'");
+        return false;
     }
     public Registers getRegisters(){
         return null;
@@ -231,7 +167,7 @@ public abstract class Process {
         TERMINATED
     }
 
-    public enum Type{
+    public enum Type {
 
         /**
          * The Process does not have memory and Register requirements

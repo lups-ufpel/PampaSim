@@ -4,10 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior.">
+    <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Refatoração das classes do escalonador">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/PidAllocator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/GetList.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/GetProcess.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/GetProcessByPid.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/NewProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/NewProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Process/GetAvailablePid.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/OsSimple.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/ProcessLuan.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/ProcessSimple.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerLuan.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerPriority.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerPriority.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerRoundRobin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerRoundRobin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/CoreSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/CoreSimple.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +37,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -66,6 +87,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;android.gradle.sync.needed&quot;: &quot;true&quot;,
+    &quot;full.screen.before.presentation.mode&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;jansoares&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/joao/simuladorso&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -77,7 +99,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.scopes&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -108,6 +130,8 @@
       <list>
         <item itemvalue="Application.Main" />
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
   </component>
@@ -132,7 +156,13 @@
       <workItem from="1698011354342" duration="3330000" />
       <workItem from="1698014712350" duration="32000" />
       <workItem from="1698014750058" duration="5250000" />
-      <workItem from="1698091927271" duration="1132000" />
+      <workItem from="1698091927271" duration="1381000" />
+      <workItem from="1698101624543" duration="4056000" />
+      <workItem from="1698106906066" duration="18295000" />
+      <workItem from="1698231402582" duration="26915000" />
+      <workItem from="1698349010025" duration="3177000" />
+      <workItem from="1698359366798" duration="2675000" />
+      <workItem from="1698363803252" duration="765000" />
     </task>
     <task id="LOCAL-00001" summary="Projeto organizado no padrão de diretorios do Maven">
       <option name="closed" value="true" />
@@ -198,7 +228,15 @@
       <option name="project" value="LOCAL" />
       <updated>1698021715039</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Refatoração das classes do escalonador">
+      <option name="closed" value="true" />
+      <created>1698093301885</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1698093301885</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -235,7 +273,8 @@
     <MESSAGE value="Implementando um temporizador de simulacao" />
     <MESSAGE value="Implementando temporizador no escalonador&#10;Código esta com bug" />
     <MESSAGE value="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior." />
-    <option name="LAST_COMMIT_MESSAGE" value="Corrigido bug que não estava sendo atribuído estado Pronto para processos criados no instante posterior ao inicio. Corrigido a situação que o processo executava 1 instrução a mais do quantum. Corrigido falha que as classes GetTick.java e SimulatorClock.java não foram trackeadas no commit anterior." />
+    <MESSAGE value="Refatoração das classes do escalonador" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refatoração das classes do escalonador" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

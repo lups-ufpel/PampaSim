@@ -3,7 +3,7 @@ package org.simuladorso.Os;
 import java.util.List;
 import org.simuladorso.Mediator.Mediator;
 
-public class SchedulerSJF extends SpaceSharedScheduler {
+public class SchedulerSJF extends Scheduler {
 
     public SchedulerSJF(int numCores, Mediator mediator) {
         super(numCores, mediator);
@@ -18,7 +18,7 @@ public class SchedulerSJF extends SpaceSharedScheduler {
         Process shortestBurstTimeProcess = processQueue.get(0);
 
         for (Process process : processQueue) {
-            if (process.getBurstTime() < shortestBurstTimeProcess.getBurstTime()) {
+            if (process.getTotalBurst() < shortestBurstTimeProcess.getTotalBurst()) {
                 shortestBurstTimeProcess = process;
             }
         }

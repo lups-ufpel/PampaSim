@@ -15,7 +15,6 @@ public class MediatorDefault implements Runnable, Mediator {
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
     public MediatorDefault() {
-        handlers.put(Action.GET_PROCESS_BY_PID, new GetProcessByPid());
         handlers.put(Action.LIST_PROCESSES_PIDS, new ListProcessesPids());
         handlers.put(Action.LIST_NEW_PROCESSES, new ListNewProcesses());
         handlers.put(Action.LIST_READY_PROCESSES, new ListReadyProcesses());
@@ -30,7 +29,6 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.CORE_EXECUTE, new Execute());
         handlers.put(Action.LIST_CORES, new ListCores());
         handlers.put(Action.GET_NUM_CORES, new GetNumCores());
-        handlers.put(Action.GET_AVAILABLE_PID, new GetAvailablePid());
         handlers.put(Action.PROCESS_GET_PID, new GetPid());
         handlers.put(Action.GET_TIME, new GetTick());
         //handlers.put(Action.UPDATE_CORES_INFO, new UpdateCoresInfo());

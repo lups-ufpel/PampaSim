@@ -117,12 +117,15 @@ public abstract class Scheduler {
         removeProcessFromWaitingList(Process.State.READY);
     }
     public void moveFromNewToReadList(){
+        newList.stream()
+                .filter(this::isProcessSubmitted)
+                .forEach(process -> process.setState(Process.State.READY));
         List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcessFromNewList(Process.State.READY);
     }
 
-    private List<Process> filterNonNullProcesses(List<Process> inputList) {
+    protected List<Process> filterNonNullProcesses(List<Process> inputList) {
         return inputList.stream()
                 .filter(process -> process != null)
                 .collect(Collectors.toList());

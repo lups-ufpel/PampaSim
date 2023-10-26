@@ -5,7 +5,7 @@ import org.simuladorso.Mediator.Mediator;
 
 import java.util.List;
 
-public class SchedulerPriority extends SpaceSharedScheduler {
+public class SchedulerPriority extends Scheduler {
 
 
     public SchedulerPriority(int numCores, Mediator mediator) {

@@ -1,3 +1,13 @@
+/*
+
+    * Classname
+    *
+    * Version information
+    *
+    * Date
+    *
+    * Copyright notice
+ */
 package org.simuladorso;
 
 import org.simuladorso.Mediator.*;
@@ -10,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class Main {
+
 
     static final Logger LOGGER = LoggerFactory.getLogger("Main");
     static final Process.Type PROCESS_TYPE = Process.Type.SIMPLE;
