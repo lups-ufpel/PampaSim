@@ -5,29 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ddd19537-9613-4217-bf75-51226ce53932" name="Changes" comment="Refatoração das classes do escalonador">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/PidAllocator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Scheduler/sim_status.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/GetList.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/GetProcess.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/GetProcessByPid.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/NewProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Kernel/NewProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Handlers/Process/GetAvailablePid.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Mediator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/Mediator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Mediator/MediatorDefault.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Os.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/OsSimple.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Process.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/ProcessLuan.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/ProcessSimple.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/Scheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerFCFS.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerLuan.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerPriority.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerPriority.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerRoundRobin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerRoundRobin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SchedulerSJF.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/SpaceSharedScheduler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/Os/TimeSharedScheduler.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/CoreSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Processor/CoreSimple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Vm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/Vm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/VmSimple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/simuladorso/VirtualMachine/VmSimple.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,6 +148,7 @@
       <workItem from="1698349010025" duration="3177000" />
       <workItem from="1698359366798" duration="2675000" />
       <workItem from="1698363803252" duration="765000" />
+      <workItem from="1698399579965" duration="3193000" />
     </task>
     <task id="LOCAL-00001" summary="Projeto organizado no padrão de diretorios do Maven">
       <option name="closed" value="true" />

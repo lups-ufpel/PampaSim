@@ -66,8 +66,21 @@ public abstract class Scheduler {
         LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
     }
     public boolean isThereReadyProcesses() {
-        LOGGER.debug("isThereReadyProcesses ? [{}] -> list = {}", !readyList.isEmpty(), Arrays.toString(readyList.toArray()));
+        LOGGER.debug("is there ready processes ? [{}] -> list = {}", !readyList.isEmpty(), Arrays.toString(readyList.toArray()));
         return !readyList.isEmpty();
+    }
+    public boolean isThereNewProcesses(){
+        LOGGER.debug("is there new processes ? [{}] -> list = {}",!newList.isEmpty(), Arrays.toString(readyList.toArray()));
+        return !newList.isEmpty();
+    }
+    public boolean isThereRunningProcesses(){
+        List<Process> lp = filterNonNullProcesses(runningList);
+        LOGGER.debug("is there running processes ? [{}] -> list = {}", !lp.isEmpty(), Arrays.toString(readyList.toArray()));
+        return !lp.isEmpty();
+    }
+    public boolean isThereWaitingProcesses(){
+        LOGGER.debug("is there waiting Processes ? [{}] -> list = {}", !waitingList.isEmpty(), Arrays.toString(readyList.toArray()));
+        return !waitingList.isEmpty();
     }
     boolean hasEmptySlots(List<Process> queue, int numOfSlots) {
         LOGGER.debug("hasEmptySlots ? [{}] queue size {} and num of slots {} ", numOfSlots>=queue.size(), queue.size(), numOfSlots);

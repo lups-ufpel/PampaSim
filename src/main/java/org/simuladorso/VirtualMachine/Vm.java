@@ -37,7 +37,7 @@ public abstract class Vm <T extends Core> {
     public void start(){
         throw new UnsupportedOperationException("Unimplemented method 'start'");
     }
-    public void stop(){
+    public boolean stop(){
         throw new UnsupportedOperationException("Unimplemented method 'stop'");
     }
     public Process [] getRunningList(){

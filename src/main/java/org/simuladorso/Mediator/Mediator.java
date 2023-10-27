@@ -35,6 +35,7 @@ public interface Mediator {
         GET_NUM_CORES,
         START_VM,
         STOP_VM,
+        GET_SIM_STATUS,
         GET_AVAILABLE_PID,
         GET_TIME,
         UPDATE_CORES_INFO,

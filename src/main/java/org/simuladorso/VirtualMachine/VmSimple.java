@@ -60,18 +60,31 @@ public class VmSimple extends Vm<CoreSimple> {
     @Override
     public void run() {
 
-        while(!Thread.currentThread().isInterrupted()){
+        while(!Thread.currentThread().isInterrupted()) {
+
             SIM_CLOCK.incrTick();
+
             LOGGER.debug("Current Tick: [{}]",SIM_CLOCK.getTick());
+
             runningList = getRunningProcesses();
+
             executeProcesses(runningList);
-            System.out.println("===================================="); //1
+
+            System.out.println("====================================");
+
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+            if(stop()){
+                break;
+            }
         }
+    }
+    @Override
+    public boolean stop(){
+        return (boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS);
     }
     @Override
     public void interruptionHandler() {

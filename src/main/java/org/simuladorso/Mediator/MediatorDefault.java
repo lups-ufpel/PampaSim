@@ -15,6 +15,7 @@ public class MediatorDefault implements Runnable, Mediator {
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
     public MediatorDefault() {
+        handlers.put(Action.GET_SIM_STATUS, new sim_status());
         handlers.put(Action.LIST_PROCESSES_PIDS, new ListProcessesPids());
         handlers.put(Action.LIST_NEW_PROCESSES, new ListNewProcesses());
         handlers.put(Action.LIST_READY_PROCESSES, new ListReadyProcesses());
