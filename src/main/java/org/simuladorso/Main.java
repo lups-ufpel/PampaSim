@@ -33,8 +33,8 @@ public class Main {
     public static void main(String[] args){
 
         LOGGER.info("================== Starting PampaOS Simulator ==================\n");
-        //preemptiveRoundRobinTest();
-        priorityTest();
+        preemptiveRoundRobinTest();
+        //priorityTest();
         ExecutionTable.showSystemComponents((MediatorDefault) mediator);
         ExecutionTable.showSimulationResults();
         //sjfTest();

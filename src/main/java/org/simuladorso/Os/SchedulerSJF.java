@@ -18,7 +18,7 @@ public class SchedulerSJF extends Scheduler {
         Process shortestBurstTimeProcess = processQueue.get(0);
 
         for (Process process : processQueue) {
-            if (process.getTotalBurst() < shortestBurstTimeProcess.getTotalBurst()) {
+            if (process.getBurstTime() < shortestBurstTimeProcess.getBurstTime()) {
                 shortestBurstTimeProcess = process;
             }
         }

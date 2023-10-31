@@ -10,53 +10,35 @@ public class Process {
 
     final PidAllocator.Pid pid;
     final int arrivalTime;
-    final int totalBurst;
+    final int burstTime;
 
-    int priority;
-    int currentBurst;
-    int currentQuantum;
-
-    private Registers registers;
-    private ArrayList<Sbyte> mem;
-    private Interruption interruption;
-
-
-
-    public ArrayList<Sbyte> getMem() {
-        return mem;
-    }
-
-    public void setMem(ArrayList<Sbyte> mem) {
-        this.mem = mem;
-    }
-
-
+    private int priority;
+    private int currExecTime;
+    private int execTimeSlice;
 
     public Process(PidAllocator.Pid pid, int priority, int totalBurst, int arrivalTime) {
         this.pid = pid;
         this.priority = priority;
-        this.totalBurst = totalBurst;
+        this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;
-        this.currentBurst = 0;
+        this.currExecTime = 0;
     }
-
     public int getPid() {
         return pid.getNum();
     }
+
     public int getPriority(){
         return priority;
     }
+
     public void setPriority(int priority){
         this.priority = priority;
     }
     public int getArrivalTime(){
         return arrivalTime;
     }
-    public int getCurrentQuantum() {
-        return currentQuantum;
-    }
-    public void setCurrentQuantum(int currentQuantum) {
-        this.currentQuantum = currentQuantum;
+    public int getCurrentTimeSlice() {
+        return execTimeSlice;
     }
     public State getState(){
         return state;
@@ -64,64 +46,23 @@ public class Process {
     public void setState(State state){
         this.state = state;
     }
-    public int getTotalBurst(){ return totalBurst; }
-    public int getCurrentBurst() {
-        return currentBurst;
+    public int getBurstTime(){ return burstTime; }
+    public int getCurrentExecutionTime() {
+        return currExecTime;
     }
-
     public void forwardProcessExecution(){
-        this.currentBurst +=1;
+        this.currExecTime +=1;
     }
     public void incrQuantum(){
-        currentQuantum +=1;
+        execTimeSlice +=1;
     }
     public void resetQuantum(){
-        currentQuantum = 0;
+        execTimeSlice = 0;
     }
 
-    /**
-     * Returns the CPU percentage of this process.
-     *
-     * @return the CPU percentage of this process
-     */
-    public int getCpuPercentage(){
-        return 0;
-    }
-    public void setCpuPercentage(int cpuPercentage){
-        System.out.println("This process does not have a cpu percentage");
-        System.out.println("You should override this method in the child class");
-    }
-    public int getParentPid(){
-        return 0;
-    }
-    public void setParentPid(int parentPid){
-        System.out.println("This process does not have a parent pid");
-        System.out.println("You should override this method in the child class");
-    }
-    public void incrementPc(){
-        System.out.println("This process does not have a pc");
-        System.out.println("You should override this method in the child class");
-    }
-    public int getPc(){
-        return 0;
-    }
-    public void setPc(int pc){
-        System.out.println("This process does not have a pc");
-        System.out.println("You should override this method in the child class");
-    }
-    public int getStackSize(){
-        return 0;
-    }
-    public void setStackSize(int stackSize){
-        System.out.println("This process does not have a stack size");
-        System.out.println("You should override this method in the child class");
-    }
+
     public Interruption getInterruption(){
         return null;
-    }
-    public void setInterruption(Interruption interruption){
-        System.out.println("This process does not have an interruption");
-        System.out.println("You should override this method in the child class");
     }
     public boolean hasInterrupt(){
         return false;
@@ -129,18 +70,11 @@ public class Process {
     public Registers getRegisters(){
         return null;
     }
-    public void setRegisters(Registers registers){
-        System.out.println("This process does not have registers");
-        System.out.println("You should override this method in the child class");
-    }
-    public ArrayList<Sbyte> getMemory(){
+    public ArrayList<Sbyte> getMemory() {
         System.out.println("This process does not have memory");
         return null;
     }
-    public void setMemory(ArrayList<Sbyte> mem){
-        System.out.println("This process does not have memory");
-        System.out.println("You should override this method in the child class");
-    }
+
     public enum State {
         /**
          * The Process has been just instantiated but not assigned to CPU Core.
@@ -174,14 +108,5 @@ public class Process {
          */
         SIMPLE,
 
-        /**
-         * The Process has memory and Register requirements
-         */
-        COMPLETE,
-
-        /**
-         * The Process Simple  a priority
-         */
-        SIMPLE_WITH_PRIORITY
     }
 }

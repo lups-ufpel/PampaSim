@@ -53,7 +53,7 @@ public class SchedulerRoundRobin extends Scheduler{
 
         p.incrQuantum();
 
-        if(p.currentQuantum >= QUANTUM){
+        if(p.getCurrentTimeSlice() >= QUANTUM){
             p.setState(Process.State.READY);
             p.resetQuantum();
             return true;

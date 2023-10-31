@@ -9,8 +9,8 @@ public class CoreSimple implements Core {
     public void execute(Process process) {
 
         process.forwardProcessExecution();
-        int ticks_executed = process.getCurrentBurst();
-        int total_ticks = process.getTotalBurst();
+        int ticks_executed = process.getCurrentExecutionTime();
+        int total_ticks = process.getBurstTime();
         LOGGER.info("Process of PID {} executed {} instr out of {}.",process.getPid(),ticks_executed, total_ticks);
         if(ticks_executed >= total_ticks){
             process.setState(Process.State.TERMINATED);
