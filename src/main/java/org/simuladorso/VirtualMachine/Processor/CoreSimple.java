@@ -3,11 +3,8 @@ package org.simuladorso.VirtualMachine.Processor;
 import org.simuladorso.Os.Process;
 
 
-public class CoreSimple extends Core{
+public class CoreSimple implements Core {
 
-    public CoreSimple() {
-        LOGGER.info("Component {} was created",getClass().getSimpleName());
-    }
     @Override
     public void execute(Process process) {
 

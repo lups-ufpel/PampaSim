@@ -10,7 +10,7 @@ public class GetNumCores implements Command {
     public Object execute(Message message) {
 
         //The unbounded wildcard ? is useful in cases where it doesn't matter what the generic type is.
-        Vm<?> vm = (Vm<?>) message.getComponents().get(Mediator.Component.VM);
+        Vm vm = (Vm) message.getComponents().get(Mediator.Component.VM);
         return vm.getNumCores();
     }
 }

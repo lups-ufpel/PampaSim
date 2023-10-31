@@ -8,7 +8,7 @@ import org.simuladorso.VirtualMachine.Vm;
 public class StartVM implements Command {
     @Override
     public Object execute(Message message) {
-        Vm<?>vm = (Vm<?>) message.getComponents().get(Mediator.Component.VM);
+        Vm vm = (Vm) message.getComponents().get(Mediator.Component.VM);
 
         vm.start();
 

@@ -1,5 +1,6 @@
 package org.simuladorso.VirtualMachine;
 
+import org.simuladorso.Os.Interruption;
 import org.simuladorso.Utils.SimulatorClock;
 import org.simuladorso.VirtualMachine.Processor.Core;
 import java.util.List;
@@ -8,16 +9,16 @@ import org.simuladorso.Os.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Vm <T extends Core> {
+public abstract class Vm {
 
     final Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
     public final SimulatorClock SIM_CLOCK = new SimulatorClock();
+    public Interruption interruption;
     protected final int numCores;
-    protected final T[] cores;
-    protected List<Process> runningList;
+    protected final Core[] cores;
     protected Mediator mediator;
 
-    public Vm(T[] corelist){
+    public Vm(Core[] corelist){
         this.cores = corelist;
         this.numCores = cores.length;
         System.out.println("Virtual Machine created with " +  numCores + " cores");

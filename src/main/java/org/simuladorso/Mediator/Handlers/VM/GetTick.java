@@ -10,7 +10,7 @@ public class GetTick implements Command {
     @Override
     public Object execute(Message message) {
 
-        Vm<?> vm = (Vm<?>) message.getComponents().get(Mediator.Component.VM);
+        Vm vm = (Vm) message.getComponents().get(Mediator.Component.VM);
         return vm.SIM_CLOCK.getTick();
     }
 }
