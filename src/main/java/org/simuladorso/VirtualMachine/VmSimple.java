@@ -1,33 +1,35 @@
 package org.simuladorso.VirtualMachine;
 
+import org.apache.logging.log4j.Logger;
+import org.simuladorso.Os.Interruption;
 import org.simuladorso.Os.Process;
+import org.simuladorso.VirtualMachine.Processor.Core;
 import org.simuladorso.VirtualMachine.Processor.CoreSimple;
 import org.simuladorso.Mediator.Mediator;
-import org.simuladorso.VirtualMachine.Processor.Register;
 import org.simuladorso.VirtualMachine.Processor.Registers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class VmSimple extends Vm {
+public class VmSimple implements Vm {
 
+    public Interruption interruption;
+    protected final int numCores;
+    protected final Core[] cores;
+    protected Mediator mediator;
 
     public VmSimple(int numCores, Mediator mediator) {
-        super(createCores(numCores));
         if(mediator == null || numCores <= 0){
             throw new IllegalArgumentException("Mediator cannot be null and numCores must be greater than 0");
         }
+        this.numCores = numCores;
         this.mediator = mediator;
-    }
-
-    private static CoreSimple[] createCores(int numCores) {
-        CoreSimple[] cores = new CoreSimple[numCores];
+        cores = new Core[numCores];
         for(int i=0; i < numCores; i++){
             cores[i] = new CoreSimple();
         }
-        return cores;
+
     }
     public List<Process> getRunningProcesses() {
         List<Process> processes;
@@ -60,6 +62,7 @@ public class VmSimple extends Vm {
             }
         }
     }
+
     @Override
     public void run() {
         List<Process> runningProcesses;
@@ -85,12 +88,18 @@ public class VmSimple extends Vm {
             }
         }
     }
+
     @Override
+    public boolean start() {
+        // THIS IS A PLACEHOLDER IMPLEMENTATION
+        LOGGER.info("VM started successfully");
+        return true;
+    }
+
     public boolean stop(){
         return (boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS);
     }
 
-    @Override
     public void interruptionHandler(Process process) {
 
         interruption = process.getInterruption();

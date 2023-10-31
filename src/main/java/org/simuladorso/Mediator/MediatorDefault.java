@@ -8,18 +8,20 @@ import org.simuladorso.Mediator.Handlers.Kernel.*;
 import org.simuladorso.Mediator.Handlers.VM.*;
 import org.simuladorso.Utils.Command;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MediatorDefault implements Runnable, Mediator {
 
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
+    private List<String> componentsName = new ArrayList<>();
     public MediatorDefault() {
         handlers.put(Action.GET_SIM_STATUS, new sim_status());
         handlers.put(Action.LIST_PROCESSES_PIDS, new ListProcessesPids());
         handlers.put(Action.LIST_NEW_PROCESSES, new ListNewProcesses());
         handlers.put(Action.LIST_READY_PROCESSES, new ListReadyProcesses());
-        handlers.put(Action.LIST_RUNNING_PROCESSES, new ListRunningProcesses());
         handlers.put(Action.LIST_WAITING_PROCESSES, new ListWaitingProcesses());
         handlers.put(Action.LIST_TERMINATED_PROCESSES, new ListTerminatedProcesses());
         handlers.put(Action.START_VM, new StartVM());
@@ -29,7 +31,6 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.KERNEL_NEW_PROCESS, new NewProcess());
         handlers.put(Action.CORE_EXECUTE, new Execute());
         handlers.put(Action.LIST_CORES, new ListCores());
-        handlers.put(Action.GET_NUM_CORES, new GetNumCores());
         handlers.put(Action.PROCESS_GET_PID, new GetPid());
         handlers.put(Action.GET_TIME, new GetTick());
         //handlers.put(Action.UPDATE_CORES_INFO, new UpdateCoresInfo());
@@ -45,6 +46,7 @@ public class MediatorDefault implements Runnable, Mediator {
         if (componentType != null && component != null) {
             this.components.put(componentType, component);
             LOGGER.info("Component of {} and type of {} has been successfully registered", component.getClass().getSimpleName(), componentType.toString());
+            componentsName.add(component.getClass().getSimpleName());
         }
         else{
             LOGGER.error("REGISTERING A COMPONENT WITH NULL TYPE OR OBJECT PARAMS: [{} {}]",componentType,component);
@@ -76,5 +78,14 @@ public class MediatorDefault implements Runnable, Mediator {
     @Override
     public Object invoke(Action action, Object[] parameters) {
         return this.invoke(new Message(action, parameters));
+    }
+
+    public String[][] getComponentsNames(){
+        String[][] twoDimArray = new String[componentsName.size()][1];
+
+        for (int i = 0; i < componentsName.size(); i++) {
+            twoDimArray[i][0] = componentsName.get(i);
+        }
+        return twoDimArray;
     }
 }

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public interface Core {
 
-    final Logger LOGGER = LoggerFactory.getLogger(Core.class.getSimpleName());
+    Logger LOGGER = LoggerFactory.getLogger(Core.class.getSimpleName());
 
-    public void execute(Process process);
+    void execute(Process process);
 }

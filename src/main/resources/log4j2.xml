@@ -32,7 +32,7 @@
         <Logger name="SchedulerFCFS" level="trace" additivity="true">
             <AppenderRef ref="debugFile" level="debug"/>
         </Logger>
-        <Logger name="CoreSimple" level="trace" additivity="true">
+        <Logger name="Core" level="trace" additivity="true">
             <AppenderRef ref="Console" level="info"/>
         </Logger>
         <Logger name="Main" level="trace" additivity="true">

@@ -12,6 +12,6 @@ public class StartVM implements Command {
 
         vm.start();
 
-        return null;
+        return vm.start();
     }
 }

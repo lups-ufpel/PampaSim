@@ -25,6 +25,4 @@ public class ExecutionTable extends TableFormat{
         LOGGER.info("\n\n{}",AsciiTable.getTable(headers,mediator.getComponentsNames()
         ));
     }
-
-
 }

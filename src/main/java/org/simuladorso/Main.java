@@ -13,7 +13,7 @@ package org.simuladorso;
 import org.simuladorso.Mediator.*;
 import org.simuladorso.Os.Process;
 import org.simuladorso.Os.*;
-import org.simuladorso.VirtualMachine.Processor.*;
+import org.simuladorso.Utils.Statistics.ExecutionTable;
 import org.simuladorso.VirtualMachine.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +29,14 @@ public class Main {
     static Mediator mediator = new MediatorDefault();
     static Os kernel;
     static Scheduler scheduler;
-    static  Vm <? extends Core> vm;
+    static  Vm vm;
     public static void main(String[] args){
 
         LOGGER.info("================== Starting PampaOS Simulator ==================\n");
-        preemptiveRoundRobinTest();
-        //priorityTest();
+        //preemptiveRoundRobinTest();
+        priorityTest();
+        ExecutionTable.showSystemComponents((MediatorDefault) mediator);
+        ExecutionTable.showSimulationResults();
         //sjfTest();
         //fcfsTest();
     }
