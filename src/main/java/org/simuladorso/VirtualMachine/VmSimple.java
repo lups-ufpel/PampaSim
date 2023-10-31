@@ -1,6 +1,5 @@
 package org.simuladorso.VirtualMachine;
 
-import org.apache.logging.log4j.Logger;
 import org.simuladorso.Os.Interruption;
 import org.simuladorso.Os.Process;
 import org.simuladorso.VirtualMachine.Processor.Core;

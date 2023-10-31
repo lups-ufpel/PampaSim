@@ -16,7 +16,7 @@ public class MediatorDefault implements Runnable, Mediator {
 
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
-    private List<String> componentsName = new ArrayList<>();
+    private final List<String> componentsName = new ArrayList<>();
     public MediatorDefault() {
         handlers.put(Action.GET_SIM_STATUS, new sim_status());
         handlers.put(Action.LIST_PROCESSES_PIDS, new ListProcessesPids());
@@ -45,7 +45,7 @@ public class MediatorDefault implements Runnable, Mediator {
         // Handle when ComponentType is Missing but component is valid.
         if (componentType != null && component != null) {
             this.components.put(componentType, component);
-            LOGGER.info("Component of {} and type of {} has been successfully registered", component.getClass().getSimpleName(), componentType.toString());
+            LOGGER.info("Component of {} and type of {} has been successfully registered", component.getClass().getSimpleName(), componentType);
             componentsName.add(component.getClass().getSimpleName());
         }
         else{
