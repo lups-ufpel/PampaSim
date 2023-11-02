@@ -2,22 +2,63 @@ package org.simuladorso.VirtualMachine;
 
 import org.simuladorso.Os.Interruption;
 import org.simuladorso.Os.Process;
+import org.simuladorso.Utils.Statistics.ExecutionTable;
 import org.simuladorso.VirtualMachine.Processor.Core;
 import org.simuladorso.VirtualMachine.Processor.CoreSimple;
 import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.VirtualMachine.Processor.Registers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * The `VmSimple` class is a concrete implementation of the {@link Vm} interface, representing a simple virtual machine (VM) manager.
+ * It provides functionality to run, start, and stop the VM, as well as an interruption handler for handling various interruptions
+ * during VM execution.
+ *
+ * <p>
+ * Usage Example:
+ * <pre>
+ * Vm virtualMachine = new VmSimple(numCores, mediator);
+ * virtualMachine.start();
+ * virtualMachine.run();
+ * virtualMachine.stop();
+ * </pre>
+ *
+ * @version 1.0
+ * @since 2023-3-21
+ */
 public class VmSimple implements Vm {
 
+    /**
+     * An interruption instance for handling interruptions during VM execution.
+     */
     public Interruption interruption;
+
+    /**
+     * The number of CPU cores available in the VM.
+     */
     protected final int numCores;
+
+    /**
+     * An array of CPU cores for executing processes.
+     */
     protected final Core[] cores;
+
+    /**
+     * A mediator for communication with external components.
+     */
     protected Mediator mediator;
 
+    /**
+     * Constructs a `VmSimple` instance with the specified number of CPU cores and a mediator for communication.
+     *
+     * @param numCores  The number of CPU cores in the VM.
+     * @param mediator  The mediator for communication.
+     * @throws IllegalArgumentException if the mediator is null or the number of cores is less than or equal to 0.
+     */
     public VmSimple(int numCores, Mediator mediator) {
         if(mediator == null || numCores <= 0){
             throw new IllegalArgumentException("Mediator cannot be null and numCores must be greater than 0");
@@ -30,6 +71,13 @@ public class VmSimple implements Vm {
         }
 
     }
+
+    /**
+     * Get a list of running processes from the mediator.
+     *
+     * @return A list of running processes.
+     * @throws RuntimeException if an error occurs during the retrieval of running processes.
+     */
     public List<Process> getRunningProcesses() {
         List<Process> processes;
         try {
@@ -44,7 +92,11 @@ public class VmSimple implements Vm {
         }
     }
 
-
+    /**
+     * Execute a list of processes on the available CPU cores.
+     *
+     * @param processes The list of processes to execute.
+     */
     public void executeProcesses(List<Process> processes){
         Process proc;
         for(int coreId =0; coreId < numCores; coreId++){
@@ -55,6 +107,7 @@ public class VmSimple implements Vm {
                     LOGGER.debug("Process of PID {} has requested an interruption",proc.getPid());
                     interruptionHandler(proc);
                 }
+
             }
             else{
                 LOGGER.info("Core [{}] is idle",coreId);
@@ -62,32 +115,41 @@ public class VmSimple implements Vm {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Runs the virtual machine, executing its main operations, handling interruptions, and advancing the simulator clock.
+     */
     @Override
     public void run() {
         List<Process> runningProcesses;
-        while(!Thread.currentThread().isInterrupted()) {
+        ExecutionTable tb = new ExecutionTable();
+        List<Integer> pids = new ArrayList<>();
 
+        do {
             SIM_CLOCK.incrTick();
 
-            LOGGER.debug("Current Tick: [{}]",SIM_CLOCK.getTick());
-
+            LOGGER.debug("Current Tick: [{}]", SIM_CLOCK.getTick());
             runningProcesses = getRunningProcesses();
-
             executeProcesses(runningProcesses);
-
             System.out.println("====================================");
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            if(stop()){
-                break;
-            }
-        }
+
+        } while(!stop());
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Placeholder implementation to start the VM. Logs a message and returns true.
+     *
+     * @return true to indicate a successful start of the VM.
+     */
     @Override
     public boolean start() {
         // THIS IS A PLACEHOLDER IMPLEMENTATION
@@ -95,10 +157,21 @@ public class VmSimple implements Vm {
         return true;
     }
 
+    /**
+     * Stop the VM by invoking the mediator to get the simulator status.
+     *
+     * @return true if the VM should stop; otherwise, false.
+     */
     public boolean stop(){
         return (boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS);
     }
 
+
+    /**
+     * Handle interruptions during VM execution.
+     *
+     * @param process The process that raised the interruption.
+     */
     public void interruptionHandler(Process process) {
 
         interruption = process.getInterruption();

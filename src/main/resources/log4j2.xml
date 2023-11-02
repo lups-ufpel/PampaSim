@@ -2,7 +2,7 @@
 <Configuration>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss} [%1c.%t line:%L] %-5p - %m%n"/>
+            <PatternLayout pattern="%highlight{%d{HH:mm:ss} [%1c.%t line:%L] %-5p - %m%n}"/>
         </Console>
         <Console name="ConsoleMain" target="SYSTEM_OUT">
                 <PatternLayout pattern="%-5p %m%n"/>
@@ -37,6 +37,9 @@
         </Logger>
         <Logger name="Main" level="trace" additivity="true">
             <AppenderRef ref="ConsoleMain" level="info"/>
+        </Logger>
+        <Logger name="statistics" level="trace" additivity="true">
+            <AppenderRef ref="Console"/>
         </Logger>
         <Root level="TRACE">
             <AppenderRef ref="allLevelsFile"/>

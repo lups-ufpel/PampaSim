@@ -13,8 +13,10 @@ public class Process {
     final int burstTime;
 
     private int priority;
-    private int currExecTime;
+    protected int currExecTime;
     private int execTimeSlice;
+
+    protected String progressBar;
 
     public Process(PidAllocator.Pid pid, int priority, int totalBurst, int arrivalTime) {
         this.pid = pid;
@@ -22,6 +24,7 @@ public class Process {
         this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
+        this.progressBar = "";
     }
     public int getPid() {
         return pid.getNum();
@@ -50,14 +53,33 @@ public class Process {
     public int getCurrentExecutionTime() {
         return currExecTime;
     }
+    public String getProgressBar(){
+        return progressBar;
+    }
     public void forwardProcessExecution(){
         this.currExecTime +=1;
+        updateProgressBar();
     }
     public void incrQuantum(){
         execTimeSlice +=1;
     }
     public void resetQuantum(){
         execTimeSlice = 0;
+    }
+    private void updateProgressBar() {
+
+        int totalInstructions = burstTime;
+        int completedInstructions = currExecTime;
+
+        // Computes the number of "█" e "▒" needed
+        int completedBlocks = (completedInstructions * 10) / totalInstructions;
+        int remainingBlocks = 10 - completedBlocks;
+
+        StringBuilder progressBarBuilder = new StringBuilder();
+        progressBarBuilder.append("█".repeat(Math.max(0, completedBlocks)));
+        progressBarBuilder.append("▒".repeat(Math.max(0, remainingBlocks)));
+
+        progressBar = progressBarBuilder.toString();
     }
 
 

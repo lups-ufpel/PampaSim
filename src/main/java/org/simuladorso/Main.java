@@ -24,7 +24,7 @@ public class Main {
 
     static final Logger LOGGER = LoggerFactory.getLogger("Main");
     static final Process.Type PROCESS_TYPE = Process.Type.SIMPLE;
-    static final int CORES = 1;
+    static final int CORES = 2;
     
     static Mediator mediator = new MediatorDefault();
     static Os kernel;
@@ -32,13 +32,12 @@ public class Main {
     static  Vm vm;
     public static void main(String[] args){
 
-        LOGGER.info("================== Starting PampaOS Simulator ==================\n");
-        preemptiveRoundRobinTest();
+        LOGGER.info("==================██Starting PampaOS Simulator██==================\n");
+        //preemptiveRoundRobinTest();
         //priorityTest();
-        ExecutionTable.showSystemComponents((MediatorDefault) mediator);
-        ExecutionTable.showSimulationResults();
+
         //sjfTest();
-        //fcfsTest();
+        fcfsTest();
     }
     public static void preemptiveRoundRobinTest(){
         kernel = new Os(mediator);
@@ -72,6 +71,7 @@ public class Main {
         vm = new VmSimple(CORES, mediator);
         registerComponent();
         createProcesses();
+        ExecutionTable.showSystemComponents((MediatorDefault) mediator);
         vm.run();
     }
     public static void createProcesses(){
