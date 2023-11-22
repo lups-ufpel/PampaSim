@@ -1,8 +1,5 @@
-<<<<<<<< HEAD:app/src/main/java/simuladorso/Vm/Processor/Registers.java
-package simuladorso.Vm.Processor;
-========
+
 package org.simuladorso.VirtualMachine.Processor;
->>>>>>>> jansoares:src/main/java/org/simuladorso/VirtualMachine/Processor/Registers.java
 
 public class Registers {
     private static final int REG_AMOUNT = 32;

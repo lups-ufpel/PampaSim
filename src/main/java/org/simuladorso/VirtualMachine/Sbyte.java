@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/simuladorso/Vm/Sbyte.java
-package simuladorso.Vm;
-========
 package org.simuladorso.VirtualMachine;
->>>>>>>> jansoares:src/main/java/org/simuladorso/VirtualMachine/Sbyte.java
 
 public class Sbyte {
     private byte value;

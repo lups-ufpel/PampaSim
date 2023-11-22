@@ -40,7 +40,7 @@ public abstract class Scheduler {
 
         // Step 2: Check if a new process can execute and move it if necessary
         if(newProcessCanExecute()){
-            moveFromNewToReadList();
+            moveFromNewToReadyList();
         }
 
         // Step 3: Assign processes to cores
@@ -129,7 +129,7 @@ public abstract class Scheduler {
         this.readyList.addAll(readyList);
         removeProcessFromWaitingList(Process.State.READY);
     }
-    public void moveFromNewToReadList(){
+    public void moveFromNewToReadyList(){
         newList.stream()
                 .filter(this::isProcessSubmitted)
                 .forEach(process -> process.setState(Process.State.READY));

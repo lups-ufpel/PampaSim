@@ -22,7 +22,7 @@ public class SchedulerRoundRobin extends Scheduler{
 
         // Step 2: Check if a new process can execute and move it if necessary
         if(newProcessCanExecute()){
-            moveFromNewToReadList();
+            moveFromNewToReadyList();
         }
 
         // Step 2.1 Preempt any process that has overflow its time slice

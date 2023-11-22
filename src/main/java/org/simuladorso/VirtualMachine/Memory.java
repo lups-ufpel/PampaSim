@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/simuladorso/Vm/Memory.java
-package simuladorso.Vm;
-========
 package org.simuladorso.VirtualMachine;
->>>>>>>> jansoares:src/main/java/org/simuladorso/VirtualMachine/Memory.java
 
 import java.util.ArrayList;
 
