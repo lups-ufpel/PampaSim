@@ -11,15 +11,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
-import org.simuladorso.GUI.model.CoreInfo;
-import org.simuladorso.Logger.Logger;
 import org.simuladorso.Mediator.Mediator;
-import org.simuladorso.Mediator.MediatorAction;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -50,7 +45,6 @@ public class FXMLMainAppController implements Initializable {
     Stage mainStage;
     int selectedProcessPid;
     Mediator mediator;
-    Logger logger;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -82,7 +76,7 @@ public class FXMLMainAppController implements Initializable {
         List<String> params = new ArrayList<>();
         boolean buttonConfirmarClicked = showFXMLCreateProcessDialog(params);
         if (buttonConfirmarClicked) {
-            this.mediator.invoke(MediatorAction.KERNEL_NEW_PROCESS);
+            this.mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS);
         }
     }
 
@@ -95,11 +89,11 @@ public class FXMLMainAppController implements Initializable {
     }
 
     public void handleStartVMMenuButton(ActionEvent actionEvent) {
-        this.mediator.invoke(MediatorAction.START_VM);
+        this.mediator.invoke(Mediator.Action.START_VM);
     }
 
     public void handleStopVMMenuButton(ActionEvent actionEvent) throws Exception {
-        this.mediator.invoke(MediatorAction.STOP_VM);
+        this.mediator.invoke(Mediator.Action.STOP_VM);
     }
 
     public void handleRunningProcessMenuButton(ActionEvent actionEvent) throws IOException {
@@ -111,7 +105,7 @@ public class FXMLMainAppController implements Initializable {
     }
 
     public void refreshCoresPane() throws IOException {
-        Integer[] pids = (Integer[]) this.mediator.invoke(MediatorAction.LIST_RUNNING_PROCESSES);
+        Integer[] pids = (Integer[]) this.mediator.invoke(Mediator.Action.LIST_RUNNING_PROCESSES);
 
         this.cpusBox.getChildren().clear();
 
@@ -131,10 +125,6 @@ public class FXMLMainAppController implements Initializable {
 
     public void setMainStage(Stage mainStage) {
         this.mainStage = mainStage;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
     public void setMediator(Mediator mediator) {

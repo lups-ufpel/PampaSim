@@ -1,5 +1,6 @@
 package org.simuladorso.GUI;
 
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -8,11 +9,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
 import org.simuladorso.GUI.controller.FXMLMainAppController;
 import org.simuladorso.Mediator.Mediator;
-import org.simuladorso.Mediator.Message;
-import org.simuladorso.VirtualMachine.VirtualMachine;
 
 import java.io.IOException;
 

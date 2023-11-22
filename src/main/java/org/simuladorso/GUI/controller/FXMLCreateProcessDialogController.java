@@ -8,8 +8,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 
-import org.simuladorso.Mediator.Mediator;
-import org.simuladorso.Mediator.MediatorAction;
+import org.simuladorso.Mediator.*;
 
 import java.net.URL;
 import java.util.List;
@@ -68,6 +67,6 @@ public class FXMLCreateProcessDialogController implements Initializable {
 
     public void setMediator(Mediator mediator) {
         this.mediator = mediator;
-        this.processPidLbl.setText(String.valueOf((Integer) mediator.invoke(MediatorAction.GET_AVAILABLE_PID)));
+        this.processPidLbl.setText(String.valueOf((Integer) mediator.invoke(Mediator.Action.GET_AVAILABLE_PID)));
     }
 }

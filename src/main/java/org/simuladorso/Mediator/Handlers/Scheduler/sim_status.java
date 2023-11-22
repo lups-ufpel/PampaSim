@@ -5,8 +5,6 @@ import org.simuladorso.Mediator.Message;
 import org.simuladorso.Os.Scheduler;
 import org.simuladorso.Utils.Command;
 
-import javax.swing.plaf.synth.SynthCheckBoxUI;
-
 public class sim_status implements Command {
 
     Scheduler sched;
