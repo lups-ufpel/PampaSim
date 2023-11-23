@@ -5,6 +5,8 @@ public class Main {
 
         someViewModel.sendMessageToOtherViewModel();
 
+        System.out.println("Contador " + otherViewModel.contador);
+
         // Faz alguma outra coisa...
 
         someViewModel.cleanUp();
