@@ -3,6 +3,7 @@ package org.simuladorso.Os;
 import org.simuladorso.Mediator.Mediator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SchedulerRoundRobin extends Scheduler{
 
@@ -45,7 +46,7 @@ public class SchedulerRoundRobin extends Scheduler{
         List<Process> nonNullProcessesList = filterNonNullProcesses(runningList);
         List<Process> preemptedProcessesList = nonNullProcessesList.stream()
                 .filter(this::preemptProcess)
-                .toList();
+                .collect(Collectors.toList());
         this.readyList.addAll(preemptedProcessesList);
         removeProcessFromRunningList(Process.State.READY);
     }

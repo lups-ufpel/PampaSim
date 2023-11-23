@@ -9,7 +9,5 @@ public class ExecutionTable extends TableFormat{
     static String[][] data;
     public static void showSystemComponents(MediatorDefault mediator){
         headers = new String[]{"Simulator Component"};
-        LOGGER.info("\n\n{}",AsciiTable.getTable(headers,mediator.getComponentsNames()
-        ));
     }
 }
