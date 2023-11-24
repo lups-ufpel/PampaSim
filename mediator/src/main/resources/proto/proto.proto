@@ -1,0 +1,19 @@
+syntax = "proto3";
+package org.pampaos.mediator;
+
+option java_multiple_files = true;
+option java_package = "org.pampaos.mediator.generated";
+option java_outer_classname = "PampaosProto";
+
+service Mediator {
+  // Métodos para troca de mensagens
+  // Exemplo:
+  // rpc login(LoginRequest) returns (LoginResponse);
+}
+
+// Estruturas de dados para usar nas mensagens
+/*
+message Message {
+
+}
+*/

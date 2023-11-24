@@ -33,6 +33,38 @@
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
+        <plugin>
+          <groupId>com.github.os72</groupId>
+          <artifactId>protoc-jar-maven-plugin</artifactId>
+          <version>3.6.0.1</version>
+          <executions>
+            <execution>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <includeMavenTypes>direct</includeMavenTypes>
+
+                <inputDirectories>
+                  <include>src/main/resources</include>
+                </inputDirectories>
+
+                <outputTargets>
+                  <outputTarget>
+                    <type>java</type>
+                    <outputDirectory>src/main/java/resources/proto</outputDirectory>
+                  </outputTarget>
+                  <outputTarget>
+                    <type>grpc-java</type>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.15.0</pluginArtifact>
+                    <outputDirectory>src/main/java</outputDirectory>
+                  </outputTarget>
+                </outputTargets>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>

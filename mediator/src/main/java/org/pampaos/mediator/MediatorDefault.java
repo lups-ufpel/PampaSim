@@ -1,4 +1,4 @@
-package org.simuladorso.Mediator;
+package org.simuladorso.mediator;
 
 
 import org.simuladorso.Mediator.Handlers.Core.*;

@@ -1,4 +1,4 @@
-package org.simuladorso.Mediator;
+package org.simuladorso.mediator;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
