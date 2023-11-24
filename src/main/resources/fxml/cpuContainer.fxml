@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="cpuContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="224.0" prefWidth="230.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.simuladorso.GUI.controller.FXMLCoreContainerController">
+   <children>
+      <ImageView fitHeight="187.0" fitWidth="273.0" layoutX="22.0" layoutY="19.0" opacity="0.29" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../imgs/cpu.png" />
+         </image>
+      </ImageView>
+      <Circle fx:id="processCircle" fill="DODGERBLUE" layoutX="115.0" layoutY="113.0" radius="32.0" stroke="BLACK" strokeType="INSIDE" />
+      <Label fx:id="processIdLbl" layoutX="112.0" layoutY="105.0" text="0" />
+      <Label fx:id="cpuIdLbl" layoutX="22.0" layoutY="19.0" text="0">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+   </children>
+   <padding>
+      <Insets top="100.0" />
+   </padding>
+</Pane>
