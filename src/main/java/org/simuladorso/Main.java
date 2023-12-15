@@ -10,7 +10,7 @@
  */
 package org.simuladorso;
 
-import org.simuladorso.GUI.SimulatorGui;
+import org.simuladorso.GUI.View;
 import org.simuladorso.Mediator.*;
 import org.simuladorso.Os.Process;
 import org.simuladorso.Os.*;
@@ -76,20 +76,6 @@ public class Main {
         ExecutionTable.showSystemComponents((MediatorDefault) mediator);
         vm.run();
     }
-
-    public static void guiTest(String[] args){
-        SimulatorGui gui = new SimulatorGui();
-        kernel = new Os(mediator);
-        scheduler = new SchedulerFCFS(CORES, mediator);
-        vm = new VmSimple(CORES, mediator);
-        registerComponent();
-        mediator.registerComponent(Mediator.Component.GUI, gui);
-        createProcesses();
-        ExecutionTable.showSystemComponents((MediatorDefault) mediator);
-        vm.run();
-        gui.run(args);
-    }
-
     public static void createProcesses(){
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{PROCESS_TYPE, 5, 2, 0});
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{PROCESS_TYPE, 2, 3, 0});

@@ -4,6 +4,7 @@ package org.simuladorso.Os;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.simuladorso.Mediator.Mediator;
@@ -63,6 +64,7 @@ public abstract class Scheduler {
         else{
             runningList.set(coreId, p);
         }
+        mediator.publish(Mediator.Action.CORE_EXECUTE);
         LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
     }
     public boolean isThereReadyProcesses() {
@@ -132,7 +134,8 @@ public abstract class Scheduler {
     public void moveFromNewToReadyList(){
         newList.stream()
                 .filter(this::isProcessSubmitted)
-                .forEach(process -> process.setState(Process.State.READY));
+                .forEach(process -> {process.setState(Process.State.READY);
+                                    mediator.publish(Mediator.Action.SCHEDULER_ADD_TO_QUEUE);});
         List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcessFromNewList(Process.State.READY);
@@ -140,7 +143,7 @@ public abstract class Scheduler {
 
     protected List<Process> filterNonNullProcesses(List<Process> inputList) {
         return inputList.stream()
-                .filter(process -> process != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
     private List<Process> filterProcessesByState(List<Process> inputList, Process.State state) {

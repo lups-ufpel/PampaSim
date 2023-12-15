@@ -2,13 +2,11 @@ package org.simuladorso.VirtualMachine;
 
 import org.simuladorso.Os.Interruption;
 import org.simuladorso.Os.Process;
-import org.simuladorso.Utils.Statistics.ExecutionTable;
 import org.simuladorso.VirtualMachine.Processor.Core;
 import org.simuladorso.VirtualMachine.Processor.CoreSimple;
 import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.VirtualMachine.Processor.Registers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -51,6 +49,8 @@ public class VmSimple implements Vm {
      * A mediator for communication with external components.
      */
     protected Mediator mediator;
+
+    public static List<Process> runningProcesses;
 
     /**
      * Constructs a `VmSimple` instance with the specified number of CPU cores and a mediator for communication.
@@ -122,25 +122,11 @@ public class VmSimple implements Vm {
      */
     @Override
     public void run() {
-        List<Process> runningProcesses;
-        ExecutionTable tb = new ExecutionTable();
-        List<Integer> pids = new ArrayList<>();
-
-        do {
-            SIM_CLOCK.incrTick();
-
-            LOGGER.debug("Current Tick: [{}]", SIM_CLOCK.getTick());
-            runningProcesses = getRunningProcesses();
-            executeProcesses(runningProcesses);
-            System.out.println("====================================");
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-        } while(!stop());
+        SIM_CLOCK.incrTick();
+        LOGGER.debug("Current Tick: [{}]", SIM_CLOCK.getTick());
+        runningProcesses = getRunningProcesses();
+        executeProcesses(runningProcesses);
+        stop();
     }
 
     /**
@@ -163,7 +149,10 @@ public class VmSimple implements Vm {
      * @return true if the VM should stop; otherwise, false.
      */
     public boolean stop(){
-        return (boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS);
+        if((boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS)){
+            mediator.publish(Mediator.Action.STOP_VM);
+        }
+        return false;
     }
 
 

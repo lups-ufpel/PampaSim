@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.simuladorso.GUI.ModelView">
+    <VBox prefHeight="632.0" prefWidth="905.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <MenuBar VBox.vgrow="NEVER">
+            <Menu mnemonicParsing="false" text="File">
+                <MenuItem mnemonicParsing="false" text="New" />
+                <MenuItem mnemonicParsing="false" text="Open…" />
+                <Menu mnemonicParsing="false" text="Open Recent" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" text="Close" />
+                <MenuItem mnemonicParsing="false" text="Save" />
+                <MenuItem mnemonicParsing="false" text="Save As…" />
+                <MenuItem mnemonicParsing="false" text="Revert" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" text="Preferences…" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#Stub" text="Quit" />
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+                <MenuItem mnemonicParsing="false" text="Undo" />
+                <MenuItem mnemonicParsing="false" text="Redo" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" text="Cut" />
+                <MenuItem mnemonicParsing="false" text="Copy" />
+                <MenuItem mnemonicParsing="false" text="Paste" />
+                <MenuItem mnemonicParsing="false" text="Delete" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" text="Select All" />
+                <MenuItem mnemonicParsing="false" text="Unselect All" />
+            </Menu>
+            <Menu mnemonicParsing="false" text="VM">
+                <MenuItem mnemonicParsing="false" onAction="#Stub" text="Start" />
+                <MenuItem mnemonicParsing="false" onAction="#Stub" text="Stop" />
+                <MenuItem mnemonicParsing="false" onAction="#Stub" text="Running Processes" />
+                <MenuItem mnemonicParsing="false" onAction="#Stub" text="Refresh Cores" />
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+                <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+            </Menu>
+        </MenuBar>
+        <AnchorPane>
+            <HBox nodeOrientation="LEFT_TO_RIGHT" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefHeight="605.0" prefWidth="159.0">
+                    <Label alignment="CENTER" layoutX="41.0" layoutY="14.0" minWidth="60.0" style="&#10;" text="Controle" textAlignment="CENTER">
+                        <font>
+                            <Font size="18.0" />
+                        </font>
+                        <textFill>
+                            <Color red="0.624" green="0.624" blue="0.624" />
+                        </textFill>
+                    </Label>
+                    <Button fx:id="BtnCreateProcess" layoutX="12.0" layoutY="72.0" mnemonicParsing="false" text="Create new process" onAction="#CreateProcess"/>
+                    <Button fx:id="BtnStartSimulation" layoutX="12.0" layoutY="122.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="127.0" text="Iniciar Simulação" onAction="#StartSimulation" />
+                    <Button fx:id="BtnStopSimulation" layoutX="11.0" layoutY="170.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="127.0" text="Parar Simulação" onAction="#Stop"/>
+                </AnchorPane>
+                <AnchorPane prefHeight="605.0" prefWidth="651.0">
+                    <SplitPane dividerPositions="0.4768211920529801" orientation="VERTICAL" prefHeight="605.0" prefWidth="611.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="38.0" AnchorPane.topAnchor="0.0">
+                        <ScrollPane fx:id="queuesScrollPane" prefHeight="285.0" prefWidth="522.0">
+                            <VBox alignment="CENTER" prefHeight="200.0">
+                                <Label text="Processos Executando">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <HBox fx:id="RunningProcesses" prefHeight="48.0" prefWidth="536.0" style="-fx-background-color: #b4cfb2;" />
+                            </VBox>
+                        </ScrollPane>
+                        <ScrollPane prefHeight="284.0" prefWidth="625.0">
+                            <VBox prefHeight="162.0" prefWidth="538.0">
+                                <Label text="Processos Prontos">
+                                    <VBox.margin>
+                                        <Insets left="200.0" top="10.0" />
+                                    </VBox.margin>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <HBox fx:id="ReadyProcesses" prefHeight="37.0" prefWidth="510.0" style="-fx-background-color: #105290;" />
+                                <Label layoutX="310.0" layoutY="170.0" text="Processos Criados">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets left="200.0" top="10.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <HBox fx:id="CreatedProcesses" prefHeight="33.0" prefWidth="510.0" style="-fx-background-color: f2ca39;" />
+                                <padding>
+                                    <Insets top="20.0" />
+                                </padding>
+                            </VBox>
+                        </ScrollPane>
+                    </SplitPane>
+                </AnchorPane>
+                <AnchorPane prefHeight="604.0" prefWidth="262.0">
+                    <GridPane prefHeight="604.0" prefWidth="173.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints maxHeight="196.0" minHeight="10.0" prefHeight="176.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="384.0" minHeight="10.0" prefHeight="377.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="175.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="184.0" prefWidth="173.0">
+                            <Label layoutX="14.0" layoutY="14.0" text="Clock" />
+                            <Slider fx:id="clockSlider" layoutX="14.0" layoutY="38.0" />
+                            <Label layoutX="14.0" layoutY="66.0" text="Quantum" />
+                            <Slider fx:id="quantumSlider" layoutX="14.0" layoutY="90.0" />
+                            <Label layoutX="14.0" layoutY="118.0" text="Wait time" />
+                            <Slider fx:id="waitTimeSlider" layoutX="14.0" layoutY="142.0" />
+                        </AnchorPane>
+                        <AnchorPane prefHeight="381.0" prefWidth="116.0" GridPane.rowIndex="1" />
+                        <GridPane GridPane.rowIndex="2">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <Button fx:id="BtnPlusSign" mnemonicParsing="false" onAction="#Stub" text="+" />
+                            <Button fx:id="BtnLessSign" mnemonicParsing="false" onAction="#Stub" prefHeight="24.0" prefWidth="29.0" text="-" GridPane.columnIndex="1" />
+                        </GridPane>
+                    </GridPane>
+                </AnchorPane>
+            </HBox>
+        </AnchorPane>
+    </VBox>
+</AnchorPane>

@@ -1,6 +1,7 @@
 package org.simuladorso.Mediator;
 
 
+import javafx.application.Platform;
 import org.simuladorso.Mediator.Handlers.Core.*;
 import org.simuladorso.Mediator.Handlers.Process.*;
 import org.simuladorso.Mediator.Handlers.Scheduler.*;
@@ -8,15 +9,18 @@ import org.simuladorso.Mediator.Handlers.Kernel.*;
 import org.simuladorso.Mediator.Handlers.VM.*;
 import org.simuladorso.Utils.Command;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class MediatorDefault implements Runnable, Mediator {
+
 
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
     private final List<String> componentsName = new ArrayList<>();
+
+    private final Map<Action, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
+    private static final MediatorDefault instance = new MediatorDefault();
     public MediatorDefault() {
         handlers.put(Action.GET_SIM_STATUS, new sim_status());
         handlers.put(Action.LIST_PROCESSES_PIDS, new ListProcessesPids());
@@ -34,6 +38,7 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.PROCESS_GET_PID, new GetPid());
         handlers.put(Action.GET_TIME, new GetTick());
         //handlers.put(Action.UPDATE_CORES_INFO, new UpdateCoresInfo());
+
     }
 
     @Override
@@ -87,5 +92,38 @@ public class MediatorDefault implements Runnable, Mediator {
             twoDimArray[i][0] = componentsName.get(i);
         }
         return twoDimArray;
+    }
+    public void publish(Action action) {
+        Platform.runLater(() ->{
+            List<SubscriberObject> subscriberList = instance.subscribers.get(action);
+            if(subscriberList != null){
+                subscriberList.forEach(subscriberObject -> subscriberObject.getCb().accept(action));
+            }
+
+        });
+    }
+    public void subscribe(Action event, Object subscriber, Consumer<Action> cb){
+        if (!instance.subscribers.containsKey(event)) {
+            List<SubscriberObject> slist = new ArrayList<>();
+            instance.subscribers.put(event,slist);
+        }
+        List<SubscriberObject> subscriberList = instance.subscribers.get(event);
+        subscriberList.add(new SubscriberObject(subscriber,cb));
+    }
+    static class SubscriberObject {
+
+        private final Object subscriber;
+        private final Consumer<Action> cb;
+
+        public SubscriberObject(Object subscriber, Consumer<Mediator.Action> cb){
+            this.subscriber = subscriber;
+            this.cb = cb;
+        }
+        public Object getSubscriber(){
+            return subscriber;
+        }
+        public Consumer<Mediator.Action> getCb() {
+            return cb;
+        }
     }
 }

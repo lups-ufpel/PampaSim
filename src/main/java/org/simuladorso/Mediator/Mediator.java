@@ -2,6 +2,9 @@ package org.simuladorso.Mediator;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+
+import java.util.function.Consumer;
+
 public interface Mediator {
 
     static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class.getSimpleName());
@@ -12,6 +15,9 @@ public interface Mediator {
     public Object invoke(Action action);
 
     public Object invoke(Action action, Object[] parameters);
+
+    public void publish(Action action);
+    public void subscribe(Action event, Object subscriber, Consumer<Action> cb);
 
     //Mediator interface is just used as a namespace for the enum.
     public enum Action {
