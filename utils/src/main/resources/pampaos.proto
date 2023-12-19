@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "com.pampaos.utils.grpc";
+option java_outer_classname = "PampaOsProto";
+
+// Services to be implemented
+service Os {
+  rpc CreateProcess(CreateProcessRequest) returns (google.protobuf.Empty);
+}
+
+service Scheduler {
+
+}
+
+service Gui {
+
+}
+
+service VirtualMachine {
+
+}
+
+// Messages
+message CreateProcessRequest {
+  int32 type = 1;
+}
+
+message Process {
+  int32 pid = 1;
+  int32 state = 2;
+  int32 arrivalTime = 3;
+  int32 burstTime = 4;
+  int32 priority = 5;
+  int32 currExecTime = 6;
+  int32 execTimeSlice = 7;
+}
+
+message ProcessList {
+  repeated Process process = 1;
+}
