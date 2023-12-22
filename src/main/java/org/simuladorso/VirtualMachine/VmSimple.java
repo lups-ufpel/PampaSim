@@ -97,7 +97,7 @@ public class VmSimple implements Vm {
      *
      * @param processes The list of processes to execute.
      */
-    public void executeProcesses(List<Process> processes){
+    public void executeProcesses(List<Process> processes) {
         Process proc;
         for(int coreId =0; coreId < numCores; coreId++){
             proc = processes.get(coreId);

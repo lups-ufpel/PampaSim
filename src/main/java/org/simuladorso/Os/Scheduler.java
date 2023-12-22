@@ -57,7 +57,7 @@ public abstract class Scheduler {
     public void assignProcessToCore(int coreId) {
         Process p;
         p = dequeue(readyList);
-        p.setState(Process.State.RUNNING);
+        p.dispatch();
         if(hasEmptySlots(runningList,coreId)){
             runningList.add(p);
         }
