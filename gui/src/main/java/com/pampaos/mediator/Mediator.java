@@ -1,15 +1,29 @@
 package com.pampaos.mediator;
 
-import io.grpc.ServerBuilder;
-
-class Mediator {
-    private final Server server;
+class Mediator implements Runnable {
+    private final ServerSocket server;
+    private final ExecutorService executor;
 
     public Mediator() {
-        this.server = ServerBuilder.forPort(5050)
-                .addService(new PampaOsImpl())
-                .build();
+        this.server = new ServerSocket(port: 5050);
+        this.executor = Executors.newFixedthreadPool(2);
+    }
 
-        this.server.start();
+    public void run() {
+        while (true) {
+            Socket socket = server.accept();
+            this.executor.execute(new ConnectionHandler(socket));
+        }
+    }
+}
+
+private class ConnectionHandler implements Runnable {
+    private Socket socket;
+
+    public ConnectionHandler(Socket socket) {
+        this.socket = socket;
+    }
+    public void run() {
+
     }
 }
