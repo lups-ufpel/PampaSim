@@ -15,7 +15,7 @@ public class NewProcess implements Command {
     final String COMMAND_NAME = this.getClass().getSimpleName();
     @Override
     public Object execute(Message message){
-        Os os = (Os) message.getComponents().get(Mediator.Component.OS);
+        Os os = (Os) message.getComponents().get(Mediator.Component.KERNEL);
         Object[] attributes = message.getParameters();
 
 

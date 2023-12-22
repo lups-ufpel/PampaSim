@@ -150,7 +150,7 @@ public class VmSimple implements Vm {
      */
     public boolean stop(){
         if((boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS)){
-            mediator.publish(Mediator.Action.STOP_VM);
+            //mediator.publish(Mediator.Action.STOP_VM);
         }
         return false;
     }

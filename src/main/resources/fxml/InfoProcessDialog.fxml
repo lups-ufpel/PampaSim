@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.simuladorso.GUI.controller.InfoProcessDialogController"
+            style="-fx-background-color: #GREY;">
+    <content>
+        <VBox spacing="10">
+            <GridPane hgap="10" vgap="5">
+                <Label text="Process Type: " GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label fx:id="processState" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Label text="Pid: " GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label fx:id="pid" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <Label text="Burst: " GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label fx:id="burst" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                <Label text="Arrival: " GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Label fx:id="arrival" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                <Label text="Priority: " GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <Label fx:id="priority" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            </GridPane>
+        </VBox>
+    </content>
+    <ButtonType text="OK"/>
+</DialogPane>

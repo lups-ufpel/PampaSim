@@ -10,7 +10,6 @@
  */
 package org.simuladorso;
 
-import org.simuladorso.GUI.View;
 import org.simuladorso.Mediator.*;
 import org.simuladorso.Os.Process;
 import org.simuladorso.Os.*;
@@ -84,9 +83,9 @@ public class Main {
         mediator.invoke(Mediator.Action.KERNEL_NEW_PROCESS, new Object[]{PROCESS_TYPE, 2, 5, 5});
     }
     public static void registerComponent(){
-        mediator.registerComponent(Mediator.Component.OS, kernel);
-        mediator.registerComponent(Mediator.Component.SCHEDULER, scheduler);
-        mediator.registerComponent(Mediator.Component.VM, vm);
+//        mediator.registerComponent(Mediator.Component.KERNEL, kernel);
+//        mediator.registerComponent(Mediator.Component.SCHEDULER, scheduler);
+//        mediator.registerComponent(Mediator.Component.VM, vm);
     }
 }
 

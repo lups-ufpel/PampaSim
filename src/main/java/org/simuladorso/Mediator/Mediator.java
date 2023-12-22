@@ -8,7 +8,11 @@ import java.util.function.Consumer;
 public interface Mediator {
 
     static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class.getSimpleName());
-    public void registerComponent(Component componentType, Object component);
+
+    static final Mediator instance = new MediatorDefault();
+
+    public static Mediator getInstance() {return instance; }
+    public void registerComponent(Object component, Component componentType);
 
     public Object invoke(Message message);
 
@@ -16,11 +20,17 @@ public interface Mediator {
 
     public Object invoke(Action action, Object[] parameters);
 
-    public void publish(Action action);
-    public void subscribe(Action event, Object subscriber, Consumer<Action> cb);
+    public void send(Object sender, Action action);
 
     //Mediator interface is just used as a namespace for the enum.
     public enum Action {
+
+        CREATE,
+        VISUALIZE,
+        EXECUTE,
+        RUN,
+        ON_THIS_PROCESS_DISPATCHED,
+        ON_THIS_PROCESS_INTERRUPTED,
         KERNEL_GET_LIST,
         KERNEL_GET_PROCESS,
         KERNEL_NEW_PROCESS,
@@ -51,7 +61,7 @@ public interface Mediator {
     }
     public enum Component {
         VM,
-        OS,
+        KERNEL,
         GUI,
         CLI,
         SCHEDULER,

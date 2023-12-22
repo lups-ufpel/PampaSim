@@ -1,26 +1,43 @@
 package org.simuladorso.Mediator;
 
-
-import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.ButtonType;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import org.simuladorso.GUI.ModelView;
+import org.simuladorso.GUI.model.CreateProcessDialog;
 import org.simuladorso.Mediator.Handlers.Core.*;
 import org.simuladorso.Mediator.Handlers.Process.*;
 import org.simuladorso.Mediator.Handlers.Scheduler.*;
 import org.simuladorso.Mediator.Handlers.Kernel.*;
 import org.simuladorso.Mediator.Handlers.VM.*;
+import org.simuladorso.Os.Os;
+import org.simuladorso.Os.Process;
 import org.simuladorso.Utils.Command;
-
+import org.simuladorso.VirtualMachine.Vm;
 import java.util.*;
-import java.util.function.Consumer;
-
-public class MediatorDefault implements Runnable, Mediator {
-
-
+public class MediatorDefault implements Mediator {
+    private final Map<Process, Circle> processCircleMap = new HashMap<>();
+    private final Map<Circle, Process> circleProcessMap = new HashMap<>();
+    private static final Mediator instance = new MediatorDefault();
     private final HashMap<Action, Command> handlers = new HashMap<>();
     private final HashMap<Component, Object> components = new HashMap<>();
     private final List<String> componentsName = new ArrayList<>();
 
-    private final Map<Action, List<SubscriberObject>> subscribers = new LinkedHashMap<>();
-    private static final MediatorDefault instance = new MediatorDefault();
+    // MEDIATOR SHOULD HAVE A AN INSTANCE OF EACH COMPONENT TO HANDLE COMMUNICATION BETWEEN THEM
+    private Os os;
+    private Vm vm;
+    private ModelView modelView;
+
+    /*
+     * This is the constructor of the MediatorDefault class.
+     * It is private because we are using the Singleton pattern.
+     * It initializes the handlers HashMap with the different actions
+     * and their respective handlers.
+     */
     public MediatorDefault() {
         handlers.put(Action.GET_SIM_STATUS, new sim_status());
         handlers.put(Action.LIST_PROCESSES_PIDS, new ListProcessesPids());
@@ -37,27 +54,81 @@ public class MediatorDefault implements Runnable, Mediator {
         handlers.put(Action.LIST_CORES, new ListCores());
         handlers.put(Action.PROCESS_GET_PID, new GetPid());
         handlers.put(Action.GET_TIME, new GetTick());
-        //handlers.put(Action.UPDATE_CORES_INFO, new UpdateCoresInfo());
-
     }
 
-    @Override
-    public void run() {
-
+    public static Mediator getInstance(){
+        return instance;
     }
     @Override
-    public void registerComponent(Component componentType, Object component) {
+    public void registerComponent(Object component,Component componentType) {
         // Handle when ComponentType is Missing but component is valid.
         if (componentType != null && component != null) {
             this.components.put(componentType, component);
             LOGGER.info("Component of {} and type of {} has been successfully registered", component.getClass().getSimpleName(), componentType);
-            componentsName.add(component.getClass().getSimpleName());
+            switch(componentType){
+                case GUI:
+                    this.modelView = (ModelView) component;
+                    break;
+                case KERNEL:
+                    this.os = (Os) component;
+                    break;
+                case VM:
+                    this.vm = (Vm) component;
+                    break;
+            }
         }
         else{
             LOGGER.error("REGISTERING A COMPONENT WITH NULL TYPE OR OBJECT PARAMS: [{} {}]",componentType,component);
         }
-
     }
+    @Override
+    public void send(Object object, Action action) {
+        switch (action){
+            case CREATE:
+                CreateProcessDialog createProcessDialog = new CreateProcessDialog();
+                IntegerProperty burst = new SimpleIntegerProperty();
+                IntegerProperty priority = new SimpleIntegerProperty();
+                IntegerProperty arrivalTime = new SimpleIntegerProperty();
+                ObjectProperty<Color> color = new SimpleObjectProperty<>();
+                burst.bind(createProcessDialog.burstProperty());
+                priority.bind(createProcessDialog.priorityProperty());
+                arrivalTime.bind(createProcessDialog.timeProperty());
+                color.bind(createProcessDialog.colorProperty());
+                Optional<ButtonType> result = createProcessDialog.showAndWait();
+                if(result.isPresent() && result.get() == ButtonType.OK){
+                    Circle newCircle = modelView.createCircle(color.get());
+                    Process newProcess = os.createProcess(Process.Type.SIMPLE, burst.get(), priority.get(), arrivalTime.get());
+                    processCircleMap.put(newProcess,newCircle);
+                    circleProcessMap.put(newCircle, newProcess);
+                    modelView.addCircleToCreatedProcessList(newCircle);
+                }
+                break;
+            case EXECUTE:
+                //Process proc = os.requeueProcess();
+                //((Vm)object).setProcess(proc);
+                break;
+            case RUN:
+                vm.run();
+                break;
+            case ON_THIS_PROCESS_DISPATCHED:
+                Circle c = processCircleMap.get((Process) object);
+                modelView.addProcessToRunningList(c);
+                break;
+            case ON_THIS_PROCESS_INTERRUPTED:
+                Circle circleToRemove = processCircleMap.get((Process) object);
+                modelView.removeProcessFromRunningList(circleToRemove);
+                modelView.addProcessToReadyList(circleToRemove);
+                break;
+            case VISUALIZE:
+                Circle circle = (Circle) object;
+                Process process = circleProcessMap.get(circle);
+                Color col = (Color) circle.fillProperty().get();
+                modelView.showProcessInfo(process,col);
+                break;
+        }
+    }
+
+
     @Override
     public Object invoke(Message message) {
 
@@ -83,47 +154,5 @@ public class MediatorDefault implements Runnable, Mediator {
     @Override
     public Object invoke(Action action, Object[] parameters) {
         return this.invoke(new Message(action, parameters));
-    }
-
-    public String[][] getComponentsNames(){
-        String[][] twoDimArray = new String[componentsName.size()][1];
-
-        for (int i = 0; i < componentsName.size(); i++) {
-            twoDimArray[i][0] = componentsName.get(i);
-        }
-        return twoDimArray;
-    }
-    public void publish(Action action) {
-        Platform.runLater(() ->{
-            List<SubscriberObject> subscriberList = instance.subscribers.get(action);
-            if(subscriberList != null){
-                subscriberList.forEach(subscriberObject -> subscriberObject.getCb().accept(action));
-            }
-
-        });
-    }
-    public void subscribe(Action event, Object subscriber, Consumer<Action> cb){
-        if (!instance.subscribers.containsKey(event)) {
-            List<SubscriberObject> slist = new ArrayList<>();
-            instance.subscribers.put(event,slist);
-        }
-        List<SubscriberObject> subscriberList = instance.subscribers.get(event);
-        subscriberList.add(new SubscriberObject(subscriber,cb));
-    }
-    static class SubscriberObject {
-
-        private final Object subscriber;
-        private final Consumer<Action> cb;
-
-        public SubscriberObject(Object subscriber, Consumer<Mediator.Action> cb){
-            this.subscriber = subscriber;
-            this.cb = cb;
-        }
-        public Object getSubscriber(){
-            return subscriber;
-        }
-        public Consumer<Mediator.Action> getCb() {
-            return cb;
-        }
     }
 }

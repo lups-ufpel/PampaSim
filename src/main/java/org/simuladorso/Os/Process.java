@@ -1,5 +1,10 @@
 package org.simuladorso.Os;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.VirtualMachine.Processor.Registers;
 import org.simuladorso.VirtualMachine.Sbyte;
 import java.util.ArrayList;
@@ -7,24 +12,36 @@ import java.util.ArrayList;
 public class Process {
 
     Process.State state;
-
     final PidAllocator.Pid pid;
     final int arrivalTime;
     final int burstTime;
-
     private int priority;
     protected int currExecTime;
     private int execTimeSlice;
-
     protected String progressBar;
 
+    // Properties for JavaFX
+    StringProperty stateProperty = new SimpleStringProperty();
+    IntegerProperty pidProperty = new SimpleIntegerProperty();
+    IntegerProperty burstProperty = new SimpleIntegerProperty();
+    IntegerProperty priorityProperty = new SimpleIntegerProperty();
+    IntegerProperty arrivalProperty = new SimpleIntegerProperty();
+
     public Process(PidAllocator.Pid pid, int priority, int totalBurst, int arrivalTime) {
+
         this.pid = pid;
+        this.state = State.NEW;
         this.priority = priority;
         this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
         this.progressBar = "";
+
+        stateProperty.set(state.toString());
+        pidProperty.set(pid.getNum());
+        burstProperty.set(totalBurst);
+        priorityProperty.set(priority);
+        arrivalProperty.set(arrivalTime);
     }
     public int getPid() {
         return pid.getNum();
@@ -56,6 +73,25 @@ public class Process {
     public String getProgressBar(){
         return progressBar;
     }
+
+    public void dispatch(){
+        if(getState() != State.READY){
+            throw new IllegalStateException("Process must be in READY state to be dispatched");
+        }
+        else{
+            setState(State.RUNNING);
+            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_DISPATCHED);
+        }
+    }
+    public void interrupt(){
+        if(getState() != State.RUNNING){
+            throw new IllegalStateException("Process must be in RUNNING state to be interrupted");
+        }
+        else{
+            setState(State.READY);
+            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_INTERRUPTED);
+        }
+    }
     public void forwardProcessExecution(){
         this.currExecTime +=1;
         updateProgressBar();
@@ -82,7 +118,24 @@ public class Process {
         progressBar = progressBarBuilder.toString();
     }
 
-
+    public StringProperty stateProperty() {
+        return stateProperty;
+    }
+    public IntegerProperty pidProperty() {
+        return pidProperty;
+    }
+    public IntegerProperty burstProperty() {
+        return burstProperty;
+    }
+    public IntegerProperty priorityProperty() {
+        return priorityProperty;
+    }
+    public IntegerProperty arrivalProperty() {
+        return arrivalProperty;
+    }
+    public void setStateProperty(String state) {
+        this.stateProperty.set(state);
+    }
     public Interruption getInterruption(){
         return null;
     }

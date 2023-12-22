@@ -18,7 +18,7 @@ public abstract class Scheduler {
     int numCores;
     List<Process> readyList;
     List<Process> waitingList;
-    List<Process> terminatedList;
+    public List<Process> terminatedList;
     List<Process> newList;
     List<Process> runningList;
 
@@ -64,7 +64,7 @@ public abstract class Scheduler {
         else{
             runningList.set(coreId, p);
         }
-        mediator.publish(Mediator.Action.CORE_EXECUTE);
+        //mediator.publish(Mediator.Action.CORE_EXECUTE);
         LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
     }
     public boolean isThereReadyProcesses() {
@@ -134,8 +134,7 @@ public abstract class Scheduler {
     public void moveFromNewToReadyList(){
         newList.stream()
                 .filter(this::isProcessSubmitted)
-                .forEach(process -> {process.setState(Process.State.READY);
-                                    mediator.publish(Mediator.Action.SCHEDULER_ADD_TO_QUEUE);});
+                .forEach(process -> {process.setState(Process.State.READY);});
         List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcessFromNewList(Process.State.READY);

@@ -43,6 +43,7 @@ public class Os {
      */
     final Integer MEMSIZE = 1024;
 
+
     /**
      * Constructs an `Os` instance with the specified mediator for communication.
      *
@@ -62,12 +63,13 @@ public class Os {
      * @param priority       The priority of the process.
      * @param arrivalInstant The arrival instant of the process.
      */
-    public void createProcess(Process.Type type, int burst, int priority, int arrivalInstant) {
+    public Process createProcess(Process.Type type, int burst, int priority, int arrivalInstant) {
         PidAllocator.Pid pid = pidAllocator.AssignPid();
         //Process newProcess = new Process(pid, priority, burst, arrivalInstant);
         Process newProcess = new Process(pid, priority,burst,arrivalInstant);
         mediator.invoke(Mediator.Action.SCHEDULER_ADD_TO_QUEUE, new Object[]{newProcess});
         System.out.println("Created process state " + newProcess.getState());
+        return newProcess;
     }
 
     /**
