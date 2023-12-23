@@ -3,8 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<DialogPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.simuladorso.GUI.controller.InfoProcessDialogController"
-            style="-fx-background-color: #GREY;">
+<DialogPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.simuladorso.GUI.controller.InfoProcessDialogController">
     <content>
         <VBox spacing="10">
             <GridPane hgap="10" vgap="5">

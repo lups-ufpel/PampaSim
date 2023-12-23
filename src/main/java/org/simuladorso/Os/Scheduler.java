@@ -134,7 +134,7 @@ public abstract class Scheduler {
     public void moveFromNewToReadyList(){
         newList.stream()
                 .filter(this::isProcessSubmitted)
-                .forEach(process -> {process.setState(Process.State.READY);});
+                .forEach(Process::submit);
         List<Process> readyList = filterProcessesByState(newList, Process.State.READY);
         this.readyList.addAll(readyList);
         removeProcessFromNewList(Process.State.READY);

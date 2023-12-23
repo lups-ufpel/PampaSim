@@ -33,7 +33,7 @@ public class CoreSimple implements Core {
         int total_ticks = process.getBurstTime();
         LOGGER.info("PID {} => {} [{}/{}].",process.getPid(),process.getProgressBar(),ticks_executed, total_ticks);
         if(ticks_executed >= total_ticks) {
-            process.setState(Process.State.TERMINATED);
+            process.finish();
             LOGGER.info("Process of PID {} has terminated",process.getPid());
         }
     }

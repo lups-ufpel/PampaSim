@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 public interface Mediator {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class.getSimpleName());
+    Logger LOGGER = LoggerFactory.getLogger(Mediator.class.getSimpleName());
 
     static final Mediator instance = new MediatorDefault();
 
@@ -31,6 +31,8 @@ public interface Mediator {
         RUN,
         ON_THIS_PROCESS_DISPATCHED,
         ON_THIS_PROCESS_INTERRUPTED,
+        ON_THIS_PROCESS_SUBMITTED,
+        ON_THIS_PROCESS_FINISHED,
         KERNEL_GET_LIST,
         KERNEL_GET_PROCESS,
         KERNEL_NEW_PROCESS,

@@ -65,6 +65,7 @@ public class Process {
     }
     public void setState(State state){
         this.state = state;
+        stateProperty.set(state.toString());
     }
     public int getBurstTime(){ return burstTime; }
     public int getCurrentExecutionTime() {
@@ -73,6 +74,17 @@ public class Process {
     public String getProgressBar(){
         return progressBar;
     }
+
+    public void submit() {
+        if(getState() != State.NEW){
+            throw new IllegalStateException("Process must be in NEW state to be submitted");
+        }
+        else{
+            setState(State.READY);
+            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_SUBMITTED);
+        }
+    }
+
 
     public void dispatch(){
         if(getState() != State.READY){
@@ -90,6 +102,15 @@ public class Process {
         else{
             setState(State.READY);
             Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_INTERRUPTED);
+        }
+    }
+    public void finish(){
+        if(getState() != State.RUNNING){
+            throw new IllegalStateException("Process must be in RUNNING state to be finished");
+        }
+        else{
+            setState(State.TERMINATED);
+            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_FINISHED);
         }
     }
     public void forwardProcessExecution(){

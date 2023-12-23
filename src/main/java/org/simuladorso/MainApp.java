@@ -8,10 +8,14 @@ import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.Os.Os;
 import org.simuladorso.Os.SchedulerFCFS;
 import org.simuladorso.VirtualMachine.VmSimple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class App extends Application {
+public class MainApp extends Application {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainApp.class);
     @Override
     public void start(Stage stage) {
             Scene scene = createScene();
@@ -25,10 +29,10 @@ public class App extends Application {
     public Scene createScene() {
         VBox root = null;
         try {
+
             root = new View().root;
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            System.out.println("Error al cargar la vista");
+            LOGGER.error("Cannot create Scene from root node",e);
         }
         return new Scene(root, 1000, 700);
     }

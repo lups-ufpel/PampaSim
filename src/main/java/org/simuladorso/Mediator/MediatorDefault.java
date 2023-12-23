@@ -1,14 +1,8 @@
 package org.simuladorso.Mediator;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import org.simuladorso.GUI.ModelView;
-import org.simuladorso.GUI.model.CreateProcessDialog;
+import org.simuladorso.GUI.SimulationViewModel;
 import org.simuladorso.Mediator.Handlers.Core.*;
 import org.simuladorso.Mediator.Handlers.Process.*;
 import org.simuladorso.Mediator.Handlers.Scheduler.*;
@@ -20,7 +14,6 @@ import org.simuladorso.Utils.Command;
 import org.simuladorso.VirtualMachine.Vm;
 import java.util.*;
 public class MediatorDefault implements Mediator {
-    private final Map<Process, Circle> processCircleMap = new HashMap<>();
     private final Map<Circle, Process> circleProcessMap = new HashMap<>();
     private static final Mediator instance = new MediatorDefault();
     private final HashMap<Action, Command> handlers = new HashMap<>();
@@ -30,7 +23,7 @@ public class MediatorDefault implements Mediator {
     // MEDIATOR SHOULD HAVE A AN INSTANCE OF EACH COMPONENT TO HANDLE COMMUNICATION BETWEEN THEM
     private Os os;
     private Vm vm;
-    private ModelView modelView;
+    private SimulationViewModel simulationViewModel;
 
     /*
      * This is the constructor of the MediatorDefault class.
@@ -67,7 +60,7 @@ public class MediatorDefault implements Mediator {
             LOGGER.info("Component of {} and type of {} has been successfully registered", component.getClass().getSimpleName(), componentType);
             switch(componentType){
                 case GUI:
-                    this.modelView = (ModelView) component;
+                    this.simulationViewModel = (SimulationViewModel) component;
                     break;
                 case KERNEL:
                     this.os = (Os) component;
@@ -85,22 +78,15 @@ public class MediatorDefault implements Mediator {
     public void send(Object object, Action action) {
         switch (action){
             case CREATE:
-                CreateProcessDialog createProcessDialog = new CreateProcessDialog();
-                IntegerProperty burst = new SimpleIntegerProperty();
-                IntegerProperty priority = new SimpleIntegerProperty();
-                IntegerProperty arrivalTime = new SimpleIntegerProperty();
-                ObjectProperty<Color> color = new SimpleObjectProperty<>();
-                burst.bind(createProcessDialog.burstProperty());
-                priority.bind(createProcessDialog.priorityProperty());
-                arrivalTime.bind(createProcessDialog.timeProperty());
-                color.bind(createProcessDialog.colorProperty());
-                Optional<ButtonType> result = createProcessDialog.showAndWait();
-                if(result.isPresent() && result.get() == ButtonType.OK){
-                    Circle newCircle = modelView.createCircle(color.get());
-                    Process newProcess = os.createProcess(Process.Type.SIMPLE, burst.get(), priority.get(), arrivalTime.get());
-                    processCircleMap.put(newProcess,newCircle);
-                    circleProcessMap.put(newCircle, newProcess);
-                    modelView.addCircleToCreatedProcessList(newCircle);
+                // compare object to simulationViewModel
+                if (object == this.simulationViewModel){
+                    int pid = simulationViewModel.burstProperty().get();
+                    int priority = simulationViewModel.priorityProperty().get();
+                    int arrivalTime = simulationViewModel.arrivalTimeProperty().get();
+                    Process newProcess = os.createProcess(Process.Type.SIMPLE, pid, priority, arrivalTime);
+                    simulationViewModel.AddProcess(newProcess);
+                } else{
+                    LOGGER.error("Object passed to send() does not match the specific Action");
                 }
                 break;
             case EXECUTE:
@@ -111,19 +97,22 @@ public class MediatorDefault implements Mediator {
                 vm.run();
                 break;
             case ON_THIS_PROCESS_DISPATCHED:
-                Circle c = processCircleMap.get((Process) object);
-                modelView.addProcessToRunningList(c);
+                simulationViewModel.dispatchProcess((Process) object);
                 break;
             case ON_THIS_PROCESS_INTERRUPTED:
-                Circle circleToRemove = processCircleMap.get((Process) object);
-                modelView.removeProcessFromRunningList(circleToRemove);
-                modelView.addProcessToReadyList(circleToRemove);
+                simulationViewModel.interruptProcess((Process) object);
+                break;
+            case ON_THIS_PROCESS_SUBMITTED:
+                simulationViewModel.submitProcess((Process) object);
+                break;
+            case ON_THIS_PROCESS_FINISHED:
+                simulationViewModel.finishProcess((Process) object);
                 break;
             case VISUALIZE:
                 Circle circle = (Circle) object;
                 Process process = circleProcessMap.get(circle);
                 Color col = (Color) circle.fillProperty().get();
-                modelView.showProcessInfo(process,col);
+                //simulationViewModel.showProcessInfo(process,col);
                 break;
         }
     }
