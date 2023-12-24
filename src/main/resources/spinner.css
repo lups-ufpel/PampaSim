@@ -1,0 +1,18 @@
+.spinner.split-arrows-horizontal > .increment-arrow-button,
+.spinner.split-arrows-horizontal > .decrement-arrow-button {
+    -fx-background-insets: 0;
+    -fx-padding: 0.166667em; /* Espaçamento interno */
+    -fx-background-color: transparent; /* Cor de fundo */
+    -fx-border-color: transparent; /* Cor da borda */
+}
+
+.spinner.split-arrows-horizontal .arrow-button {
+    -fx-background-color: transparent; /* Cor de fundo dos botões */
+}
+
+.spinner.split-arrows-horizontal .arrow {
+    -fx-background-color: black; /* Cor das setas */
+}
+.spinner.split-arrows-horizontal .text-field {
+    -fx-alignment: center;
+}

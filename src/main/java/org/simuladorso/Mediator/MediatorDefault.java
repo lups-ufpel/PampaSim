@@ -25,6 +25,10 @@ public class MediatorDefault implements Mediator {
     private Vm vm;
     private SimulationViewModel simulationViewModel;
 
+    public Object retrieveComponent(Component componentType) {
+        return this.components.get(componentType);
+    }
+
     /*
      * This is the constructor of the MediatorDefault class.
      * It is private because we are using the Singleton pattern.
@@ -76,7 +80,7 @@ public class MediatorDefault implements Mediator {
     }
     @Override
     public void send(Object object, Action action) {
-        switch (action){
+        switch (action) {
             case CREATE:
                 // compare object to simulationViewModel
                 if (object == this.simulationViewModel){
@@ -114,6 +118,11 @@ public class MediatorDefault implements Mediator {
                 Color col = (Color) circle.fillProperty().get();
                 //simulationViewModel.showProcessInfo(process,col);
                 break;
+            case ON_THIS_PROCESS_EXECUTED:
+                double progress = ((Process)object).getProgress();
+                simulationViewModel.updateProcessProgress((Process)object,progress);
+
+
         }
     }
 

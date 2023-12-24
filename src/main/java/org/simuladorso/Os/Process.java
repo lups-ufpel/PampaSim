@@ -116,6 +116,10 @@ public class Process {
     public void forwardProcessExecution(){
         this.currExecTime +=1;
         updateProgressBar();
+        Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_EXECUTED);
+    }
+    public double getProgress(){
+        return (double) currExecTime / burstTime;
     }
     public void incrQuantum(){
         execTimeSlice +=1;

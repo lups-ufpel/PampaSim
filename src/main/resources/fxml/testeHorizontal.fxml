@@ -57,61 +57,69 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" VBox.vgrow="ALWAYS">
+        <SplitPane dividerPositions="0.5, 0.5" focusTraversable="true" orientation="VERTICAL" VBox.vgrow="ALWAYS">
             <items>
                 <VBox alignment="BASELINE_CENTER" minWidth="160.0" spacing="10.0" style="-fx-background-color: #f5f5f5;">
                     <children>
-                        <Button fx:id="BtnStartSim" mnemonicParsing="false" onAction="#onStartSimulation" prefWidth="150.0" text="Iniciar Simulação">
-                            <padding>
-                                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
-                            </padding>
-                        </Button>
-                        <Button fx:id="BtnFinishSim" mnemonicParsing="false" onAction="#onFinishSimulation" prefWidth="150.0" text="Pausar Simulação">
-                            <padding>
-                                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
-                            </padding>
-                        </Button>
-                        <Button fx:id="BtnCreateProc" mnemonicParsing="false" onAction="#onCreateProcess" prefWidth="150.0" text="Criar Processo">
-                            <padding>
-                                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
-                            </padding>
-                        </Button>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                              <Button fx:id="BtnCreateProc" mnemonicParsing="false" onAction="#onCreateProcess" prefWidth="150.0" text="Criar Processo">
+                                  <padding>
+                                      <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                  </padding>
+                              </Button>
+                              <Button fx:id="BtnFinishSim" mnemonicParsing="false" onAction="#onFinishSimulation" prefWidth="150.0" text="Pausar Simulação">
+                                  <padding>
+                                      <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                  </padding>
+                              </Button>
+                              <Button fx:id="BtnStartSim" mnemonicParsing="false" onAction="#onStartSimulation" prefWidth="150.0" text="Iniciar Simulação">
+                                  <padding>
+                                      <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                  </padding>
+                              </Button>
+                     </children>
+                  </HBox>
                     </children>
                 </VBox>
                 <SplitPane dividerPositions="0.5" minWidth="400.0" orientation="VERTICAL">
                     <items>
                         <HBox alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: #f5f5f5;">
                             <children>
-                                <VBox alignment="TOP_CENTER" spacing="5.0">
-                                    <children>
-                                        <Label text="CPU">
-                                            <font>
-                                                <Font name="System Bold" size="24.0" />
-                                            </font>
-                                        </Label>
-                                        <ImageView pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="@../../../../../MediatorCommandMVVM/src/main/resources/images/cpu_img.png" />
-                                            </image>
-                                        </ImageView>
-                                        <VBox fx:id="CpuContainer1" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="96.0" spacing="5.0" style="-fx-background-color: #ffffff; -fx-background-radius: 10;" />
-                                    </children>
-                                </VBox>
-                                <VBox alignment="TOP_CENTER" layoutX="346.0" layoutY="15.0" spacing="5.0">
-                                    <children>
-                                        <Label text="CPU">
-                                            <font>
-                                                <Font name="System Bold" size="24.0" />
-                                            </font>
-                                        </Label>
-                                        <ImageView pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="@../../../../../MediatorCommandMVVM/src/main/resources/images/cpu_img.png" />
-                                            </image>
-                                        </ImageView>
+                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="50.0">
+                           <children>
+                                      <VBox alignment="TOP_CENTER">
+                                          <children>
+                                              <Label text="CPU">
+                                                  <font>
+                                                      <Font name="System Bold" size="24.0" />
+                                                  </font>
+                                              </Label>
+                                              <ImageView pickOnBounds="true" preserveRatio="true">
+                                                  <image>
+                                                      <Image url="@../../../../../MediatorCommandMVVM/src/main/resources/images/cpu_img.png" />
+                                                  </image>
+                                              </ImageView>
+                                          </children>
+                                      </VBox>
+                                        <VBox fx:id="CpuContainer1" alignment="CENTER" prefHeight="100.0" prefWidth="96.0" spacing="5.0" style="-fx-background-color: BLUE; -fx-background-radius: 10;" />
+                                      <VBox alignment="TOP_CENTER" spacing="5.0">
+                                          <children>
+                                              <Label text="CPU">
+                                                  <font>
+                                                      <Font name="System Bold" size="24.0" />
+                                                  </font>
+                                              </Label>
+                                              <ImageView pickOnBounds="true" preserveRatio="true">
+                                                  <image>
+                                                      <Image url="@../../../../../MediatorCommandMVVM/src/main/resources/images/cpu_img.png" />
+                                                  </image>
+                                              </ImageView>
+                                          </children>
+                                      </VBox>
                                         <VBox fx:id="CpuContainer2" alignment="TOP_CENTER" prefHeight="100.0" prefWidth="96.0" spacing="5.0" style="-fx-background-color: #ffffff; -fx-background-radius: 10;" />
-                                    </children>
-                                </VBox>
+                           </children>
+                        </HBox>
                             </children>
                         </HBox>
                         <VBox alignment="CENTER" spacing="5.0" style="-fx-background-color: #f5f5f5;">
@@ -151,7 +159,7 @@
                         <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
                     </textFill>
                 </Label>
-                <Pane HBox.hgrow="ALWAYS" />
+                <Pane HBox.hgrow="NEVER" />
                 <Label font="$x3" text="Right status" textFill="$x4" HBox.hgrow="NEVER" />
             </children>
             <padding>

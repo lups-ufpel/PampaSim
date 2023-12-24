@@ -22,6 +22,8 @@ public interface Mediator {
 
     public void send(Object sender, Action action);
 
+    public Object retrieveComponent(Component componentType);
+
     //Mediator interface is just used as a namespace for the enum.
     public enum Action {
 
@@ -33,6 +35,7 @@ public interface Mediator {
         ON_THIS_PROCESS_INTERRUPTED,
         ON_THIS_PROCESS_SUBMITTED,
         ON_THIS_PROCESS_FINISHED,
+        ON_THIS_PROCESS_EXECUTED,
         KERNEL_GET_LIST,
         KERNEL_GET_PROCESS,
         KERNEL_NEW_PROCESS,

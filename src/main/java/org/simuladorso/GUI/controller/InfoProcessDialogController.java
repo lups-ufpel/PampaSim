@@ -2,10 +2,14 @@ package org.simuladorso.GUI.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import org.simuladorso.Os.Process;
 
 public class InfoProcessDialogController {
 
+    public ProgressBar pb;
+    public ProgressIndicator pi;
     @FXML
     private Label processState;
     @FXML
@@ -26,6 +30,7 @@ public class InfoProcessDialogController {
         if (proc != null) {
             bindProcessProperties();
         }
+
     }
 
     public void setProcess(Process proc) {
@@ -40,5 +45,7 @@ public class InfoProcessDialogController {
         burst.textProperty().bind(proc.burstProperty().asString());
         arrival.textProperty().bind(proc.arrivalProperty().asString());
         priority.textProperty().bind(proc.priorityProperty().asString());
+        pi.progressProperty().bind(proc.burstProperty().divide(proc.burstProperty()));
+        pb.progressProperty().bind(proc.burstProperty().divide(proc.burstProperty()));
     }
 }

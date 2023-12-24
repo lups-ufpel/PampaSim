@@ -8,18 +8,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.simuladorso.GUI.model.CreateProcessDialog;
 import org.simuladorso.GUI.model.InfoProcessDialog;
 import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.Os.Process;
+import org.simuladorso.ProcessView;
+
+import java.util.Map;
 import java.util.Optional;
 
 public class SimulationViewModel {
-    public final ObservableList<Process> createdList = FXCollections.observableArrayList();
-    public final ObservableList<Process> runningList = FXCollections.observableArrayList();
-    public final ObservableList<Process> readyList = FXCollections.observableArrayList();
-    public final ObservableList<Process> finishedList = FXCollections.observableArrayList();
+    public final ObservableList<ProcessView> createdList = FXCollections.observableArrayList();
+    public final ObservableList<ProcessView> runningList = FXCollections.observableArrayList();
+    public final ObservableList<ProcessView> readyList = FXCollections.observableArrayList();
+    public final ObservableList<ProcessView> finishedList = FXCollections.observableArrayList();
     private final IntegerProperty arrivalTime = new SimpleIntegerProperty();
     private final IntegerProperty burst = new SimpleIntegerProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
@@ -32,41 +36,56 @@ public class SimulationViewModel {
         Mediator.getInstance().send(this, Mediator.Action.RUN);
     }
     public void AddProcess(Process process) {
-        createdList.add(process);
+        createdList.get(createdList.size() -1).setProcess(process);
     }
-    public void createProcess() {
+    public void createProcess(ProcessView processView) {
         CreateProcessDialog createProcessDialog = new CreateProcessDialog();
         burst.bind(createProcessDialog.burstProperty());
         priority.bind(createProcessDialog.priorityProperty());
         arrivalTime.bind(createProcessDialog.timeProperty());
         color.bind(createProcessDialog.colorProperty());
         Optional<ButtonType> createProcessDialogResult = createProcessDialog.showAndWait();
-        if(createProcessDialogResult.isPresent() && createProcessDialogResult.get() == ButtonType.OK){
+
+        if(createProcessDialogResult.isPresent() && createProcessDialogResult.get() == ButtonType.OK) {
+            processView.setCircleColor(color.get());
+            createdList.add(processView);
             Mediator.getInstance().send(this, Mediator.Action.CREATE);
         }
     }
-    public void showProcessInfo(Process p) {
-        System.out.println("showProcessInfo");
-        Dialog<ButtonType> processInfoDialog = new InfoProcessDialog(p);
-        Optional<ButtonType> processInfoDialogResult = processInfoDialog.showAndWait();
+    public  void dispatchProcess(Process processToDispatch) {
+        ProcessView processView = findProcessView(processToDispatch,readyList);
+        System.out.println(processView == null);
+        readyList.remove(processView);
+        runningList.add(processView);
     }
-
-    public  void dispatchProcess(Process processToDispatch){
-        Boolean t = readyList.remove(processToDispatch);
-        System.out.println(t);
-        runningList.add(processToDispatch);
+    public ProcessView findProcessView(Process process, ObservableList<ProcessView> list) {
+        for (ProcessView processView : list) {
+            if (processView.getProcess().equals(process)) {
+                return processView;
+            }
+        }
+        return null;
     }
     public void interruptProcess(Process processToInterrupt){
-        runningList.remove(processToInterrupt);
-        readyList.add(processToInterrupt);
+        ProcessView processView = findProcessView(processToInterrupt,runningList);
+        runningList.remove(processView);
+        readyList.add(processView);
     }
     public void submitProcess(Process processToSubmit){
-        createdList.remove(processToSubmit);
-        readyList.add(processToSubmit);
+        ProcessView processView = findProcessView(processToSubmit,createdList);
+        System.out.println(processView == null);
+        createdList.remove(processView);
+        readyList.add(processView);
     }
-    public void finishProcess(Process processToFinish){
-        runningList.remove(processToFinish);
-        finishedList.add(processToFinish);
+    public void finishProcess(Process processToFinish) {
+        ProcessView processView = findProcessView(processToFinish,runningList);
+        runningList.remove(processView);
+        finishedList.add(processView);
+    }
+
+    public void showProcessInfo(Process process) {
+        InfoProcessDialog infoProcessDialog = new InfoProcessDialog(process);
+        infoProcessDialog.showAndWait();
     }
     public IntegerProperty arrivalTimeProperty() {
         return arrivalTime;
@@ -74,10 +93,14 @@ public class SimulationViewModel {
     public IntegerProperty burstProperty() {
         return burst;
     }
-    public ObjectProperty<Color> colorProperty() {
-        return color;
-    }
     public IntegerProperty priorityProperty() {
         return priority;
+    }
+
+    public void updateProcessProgress(Process object, double progress) {
+        ProcessView processView = findProcessView(object,runningList);
+        if (processView != null){
+            processView.setExecutionProgress(progress);
+        }
     }
 }
