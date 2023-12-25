@@ -6,20 +6,27 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import org.simuladorso.GUI.SimulationViewModel;
+import org.simuladorso.Os.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class SimulationMainView {
+public class SimulationMainView implements Initializable{
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationMainView.class);
 
     private final SimulationViewModel simulationViewModel;
@@ -32,6 +39,23 @@ public class SimulationMainView {
     public ProgressBar ProcessProgress;
     public Button runBtn;
     public Button stopBtn;
+    @FXML
+    public TableView<ProcessView> procTable;
+    @FXML
+    public TableColumn<ProcessView,Integer> pidCol;
+    @FXML
+    public TableColumn<ProcessView, Circle> colorCol;
+    @FXML
+    public TableColumn<ProcessView,ProgressBar> progressCol;
+    @FXML
+    private TableColumn<ProcessView, Integer> burstCol;
+    @FXML
+    private TableColumn<ProcessView, Integer> priorityCol;
+    @FXML
+    private TableColumn<ProcessView, Integer> arrivalCol;
+    @FXML
+    private TableColumn<ProcessView,String> stateCol;
+
     Timeline animation;
 
     public SimulationMainView(){
@@ -55,10 +79,10 @@ public class SimulationMainView {
     public void onCreateProcess(ActionEvent actionEvent) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/fxml/ProcessView.fxml"));
-        VBox rootElement = new VBox();
+        VBox rootElement = null;
         try {
             // Load the FXML and add it to the root element of ProcessView
-            rootElement.getChildren().add(loader.load());
+            rootElement = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,6 +90,7 @@ public class SimulationMainView {
         processView.setViewModel(this.simulationViewModel);
         processView.setRootElement(rootElement);
         simulationViewModel.createProcess(processView);
+        System.out.println(simulationViewModel.processList.size());
     }
 
     private void bindViewModel() {
@@ -129,5 +154,17 @@ public class SimulationMainView {
                 }
             }
         });
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        pidCol.setCellValueFactory(cellData -> cellData.getValue().process.pidProperty().asObject());
+        burstCol.setCellValueFactory(cellData -> cellData.getValue().process.burstProperty().asObject());
+        priorityCol.setCellValueFactory(cellData -> cellData.getValue().process.priorityProperty().asObject());
+        arrivalCol.setCellValueFactory(cellData -> cellData.getValue().process.arrivalProperty().asObject());
+        stateCol.setCellValueFactory(cellData -> cellData.getValue().process.stateProperty());
+        colorCol.setCellValueFactory(cellData -> cellData.getValue().circleForTableView());
+        progressCol.setCellValueFactory(cellData -> cellData.getValue().progressForTableView());
+        procTable.setItems(simulationViewModel.processList);
     }
 }

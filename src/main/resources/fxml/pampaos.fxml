@@ -24,7 +24,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.simuladorso.SimulationMainView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.simuladorso.SimulationMainView">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -152,10 +152,15 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
                                         </HBox>
-                              <TableView prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="procTable" prefHeight="200.0" prefWidth="200.0">
                                 <columns>
-                                  <TableColumn prefWidth="75.0" text="C1" />
-                                  <TableColumn prefWidth="75.0" text="C2" />
+                                    <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
+                                    <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
+                                    <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
+                                    <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
+                                    <TableColumn fx:id="priorityCol" prefWidth="85.0" text="PRIORIDADE" />
+                                    <TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />
+                                    <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO"/>
                                 </columns>
                               </TableView>
                                     </children>

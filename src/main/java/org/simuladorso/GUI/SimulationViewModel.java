@@ -24,6 +24,8 @@ public class SimulationViewModel {
     public final ObservableList<ProcessView> runningList = FXCollections.observableArrayList();
     public final ObservableList<ProcessView> readyList = FXCollections.observableArrayList();
     public final ObservableList<ProcessView> finishedList = FXCollections.observableArrayList();
+
+    public final ObservableList<ProcessView> processList = FXCollections.observableArrayList();
     private final IntegerProperty arrivalTime = new SimpleIntegerProperty();
     private final IntegerProperty burst = new SimpleIntegerProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
@@ -48,6 +50,7 @@ public class SimulationViewModel {
 
         if(createProcessDialogResult.isPresent() && createProcessDialogResult.get() == ButtonType.OK) {
             processView.setCircleColor(color.get());
+            processList.add(processView);
             createdList.add(processView);
             Mediator.getInstance().send(this, Mediator.Action.CREATE);
         }

@@ -1,12 +1,16 @@
 package org.simuladorso;
 
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import org.simuladorso.GUI.SimulationViewModel;
 import org.simuladorso.Os.Process;
 
@@ -18,6 +22,8 @@ public class ProcessView {
     private Circle processCircle;
     @FXML
     private ProgressBar processBar;
+
+    private Property<ProgressBar> progressProperty = new SimpleObjectProperty<>();
     Process process;
 
     VBox rootElement;
@@ -39,7 +45,8 @@ public class ProcessView {
         return process;
     }
     public void setExecutionProgress(double progress) {
-        this.processBar.setProgress(progress);
+        this.processBar.progressProperty().set(progress);
+        //this.progressProperty.getValue().setProgress(progress);
     }
     public void showProcessInfo(MouseEvent action) {
         simulationViewModel.showProcessInfo(this.process);
@@ -50,5 +57,16 @@ public class ProcessView {
 
     public ProgressBar getProcessBar() {
         return processBar;
+    }
+
+    public Property<Circle> circleForTableView() {
+        Property<Circle> newCircle = new SimpleObjectProperty<>();
+        Circle c = new Circle(10, this.processCircle.getFill());
+        newCircle.setValue(c);
+        return newCircle;
+    }
+    public Property<ProgressBar> progressForTableView() {
+        this.progressProperty.setValue(this.processBar);
+        return this.progressProperty;
     }
 }
