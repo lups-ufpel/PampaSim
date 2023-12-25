@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane fx:controller="org.simuladorso.SimulationMainView" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <left>
+        <ToolBar orientation="VERTICAL">
+            <items>
+                <Button mnemonicParsing="false" onAction="#onCreateProcess">
+                    <graphic>
+                        <FontIcon iconLiteral="fth-plus-circle" />
+                    </graphic>
+                    <text>Criar</text>
+                </Button>
+                <Button mnemonicParsing="false" text="Abrir">
+                    <graphic>
+                        <FontIcon iconLiteral="fth-file-plus" />
+                    </graphic>
+                </Button>
+                <Button mnemonicParsing="false" text="Compile">
+                    <graphic>
+                        <FontIcon iconLiteral="fth-code" />
+                    </graphic>
+                </Button>
+                <Separator />
+                <Button mnemonicParsing="false" text="Run" onAction="#onStartSimulation">
+                    <graphic>
+                        <FontIcon iconLiteral="fth-play" />
+                    </graphic>
+                    <text>New</text>
+                </Button>
+                <Button mnemonicParsing="false" text="Reset" >
+                    <graphic>
+                        <FontIcon iconLiteral="fth-refresh-cw" />
+                    </graphic>
+                </Button>
+                <Button mnemonicParsing="false" text="Stop" onAction="#onFinishSimulation">
+                    <graphic>
+                        <FontIcon iconLiteral="fth-stop-circle" />
+                    </graphic>
+                </Button>
+                <Button mnemonicParsing="false" text="Config">
+                    <graphic>
+                        <FontIcon iconLiteral="fth-settings" />
+                    </graphic>
+                </Button>
+            </items>
+        </ToolBar>
+    </left>
+    <center>
+        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab text="Procesador">
+                    <content>
+                        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+                            <items>
+                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                    <children>
+                                        <VBox alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT">
+                                            <children>
+                                                <Label text="CPU">
+                                                    <font>
+                                                        <Font name="System Bold" size="24.0" />
+                                                    </font>
+                                                </Label>
+                                                <ImageView pickOnBounds="true" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@../imgs/cpu_img.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </VBox>
+                                        <Circle fx:id="CpuContainer1" fill="WHITE" radius="40.0" stroke="BLACK" strokeType="INSIDE">
+                                            <HBox.margin>
+                                                <Insets top="20.0" />
+                                            </HBox.margin>
+                                        </Circle>
+                                        <ProgressBar maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="172.0" nodeOrientation="LEFT_TO_RIGHT" progress="0.4" HBox.hgrow="ALWAYS">
+                                            <HBox.margin>
+                                                <Insets top="20.0" />
+                                            </HBox.margin>
+                                        </ProgressBar>
+                                    </children>
+                                </HBox>
+                                <VBox alignment="CENTER" spacing="5.0">
+                                    <children>
+                                        <Label text="PROCESSOS CRIADOS" />
+                                        <HBox fx:id="NewList" alignment="TOP_RIGHT" minHeight="72.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                            <VBox.margin>
+                                                <Insets left="5.0" right="5.0" top="5.0" />
+                                            </VBox.margin>
+                                        </HBox>
+                                        <Label text="PROCESSOS PRONTOS" />
+                                        <HBox fx:id="ReadyList" alignment="TOP_RIGHT" minHeight="72.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);;">
+                                            <VBox.margin>
+                                                <Insets left="5.0" right="5.0" top="5.0" />
+                                            </VBox.margin>
+                                        </HBox>
+                                        <Label text="PROCESSOS FINALIZADOS" />
+                                        <HBox fx:id="FinishedList" alignment="TOP_RIGHT" minHeight="72.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                            </VBox.margin>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </items>
+                        </SplitPane>
+                    </content>
+                </Tab>
+                <Tab text="Memoria" />
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>

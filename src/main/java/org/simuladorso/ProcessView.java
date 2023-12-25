@@ -1,9 +1,6 @@
 package org.simuladorso;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
@@ -11,13 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import org.simuladorso.GUI.SimulationViewModel;
-import org.simuladorso.GUI.controller.ProcessViewModel;
-import org.simuladorso.GUI.model.InfoProcessDialog;
-import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.Os.Process;
-
-import java.io.IOException;
-import java.util.Optional;
 
 public class ProcessView {
 
@@ -52,5 +43,12 @@ public class ProcessView {
     }
     public void showProcessInfo(MouseEvent action) {
         simulationViewModel.showProcessInfo(this.process);
+    }
+    public Circle getProcessCircle() {
+        return processCircle;
+    }
+
+    public ProgressBar getProcessBar() {
+        return processBar;
     }
 }

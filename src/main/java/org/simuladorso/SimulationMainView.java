@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import org.simuladorso.GUI.SimulationViewModel;
 import org.slf4j.Logger;
@@ -21,7 +23,7 @@ public class SimulationMainView {
     private final SimulationViewModel simulationViewModel;
 
     @FXML
-    public VBox CpuContainer1, CpuContainer2;
+    public Circle CpuContainer1;
     @FXML
     public HBox NewList, ReadyList;
     public HBox FinishedList;
@@ -66,11 +68,11 @@ public class SimulationMainView {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (ProcessView procView : change.getAddedSubList()) {
-                        NewList.getChildren().add(procView.rootElement);
+                        NewList.getChildren().add(procView.getProcessCircle());
                     }
                 } else if (change.wasRemoved()) {
                     for (ProcessView procView: change.getRemoved()) {
-                        NewList.getChildren().remove(procView.rootElement);
+                        NewList.getChildren().remove(procView.getProcessCircle());
                     }
                 }
             }
@@ -79,11 +81,11 @@ public class SimulationMainView {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (ProcessView procView : change.getAddedSubList()) {
-                        this.ReadyList.getChildren().add(procView.rootElement);
+                        this.ReadyList.getChildren().add(procView.getProcessCircle());
                     }
                 } else if (change.wasRemoved()) {
                     for (ProcessView procView: change.getRemoved()) {
-                        this.ReadyList.getChildren().remove(procView.rootElement);
+                        this.ReadyList.getChildren().remove(procView.getProcessCircle());
                     }
                 }
             }
@@ -92,11 +94,11 @@ public class SimulationMainView {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (ProcessView procView : change.getAddedSubList()) {
-                        this.CpuContainer1.getChildren().add(procView.rootElement);
+                        this.CpuContainer1.setFill(procView.getProcessCircle().getFill());
                     }
                 } else if (change.wasRemoved()) {
                     for (ProcessView procView: change.getRemoved()) {
-                        this.CpuContainer1.getChildren().remove(procView.rootElement);
+                        this.CpuContainer1.setFill(Paint.valueOf("white"));
                     }
                 }
             }
@@ -105,11 +107,11 @@ public class SimulationMainView {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (ProcessView procView : change.getAddedSubList()) {
-                        this.FinishedList.getChildren().add(procView.rootElement);
+                        this.FinishedList.getChildren().add(procView.getProcessCircle());
                     }
                 } else if (change.wasRemoved()) {
                     for (ProcessView procView: change.getRemoved()) {
-                        this.FinishedList.getChildren().remove(procView.rootElement);
+                        this.FinishedList.getChildren().remove(procView.getProcessCircle());
                     }
                 }
             }
