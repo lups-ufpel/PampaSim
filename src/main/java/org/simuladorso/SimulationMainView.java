@@ -6,6 +6,8 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -27,24 +29,27 @@ public class SimulationMainView {
     @FXML
     public HBox NewList, ReadyList;
     public HBox FinishedList;
+    public ProgressBar ProcessProgress;
+    public Button runBtn;
+    public Button stopBtn;
     Timeline animation;
 
     public SimulationMainView(){
         this.simulationViewModel = new SimulationViewModel();
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
+        this.animation.setCycleCount(Timeline.INDEFINITE);
         bindViewModel();
     }
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
-        animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
-        animation.setCycleCount(Timeline.INDEFINITE);
         animation.play();
+        stopBtn.setDisable(false);
     }
 
     @FXML
     public void onFinishSimulation(ActionEvent actionEvent) {
         animation.pause();
-        //TODO: add finish simulation logic
-
+        stopBtn.setDisable(true);
     }
     @FXML
     public void onCreateProcess(ActionEvent actionEvent) {
@@ -69,6 +74,9 @@ public class SimulationMainView {
                 if (change.wasAdded()) {
                     for (ProcessView procView : change.getAddedSubList()) {
                         NewList.getChildren().add(procView.getProcessCircle());
+                        if (runBtn.isDisable()){
+                            runBtn.setDisable(false);
+                        }
                     }
                 } else if (change.wasRemoved()) {
                     for (ProcessView procView: change.getRemoved()) {
@@ -95,10 +103,15 @@ public class SimulationMainView {
                 if (change.wasAdded()) {
                     for (ProcessView procView : change.getAddedSubList()) {
                         this.CpuContainer1.setFill(procView.getProcessCircle().getFill());
+                        this.CpuContainer1.setOnMouseClicked(procView::showProcessInfo);
+                        this.ProcessProgress.progressProperty().bind(procView.getProcess().execTimeSliceProperty().divide(procView.getProcess().burstProperty()));
                     }
                 } else if (change.wasRemoved()) {
                     for (ProcessView procView: change.getRemoved()) {
                         this.CpuContainer1.setFill(Paint.valueOf("white"));
+                        this.CpuContainer1.setOnMouseClicked(null);
+                        this.ProcessProgress.progressProperty().unbind();
+                        this.ProcessProgress.setProgress(0);
                     }
                 }
             }

@@ -1,5 +1,8 @@
 package org.simuladorso;
 
+import atlantafx.base.theme.CupertinoLight;
+import atlantafx.base.theme.NordDark;
+import atlantafx.base.theme.NordLight;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
@@ -18,6 +21,7 @@ public class MainApp extends Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApp.class);
     @Override
     public void start(Stage stage) throws IOException {
+        Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         new PampaOsGUI(stage);
     }
     public static void main(String[] args) {

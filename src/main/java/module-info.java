@@ -3,6 +3,7 @@ module org.simuladorso {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires atlantafx.base;
     opens org.simuladorso.GUI to javafx.fxml;
     opens org.simuladorso.GUI.model to javafx.fxml;
     opens org.simuladorso.GUI.controller to javafx.fxml;

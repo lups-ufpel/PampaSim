@@ -45,7 +45,6 @@ public class InfoProcessDialogController {
         burst.textProperty().bind(proc.burstProperty().asString());
         arrival.textProperty().bind(proc.arrivalProperty().asString());
         priority.textProperty().bind(proc.priorityProperty().asString());
-        pi.progressProperty().bind(proc.burstProperty().divide(proc.burstProperty()));
-        pb.progressProperty().bind(proc.burstProperty().divide(proc.burstProperty()));
+        pb.progressProperty().bind(proc.execTimeSliceProperty().divide(proc.burstProperty()));
     }
 }

@@ -1,9 +1,6 @@
 package org.simuladorso.Os;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import org.simuladorso.Mediator.Mediator;
 import org.simuladorso.VirtualMachine.Processor.Registers;
 import org.simuladorso.VirtualMachine.Sbyte;
@@ -26,7 +23,7 @@ public class Process {
     IntegerProperty burstProperty = new SimpleIntegerProperty();
     IntegerProperty priorityProperty = new SimpleIntegerProperty();
     IntegerProperty arrivalProperty = new SimpleIntegerProperty();
-
+    DoubleProperty execTimeSliceProperty = new SimpleDoubleProperty();
     public Process(PidAllocator.Pid pid, int priority, int totalBurst, int arrivalTime) {
 
         this.pid = pid;
@@ -42,6 +39,7 @@ public class Process {
         burstProperty.set(totalBurst);
         priorityProperty.set(priority);
         arrivalProperty.set(arrivalTime);
+        execTimeSliceProperty.set(currExecTime);
     }
     public int getPid() {
         return pid.getNum();
@@ -116,6 +114,7 @@ public class Process {
     public void forwardProcessExecution(){
         this.currExecTime +=1;
         updateProgressBar();
+        execTimeSliceProperty.set(currExecTime);
         Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_EXECUTED);
     }
     public double getProgress(){
@@ -157,6 +156,10 @@ public class Process {
     }
     public IntegerProperty arrivalProperty() {
         return arrivalProperty;
+    }
+
+    public DoubleProperty execTimeSliceProperty() {
+        return execTimeSliceProperty;
     }
     public void setStateProperty(String state) {
         this.stateProperty.set(state);
