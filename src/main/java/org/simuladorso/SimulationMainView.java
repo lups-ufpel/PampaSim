@@ -66,6 +66,10 @@ public class SimulationMainView implements Initializable{
     }
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
+        boolean canStart = simulationViewModel.schedulerDialog();
+        if (!canStart) {
+            return;
+        }
         animation.play();
         stopBtn.setDisable(false);
     }

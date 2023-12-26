@@ -28,7 +28,6 @@ public class Main {
     private static void initializeComponents() {
         mediator.registerComponent(new Os(mediator),Mediator.Component.KERNEL);
         mediator.registerComponent(new VmSimple(1,mediator),Mediator.Component.VM);
-        mediator.registerComponent(new SchedulerFCFS(1,mediator),Mediator.Component.SCHEDULER);
     }
 }
 

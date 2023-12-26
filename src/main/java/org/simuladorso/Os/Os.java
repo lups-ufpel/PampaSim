@@ -44,6 +44,8 @@ public class Os {
     final Integer MEMSIZE = 1024;
 
 
+    private ArrayList<Process> processList = new ArrayList<Process>();
+
     /**
      * Constructs an `Os` instance with the specified mediator for communication.
      *
@@ -65,13 +67,14 @@ public class Os {
      */
     public Process createProcess(Process.Type type, int burst, int priority, int arrivalInstant) {
         PidAllocator.Pid pid = pidAllocator.AssignPid();
-        //Process newProcess = new Process(pid, priority, burst, arrivalInstant);
         Process newProcess = new Process(pid, priority,burst,arrivalInstant);
-        mediator.invoke(Mediator.Action.SCHEDULER_ADD_TO_QUEUE, new Object[]{newProcess});
         System.out.println("Created process state " + newProcess.getState());
+        processList.add(newProcess);
         return newProcess;
     }
-
+    public void dispatchAll(Scheduler sched){
+        sched.newList = processList;
+    }
     /**
      * Allocate memory for a process with the specified size.
      *

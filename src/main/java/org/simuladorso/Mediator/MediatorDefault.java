@@ -121,8 +121,8 @@ public class MediatorDefault implements Mediator {
             case ON_THIS_PROCESS_EXECUTED:
                 double progress = ((Process)object).getProgress();
                 simulationViewModel.updateProcessProgress((Process)object,progress);
-
-
+            case DISPATCH_ALL:
+                break;
         }
     }
 

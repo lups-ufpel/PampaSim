@@ -2,10 +2,6 @@ package org.simuladorso.GUI.controller;
 
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Circle;
 import org.simuladorso.GUI.model.InfoProcessDialog;
 import org.simuladorso.Os.Process;
 

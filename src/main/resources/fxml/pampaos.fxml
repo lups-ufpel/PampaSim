@@ -120,14 +120,14 @@
                                                 </ImageView>
                                             </children>
                                         </VBox>
-                                        <Circle fx:id="CpuContainer1" fill="WHITE" radius="40.0" stroke="BLACK" strokeType="INSIDE">
+                                        <Circle fx:id="CpuContainer1" fill="#f8f8f2" radius="40.0" stroke="BLACK" strokeType="INSIDE">
                                             <HBox.margin>
-                                                <Insets top="20.0" />
+                                                <Insets top="25.0" />
                                             </HBox.margin>
                                         </Circle>
                                         <ProgressBar fx:id="ProcessProgress" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="172.0" nodeOrientation="LEFT_TO_RIGHT" progress="0.0" HBox.hgrow="ALWAYS">
                                             <HBox.margin>
-                                                <Insets top="20.0" />
+                                                <Insets top="25.0" />
                                             </HBox.margin>
                                         </ProgressBar>
                                     </children>
@@ -135,24 +135,33 @@
                                 <VBox alignment="TOP_CENTER" spacing="5.0">
                                     <children>
                                         <Label text="PROCESSOS CRIADOS" />
-                                        <HBox fx:id="NewList" alignment="TOP_RIGHT" minHeight="72.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                        <HBox fx:id="NewList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                             <VBox.margin>
                                                 <Insets left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
                                         </HBox>
                                         <Label text="PROCESSOS PRONTOS" />
-                                        <HBox fx:id="ReadyList" alignment="TOP_RIGHT" minHeight="72.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);;">
+                                        <HBox fx:id="ReadyList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                             <VBox.margin>
                                                 <Insets left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
                                         </HBox>
                                         <Label text="PROCESSOS FINALIZADOS" />
-                                        <HBox fx:id="FinishedList" alignment="TOP_RIGHT" minHeight="72.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                        <HBox fx:id="FinishedList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
                                         </HBox>
-                              <TableView fx:id="procTable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="procTable">
                                 <columns>
                                     <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
                                     <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
@@ -160,8 +169,11 @@
                                     <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
                                     <TableColumn fx:id="priorityCol" prefWidth="85.0" text="PRIORIDADE" />
                                     <TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />
-                                    <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO"/>
+                                    <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO" />
                                 </columns>
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
                               </TableView>
                                     </children>
                                 </VBox>

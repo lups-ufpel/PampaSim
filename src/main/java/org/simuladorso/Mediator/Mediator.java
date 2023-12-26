@@ -31,6 +31,7 @@ public interface Mediator {
         VISUALIZE,
         EXECUTE,
         RUN,
+        DISPATCH_ALL,
         ON_THIS_PROCESS_DISPATCHED,
         ON_THIS_PROCESS_INTERRUPTED,
         ON_THIS_PROCESS_SUBMITTED,

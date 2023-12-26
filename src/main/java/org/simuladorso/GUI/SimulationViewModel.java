@@ -6,17 +6,19 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.CssMetaData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.simuladorso.GUI.model.CreateProcessDialog;
 import org.simuladorso.GUI.model.InfoProcessDialog;
+import org.simuladorso.GUI.model.SchedulerChoiceDialog;
 import org.simuladorso.Mediator.Mediator;
+import org.simuladorso.Os.Os;
 import org.simuladorso.Os.Process;
+import org.simuladorso.Os.Scheduler;
 import org.simuladorso.ProcessView;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class SimulationViewModel {
@@ -37,6 +39,20 @@ public class SimulationViewModel {
     public void runSimulation() {
         Mediator.getInstance().send(this, Mediator.Action.RUN);
     }
+    public boolean schedulerDialog(){
+        Dialog<ButtonType> schedulerChoiceDialog = new SchedulerChoiceDialog();
+        Optional<ButtonType> schedulerChoiceDialogResult = schedulerChoiceDialog.showAndWait();
+        if (schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK) {
+            System.out.println("Scheduler escolhido");
+            Scheduler scheduler = (Scheduler) Mediator.getInstance().retrieveComponent(Mediator.Component.SCHEDULER);
+            Os kernel = (Os) Mediator.getInstance().retrieveComponent(Mediator.Component.KERNEL);
+            kernel.dispatchAll(scheduler);
+            System.out.println("parei aqui");
+        }
+        //FIX LINE BELOW
+        return schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK;
+    }
+
     public void AddProcess(Process process) {
         createdList.get(createdList.size() -1).setProcess(process);
     }
@@ -55,9 +71,11 @@ public class SimulationViewModel {
             Mediator.getInstance().send(this, Mediator.Action.CREATE);
         }
     }
-    public  void dispatchProcess(Process processToDispatch) {
+    public void dispatchProcess(Process processToDispatch) {
         ProcessView processView = findProcessView(processToDispatch,readyList);
-        System.out.println(processView == null);
+        if (processView == null){
+            System.out.println("Em dispatchProcess is true ou processview e nulo");
+        }
         readyList.remove(processView);
         runningList.add(processView);
     }
@@ -76,7 +94,9 @@ public class SimulationViewModel {
     }
     public void submitProcess(Process processToSubmit){
         ProcessView processView = findProcessView(processToSubmit,createdList);
-        System.out.println(processView == null);
+        if (processView == null){
+            System.out.println("Em dispatchProcess is true ou processview e nulo");
+        }
         createdList.remove(processView);
         readyList.add(processView);
     }
