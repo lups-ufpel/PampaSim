@@ -1,7 +1,7 @@
-# PampaOS - Operating Systems Simulator
+# PampaOS – Operating System Simulator
+--
 
-## Description
-
+# 1. Overview
 Hello @everyone, this project is a operating systems simulator to help students in the process of learning the procedures of execution of operating systems.
 
 It intends to be didatic/academic, so it can help students understanding operating systems concepts. The open source characteristic provide to the user the possibility to explore the code as they desire.
@@ -11,13 +11,9 @@ The presentation's simplicity of the execution's procedures let the user watch t
 
 PampaOs was presented at 9th SIIEPE (in portuguese Semana Integrada de Inovação, Ensino, Pesquisa e Extensão) the documents of the presentation are available below
 
-## Team
+# 2. Features
 
-
-- Gabriel Bessa
-- João Neves
-- Luan Borela
-- Vinícius Peruzzi
+# 3. Project Structure
 
 ## Technologies
 
@@ -27,5 +23,12 @@ SLF4J
 MAVEN
 JUNIT
 
-## How to run
+# 4. Building and Installation PampaOs
 
+# 5. How to use it
+
+# 6. Contributors
+- Gabriel Bessa
+- João Neves
+- Luan Borela
+- Vinícius Peruzzi
