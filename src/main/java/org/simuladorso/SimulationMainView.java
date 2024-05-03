@@ -11,14 +11,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import org.simuladorso.GUI.SimulationViewModel;
-import org.simuladorso.Os.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +24,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SimulationMainView implements Initializable{
+public class SimulationMainView implements Initializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationMainView.class);
-
     private final SimulationViewModel simulationViewModel;
-
     @FXML
     public Circle CpuContainer1;
     @FXML
@@ -55,10 +51,9 @@ public class SimulationMainView implements Initializable{
     private TableColumn<ProcessView, Integer> arrivalCol;
     @FXML
     private TableColumn<ProcessView,String> stateCol;
+    private Timeline animation;
 
-    Timeline animation;
-
-    public SimulationMainView(){
+    public SimulationMainView() {
         this.simulationViewModel = new SimulationViewModel();
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);

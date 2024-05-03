@@ -10,15 +10,15 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class PampaOsGUI {
-
     private BorderPane mainFrame;
     private static final Logger LOGGER = LoggerFactory.getLogger(PampaOsGUI.class);
+
     public PampaOsGUI(Stage mainStage) throws IOException {
         loadFXML();
         configureStage(mainStage);
     }
 
-    private void configureStage(Stage stage){
+    private void configureStage(Stage stage) {
         stage.setTitle("PampaSim");
         stage.setScene(new Scene(mainFrame, 1000, 700));
         stage.show();

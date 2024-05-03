@@ -15,19 +15,17 @@ import org.simuladorso.GUI.SimulationViewModel;
 import org.simuladorso.Os.Process;
 
 public class ProcessView {
-
     @FXML
     private Label pidLabel;
     @FXML
     private Circle processCircle;
     @FXML
     private ProgressBar processBar;
-
     private Property<ProgressBar> progressProperty = new SimpleObjectProperty<>();
     Process process;
-
     VBox rootElement;
     public SimulationViewModel simulationViewModel;
+
     public void setRootElement(VBox rootElement) {
         this.rootElement = rootElement;
     }
