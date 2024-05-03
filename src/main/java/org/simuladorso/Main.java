@@ -1,13 +1,3 @@
-/*
-
-    * Classname
-    *
-    * Version information
-    *
-    * Date
-    *
-    * Copyright notice
- */
 package org.simuladorso;
 import org.simuladorso.Mediator.*;
 import org.simuladorso.Os.*;
@@ -17,10 +7,9 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
     static final Logger LOGGER = LoggerFactory.getLogger("Main");
-
     private static final Mediator mediator = Mediator.getInstance();
-    public static void main(String[] args){
 
+    public static void main(String[] args) {
         LOGGER.info("==================██Starting PampaOS Simulator██==================\n");
         initializeComponents();
         MainApp.main(null);
