@@ -4,13 +4,13 @@ module org.simuladorso {
     requires javafx.fxml;
     requires javafx.graphics;
     requires atlantafx.base;
-    opens org.simuladorso.GUI to javafx.fxml;
-    opens org.simuladorso.GUI.model to javafx.fxml;
-    opens org.simuladorso.GUI.controller to javafx.fxml;
-    opens org.simuladorso to javafx.fxml;
-    exports org.simuladorso;
-    exports org.simuladorso.Mediator;
-    exports org.simuladorso.Os;
-    exports org.simuladorso.GUI;
-    opens org.simuladorso.Mediator to javafx.fxml;
+    opens org.pampasim.GUI.model to javafx.fxml;
+    opens org.pampasim.GUI.controllers to javafx.fxml;
+    opens org.pampasim to javafx.fxml;
+    exports org.pampasim;
+    exports org.pampasim.Mediator;
+    exports org.pampasim.Os;
+    opens org.pampasim.Mediator to javafx.fxml;
+    exports org.pampasim.GUI.controllers;
+    exports org.pampasim.GUI.model;
 }

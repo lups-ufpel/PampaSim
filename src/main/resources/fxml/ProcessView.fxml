@@ -6,10 +6,10 @@
 <?import javafx.scene.shape.Circle?>
 
 
-<VBox fx:controller="org.simuladorso.ProcessView" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:controller="org.pampasim.GUI.controllers.ProcessViewController" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label fx:id="pidLabel" text="Pid" />
-      <Circle fx:id="processCircle" onMouseClicked="#showProcessInfo" fill="#FFFFFF" radius="30.0" strokeType="INSIDE" />
+      <Circle fx:id="processCircle" onMouseClicked="#showProcessInfo" onMouseEntered="#onMouseEnteredHandler" onMouseExited="#onMouseExitedHandler" fill="#FFFFFF" radius="30.0" strokeType="INSIDE" />
       <ProgressBar fx:id="processBar" progress="0.0" />
    </children>
 </VBox>
