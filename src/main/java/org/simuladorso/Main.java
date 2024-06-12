@@ -19,5 +19,3 @@ public class Main {
         mediator.registerComponent(new VmSimple(1,mediator),Mediator.Component.VM);
     }
 }
-
-

@@ -11,38 +11,28 @@ import java.io.IOException;
 import java.net.URL;
 
 public class PampaOsGUI {
-    private BorderPane mainFrame;
     private static final Logger LOGGER = LoggerFactory.getLogger(PampaOsGUI.class);
+    private static final String MAIN_FXML = "/fxml/pampaos.fxml";
+    private BorderPane mainFrame;
 
     public PampaOsGUI(Stage mainStage) throws IOException {
-        initMainFrameFromFXML();
+        initializeMainFrame();
         configureStage(mainStage);
     }
-
     private void configureStage(Stage stage) {
-        stage.setTitle("PampaSim");
+        stage.setTitle("PampaOs");
         stage.setScene(new Scene(mainFrame, 1000, 700));
         stage.show();
     }
-    private void initMainFrameFromFXML() throws IOException {
-        FXMLLoader loader = createLoader("/fxml/pampaos.fxml");
-        loadFXML(loader);
+    private void initializeMainFrame() throws IOException {
+        FXMLLoader loader = createFxmlLoader(MAIN_FXML);
+        mainFrame = loader.load();
     }
-    private FXMLLoader createLoader(String fxmlPath) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
+    private FXMLLoader createFxmlLoader(String fxmlPath) throws IOException {
         URL fxmlUrl = getClass().getResource(fxmlPath);
         if(fxmlUrl == null) {
-            throw new IOException("FXML file not found");
+            throw new IOException("FXML file not found " + fxmlPath);
         }
-        loader.setLocation(fxmlUrl);
-        return loader;
-    }
-    private void loadFXML(FXMLLoader loader) {
-        try {
-            this.mainFrame = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.error("Error loading FXML", e);
-        }
+        return new FXMLLoader(fxmlUrl);
     }
 }
