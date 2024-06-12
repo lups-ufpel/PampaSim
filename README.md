@@ -1,5 +1,6 @@
 # PampaOS – Operating System Simulator
---
+
+![PampaOS in execution](https://github.com/JoaoNevesSoares/PampaOS/blob/main/pampaos_execution.png)
 
 # 1. Overview
 Hello @everyone, this project is a operating systems simulator to help students in the process of learning the procedures of execution of operating systems.
