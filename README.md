@@ -10,7 +10,12 @@ The presentation's simplicity of the execution's procedures let the user watch t
 
 ## Publications
 
-PampaOs was presented at 9th SIIEPE (in portuguese Semana Integrada de Inovação, Ensino, Pesquisa e Extensão) the documents of the presentation are available below
+PampaOS was presented at the 9th SIIEPE (Semana Integrada de Inovação, Ensino, Pesquisa e Extensão). The documents of the presentation are available below:
+
+- [**JOÃO ANTONIO NEVES SOARES**, PAMPAOS: UM AMBIENTE PARA A SIMULAÇÃO DE SISTEMAS OPERACIONAIS](https://cti.ufpel.edu.br/siepe/arquivos/2023/CE_05483.pdf)
+- [**GABRIEL LEITE BESSA**, PAMPAOS: APLICAÇÃO DO PADRÃO DE PROJETO COMMAND](https://cti.ufpel.edu.br/siepe/arquivos/2023/CE_06671.pdf)
+- [**VINICIUS GARCIA PERUZZI**, PAMPAOS: INTERFACE GRÁFICA DO AMBIENTE DE SIMULAÇÃO](https://cti.ufpel.edu.br/siepe/arquivos/2023/CE_05484.pdf)
+- [**LUAN MARK DA SILVA BORELA**, GERÊNCIA DE PROCESSOS NO SIMULADOR PAMPAOS](https://cti.ufpel.edu.br/siepe/arquivos/2023/CE_05754.pdf)
 
 # 2. Features
 
