@@ -1,4 +1,4 @@
-package org.pampasim.GUI.model;
+package org.pampasim.gui.model;
 
 public class CoreInfo {
     int coreId;
