@@ -5,7 +5,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.pampasim.GUI.controllers.PampaSimController;
 import org.slf4j.Logger;
@@ -14,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 
-public class App extends Application {
-    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+public class PampaSimGUI extends Application {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimGUI.class);
     private static final String MAIN_FXML = "/fxml/PampaSim.fxml";
     private BorderPane mainFrame;
     private Stage stage;
@@ -27,9 +26,6 @@ public class App extends Application {
         this.initializeMainFrame();
         this.configureStage(stage);
     }
-    public static void main(String[] args) {
-        launch();
-    }
 
     private void initializeMainFrame() throws IOException {
         FXMLLoader loader = createFxmlLoader(MAIN_FXML);
@@ -39,14 +35,11 @@ public class App extends Application {
 
     private void configureStage(Stage stage) {
         this.stage = stage;
-
         stage.setTitle("PampaSim");
         stage.setScene(new Scene(mainFrame, 1000, 700));
         stage.show();
-
         pampaSimController.setScene(this.stage.getScene());
     }
-
     private FXMLLoader createFxmlLoader(String fxmlPath) throws IOException {
         URL fxmlUrl = getClass().getResource(fxmlPath);
         if(fxmlUrl == null) {

@@ -21,11 +21,14 @@ public class Launcher {
         configLogging(args);
         LOGGER.info("==================██Starting PampaOS Simulator██==================\n");
         initializeComponents();
-        App.main(null);
+        PampaSimGUI.launch(args);
     }
 
     private static void configLogging(String[] args) {
         //TODO: In the future include more logging options from command line arguments.
+        // such as enabling a special debug logging mode for debugging from args.
+        // tweak some logging configuration properties to improve performance and legibility.
+        // add the option for redirecting all or some log messages to a file.
         LOGGER = LoggerFactory.getLogger(Launcher.class);
     }
 
