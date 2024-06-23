@@ -1,4 +1,4 @@
-package org.pampasim.GUI.controllers;
+package org.pampasim.gui.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

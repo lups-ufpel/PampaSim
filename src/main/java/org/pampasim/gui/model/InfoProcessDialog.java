@@ -1,11 +1,11 @@
-package org.pampasim.GUI.model;
+package org.pampasim.gui.model;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.stage.Modality;
-import org.pampasim.GUI.controllers.InfoProcessDialogController;
+import org.pampasim.gui.view.InfoProcessDialogController;
 import org.pampasim.Os.Process;
 
 public class InfoProcessDialog extends Dialog<ButtonType> {

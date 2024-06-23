@@ -1,4 +1,5 @@
 package org.pampasim;
+import org.pampasim.gui.PampaSimGUI;
 import org.pampasim.Mediator.*;
 import org.pampasim.Os.*;
 import org.pampasim.VirtualMachine.*;
@@ -21,7 +22,7 @@ public class Launcher {
         configLogging(args);
         LOGGER.info("==================██Starting PampaOS Simulator██==================\n");
         initializeComponents();
-        PampaSimGUI.launch(args);
+        PampaSimGUI.launch(PampaSimGUI.class,args);
     }
 
     private static void configLogging(String[] args) {

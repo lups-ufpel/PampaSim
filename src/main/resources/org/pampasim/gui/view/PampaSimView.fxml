@@ -25,7 +25,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.GUI.controllers.PampaSimController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.gui.view.PampaSimView">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -136,7 +136,7 @@
                                                 </Label>
                                                 <ImageView pickOnBounds="true" preserveRatio="true">
                                                     <image>
-                                                        <Image url="@../imgs/cpu_img.png" />
+                                                        <Image url="@../../../../imgs/cpu_img.png" />
                                                     </image>
                                                 </ImageView>
                                             </children>

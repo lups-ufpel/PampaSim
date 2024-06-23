@@ -1,11 +1,10 @@
-package org.pampasim.GUI.model;
+package org.pampasim.gui.model;
 
 import javafx.scene.Cursor;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import org.pampasim.GUI.model.InfoProcessDialog;
 import org.pampasim.Os.Process;
 
 import java.util.Optional;

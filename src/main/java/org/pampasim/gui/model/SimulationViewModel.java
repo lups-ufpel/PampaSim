@@ -1,5 +1,6 @@
-package org.pampasim.GUI.model;
+package org.pampasim.gui.model;
 
+import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -9,18 +10,15 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.paint.Color;
-import org.pampasim.GUI.model.CreateProcessDialog;
-import org.pampasim.GUI.model.InfoProcessDialog;
-import org.pampasim.GUI.model.SchedulerChoiceDialog;
 import org.pampasim.Mediator.Mediator;
 import org.pampasim.Os.Os;
 import org.pampasim.Os.Process;
 import org.pampasim.Os.Scheduler;
-import org.pampasim.GUI.controllers.ProcessViewController;
+import org.pampasim.gui.view.ProcessViewController;
 
 import java.util.Optional;
 
-public class SimulationViewModel {
+public class SimulationViewModel implements ViewModel {
     public final ObservableList<ProcessViewController> createdList = FXCollections.observableArrayList();
     public final ObservableList<ProcessViewController> runningList = FXCollections.observableArrayList();
     public final ObservableList<ProcessViewController> readyList = FXCollections.observableArrayList();

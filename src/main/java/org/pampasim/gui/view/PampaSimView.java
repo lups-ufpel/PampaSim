@@ -1,5 +1,8 @@
-package org.pampasim.GUI.controllers;
+package org.pampasim.gui.view;
 
+import de.saxsys.mvvmfx.FluentViewLoader;
+import de.saxsys.mvvmfx.FxmlView;
+import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ListChangeListener;
@@ -17,7 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import org.pampasim.GUI.model.SimulationViewModel;
+import org.pampasim.gui.model.SimulationViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +28,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class PampaSimController implements Initializable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimController.class);
+public class PampaSimView implements FxmlView<SimulationViewModel>, Initializable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
+    @InjectViewModel
     private final SimulationViewModel simulationViewModel;
     @FXML
     public Circle CpuContainer1;
@@ -56,7 +60,7 @@ public class PampaSimController implements Initializable {
 
     private Scene scene;
 
-    public PampaSimController() {
+    public PampaSimView() {
         this.simulationViewModel = new SimulationViewModel();
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);

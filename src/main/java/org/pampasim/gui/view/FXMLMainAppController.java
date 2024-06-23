@@ -1,4 +1,4 @@
-package org.pampasim.GUI.controllers;
+package org.pampasim.gui.view;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

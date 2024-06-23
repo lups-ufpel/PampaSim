@@ -1,4 +1,4 @@
-package org.pampasim.GUI.model;
+package org.pampasim.gui.model;
 
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
