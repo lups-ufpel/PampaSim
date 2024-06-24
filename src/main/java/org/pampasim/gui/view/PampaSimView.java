@@ -10,7 +10,6 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -77,16 +76,12 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         final ViewTuple<CreateProcessDialogView,CreateProcessDialogViewModel> viewTuple = FluentViewLoader.fxmlView(CreateProcessDialogView.class)
                 .providedScopes(simulationViewModel.getProcessScope())
                 .load();
-
-        final Parent dialogContent = viewTuple.getView();
+        final DialogPane dialogPane = (DialogPane) viewTuple.getView();
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Dialog window");
-        DialogPane dialogPane = new DialogPane();
-        dialogPane.setContent(dialogContent);
-        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.setTitle("Create Process window");
         dialog.setDialogPane(dialogPane);
         dialog.setResultConverter(buttonType -> {
-            if (buttonType == ButtonType.OK) {
+            if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
                 System.out.println("clicked ok!");
                 System.out.println("burst" + simulationViewModel.getProcessScope().getBurstProperty().getValue());
                 System.out.println("priority" + simulationViewModel.getProcessScope().getPriorityProperty().getValue());
