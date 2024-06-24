@@ -31,7 +31,7 @@ public class CreateProcessDialog extends Dialog<ButtonType> {
 
 
     private void buildDialog() {
-        FXMLLoader dialogLoader = new FXMLLoader(getClass().getResource("/fxml/createProcessDialog.fxml"));
+        FXMLLoader dialogLoader = new FXMLLoader(getClass().getResource("/org/pampasim/gui/view/CreateProcessDialogView.fxml"));
         dialogLoader.setController(this);
         try {
             VBox content = dialogLoader.load();

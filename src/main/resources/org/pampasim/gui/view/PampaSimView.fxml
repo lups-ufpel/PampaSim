@@ -53,7 +53,7 @@
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#onCreateProcess" text="Criar">
+                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar">
                     <tooltip>
                         <Tooltip text="Criar processo"/>
                     </tooltip>

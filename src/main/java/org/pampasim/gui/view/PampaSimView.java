@@ -3,35 +3,32 @@ package org.pampasim.gui.view;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.ViewTuple;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import org.pampasim.gui.model.SimulationViewModel;
+import org.pampasim.gui.viewmodel.CreateProcessDialogViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class PampaSimView implements FxmlView<SimulationViewModel>, Initializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
     @InjectViewModel
-    private final SimulationViewModel simulationViewModel;
+    private SimulationViewModel simulationViewModel;
     @FXML
     public Circle CpuContainer1;
     @FXML
@@ -60,12 +57,6 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
 
     private Scene scene;
 
-    public PampaSimView() {
-        this.simulationViewModel = new SimulationViewModel();
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
-        this.animation.setCycleCount(Timeline.INDEFINITE);
-        bindViewModel();
-    }
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
         boolean canStart = simulationViewModel.schedulerDialog();
@@ -82,22 +73,28 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         stopBtn.setDisable(true);
     }
     @FXML
-    public void onCreateProcess(ActionEvent actionEvent) {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/fxml/ProcessView.fxml"));
-        VBox rootElement = null;
-        try {
-            // Load the FXML and add it to the root element of ProcessView
-            rootElement = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ProcessViewController processViewController = loader.getController();
-        processViewController.setScene(this.scene);
-        processViewController.setViewModel(this.simulationViewModel);
-        processViewController.setRootElement(rootElement);
-        simulationViewModel.createProcess(processViewController);
-        System.out.println(simulationViewModel.processList.size());
+    public void createProcess(ActionEvent actionEvent) {
+        final ViewTuple<CreateProcessDialogView,CreateProcessDialogViewModel> viewTuple = FluentViewLoader.fxmlView(CreateProcessDialogView.class)
+                .providedScopes(simulationViewModel.getProcessScope())
+                .load();
+
+        final Parent dialogContent = viewTuple.getView();
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Dialog window");
+        DialogPane dialogPane = new DialogPane();
+        dialogPane.setContent(dialogContent);
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.setDialogPane(dialogPane);
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == ButtonType.OK) {
+                System.out.println("clicked ok!");
+                System.out.println("burst" + simulationViewModel.getProcessScope().getBurstProperty().getValue());
+                System.out.println("priority" + simulationViewModel.getProcessScope().getPriorityProperty().getValue());
+                System.out.println("burst from dialog " + viewTuple.getViewModel().getBurstProperty().getValue());
+            }
+            return null;
+        });
+        dialog.showAndWait();
     }
 
     private void bindViewModel() {
@@ -165,6 +162,9 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        bindViewModel();
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
+        this.animation.setCycleCount(Timeline.INDEFINITE);
         pidCol.setCellValueFactory(cellData -> cellData.getValue().process.pidProperty().asObject());
         burstCol.setCellValueFactory(cellData -> cellData.getValue().process.burstProperty().asObject());
         priorityCol.setCellValueFactory(cellData -> cellData.getValue().process.priorityProperty().asObject());

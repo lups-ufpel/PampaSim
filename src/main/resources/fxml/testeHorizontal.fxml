@@ -63,7 +63,7 @@
                     <children>
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                      <children>
-                              <Button fx:id="BtnCreateProc" mnemonicParsing="false" onAction="#onCreateProcess" prefWidth="150.0" text="Criar Processo">
+                              <Button fx:id="BtnCreateProc" mnemonicParsing="false" onAction="#createProcess" prefWidth="150.0" text="Criar Processo">
                                   <padding>
                                       <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                   </padding>

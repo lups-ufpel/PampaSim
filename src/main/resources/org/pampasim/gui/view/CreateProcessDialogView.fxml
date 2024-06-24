@@ -10,20 +10,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:controller="org.pampasim.gui.view.CreateProcessDialogView" spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <GridPane hgap="10.0" vgap="20.0">
       <Label text="Process Pid" GridPane.columnIndex="0" GridPane.rowIndex="0" />
       <Label text="valor" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" />
       <Label text="Burst time" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-      <Spinner fx:id="burstSpinner" editable="true" initialValue="1" max="999" min="0" styleClass="split-arrows-horizontal" stylesheets="@../spinner.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Spinner fx:id="burstSpinner" editable="true" initialValue="1" max="999" min="0" styleClass="split-arrows-horizontal" stylesheets="@../../../../spinner.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
       <Label layoutX="10.0" layoutY="36.0" text="Priority" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" GridPane.rowSpan="2147483647" />
-      <Spinner fx:id="prioritySpinner" editable="true" initialValue="0" layoutX="117.0" layoutY="32.0" max="999" min="0" stylesheets="@../spinner.css" GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <Spinner fx:id="prioritySpinner" editable="true" initialValue="0" layoutX="117.0" layoutY="32.0" max="999" min="0" stylesheets="@../../../../spinner.css" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <styleClass>
             <String fx:value="split-arrows-horizontal" />
             <String fx:value="text-field" />
          </styleClass></Spinner>
       <Label layoutX="10.0" layoutY="60.0" text="Start Time" GridPane.rowIndex="2" />
-      <Spinner fx:id="timeSpinner" editable="true" initialValue="0" layoutX="117.0" layoutY="56.0" max="999" min="0" styleClass="split-arrows-horizontal" stylesheets="@../spinner.css" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <Spinner fx:id="durationSpinner" editable="true" initialValue="0" layoutX="117.0" layoutY="56.0" max="999" min="0" styleClass="split-arrows-horizontal" stylesheets="@../../../../spinner.css" GridPane.columnIndex="1" GridPane.rowIndex="3" />
       <Label GridPane.rowIndex="4" />
       <ColorPicker fx:id="colorPicker" GridPane.columnIndex="1" GridPane.rowIndex="4">
          <value>

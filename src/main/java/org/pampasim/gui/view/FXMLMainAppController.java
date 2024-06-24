@@ -54,7 +54,7 @@ public class FXMLMainAppController implements Initializable {
     public boolean showFXMLCreateProcessDialog(List<String> params) throws IOException {
         System.out.println("Clicked");
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/fxml/createProcessDialog.fxml"));
+        loader.setLocation(getClass().getResource("/org/pampasim/gui/view/CreateProcessDialogView.fxml"));
         AnchorPane dialog = (AnchorPane) loader.load();
 
         Stage stage = new Stage();

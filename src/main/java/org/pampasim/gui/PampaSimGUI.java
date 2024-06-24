@@ -22,14 +22,18 @@ public class PampaSimGUI extends Application {
         this.initializeMainFrame();
         this.configureStage(stage);
     }
+
     private void initializeMainFrame() {
-        final ViewTuple<PampaSimView, SimulationViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class).load();
+        ProcessScope processScope = new ProcessScope();
+        final ViewTuple<PampaSimView, SimulationViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class)
+                .providedScopes(processScope).load();
         this.mainFrame = (BorderPane) viewTuple.getView();
-        PampaSimView pampaSimView = viewTuple.getCodeBehind();
     }
+
     private void configureStage(Stage stage) {
         stage.setTitle("PampaSim");
         stage.setScene(new Scene(mainFrame, 1000, 700));
         stage.show();
     }
 }
+

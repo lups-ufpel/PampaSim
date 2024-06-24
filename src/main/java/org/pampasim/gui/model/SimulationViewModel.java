@@ -1,5 +1,7 @@
 package org.pampasim.gui.model;
 
+import de.saxsys.mvvmfx.InjectScope;
+import de.saxsys.mvvmfx.ScopeProvider;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,6 +16,7 @@ import org.pampasim.Mediator.Mediator;
 import org.pampasim.Os.Os;
 import org.pampasim.Os.Process;
 import org.pampasim.Os.Scheduler;
+import org.pampasim.gui.ProcessScope;
 import org.pampasim.gui.view.ProcessViewController;
 
 import java.util.Optional;
@@ -30,8 +33,14 @@ public class SimulationViewModel implements ViewModel {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
     private final IntegerProperty priority = new SimpleIntegerProperty();
 
+    @InjectScope
+    private ProcessScope processScope;
+
     public SimulationViewModel() {
         Mediator.getInstance().registerComponent(this, Mediator.Component.GUI);
+    }
+    public ProcessScope getProcessScope() {
+        return processScope;
     }
     public void runSimulation() {
         Mediator.getInstance().send(this, Mediator.Action.RUN);
