@@ -22,6 +22,8 @@ import org.pampasim.gui.view.ProcessViewController;
 import java.util.Optional;
 
 public class SimulationViewModel implements ViewModel {
+    public final static String NEW_PROCESS = "NEW_PROCESS";
+
     public final ObservableList<ProcessViewController> createdList = FXCollections.observableArrayList();
     public final ObservableList<ProcessViewController> runningList = FXCollections.observableArrayList();
     public final ObservableList<ProcessViewController> readyList = FXCollections.observableArrayList();
@@ -82,6 +84,7 @@ public class SimulationViewModel implements ViewModel {
        var priority = processScope.getDurationProperty().getValue();
        var arrival = processScope.getDurationProperty().getValue();
        Process newProcess = Mediator.getInstance().getOs().createProcess(Process.Type.SIMPLE,burst,priority,arrival);
+       this.publish(NEW_PROCESS);
     }
     public void dispatchProcess(Process processToDispatch) {
         ProcessViewController processViewController = findProcessView(processToDispatch,readyList);

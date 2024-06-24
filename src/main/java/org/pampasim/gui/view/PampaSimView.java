@@ -13,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
@@ -86,6 +87,11 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     private ButtonType handleResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             simulationViewModel.createNewProcess();
+            String colorString = simulationViewModel.getProcessScope().getColorProperty().getValue();
+            System.out.println("color string"+ colorString);
+            Color selectedColor = Color.web(colorString);
+            var circle = new Circle(30, selectedColor);
+            NewList.getChildren().add(circle);
         }
         return null;
     }

@@ -21,4 +21,7 @@ public class CreateProcessDialogViewModel implements ViewModel {
     public Property<Integer> getDurationProperty() {
         return processScope.getDurationProperty();
     }
+    public Property<String> getColorProperty(){
+        return processScope.getColorProperty();
+    }
 }

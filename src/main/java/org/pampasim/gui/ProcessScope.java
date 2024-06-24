@@ -9,6 +9,7 @@ public class ProcessScope implements Scope {
     private final Property<Integer> burstProperty = new SimpleObjectProperty<>(INITIAL_VALUE);
     private final Property<Integer> priorityProperty = new SimpleObjectProperty<>(INITIAL_VALUE);
     private final Property<Integer> durationProperty = new SimpleObjectProperty<>(INITIAL_VALUE);
+    private final Property<String> colorProperty = new SimpleObjectProperty<>("#FF0000");
 
     public Property<Integer> getBurstProperty() {
         return burstProperty;
@@ -20,6 +21,9 @@ public class ProcessScope implements Scope {
 
     public Property<Integer> getDurationProperty() {
         return durationProperty;
+    }
+    public Property<String> getColorProperty() {
+        return colorProperty;
     }
 }
 
