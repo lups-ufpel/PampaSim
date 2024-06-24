@@ -6,6 +6,7 @@ import de.saxsys.mvvmfx.InjectViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import org.pampasim.Os.Process;
 import org.pampasim.gui.model.SimulationViewModel;
 import org.pampasim.gui.viewmodel.CreateProcessDialogViewModel;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     private SimulationViewModel simulationViewModel;
     @FXML
     public Circle CpuContainer1;
+    public Circle CpuContainertemp;
     @FXML
     public HBox NewList, ReadyList;
     public HBox FinishedList;
@@ -87,78 +90,35 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     private ButtonType handleResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             simulationViewModel.createNewProcess();
+            runBtn.setDisable(false);
+        }
+        return null;
+    }
+    private void bindViewModel() {
+        simulationViewModel.subscribe(SimulationViewModel.NEW_PROCESS,(key, payload) -> {
             String colorString = simulationViewModel.getProcessScope().getColorProperty().getValue();
             System.out.println("color string"+ colorString);
             Color selectedColor = Color.web(colorString);
             var circle = new Circle(30, selectedColor);
             NewList.getChildren().add(circle);
-        }
-        return null;
-    }
-
-    private void bindViewModel() {
-        simulationViewModel.createdList.addListener((ListChangeListener.Change<? extends ProcessViewController> change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (ProcessViewController procView : change.getAddedSubList()) {
-                        NewList.getChildren().add(procView.getProcessCircle());
-                        if (runBtn.isDisable()){
-                            runBtn.setDisable(false);
-                        }
-                    }
-                } else if (change.wasRemoved()) {
-                    for (ProcessViewController procView: change.getRemoved()) {
-                        NewList.getChildren().remove(procView.getProcessCircle());
-                    }
-                }
-            }
         });
-        simulationViewModel.readyList.addListener((ListChangeListener.Change<? extends ProcessViewController> change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (ProcessViewController procView : change.getAddedSubList()) {
-                        this.ReadyList.getChildren().add(procView.getProcessCircle());
-                    }
-                } else if (change.wasRemoved()) {
-                    for (ProcessViewController procView: change.getRemoved()) {
-                        this.ReadyList.getChildren().remove(procView.getProcessCircle());
-                    }
-                }
-            }
+        simulationViewModel.subscribe(SimulationViewModel.START_PROCESS,(key, payload) -> {
+            var circle = NewList.getChildren().remove(0);
+            ReadyList.getChildren().add(circle);
         });
-        simulationViewModel.runningList.addListener((ListChangeListener.Change<? extends ProcessViewController> change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (ProcessViewController procView : change.getAddedSubList()) {
-                        this.CpuContainer1.setFill(procView.getProcessCircle().getFill());
-                        this.CpuContainer1.setOnMouseClicked(procView::showProcessInfo);
-                        this.ProcessProgress.progressProperty().bind(procView.getProcess().execTimeSliceProperty().divide(procView.getProcess().burstProperty()));
-                    }
-                } else if (change.wasRemoved()) {
-                    for (ProcessViewController procView: change.getRemoved()) {
-                        this.CpuContainer1.setFill(Paint.valueOf("white"));
-                        this.CpuContainer1.setOnMouseClicked(null);
-                        this.ProcessProgress.progressProperty().unbind();
-                        this.ProcessProgress.setProgress(0);
-                    }
-                }
-            }
+        simulationViewModel.subscribe(SimulationViewModel.RUN_PROCESS,(key, payload) -> {
+            CpuContainertemp= (Circle) ReadyList.getChildren().remove(0);
+            var paint = CpuContainer1.getFill();
+            CpuContainer1.setFill(CpuContainertemp.getFill());
+            CpuContainertemp.setFill(paint);
         });
-        simulationViewModel.finishedList.addListener((ListChangeListener.Change<? extends ProcessViewController> change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (ProcessViewController procView : change.getAddedSubList()) {
-                        this.FinishedList.getChildren().add(procView.getProcessCircle());
-                    }
-                } else if (change.wasRemoved()) {
-                    for (ProcessViewController procView: change.getRemoved()) {
-                        this.FinishedList.getChildren().remove(procView.getProcessCircle());
-                    }
-                }
-            }
+        simulationViewModel.subscribe(SimulationViewModel.FINISH_PROCESS, (key, payload) -> {
+            Paint p = CpuContainer1.getFill();
+            CpuContainer1.setFill(CpuContainertemp.getFill());
+            CpuContainertemp.setFill(p);
+            FinishedList.getChildren().add(CpuContainertemp);
         });
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         bindViewModel();
@@ -171,9 +131,8 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         stateCol.setCellValueFactory(cellData -> cellData.getValue().process.stateProperty());
         colorCol.setCellValueFactory(cellData -> cellData.getValue().circleForTableView());
         progressCol.setCellValueFactory(cellData -> cellData.getValue().progressForTableView());
-        procTable.setItems(simulationViewModel.processList);
+        //        procTable.setItems(simulationViewModel.processList);
     }
-
     public void setScene(Scene scene) {
         this.scene = scene;
     }

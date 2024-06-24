@@ -73,7 +73,6 @@ public class ProcessViewController {
 
     // Action listeners
     public void showProcessInfo(MouseEvent action) {
-        simulationViewModel.showProcessInfo(this.process);
     }
 
     public void setScene(Scene scene) {

@@ -1,144 +1,75 @@
 package org.pampasim.gui.model;
 
 import de.saxsys.mvvmfx.InjectScope;
-import de.saxsys.mvvmfx.ScopeProvider;
 import de.saxsys.mvvmfx.ViewModel;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.paint.Color;
 import org.pampasim.Mediator.Mediator;
 import org.pampasim.Os.Os;
+import org.pampasim.Os.PidAllocator;
 import org.pampasim.Os.Process;
 import org.pampasim.Os.Scheduler;
 import org.pampasim.gui.ProcessScope;
-import org.pampasim.gui.view.ProcessViewController;
+import org.pampasim.gui.listeners.ProcessEventInfo;
 
 import java.util.Optional;
 
 public class SimulationViewModel implements ViewModel {
     public final static String NEW_PROCESS = "NEW_PROCESS";
-
-    public final ObservableList<ProcessViewController> createdList = FXCollections.observableArrayList();
-    public final ObservableList<ProcessViewController> runningList = FXCollections.observableArrayList();
-    public final ObservableList<ProcessViewController> readyList = FXCollections.observableArrayList();
-    public final ObservableList<ProcessViewController> finishedList = FXCollections.observableArrayList();
-
-    public final ObservableList<ProcessViewController> processList = FXCollections.observableArrayList();
-    private final IntegerProperty arrivalTime = new SimpleIntegerProperty();
-    private final IntegerProperty burst = new SimpleIntegerProperty();
-    private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
-    private final IntegerProperty priority = new SimpleIntegerProperty();
+    public final static String START_PROCESS = "START_PROCESS";
+    public final static String FINISH_PROCESS = "FINISH_PROCESS";
+    public final static String RUN_PROCESS = "RUN_PROCESS";
 
     @InjectScope
     private ProcessScope processScope;
-
     public SimulationViewModel() {
         Mediator.getInstance().registerComponent(this, Mediator.Component.GUI);
     }
     public ProcessScope getProcessScope() {
         return processScope;
     }
-    public void runSimulation() {
-        Mediator.getInstance().send(this, Mediator.Action.RUN);
-    }
-    public boolean schedulerDialog(){
-        Dialog<ButtonType> schedulerChoiceDialog = new SchedulerChoiceDialog();
-        Optional<ButtonType> schedulerChoiceDialogResult = schedulerChoiceDialog.showAndWait();
-        if (schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK) {
-            System.out.println("Scheduler escolhido");
-            Scheduler scheduler = (Scheduler) Mediator.getInstance().retrieveComponent(Mediator.Component.SCHEDULER);
-            Os kernel = (Os) Mediator.getInstance().retrieveComponent(Mediator.Component.KERNEL);
-            kernel.dispatchAll(scheduler);
-            System.out.println("parei aqui");
-        }
-        //FIX LINE BELOW
-        return schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK;
-    }
-
-    public void AddProcess(Process process) {
-        createdList.get(createdList.size() -1).setProcess(process);
-    }
-    public void createProcess(ProcessViewController processViewController) {
-        CreateProcessDialog createProcessDialog = new CreateProcessDialog();
-        burst.bind(createProcessDialog.burstProperty());
-        priority.bind(createProcessDialog.priorityProperty());
-        arrivalTime.bind(createProcessDialog.timeProperty());
-        color.bind(createProcessDialog.colorProperty());
-        Optional<ButtonType> createProcessDialogResult = createProcessDialog.showAndWait();
-
-        if(createProcessDialogResult.isPresent() && createProcessDialogResult.get() == ButtonType.OK) {
-            processViewController.setCircleColor(color.get());
-            processList.add(processViewController);
-            createdList.add(processViewController);
-            Mediator.getInstance().send(this, Mediator.Action.CREATE);
-        }
-    }
     public void createNewProcess() {
        var burst = processScope.getBurstProperty().getValue();
        var priority = processScope.getDurationProperty().getValue();
        var arrival = processScope.getDurationProperty().getValue();
-       Process newProcess = Mediator.getInstance().getOs().createProcess(Process.Type.SIMPLE,burst,priority,arrival);
-       this.publish(NEW_PROCESS);
+       var newProcess = (ProcessMock) Mediator.getInstance().getOs().createProcess(Process.Type.SIMPLE,burst,priority,arrival);
+       addProcessListeners(newProcess);
+       newProcess.notifyOnCreate();
     }
-    public void dispatchProcess(Process processToDispatch) {
-        ProcessViewController processViewController = findProcessView(processToDispatch,readyList);
-        if (processViewController == null){
-            System.out.println("Em dispatchProcess is true ou processview e nulo");
+    public void addProcessListeners(ProcessMock processMock) {
+        processMock.addOnCreateListener(this::notifyGuiOnCreatedProcess);
+        processMock.addOnStartListener(this::notifyGuiOnStartProcess);
+        processMock.addOnFinishListener(this::notifyGuiOnFinishedProcess);
+        processMock.addOnUpdateListener(this::notifyGuiOnExecuteProcess);
+    }
+    private void notifyGuiOnExecuteProcess(ProcessEventInfo eventInfo) {
+       this.publish(RUN_PROCESS);
+    }
+    private void notifyGuiOnFinishedProcess(ProcessEventInfo eventInfo) {
+       this.publish(FINISH_PROCESS);
+    }
+    private void notifyGuiOnStartProcess(ProcessEventInfo eventInfo) {
+        this.publish(START_PROCESS);
+    }
+    private void notifyGuiOnCreatedProcess(ProcessEventInfo eventInfo) {
+        this.publish(NEW_PROCESS);
+    }
+    /**
+     * --- OLDER METHODS THAT USE MEDIATOR GOES BELOW  \:/
+     */
+    public boolean schedulerDialog() {
+        Dialog<ButtonType> schedulerChoiceDialog = new SchedulerChoiceDialog();
+        Optional<ButtonType> schedulerChoiceDialogResult = schedulerChoiceDialog.showAndWait();
+        if (schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK) {
+            System.out.println("Scheduler escolhido");
+            Scheduler scheduler = Mediator.getInstance().getScheduler();
+            Os kernel = (Os) Mediator.getInstance().retrieveComponent(Mediator.Component.KERNEL);
+            kernel.dispatchAll(scheduler);
         }
-        readyList.remove(processViewController);
-        runningList.add(processViewController);
+        //FIX LINE BELOW
+        return schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK;
     }
-    public ProcessViewController findProcessView(Process process, ObservableList<ProcessViewController> list) {
-        for (ProcessViewController processViewController : list) {
-            if (processViewController.getProcess().equals(process)) {
-                return processViewController;
-            }
-        }
-        return null;
-    }
-    public void interruptProcess(Process processToInterrupt){
-        ProcessViewController processViewController = findProcessView(processToInterrupt,runningList);
-        runningList.remove(processViewController);
-        readyList.add(processViewController);
-    }
-    public void submitProcess(Process processToSubmit){
-        ProcessViewController processViewController = findProcessView(processToSubmit,createdList);
-        if (processViewController == null){
-            System.out.println("Em dispatchProcess is true ou processview e nulo");
-        }
-        createdList.remove(processViewController);
-        readyList.add(processViewController);
-    }
-    public void finishProcess(Process processToFinish) {
-        ProcessViewController processViewController = findProcessView(processToFinish,runningList);
-        runningList.remove(processViewController);
-        finishedList.add(processViewController);
-    }
-
-    public void showProcessInfo(Process process) {
-        InfoProcessDialog infoProcessDialog = new InfoProcessDialog(process);
-        infoProcessDialog.showAndWait();
-    }
-    public IntegerProperty arrivalTimeProperty() {
-        return arrivalTime;
-    }
-    public IntegerProperty burstProperty() {
-        return burst;
-    }
-    public IntegerProperty priorityProperty() {
-        return priority;
-    }
-
-    public void updateProcessProgress(Process object, double progress) {
-        ProcessViewController processViewController = findProcessView(object,runningList);
-        if (processViewController != null){
-            processViewController.setExecutionProgress(progress);
-        }
+    public void runSimulation() {
+        Mediator.getInstance().send(this, Mediator.Action.RUN);
     }
 }

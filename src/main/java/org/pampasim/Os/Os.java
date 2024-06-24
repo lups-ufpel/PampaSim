@@ -28,6 +28,10 @@ public class Os {
      */
     private final Mediator mediator;
 
+    public PidAllocator getPidAllocator() {
+        return pidAllocator;
+    }
+
     /**
      * The PID allocator for assigning process IDs.
      */
@@ -44,7 +48,7 @@ public class Os {
     final Integer MEMSIZE = 1024;
 
 
-    private ArrayList<Process> processList = new ArrayList<Process>();
+    protected ArrayList<Process> processList = new ArrayList<Process>();
 
     /**
      * Constructs an `Os` instance with the specified mediator for communication.

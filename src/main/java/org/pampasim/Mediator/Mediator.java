@@ -1,6 +1,7 @@
 package org.pampasim.Mediator;
 
 import org.pampasim.Os.Os;
+import org.pampasim.Os.Scheduler;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -24,6 +25,7 @@ public interface Mediator {
     public Object retrieveComponent(Component componentType);
 
     public Os getOs();
+    public Scheduler getScheduler();
 
     //Mediator interface is just used as a namespace for the enum.
     public enum Action {

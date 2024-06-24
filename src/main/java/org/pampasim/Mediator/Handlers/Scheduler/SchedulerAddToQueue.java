@@ -8,7 +8,7 @@ import org.pampasim.Os.Scheduler;
 import org.pampasim.Utils.Command;
 import org.pampasim.Os.Process;
 
-public class SchedulerAddToQueue implements Command{
+public class SchedulerAddToQueue implements Command {
     @Override
     public Object execute(Message message) {
         Scheduler scheduler = (Scheduler) message.getComponents().get(Mediator.Component.SCHEDULER);

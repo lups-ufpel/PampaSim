@@ -19,4 +19,5 @@ module org.simuladorso {
     exports org.pampasim.gui.view;
     exports org.pampasim.gui.model;
     exports org.pampasim.gui.viewmodel;
+    exports org.pampasim.gui.listeners;
 }

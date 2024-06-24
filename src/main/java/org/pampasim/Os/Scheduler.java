@@ -131,7 +131,7 @@ public abstract class Scheduler {
         this.readyList.addAll(readyList);
         removeProcessFromWaitingList(Process.State.READY);
     }
-    public void moveFromNewToReadyList(){
+    public void moveFromNewToReadyList() {
         newList.stream()
                 .filter(this::isProcessSubmitted)
                 .forEach(Process::submit);
@@ -164,5 +164,20 @@ public abstract class Scheduler {
         newList = newList.stream()
                 .filter(process -> process.getState() != state)
                 .collect(Collectors.toList());
+    }
+    public List<Process> getReadyList() {
+        return readyList;
+    }
+    public List<Process> getWaitingList() {
+        return waitingList;
+    }
+    public List<Process> getTerminatedList() {
+        return terminatedList;
+    }
+    public List<Process> getNewList() {
+        return newList;
+    }
+    public List<Process> getRunningList() {
+        return runningList;
     }
 }

@@ -125,6 +125,13 @@ public class VmSimple implements Vm {
         SIM_CLOCK.incrTick();
         LOGGER.debug("Current Tick: [{}]", SIM_CLOCK.getTick());
         runningProcesses = getRunningProcesses();
+        if(runningProcesses.isEmpty()) {
+            var scheduler = Mediator.getInstance().getScheduler();
+            System.out.println("newList size = " + scheduler.getNewList().size());
+            System.out.println("readyList size = " + scheduler.getReadyList().size());
+            System.out.println("runningList size = " + scheduler.getRunningList().size());
+            System.out.println("finishedList size = " + scheduler.getTerminatedList().size());
+        }
         executeProcesses(runningProcesses);
         stop();
     }

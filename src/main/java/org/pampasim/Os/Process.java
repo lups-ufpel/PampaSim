@@ -111,7 +111,7 @@ public class Process {
             Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_FINISHED);
         }
     }
-    public void forwardProcessExecution(){
+    public void forwardProcessExecution() {
         this.currExecTime +=1;
         updateProgressBar();
         execTimeSliceProperty.set(currExecTime);

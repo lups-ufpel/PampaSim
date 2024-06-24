@@ -28,7 +28,7 @@ public class ProcessViewModel {
         this.stage = stage;
     }
 
-    public void viewProcessInfo(){
+    public void viewProcessInfo() {
         Dialog<ButtonType> processInfoDialog = new InfoProcessDialog(this.process);
         Optional<ButtonType> processInfoDialogResult = processInfoDialog.showAndWait();
     }

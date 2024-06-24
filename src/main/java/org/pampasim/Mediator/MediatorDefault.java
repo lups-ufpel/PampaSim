@@ -1,14 +1,14 @@
 package org.pampasim.Mediator;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import org.pampasim.Os.MockOs;
+import org.pampasim.Os.Scheduler;
 import org.pampasim.gui.model.SimulationViewModel;
 import org.pampasim.Mediator.Handlers.Core.*;
 import org.pampasim.Mediator.Handlers.Process.*;
 import org.pampasim.Mediator.Handlers.Scheduler.*;
 import org.pampasim.Mediator.Handlers.Kernel.*;
 import org.pampasim.Mediator.Handlers.VM.*;
-import org.pampasim.Os.Os;
 import org.pampasim.Os.Process;
 import org.pampasim.Utils.Command;
 import org.pampasim.VirtualMachine.Vm;
@@ -21,14 +21,18 @@ public class MediatorDefault implements Mediator {
     private final List<String> componentsName = new ArrayList<>();
 
     @Override
-    public Os getOs() {
-        return os;
+    public MockOs getOs() {
+        return (MockOs) os;
         //todo: temporary solution
     }
-
+    @Override
+    public Scheduler getScheduler() {
+        return (Scheduler) scheduler;
+    }
     // MEDIATOR SHOULD HAVE A AN INSTANCE OF EACH COMPONENT TO HANDLE COMMUNICATION BETWEEN THEM
-    private Os os;
+    private MockOs os;
     private Vm vm;
+    private Scheduler scheduler;
     private SimulationViewModel simulationViewModel;
 
     public Object retrieveComponent(Component componentType) {
@@ -73,11 +77,13 @@ public class MediatorDefault implements Mediator {
                     this.simulationViewModel = (SimulationViewModel) component;
                     break;
                 case KERNEL:
-                    this.os = (Os) component;
+                    this.os = (MockOs) component;
                     break;
                 case VM:
                     this.vm = (Vm) component;
                     break;
+                case SCHEDULER:
+                    this.scheduler = (Scheduler) component;
             }
         }
         else{
@@ -88,45 +94,24 @@ public class MediatorDefault implements Mediator {
     public void send(Object object, Action action) {
         switch (action) {
             case CREATE:
-                // compare object to simulationViewModel
-                if (object == this.simulationViewModel){
-                    int pid = simulationViewModel.burstProperty().get();
-                    int priority = simulationViewModel.priorityProperty().get();
-                    int arrivalTime = simulationViewModel.arrivalTimeProperty().get();
-                    Process newProcess = os.createProcess(Process.Type.SIMPLE, pid, priority, arrivalTime);
-                    simulationViewModel.AddProcess(newProcess);
-                } else{
-                    LOGGER.error("Object passed to send() does not match the specific Action");
-                }
                 break;
             case EXECUTE:
-                //Process proc = os.requeueProcess();
-                //((Vm)object).setProcess(proc);
                 break;
             case RUN:
                 vm.run();
                 break;
             case ON_THIS_PROCESS_DISPATCHED:
-                simulationViewModel.dispatchProcess((Process) object);
                 break;
             case ON_THIS_PROCESS_INTERRUPTED:
-                simulationViewModel.interruptProcess((Process) object);
                 break;
             case ON_THIS_PROCESS_SUBMITTED:
-                simulationViewModel.submitProcess((Process) object);
                 break;
             case ON_THIS_PROCESS_FINISHED:
-                simulationViewModel.finishProcess((Process) object);
                 break;
             case VISUALIZE:
-                Circle circle = (Circle) object;
-                Process process = circleProcessMap.get(circle);
-                Color col = (Color) circle.fillProperty().get();
-                //simulationViewModel.showProcessInfo(process,col);
                 break;
             case ON_THIS_PROCESS_EXECUTED:
                 double progress = ((Process)object).getProgress();
-                simulationViewModel.updateProcessProgress((Process)object,progress);
             case DISPATCH_ALL:
                 break;
         }
