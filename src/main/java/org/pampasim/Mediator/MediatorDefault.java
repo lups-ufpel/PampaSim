@@ -20,6 +20,12 @@ public class MediatorDefault implements Mediator {
     private final HashMap<Component, Object> components = new HashMap<>();
     private final List<String> componentsName = new ArrayList<>();
 
+    @Override
+    public Os getOs() {
+        return os;
+        //todo: temporary solution
+    }
+
     // MEDIATOR SHOULD HAVE A AN INSTANCE OF EACH COMPONENT TO HANDLE COMMUNICATION BETWEEN THEM
     private Os os;
     private Vm vm;

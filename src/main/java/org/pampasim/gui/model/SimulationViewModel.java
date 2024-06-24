@@ -77,6 +77,12 @@ public class SimulationViewModel implements ViewModel {
             Mediator.getInstance().send(this, Mediator.Action.CREATE);
         }
     }
+    public void createNewProcess() {
+       var burst = processScope.getBurstProperty().getValue();
+       var priority = processScope.getDurationProperty().getValue();
+       var arrival = processScope.getDurationProperty().getValue();
+       Process newProcess = Mediator.getInstance().getOs().createProcess(Process.Type.SIMPLE,burst,priority,arrival);
+    }
     public void dispatchProcess(Process processToDispatch) {
         ProcessViewController processViewController = findProcessView(processToDispatch,readyList);
         if (processViewController == null){

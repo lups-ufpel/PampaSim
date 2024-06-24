@@ -80,16 +80,14 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Create Process window");
         dialog.setDialogPane(dialogPane);
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-                System.out.println("clicked ok!");
-                System.out.println("burst" + simulationViewModel.getProcessScope().getBurstProperty().getValue());
-                System.out.println("priority" + simulationViewModel.getProcessScope().getPriorityProperty().getValue());
-                System.out.println("burst from dialog " + viewTuple.getViewModel().getBurstProperty().getValue());
-            }
-            return null;
-        });
+        dialog.setResultConverter(this::handleResult);
         dialog.showAndWait();
+    }
+    private ButtonType handleResult(ButtonType buttonType) {
+        if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
+            simulationViewModel.createNewProcess();
+        }
+        return null;
     }
 
     private void bindViewModel() {
