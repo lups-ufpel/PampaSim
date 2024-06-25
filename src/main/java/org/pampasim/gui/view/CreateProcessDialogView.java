@@ -38,6 +38,9 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         viewModel.getBurstProperty().bind(burstSpinner.valueProperty());
         viewModel.getPriorityProperty().bind(prioritySpinner.valueProperty());
         viewModel.getDurationProperty().bind(durationSpinner.valueProperty());
+        //todo: the line above should be fixed in the future, it is needed because if user don't interact with
+        // colorpicker it don't select the default color.
+        viewModel.getColorProperty().setValue(colorPicker.getValue().toString());
         colorPicker.setOnAction(this::handleColorPickerAction);
     }
     private void handleColorPickerAction(ActionEvent event) {
