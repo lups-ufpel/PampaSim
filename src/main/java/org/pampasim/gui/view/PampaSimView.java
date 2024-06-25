@@ -6,20 +6,16 @@ import de.saxsys.mvvmfx.InjectViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import org.pampasim.Os.Process;
-import org.pampasim.gui.model.SimulationViewModel;
+import org.pampasim.gui.viewmodel.SimulationViewModel;
 import org.pampasim.gui.viewmodel.CreateProcessDialogViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,31 +31,12 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     public Circle CpuContainer1;
     public Circle CpuContainertemp;
     @FXML
-    public HBox NewList, ReadyList;
+    public HBox NewList;
+    public HBox ReadyList;
     public HBox FinishedList;
-    public ProgressBar ProcessProgress;
     public Button runBtn;
     public Button stopBtn;
-    @FXML
-    public TableView<ProcessViewController> procTable;
-    @FXML
-    public TableColumn<ProcessViewController,Integer> pidCol;
-    @FXML
-    public TableColumn<ProcessViewController, Circle> colorCol;
-    @FXML
-    public TableColumn<ProcessViewController,ProgressBar> progressCol;
-    @FXML
-    private TableColumn<ProcessViewController, Integer> burstCol;
-    @FXML
-    private TableColumn<ProcessViewController, Integer> priorityCol;
-    @FXML
-    private TableColumn<ProcessViewController, Integer> arrivalCol;
-    @FXML
-    private TableColumn<ProcessViewController,String> stateCol;
     private Timeline animation;
-
-    private Scene scene;
-
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
         boolean canStart = simulationViewModel.schedulerDialog();
@@ -69,7 +46,6 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         animation.play();
         stopBtn.setDisable(false);
     }
-
     @FXML
     public void onFinishSimulation(ActionEvent actionEvent) {
         animation.pause();
@@ -124,16 +100,5 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         bindViewModel();
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
-        pidCol.setCellValueFactory(cellData -> cellData.getValue().process.pidProperty().asObject());
-        burstCol.setCellValueFactory(cellData -> cellData.getValue().process.burstProperty().asObject());
-        priorityCol.setCellValueFactory(cellData -> cellData.getValue().process.priorityProperty().asObject());
-        arrivalCol.setCellValueFactory(cellData -> cellData.getValue().process.arrivalProperty().asObject());
-        stateCol.setCellValueFactory(cellData -> cellData.getValue().process.stateProperty());
-        colorCol.setCellValueFactory(cellData -> cellData.getValue().circleForTableView());
-        progressCol.setCellValueFactory(cellData -> cellData.getValue().progressForTableView());
-        //        procTable.setItems(simulationViewModel.processList);
-    }
-    public void setScene(Scene scene) {
-        this.scene = scene;
     }
 }

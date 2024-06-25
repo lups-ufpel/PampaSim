@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.pampasim.gui.view.PampaSimView;
-import org.pampasim.gui.model.SimulationViewModel;
+import org.pampasim.gui.viewmodel.SimulationViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

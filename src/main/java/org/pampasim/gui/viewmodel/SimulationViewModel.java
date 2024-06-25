@@ -1,4 +1,4 @@
-package org.pampasim.gui.model;
+package org.pampasim.gui.viewmodel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
@@ -6,11 +6,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import org.pampasim.Mediator.Mediator;
 import org.pampasim.Os.Os;
-import org.pampasim.Os.PidAllocator;
 import org.pampasim.Os.Process;
 import org.pampasim.Os.Scheduler;
 import org.pampasim.gui.ProcessScope;
 import org.pampasim.gui.listeners.ProcessEventInfo;
+import org.pampasim.gui.model.ProcessMock;
+import org.pampasim.gui.model.SchedulerChoiceDialog;
 
 import java.util.Optional;
 

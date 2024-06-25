@@ -13,7 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import org.pampasim.gui.model.SimulationViewModel;
+import org.pampasim.gui.viewmodel.SimulationViewModel;
 import org.pampasim.gui.model.InfoProcessDialog;
 import org.pampasim.Os.Process;
 

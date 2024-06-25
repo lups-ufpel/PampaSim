@@ -3,7 +3,7 @@ package org.pampasim.Mediator;
 import javafx.scene.shape.Circle;
 import org.pampasim.Os.MockOs;
 import org.pampasim.Os.Scheduler;
-import org.pampasim.gui.model.SimulationViewModel;
+import org.pampasim.gui.viewmodel.SimulationViewModel;
 import org.pampasim.Mediator.Handlers.Core.*;
 import org.pampasim.Mediator.Handlers.Process.*;
 import org.pampasim.Mediator.Handlers.Scheduler.*;
