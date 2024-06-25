@@ -11,7 +11,7 @@
 
 
 <?import javafx.scene.control.ButtonType?>
-<DialogPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1"
+<DialogPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:id="selectSchedulerDialogPane"
             fx:controller="org.pampasim.gui.view.SelectSchedulerDialogView">
    <content>
@@ -25,18 +25,14 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
-         <children>
             <Label text="Algoritmo" />
             <ChoiceBox fx:id="schedulerChoiceBox" prefWidth="150.0" GridPane.columnIndex="1" />
             <Label text="Preempcao" GridPane.rowIndex="1" />
             <CheckBox fx:id="preemptionCheckBox" mnemonicParsing="false" text="CheckBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="Quantum" GridPane.rowIndex="2" />
             <Spinner fx:id="quantumSpinner" initialValue="2" max="999" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-         </children>
       </GridPane>
    </content>
-    <buttonTypes>
         <ButtonType buttonData="CANCEL_CLOSE" fx:id="cancelButton" text="Cancel"/>
         <ButtonType buttonData="APPLY" fx:id="okButton" text="OK"/>
-    </buttonTypes>
 </DialogPane>

@@ -5,11 +5,10 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class ProcessScope implements Scope {
-    private static final int INITIAL_VALUE = 1;
-    private final Property<Integer> burstProperty = new SimpleObjectProperty<>(INITIAL_VALUE);
-    private final Property<Integer> priorityProperty = new SimpleObjectProperty<>(INITIAL_VALUE);
-    private final Property<Integer> durationProperty = new SimpleObjectProperty<>(INITIAL_VALUE);
-    private final Property<String> colorProperty = new SimpleObjectProperty<>("#FF0000");
+    private final Property<Integer> burstProperty = new SimpleObjectProperty<>();
+    private final Property<Integer> priorityProperty = new SimpleObjectProperty<>();
+    private final Property<Integer> durationProperty = new SimpleObjectProperty<>();
+    private final Property<String> colorProperty = new SimpleObjectProperty<>();
 
     public Property<Integer> getBurstProperty() {
         return burstProperty;

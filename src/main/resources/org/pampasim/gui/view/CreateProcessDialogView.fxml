@@ -33,7 +33,7 @@
                      min="0" styleClass="split-arrows-horizontal" stylesheets="@../../../../spinner.css"
                      GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             <Label GridPane.rowIndex="4"/>
-            <ColorPicker fx:id="colorPicker" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <ColorPicker fx:id="colorPicker"  GridPane.columnIndex="1" GridPane.rowIndex="4">
                <value>
                   <Color red="0.03921568766236305" green="0.5176470875740051" blue="1.0"/>
                </value>
@@ -52,8 +52,6 @@
          </GridPane>
       </VBox>
    </content>
-   <buttonTypes>
       <ButtonType buttonData="CANCEL_CLOSE" fx:id="cancelButton" text="Cancel"/>
       <ButtonType buttonData="APPLY" fx:id="okButton" text="OK"/>
-   </buttonTypes>
 </DialogPane>

@@ -2,6 +2,8 @@ package org.pampasim.gui.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,14 +35,14 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     }
 
     public void bindViewValues() {
-        burstSpinner.getValueFactory().valueProperty().bindBidirectional(viewModel.getBurstProperty());
-        prioritySpinner.getValueFactory().valueProperty().bindBidirectional(viewModel.getPriorityProperty());
-        durationSpinner.getValueFactory().valueProperty().bindBidirectional(viewModel.getDurationProperty());
+        viewModel.getBurstProperty().bind(burstSpinner.valueProperty());
+        viewModel.getPriorityProperty().bind(prioritySpinner.valueProperty());
+        viewModel.getDurationProperty().bind(durationSpinner.valueProperty());
         colorPicker.setOnAction(this::handleColorPickerAction);
     }
-
     private void handleColorPickerAction(ActionEvent event) {
         Color selectedColor = colorPicker.getValue();
-        viewModel.getColorProperty().setValue(selectedColor.toString());
+        StringProperty colorProperty = new SimpleStringProperty(selectedColor.toString());
+        viewModel.getColorProperty().bind(colorProperty);
     }
 }
