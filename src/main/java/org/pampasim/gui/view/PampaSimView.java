@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import org.pampasim.gui.viewmodel.SelectSchedulerDialogViewModel;
 import org.pampasim.gui.viewmodel.SimulationViewModel;
 import org.pampasim.gui.viewmodel.CreateProcessDialogViewModel;
 import org.slf4j.Logger;
@@ -32,14 +33,21 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     public Circle CpuContainertemp;
     @FXML
     public HBox NewList;
+    @FXML
     public HBox ReadyList;
+    @FXML
     public HBox FinishedList;
+    @FXML
     public Button runBtn;
+    @FXML
     public Button stopBtn;
+    @FXML
+    public Button selectSchedBtn;
     private Timeline animation;
+
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
-        boolean canStart = simulationViewModel.schedulerDialog();
+        boolean canStart = simulationViewModel.startSimulation();
         if (!canStart) {
             return;
         }
@@ -58,12 +66,30 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
                 .load();
         final DialogPane dialogPane = (DialogPane) viewTuple.getView();
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Create Process window");
+        dialog.setTitle("Create Process Window");
         dialog.setDialogPane(dialogPane);
-        dialog.setResultConverter(this::handleResult);
+        dialog.setResultConverter(this::handleCreateProcessResult);
         dialog.showAndWait();
     }
-    private ButtonType handleResult(ButtonType buttonType) {
+    @FXML
+    public void selectScheduler(ActionEvent actionEvent) {
+        final ViewTuple<SelectSchedulerDialogView, SelectSchedulerDialogViewModel> viewTuple = FluentViewLoader.fxmlView(SelectSchedulerDialogView.class)
+                .providedScopes(simulationViewModel.getSchedulerScope())
+                .load();
+        final DialogPane dialogPane = (DialogPane) viewTuple.getView();
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Select Scheduler Window");
+        dialog.setDialogPane(dialogPane);
+        dialog.setResultConverter(this::handleSelectSchedulerResult);
+        dialog.showAndWait();
+    }
+    private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
+        if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
+            simulationViewModel.setSimulationScheduler();
+        }
+        return null;
+    }
+    private ButtonType handleCreateProcessResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             simulationViewModel.createNewProcess();
             runBtn.setDisable(false);

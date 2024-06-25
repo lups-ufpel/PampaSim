@@ -25,8 +25,9 @@ public class PampaSimGUI extends Application {
 
     private void initializeMainFrame() {
         ProcessScope processScope = new ProcessScope();
+        SchedulerDialogScope schedulerDialogScope = new SchedulerDialogScope();
         final ViewTuple<PampaSimView, SimulationViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class)
-                .providedScopes(processScope).load();
+                .providedScopes(processScope,schedulerDialogScope).load();
         this.mainFrame = (BorderPane) viewTuple.getView();
     }
 

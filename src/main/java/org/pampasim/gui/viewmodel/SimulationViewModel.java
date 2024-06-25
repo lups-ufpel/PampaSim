@@ -5,10 +5,10 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import org.pampasim.Mediator.Mediator;
-import org.pampasim.Os.Os;
+import org.pampasim.Os.*;
 import org.pampasim.Os.Process;
-import org.pampasim.Os.Scheduler;
 import org.pampasim.gui.ProcessScope;
+import org.pampasim.gui.SchedulerDialogScope;
 import org.pampasim.gui.listeners.ProcessEventInfo;
 import org.pampasim.gui.model.ProcessMock;
 import org.pampasim.gui.model.SchedulerChoiceDialog;
@@ -23,8 +23,13 @@ public class SimulationViewModel implements ViewModel {
 
     @InjectScope
     private ProcessScope processScope;
+    @InjectScope
+    private SchedulerDialogScope schedulerDialogScope;
     public SimulationViewModel() {
         Mediator.getInstance().registerComponent(this, Mediator.Component.GUI);
+    }
+    public SchedulerDialogScope getSchedulerScope() {
+        return schedulerDialogScope;
     }
     public ProcessScope getProcessScope() {
         return processScope;
@@ -36,6 +41,31 @@ public class SimulationViewModel implements ViewModel {
        var newProcess = (ProcessMock) Mediator.getInstance().getOs().createProcess(Process.Type.SIMPLE,burst,priority,arrival);
        addProcessListeners(newProcess);
        newProcess.notifyOnCreate();
+    }
+    public void setSimulationScheduler() {
+        String schedulerName = schedulerDialogScope.schedulerNamePropertyProperty().getValue();
+        Scheduler scheduler = null;
+        switch (schedulerName) {
+            case "FCFS":
+                scheduler = new SchedulerFCFS(1,Mediator.getInstance());
+                break;
+            case "SJF":
+                scheduler = new SchedulerSJF(1,Mediator.getInstance());
+                break;
+            case "Round Robin":
+                scheduler = new SchedulerRoundRobin(1,Mediator.getInstance(),schedulerDialogScope.quantumPropertyProperty().getValue());
+                break;
+            case "Priority":
+                scheduler = new SchedulerPriority(1,Mediator.getInstance());
+                break;
+        }
+        Mediator.getInstance().registerComponent(scheduler,Mediator.Component.SCHEDULER);
+    }
+    public Boolean startSimulation() {
+        Scheduler scheduler = Mediator.getInstance().getScheduler();
+        Os kernel = (Os) Mediator.getInstance().retrieveComponent(Mediator.Component.KERNEL);
+        kernel.dispatchAll(scheduler);
+       return true;
     }
     public void addProcessListeners(ProcessMock processMock) {
         processMock.addOnCreateListener(this::notifyGuiOnCreatedProcess);

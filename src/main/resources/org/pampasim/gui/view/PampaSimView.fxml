@@ -25,7 +25,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.gui.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.gui.view.PampaSimView">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -55,7 +55,7 @@
             <items>
                 <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar">
                     <tooltip>
-                        <Tooltip text="Criar processo"/>
+                        <Tooltip text="Criar processo" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconLiteral="fth-plus-circle" text="" />
@@ -66,21 +66,29 @@
                         <Tooltip text="Abrir editor de código" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconLiteral="fth-file-plus"/>
+                        <FontIcon iconLiteral="fth-file-plus" />
                     </graphic>
                 </Button>
                 <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" mnemonicParsing="false" text="Compile">
                     <tooltip>
-                        <Tooltip text="Compilar código"/>
+                        <Tooltip text="Compilar código" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconLiteral="fth-code" />
                     </graphic>
                 </Button>
+            <Button fx:id="selectSchedBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#selectScheduler" text="scheduler">
+               <tooltip>
+                  <Tooltip text="Compilar código" />
+               </tooltip>
+               <graphic>
+                  <FontIcon iconLiteral="fth-calendar" />
+               </graphic>
+            </Button>
                 <Separator />
                 <Button fx:id="runBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onStartSimulation" text="Run">
                     <tooltip>
-                        <Tooltip text="Iniciar simulação"/>
+                        <Tooltip text="Iniciar simulação" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconLiteral="fth-play" />
@@ -89,7 +97,7 @@
                 </Button>
                 <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Reset">
                     <tooltip>
-                        <Tooltip text="Reiniciar simulação"/>
+                        <Tooltip text="Reiniciar simulação" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconLiteral="fth-refresh-cw" />
@@ -97,7 +105,7 @@
                 </Button>
                 <Button fx:id="stopBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onFinishSimulation" text="Stop">
                     <tooltip>
-                        <Tooltip text="Parar simulação"/>
+                        <Tooltip text="Parar simulação" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconLiteral="fth-stop-circle" />
@@ -106,7 +114,7 @@
             <Pane VBox.vgrow="ALWAYS" />
                 <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" mnemonicParsing="false" text="Config">
                     <tooltip>
-                        <Tooltip text="Configurações"/>
+                        <Tooltip text="Configurações" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconLiteral="fth-settings" />
@@ -202,7 +210,7 @@
                         </SplitPane>
                     </content>
                 </Tab>
-                <Tab text="Memória" >
+                <Tab text="Memória">
 
                 </Tab>
                 <Tab text="Editor de código">

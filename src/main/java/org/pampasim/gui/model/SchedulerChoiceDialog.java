@@ -47,7 +47,7 @@ public class SchedulerChoiceDialog extends Dialog<ButtonType> {
 
     private void buildDialog() {
         FXMLLoader dialogLoader = new FXMLLoader();
-        dialogLoader.setLocation(getClass().getResource("/org/pampasim/gui/view/SchedulerChoiceDialog.fxml"));
+        dialogLoader.setLocation(getClass().getResource("/org/pampasim/gui/view/SelectSchedulerDialogView.fxml"));
         dialogLoader.setController(this);
         try {
             GridPane content = dialogLoader.load();
