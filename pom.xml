@@ -60,6 +60,11 @@
             <version>12.3.1</version>
         </dependency>
         <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-bootstrapicons-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
             <groupId>de.saxsys</groupId>
             <artifactId>mvvmfx</artifactId>
             <version>1.8.0</version>

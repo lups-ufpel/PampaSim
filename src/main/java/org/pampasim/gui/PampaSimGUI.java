@@ -1,6 +1,8 @@
 package org.pampasim.gui;
 
+import atlantafx.base.theme.CupertinoLight;
 import atlantafx.base.theme.Dracula;
+import atlantafx.base.theme.PrimerLight;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
 import javafx.application.Application;
@@ -18,7 +20,8 @@ public class PampaSimGUI extends Application {
 
     @Override
     public void start(Stage stage) {
-        Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
         this.initializeMainFrame();
         this.configureStage(stage);
     }

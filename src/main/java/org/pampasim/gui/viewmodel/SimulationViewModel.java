@@ -2,8 +2,6 @@ package org.pampasim.gui.viewmodel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import org.pampasim.Mediator.Mediator;
 import org.pampasim.Os.*;
 import org.pampasim.Os.Process;
@@ -11,9 +9,6 @@ import org.pampasim.gui.ProcessScope;
 import org.pampasim.gui.SchedulerDialogScope;
 import org.pampasim.gui.listeners.ProcessEventInfo;
 import org.pampasim.gui.model.ProcessMock;
-import org.pampasim.gui.model.SchedulerChoiceDialog;
-
-import java.util.Optional;
 
 public class SimulationViewModel implements ViewModel {
     public final static String NEW_PROCESS = "NEW_PROCESS";
@@ -88,18 +83,6 @@ public class SimulationViewModel implements ViewModel {
     /**
      * --- OLDER METHODS THAT USE MEDIATOR GOES BELOW  \:/
      */
-    public boolean schedulerDialog() {
-        Dialog<ButtonType> schedulerChoiceDialog = new SchedulerChoiceDialog();
-        Optional<ButtonType> schedulerChoiceDialogResult = schedulerChoiceDialog.showAndWait();
-        if (schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK) {
-            System.out.println("Scheduler escolhido");
-            Scheduler scheduler = Mediator.getInstance().getScheduler();
-            Os kernel = (Os) Mediator.getInstance().retrieveComponent(Mediator.Component.KERNEL);
-            kernel.dispatchAll(scheduler);
-        }
-        //FIX LINE BELOW
-        return schedulerChoiceDialogResult.isPresent() && schedulerChoiceDialogResult.get() == ButtonType.OK;
-    }
     public void runSimulation() {
         Mediator.getInstance().send(this, Mediator.Action.RUN);
     }
