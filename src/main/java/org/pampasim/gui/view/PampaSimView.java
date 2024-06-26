@@ -1,9 +1,7 @@
 package org.pampasim.gui.view;
 
-import de.saxsys.mvvmfx.FluentViewLoader;
-import de.saxsys.mvvmfx.FxmlView;
-import de.saxsys.mvvmfx.InjectViewModel;
-import de.saxsys.mvvmfx.ViewTuple;
+import de.saxsys.mvvmfx.*;
+import de.saxsys.mvvmfx.internal.viewloader.View;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -14,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import org.pampasim.gui.viewmodel.SelectSchedulerDialogViewModel;
 import org.pampasim.gui.viewmodel.SimulationViewModel;
@@ -23,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 
 public class PampaSimView implements FxmlView<SimulationViewModel>, Initializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
@@ -59,29 +59,24 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         animation.pause();
         stopBtn.setDisable(true);
     }
-    @FXML
-    public void createProcess(ActionEvent actionEvent) {
-        final ViewTuple<CreateProcessDialogView,CreateProcessDialogViewModel> viewTuple = FluentViewLoader.fxmlView(CreateProcessDialogView.class)
-                .providedScopes(simulationViewModel.getProcessScope())
+    private void showDialog(Class<? extends FxmlView<?>> viewClass, String title, Scope scope, Callback<ButtonType,ButtonType> resultHandler) {
+        final ViewTuple<?, ?> viewTuple = FluentViewLoader.fxmlView(viewClass)
+                .providedScopes(scope)
                 .load();
         final DialogPane dialogPane = (DialogPane) viewTuple.getView();
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Create Process Window");
+        dialog.setTitle(title);
         dialog.setDialogPane(dialogPane);
-        dialog.setResultConverter(this::handleCreateProcessResult);
+        dialog.setResultConverter(resultHandler);
         dialog.showAndWait();
     }
     @FXML
+    public void createProcess(ActionEvent actionEvent) {
+        showDialog(CreateProcessDialogView.class,"Create Process Window",simulationViewModel.getProcessScope(),this::handleCreateProcessResult);
+    }
+    @FXML
     public void selectScheduler(ActionEvent actionEvent) {
-        final ViewTuple<SelectSchedulerDialogView, SelectSchedulerDialogViewModel> viewTuple = FluentViewLoader.fxmlView(SelectSchedulerDialogView.class)
-                .providedScopes(simulationViewModel.getSchedulerScope())
-                .load();
-        final DialogPane dialogPane = (DialogPane) viewTuple.getView();
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Select Scheduler Window");
-        dialog.setDialogPane(dialogPane);
-        dialog.setResultConverter(this::handleSelectSchedulerResult);
-        dialog.showAndWait();
+        showDialog(SelectSchedulerDialogView.class,"Select Scheduler Window",simulationViewModel.getSchedulerScope(),this::handleSelectSchedulerResult);
     }
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
