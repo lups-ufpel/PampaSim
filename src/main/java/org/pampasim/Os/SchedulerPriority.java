@@ -1,15 +1,14 @@
 package org.pampasim.Os;
 
 
-import org.pampasim.Mediator.Mediator;
 
 import java.util.List;
 
 public class SchedulerPriority extends Scheduler {
 
 
-    public SchedulerPriority(int numCores, Mediator mediator) {
-        super(numCores, mediator);
+    public SchedulerPriority(int numCores) {
+        super(numCores);
     }
     @Override
     protected Process dequeue(List<Process> processQueue) {

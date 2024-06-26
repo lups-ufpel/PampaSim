@@ -2,10 +2,11 @@ package org.pampasim.VirtualMachine;
 
 import org.pampasim.Os.Interruption;
 import org.pampasim.Os.Process;
+import org.pampasim.Os.Scheduler;
 import org.pampasim.VirtualMachine.Processor.Core;
 import org.pampasim.VirtualMachine.Processor.CoreSimple;
-import org.pampasim.Mediator.Mediator;
 import org.pampasim.VirtualMachine.Processor.Registers;
+import org.pampasim.gui.listeners.SchedulerEventInfo;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.Scanner;
  */
 public class VmSimple implements Vm {
 
+    private Scheduler scheduler;
+
     /**
      * An interruption instance for handling interruptions during VM execution.
      */
@@ -45,31 +48,23 @@ public class VmSimple implements Vm {
      */
     protected final Core[] cores;
 
-    /**
-     * A mediator for communication with external components.
-     */
-    protected Mediator mediator;
-
     public static List<Process> runningProcesses;
 
     /**
      * Constructs a `VmSimple` instance with the specified number of CPU cores and a mediator for communication.
      *
      * @param numCores  The number of CPU cores in the VM.
-     * @param mediator  The mediator for communication.
      * @throws IllegalArgumentException if the mediator is null or the number of cores is less than or equal to 0.
      */
-    public VmSimple(int numCores, Mediator mediator) {
-        if(mediator == null || numCores <= 0){
-            throw new IllegalArgumentException("Mediator cannot be null and numCores must be greater than 0");
+    public VmSimple(int numCores) {
+        if(numCores <= 0){
+            throw new IllegalArgumentException("NumCores must be greater than 0");
         }
         this.numCores = numCores;
-        this.mediator = mediator;
         cores = new Core[numCores];
         for(int i=0; i < numCores; i++){
             cores[i] = new CoreSimple();
         }
-
     }
 
     /**
@@ -79,10 +74,8 @@ public class VmSimple implements Vm {
      * @throws RuntimeException if an error occurs during the retrieval of running processes.
      */
     public List<Process> getRunningProcesses() {
-        List<Process> processes;
         try {
-            Object result = mediator.invoke(Mediator.Action.SCHEDULER_SCHEDULE);
-            processes = (List<Process>) result;
+            var processes = scheduler.schedule();
             LOGGER.debug("List of Processes to be Scheduled: {}", Arrays.toString(processes.toArray()));
             return processes;
         } catch (Exception e) {
@@ -92,6 +85,17 @@ public class VmSimple implements Vm {
         }
     }
 
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+        listenToSchedulerEvents();
+    }
+    public void listenToSchedulerEvents() {
+        scheduler.addOnScheduleListener(this::updateSchedulerCurrentTick);
+    }
+    private void updateSchedulerCurrentTick(SchedulerEventInfo eventInfo) {
+       var scheduler = eventInfo.getScheduler();
+       scheduler.setCurrTick(this.SIM_CLOCK.getTick());
+    }
     /**
      * Execute a list of processes on the available CPU cores.
      *
@@ -102,12 +106,13 @@ public class VmSimple implements Vm {
         for(int coreId =0; coreId < numCores; coreId++){
             proc = processes.get(coreId);
             if(proc != null){
-                mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{proc, cores[coreId]});
+                // mediator.invoke(Mediator.Action.CORE_EXECUTE, new Object[]{proc, cores[coreId]});
+                Core core = cores[coreId];
+                core.execute(proc);
                 if (proc.hasInterrupt()) {
                     LOGGER.debug("Process of PID {} has requested an interruption",proc.getPid());
                     interruptionHandler(proc);
                 }
-
             }
             else{
                 LOGGER.info("Core [{}] is idle",coreId);
@@ -126,7 +131,6 @@ public class VmSimple implements Vm {
         LOGGER.debug("Current Tick: [{}]", SIM_CLOCK.getTick());
         runningProcesses = getRunningProcesses();
         if(runningProcesses.isEmpty()) {
-            var scheduler = Mediator.getInstance().getScheduler();
             System.out.println("newList size = " + scheduler.getNewList().size());
             System.out.println("readyList size = " + scheduler.getReadyList().size());
             System.out.println("runningList size = " + scheduler.getRunningList().size());
@@ -155,10 +159,7 @@ public class VmSimple implements Vm {
      *
      * @return true if the VM should stop; otherwise, false.
      */
-    public boolean stop(){
-        if((boolean) mediator.invoke(Mediator.Action.GET_SIM_STATUS)){
-            //mediator.publish(Mediator.Action.STOP_VM);
-        }
+    public boolean stop() {
         return false;
     }
 

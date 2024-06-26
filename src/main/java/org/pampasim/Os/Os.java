@@ -2,7 +2,6 @@ package org.pampasim.Os;
 
 import java.util.ArrayList;
 import org.pampasim.VirtualMachine.Sbyte;
-import org.pampasim.Mediator.Mediator;
 
 
 /**
@@ -22,12 +21,6 @@ import org.pampasim.Mediator.Mediator;
  * @since 2023-10-31
  */
 public class Os {
-
-    /**
-     * The mediator for communication with external components.
-     */
-    private final Mediator mediator;
-
     public PidAllocator getPidAllocator() {
         return pidAllocator;
     }
@@ -50,14 +43,8 @@ public class Os {
 
     protected ArrayList<Process> processList = new ArrayList<Process>();
 
-    /**
-     * Constructs an `Os` instance with the specified mediator for communication.
-     *
-     * @param mediator The mediator for communication.
-     */
-    public Os(Mediator mediator) {
+    public Os() {
         memoryManager = new MemoryManager(MEMSIZE);
-        this.mediator = mediator;
         this.pidAllocator = new PidAllocator();
     }
 
@@ -72,7 +59,6 @@ public class Os {
     public Process createProcess(Process.Type type, int burst, int priority, int arrivalInstant) {
         PidAllocator.Pid pid = pidAllocator.AssignPid();
         Process newProcess = new Process(pid, priority,burst,arrivalInstant);
-        System.out.println("Created process state " + newProcess.getState());
         processList.add(newProcess);
         return newProcess;
     }

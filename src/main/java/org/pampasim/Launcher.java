@@ -1,8 +1,5 @@
 package org.pampasim;
 import org.pampasim.gui.PampaSimGUI;
-import org.pampasim.Mediator.*;
-import org.pampasim.Os.*;
-import org.pampasim.VirtualMachine.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +13,10 @@ import org.slf4j.LoggerFactory;
  */
 public class Launcher {
     private static Logger LOGGER;
-    private static final Mediator mediator = Mediator.getInstance();
 
     public static void main(String[] args) {
         configLogging(args);
         LOGGER.info("==================██Starting PampaOS Simulator██==================\n");
-        initializeComponents();
         PampaSimGUI.launch(PampaSimGUI.class,args);
     }
 
@@ -31,10 +26,5 @@ public class Launcher {
         // tweak some logging configuration properties to improve performance and legibility.
         // add the option for redirecting all or some log messages to a file.
         LOGGER = LoggerFactory.getLogger(Launcher.class);
-    }
-
-    private static void initializeComponents() {
-        mediator.registerComponent(new MockOs(mediator),Mediator.Component.KERNEL);
-        mediator.registerComponent(new VmSimple(1,mediator),Mediator.Component.VM);
     }
 }

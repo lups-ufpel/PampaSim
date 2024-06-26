@@ -1,8 +1,6 @@
 package org.pampasim.gui;
 
 import atlantafx.base.theme.CupertinoLight;
-import atlantafx.base.theme.Dracula;
-import atlantafx.base.theme.PrimerLight;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
 import javafx.application.Application;

@@ -2,13 +2,12 @@ package org.pampasim.gui.viewmodel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import org.pampasim.Mediator.Mediator;
 import org.pampasim.Os.*;
 import org.pampasim.Os.Process;
+import org.pampasim.VirtualMachine.VmSimple;
 import org.pampasim.gui.ProcessScope;
 import org.pampasim.gui.SchedulerDialogScope;
 import org.pampasim.gui.listeners.ProcessEventInfo;
-import org.pampasim.gui.model.ProcessMock;
 
 public class SimulationViewModel implements ViewModel {
     public final static String NEW_PROCESS = "NEW_PROCESS";
@@ -16,12 +15,17 @@ public class SimulationViewModel implements ViewModel {
     public final static String FINISH_PROCESS = "FINISH_PROCESS";
     public final static String RUN_PROCESS = "RUN_PROCESS";
 
+    private final Os simOs;
+    private final VmSimple vmSimple;
+    private Scheduler scheduler;
+
     @InjectScope
     private ProcessScope processScope;
     @InjectScope
     private SchedulerDialogScope schedulerDialogScope;
     public SimulationViewModel() {
-        Mediator.getInstance().registerComponent(this, Mediator.Component.GUI);
+        simOs = new Os();
+        vmSimple = new VmSimple(1);
     }
     public SchedulerDialogScope getSchedulerScope() {
         return schedulerDialogScope;
@@ -33,40 +37,38 @@ public class SimulationViewModel implements ViewModel {
        var burst = processScope.getBurstProperty().getValue();
        var priority = processScope.getDurationProperty().getValue();
        var arrival = processScope.getDurationProperty().getValue();
-       var newProcess = (ProcessMock) Mediator.getInstance().getOs().createProcess(Process.Type.SIMPLE,burst,priority,arrival);
+       Process newProcess = simOs.createProcess(Process.Type.SIMPLE,burst,priority,arrival);
        addProcessListeners(newProcess);
-       newProcess.notifyOnCreate();
+       newProcess.notifyListenersOnCreate();
     }
     public void setSimulationScheduler() {
         String schedulerName = schedulerDialogScope.schedulerNamePropertyProperty().getValue();
-        Scheduler scheduler = null;
         switch (schedulerName) {
             case "FCFS":
-                scheduler = new SchedulerFCFS(1,Mediator.getInstance());
+                scheduler = new SchedulerFCFS(1);
                 break;
             case "SJF":
-                scheduler = new SchedulerSJF(1,Mediator.getInstance());
+                scheduler = new SchedulerSJF(1);
                 break;
             case "Round Robin":
-                scheduler = new SchedulerRoundRobin(1,Mediator.getInstance(),schedulerDialogScope.quantumPropertyProperty().getValue());
+                scheduler = new SchedulerRoundRobin(1,schedulerDialogScope.quantumPropertyProperty().getValue());
                 break;
             case "Priority":
-                scheduler = new SchedulerPriority(1,Mediator.getInstance());
+                scheduler = new SchedulerPriority(1);
                 break;
         }
-        Mediator.getInstance().registerComponent(scheduler,Mediator.Component.SCHEDULER);
+        vmSimple.setScheduler(scheduler);
     }
     public Boolean startSimulation() {
-        Scheduler scheduler = Mediator.getInstance().getScheduler();
-        Os kernel = (Os) Mediator.getInstance().retrieveComponent(Mediator.Component.KERNEL);
-        kernel.dispatchAll(scheduler);
+        simOs.dispatchAll(scheduler);
        return true;
     }
-    public void addProcessListeners(ProcessMock processMock) {
-        processMock.addOnCreateListener(this::notifyGuiOnCreatedProcess);
-        processMock.addOnStartListener(this::notifyGuiOnStartProcess);
-        processMock.addOnFinishListener(this::notifyGuiOnFinishedProcess);
-        processMock.addOnUpdateListener(this::notifyGuiOnExecuteProcess);
+    public void addProcessListeners(Process process) {
+        process.addOnCreateListener(this::notifyGuiOnCreatedProcess);
+        process.addOnStartListener(this::notifyGuiOnStartProcess);
+        process.addOnFinishListener(this::notifyGuiOnFinishedProcess);
+        process.addOnUpdateListener(this::notifyGuiOnExecuteProcess);
+        //todo: notify on suspend and on resume.
     }
     private void notifyGuiOnExecuteProcess(ProcessEventInfo eventInfo) {
        this.publish(RUN_PROCESS);
@@ -84,6 +86,6 @@ public class SimulationViewModel implements ViewModel {
      * --- OLDER METHODS THAT USE MEDIATOR GOES BELOW  \:/
      */
     public void runSimulation() {
-        Mediator.getInstance().send(this, Mediator.Action.RUN);
+       this.vmSimple.run();
     }
 }

@@ -1,36 +1,33 @@
 package org.pampasim.Os;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import org.pampasim.Mediator.Mediator;
+import org.pampasim.gui.listeners.EventListener;
+import org.pampasim.gui.listeners.SchedulerEventInfo;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 public abstract class Scheduler {
 
     Logger LOGGER = LoggerFactory.getLogger(getClass().getSimpleName());
-    Mediator mediator;
     int numCores;
+    int currTick;
     List<Process> readyList;
     List<Process> waitingList;
     public List<Process> terminatedList;
     List<Process> newList;
     List<Process> runningList;
-
-    public Scheduler(int numCores,Mediator mediator) {
+    private final Set<EventListener<SchedulerEventInfo>> onScheduleListeners;
+    public Scheduler(int numCores) {
         this.numCores = numCores;
-        this.mediator = mediator;
         newList = new ArrayList<>();
         readyList = new ArrayList<>();
         waitingList = new ArrayList<>();
         terminatedList = new ArrayList<>();
         runningList = new ArrayList<>(numCores);
-
+        onScheduleListeners = new HashSet<>();
     }
     public List<Process> schedule() {
 
@@ -64,7 +61,6 @@ public abstract class Scheduler {
         else{
             runningList.set(coreId, p);
         }
-        //mediator.publish(Mediator.Action.CORE_EXECUTE);
         LOGGER.debug("Process of pid {} was assigned to core {}", p.getPid(), runningList.indexOf(p));
     }
     public boolean isThereReadyProcesses() {
@@ -95,9 +91,9 @@ public abstract class Scheduler {
         procQueue.add(p);
     }
 
-    protected boolean isProcessSubmitted(Process p){
-        int curr_tick = (int) mediator.invoke(Mediator.Action.GET_TIME);
-        return p.getArrivalTime() <= curr_tick;
+    protected boolean isProcessSubmitted(Process p) {
+        notifyScheduleListener();
+        return p.getArrivalTime() <= this.currTick;
     }
     public void addNewProcess(Process p ){
         p.setState(Process.State.NEW);
@@ -179,5 +175,15 @@ public abstract class Scheduler {
     }
     public List<Process> getRunningList() {
         return runningList;
+    }
+    public Scheduler addOnScheduleListener(EventListener<SchedulerEventInfo> listener) {
+        this.onScheduleListeners.add(listener);
+        return this;
+    }
+    public void notifyScheduleListener() {
+       onScheduleListeners.forEach(listener -> listener.update(SchedulerEventInfo.of(listener,this)));
+    }
+    public void setCurrTick(int currTick) {
+        this.currTick = currTick;
     }
 }

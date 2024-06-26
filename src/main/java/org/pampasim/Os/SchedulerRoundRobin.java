@@ -1,15 +1,13 @@
 package org.pampasim.Os;
 
-import org.pampasim.Mediator.Mediator;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SchedulerRoundRobin extends Scheduler{
 
     final int QUANTUM;
-    public SchedulerRoundRobin(int numCores, Mediator mediator, int quantum) {
-        super(numCores, mediator);
+    public SchedulerRoundRobin(int numCores, int quantum) {
+        super(numCores);
         QUANTUM = quantum;
     }
 

@@ -25,5 +25,4 @@ public class SimulatorClock {
     public void incrTick(){
         currentTick++;
     }
-
 }

@@ -1,12 +1,11 @@
 package org.pampasim.Os;
 
 import java.util.List;
-import org.pampasim.Mediator.Mediator;
 
 public class SchedulerSJF extends Scheduler {
 
-    public SchedulerSJF(int numCores, Mediator mediator) {
-        super(numCores, mediator);
+    public SchedulerSJF(int numCores) {
+        super(numCores);
     }
     @Override
     protected Process dequeue(List<Process> processQueue) {

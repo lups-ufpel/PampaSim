@@ -1,12 +1,21 @@
 package org.pampasim.Os;
 
-import javafx.beans.property.*;
-import org.pampasim.Mediator.Mediator;
 import org.pampasim.VirtualMachine.Processor.Registers;
 import org.pampasim.VirtualMachine.Sbyte;
+import org.pampasim.gui.listeners.EventListener;
+import org.pampasim.gui.listeners.ProcessEventInfo;
+
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Process {
+    private final Set<EventListener<ProcessEventInfo>> onStartListeners;
+    private final Set<EventListener<ProcessEventInfo>> onFinishListeners;
+    private final Set<EventListener<ProcessEventInfo>> onUpdateListeners;
+    private final Set<EventListener<ProcessEventInfo>> onCreateListeners;
+    private final Set<EventListener<ProcessEventInfo>> onSuspendListeners;
+    private final Set<EventListener<ProcessEventInfo>> onResumeListeners;
 
     Process.State state;
     final PidAllocator.Pid pid;
@@ -16,16 +25,7 @@ public class Process {
     protected int currExecTime;
     private int execTimeSlice;
     protected String progressBar;
-
-    // Properties for JavaFX
-    StringProperty stateProperty = new SimpleStringProperty();
-    IntegerProperty pidProperty = new SimpleIntegerProperty();
-    IntegerProperty burstProperty = new SimpleIntegerProperty();
-    IntegerProperty priorityProperty = new SimpleIntegerProperty();
-    IntegerProperty arrivalProperty = new SimpleIntegerProperty();
-    DoubleProperty execTimeSliceProperty = new SimpleDoubleProperty();
     public Process(PidAllocator.Pid pid, int priority, int totalBurst, int arrivalTime) {
-
         this.pid = pid;
         this.state = State.NEW;
         this.priority = priority;
@@ -33,24 +33,18 @@ public class Process {
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
         this.progressBar = "";
-
-        stateProperty.set(state.toString());
-        pidProperty.set(pid.getNum());
-        burstProperty.set(totalBurst);
-        priorityProperty.set(priority);
-        arrivalProperty.set(arrivalTime);
-        execTimeSliceProperty.set(currExecTime);
+        onStartListeners = new HashSet<>();
+        onFinishListeners = new HashSet<>();
+        onUpdateListeners = new HashSet<>();
+        onCreateListeners = new HashSet<>();
+        onSuspendListeners = new HashSet<>();
+        onResumeListeners = new HashSet<>();
     }
     public int getPid() {
         return pid.getNum();
     }
-
     public int getPriority(){
         return priority;
-    }
-
-    public void setPriority(int priority){
-        this.priority = priority;
     }
     public int getArrivalTime(){
         return arrivalTime;
@@ -63,7 +57,6 @@ public class Process {
     }
     public void setState(State state){
         this.state = state;
-        stateProperty.set(state.toString());
     }
     public int getBurstTime(){ return burstTime; }
     public int getCurrentExecutionTime() {
@@ -72,52 +65,89 @@ public class Process {
     public String getProgressBar(){
         return progressBar;
     }
-
     public void submit() {
         if(getState() != State.NEW){
             throw new IllegalStateException("Process must be in NEW state to be submitted");
         }
         else{
             setState(State.READY);
-            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_SUBMITTED);
+            notifyListenersOnStart();
         }
     }
-
-
-    public void dispatch(){
+    public void dispatch() {
         if(getState() != State.READY){
             throw new IllegalStateException("Process must be in READY state to be dispatched");
         }
         else{
             setState(State.RUNNING);
-            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_DISPATCHED);
+            notifyListenersOnUpdate();
         }
     }
-    public void interrupt(){
+    public void interrupt() {
         if(getState() != State.RUNNING){
             throw new IllegalStateException("Process must be in RUNNING state to be interrupted");
         }
         else{
             setState(State.READY);
-            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_INTERRUPTED);
         }
     }
-    public void finish(){
+    public void finish() {
         if(getState() != State.RUNNING){
             throw new IllegalStateException("Process must be in RUNNING state to be finished");
         }
         else{
             setState(State.TERMINATED);
-            Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_FINISHED);
+            notifyListenersOnFinish();
         }
     }
     public void forwardProcessExecution() {
         this.currExecTime +=1;
         updateProgressBar();
-        execTimeSliceProperty.set(currExecTime);
-        Mediator.getInstance().send(this, Mediator.Action.ON_THIS_PROCESS_EXECUTED);
     }
-    public double getProgress(){
+    public Process addOnCreateListener(EventListener<ProcessEventInfo> listener) {
+        this.onCreateListeners.add(listener);
+        return this;
+    }
+    public Process addOnStartListener(EventListener<ProcessEventInfo> listener) {
+        this.onStartListeners.add(listener);
+        return this;
+    }
+    public Process addOnFinishListener(EventListener<ProcessEventInfo> listener) {
+        this.onFinishListeners.add(listener);
+        return this;
+    }
+    public Process addOnUpdateListener(EventListener<ProcessEventInfo> listener) {
+        this.onUpdateListeners.add(listener);
+        return this;
+    }
+    public Process addOnSuspendListener(EventListener<ProcessEventInfo> listener) {
+        this.onSuspendListeners.add(listener);
+        return this;
+    }
+    public Process addOnResumeListener(EventListener<ProcessEventInfo> listener) {
+        this.onResumeListeners.add(listener);
+        return this;
+    }
+    public void notifyListenersOnUpdate() {
+        onUpdateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public void notifyListenersOnCreate() {
+        onCreateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public void notifyListenersOnStart() {
+        onStartListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener,this)));
+    }
+    public void notifyListenersOnFinish() {
+        onFinishListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+        onFinishListeners.clear();
+    }
+    public void notifyListenersOnSuspend() {
+        onSuspendListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public void notifyListenersOnResume() {
+        onResumeListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public double getProgress() {
         return (double) currExecTime / burstTime;
     }
     public void incrQuantum(){
@@ -127,7 +157,6 @@ public class Process {
         execTimeSlice = 0;
     }
     private void updateProgressBar() {
-
         int totalInstructions = burstTime;
         int completedInstructions = currExecTime;
 
@@ -140,29 +169,6 @@ public class Process {
         progressBarBuilder.append("▒".repeat(Math.max(0, remainingBlocks)));
 
         progressBar = progressBarBuilder.toString();
-    }
-
-    public StringProperty stateProperty() {
-        return stateProperty;
-    }
-    public IntegerProperty pidProperty() {
-        return pidProperty;
-    }
-    public IntegerProperty burstProperty() {
-        return burstProperty;
-    }
-    public IntegerProperty priorityProperty() {
-        return priorityProperty;
-    }
-    public IntegerProperty arrivalProperty() {
-        return arrivalProperty;
-    }
-
-    public DoubleProperty execTimeSliceProperty() {
-        return execTimeSliceProperty;
-    }
-    public void setStateProperty(String state) {
-        this.stateProperty.set(state);
     }
     public Interruption getInterruption(){
         return null;
@@ -177,7 +183,6 @@ public class Process {
         System.out.println("This process does not have memory");
         return null;
     }
-
     public enum State {
         /**
          * The Process has been just instantiated but not assigned to CPU Core.
@@ -203,7 +208,6 @@ public class Process {
          */
         TERMINATED
     }
-
     public enum Type {
 
         /**
