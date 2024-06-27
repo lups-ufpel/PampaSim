@@ -1,7 +1,6 @@
 package org.pampasim.gui.view;
 
 import de.saxsys.mvvmfx.*;
-import de.saxsys.mvvmfx.internal.viewloader.View;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -14,15 +13,12 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.pampasim.gui.viewmodel.SelectSchedulerDialogViewModel;
 import org.pampasim.gui.viewmodel.SimulationViewModel;
-import org.pampasim.gui.viewmodel.CreateProcessDialogViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Function;
 
 public class PampaSimView implements FxmlView<SimulationViewModel>, Initializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
@@ -44,6 +40,8 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     @FXML
     public Button selectSchedBtn;
     private Timeline animation;
+    private Dialog<ButtonType> createProcessDialog;
+    private Dialog<ButtonType> selectSchedulerDialog;
 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
@@ -59,24 +57,24 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         animation.pause();
         stopBtn.setDisable(true);
     }
-    private void showDialog(Class<? extends FxmlView<?>> viewClass, String title, Scope scope, Callback<ButtonType,ButtonType> resultHandler) {
+    private void configureDialog(Dialog<ButtonType> dialog,String title, DialogPane dialogPane, Callback<ButtonType,ButtonType> resultHandler) {
+        dialog.setDialogPane(dialogPane);
+        dialog.setTitle(title);
+        dialog.setResultConverter(resultHandler);
+    }
+    private DialogPane loadDialogPane(Class<? extends FxmlView<?>> viewClass, Scope scope) {
         final ViewTuple<?, ?> viewTuple = FluentViewLoader.fxmlView(viewClass)
                 .providedScopes(scope)
                 .load();
-        final DialogPane dialogPane = (DialogPane) viewTuple.getView();
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle(title);
-        dialog.setDialogPane(dialogPane);
-        dialog.setResultConverter(resultHandler);
-        dialog.showAndWait();
+        return (DialogPane) viewTuple.getView();
     }
     @FXML
     public void createProcess(ActionEvent actionEvent) {
-        showDialog(CreateProcessDialogView.class,"Create Process Window",simulationViewModel.getProcessScope(),this::handleCreateProcessResult);
+        createProcessDialog.showAndWait();
     }
     @FXML
     public void selectScheduler(ActionEvent actionEvent) {
-        showDialog(SelectSchedulerDialogView.class,"Select Scheduler Window",simulationViewModel.getSchedulerScope(),this::handleSelectSchedulerResult);
+        selectSchedulerDialog.showAndWait();
     }
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
@@ -119,6 +117,12 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         bindViewModel();
+        createProcessDialog = new Dialog<>();
+        selectSchedulerDialog = new Dialog<>();
+        var processDialogPane = loadDialogPane(CreateProcessDialogView.class,simulationViewModel.getProcessScope());
+        var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class,simulationViewModel.getSchedulerScope());
+        configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
+        configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
     }
