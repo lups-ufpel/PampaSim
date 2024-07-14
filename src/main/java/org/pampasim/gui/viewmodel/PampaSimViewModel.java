@@ -5,11 +5,11 @@ import de.saxsys.mvvmfx.ViewModel;
 import org.pampasim.Os.*;
 import org.pampasim.Os.Process;
 import org.pampasim.VirtualMachine.VmSimple;
-import org.pampasim.gui.ProcessScope;
-import org.pampasim.gui.SchedulerDialogScope;
+import org.pampasim.gui.scopes.ProcessScope;
+import org.pampasim.gui.scopes.SchedulerDialogScope;
 import org.pampasim.gui.listeners.ProcessEventInfo;
 
-public class SimulationViewModel implements ViewModel {
+public class PampaSimViewModel implements ViewModel {
     public final static String NEW_PROCESS = "NEW_PROCESS";
     public final static String START_PROCESS = "START_PROCESS";
     public final static String FINISH_PROCESS = "FINISH_PROCESS";
@@ -23,7 +23,7 @@ public class SimulationViewModel implements ViewModel {
     private ProcessScope processScope;
     @InjectScope
     private SchedulerDialogScope schedulerDialogScope;
-    public SimulationViewModel() {
+    public PampaSimViewModel() {
         simOs = new Os();
         vmSimple = new VmSimple(1);
     }
@@ -34,15 +34,25 @@ public class SimulationViewModel implements ViewModel {
         return processScope;
     }
     public void createNewProcess() {
-       var burst = processScope.getBurstProperty().getValue();
+       var start = processScope.getStartTimeProperty().getValue();
+       var duration = processScope.getDurationProperty().getValue();
        var priority = processScope.getDurationProperty().getValue();
-       var arrival = processScope.getDurationProperty().getValue();
-       Process newProcess = simOs.createProcess(Process.Type.SIMPLE,burst,priority,arrival);
-       addProcessListeners(newProcess);
+
+       Process newProcess = simOs.createProcess(Process.Type.SIMPLE, duration, priority, start);
+       this.addProcessListeners(newProcess);
        newProcess.notifyListenersOnCreate();
     }
+
+    public boolean hasProcesses() {
+        return true;
+    }
+
+    public boolean isSchedulerSet() {
+        return this.scheduler != null;
+    }
+
     public void setSimulationScheduler() {
-        String schedulerName = schedulerDialogScope.schedulerNamePropertyProperty().getValue();
+        String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();
         switch (schedulerName) {
             case "FCFS":
                 scheduler = new SchedulerFCFS(1);
@@ -51,7 +61,7 @@ public class SimulationViewModel implements ViewModel {
                 scheduler = new SchedulerSJF(1);
                 break;
             case "Round Robin":
-                scheduler = new SchedulerRoundRobin(1,schedulerDialogScope.quantumPropertyProperty().getValue());
+                scheduler = new SchedulerRoundRobin(1, schedulerDialogScope.getQuantumProperty().getValue());
                 break;
             case "Priority":
                 scheduler = new SchedulerPriority(1);
@@ -60,8 +70,12 @@ public class SimulationViewModel implements ViewModel {
         vmSimple.setScheduler(scheduler);
     }
     public Boolean startSimulation() {
+        if (!this.isSchedulerSet()) {
+            return false;
+        }
+
         simOs.dispatchAll(scheduler);
-       return true;
+        return true;
     }
     public void addProcessListeners(Process process) {
         process.addOnCreateListener(this::notifyGuiOnCreatedProcess);

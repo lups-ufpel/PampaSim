@@ -13,17 +13,17 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.pampasim.gui.viewmodel.SimulationViewModel;
+import org.pampasim.gui.viewmodel.PampaSimViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class PampaSimView implements FxmlView<SimulationViewModel>, Initializable {
+public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
     @InjectViewModel
-    private SimulationViewModel simulationViewModel;
+    private PampaSimViewModel pampaSimViewModel;
     @FXML
     public Circle CpuContainer1;
     public Circle CpuContainertemp;
@@ -45,7 +45,7 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
-        boolean canStart = simulationViewModel.startSimulation();
+        boolean canStart = pampaSimViewModel.startSimulation();
         if (!canStart) {
             return;
         }
@@ -72,42 +72,48 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
     public void createProcess(ActionEvent actionEvent) {
         createProcessDialog.showAndWait();
     }
+
     @FXML
     public void selectScheduler(ActionEvent actionEvent) {
         selectSchedulerDialog.showAndWait();
     }
+
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-            simulationViewModel.setSimulationScheduler();
+            pampaSimViewModel.setSimulationScheduler();
         }
+
         return null;
     }
     private ButtonType handleCreateProcessResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-            simulationViewModel.createNewProcess();
-            runBtn.setDisable(false);
+            pampaSimViewModel.createNewProcess();
+
+            if (pampaSimViewModel.isSchedulerSet())
+                runBtn.setDisable(false);
         }
+
         return null;
     }
     private void bindViewModel() {
-        simulationViewModel.subscribe(SimulationViewModel.NEW_PROCESS,(key, payload) -> {
-            String colorString = simulationViewModel.getProcessScope().getColorProperty().getValue();
+        pampaSimViewModel.subscribe(PampaSimViewModel.NEW_PROCESS,(key, payload) -> {
+            String colorString = pampaSimViewModel.getProcessScope().getColorProperty().getValue();
             System.out.println("color string"+ colorString);
             Color selectedColor = Color.web(colorString);
             var circle = new Circle(30, selectedColor);
             NewList.getChildren().add(circle);
         });
-        simulationViewModel.subscribe(SimulationViewModel.START_PROCESS,(key, payload) -> {
+        pampaSimViewModel.subscribe(PampaSimViewModel.START_PROCESS,(key, payload) -> {
             var circle = NewList.getChildren().remove(0);
             ReadyList.getChildren().add(circle);
         });
-        simulationViewModel.subscribe(SimulationViewModel.RUN_PROCESS,(key, payload) -> {
+        pampaSimViewModel.subscribe(PampaSimViewModel.RUN_PROCESS,(key, payload) -> {
             CpuContainertemp= (Circle) ReadyList.getChildren().remove(0);
             var paint = CpuContainer1.getFill();
             CpuContainer1.setFill(CpuContainertemp.getFill());
             CpuContainertemp.setFill(paint);
         });
-        simulationViewModel.subscribe(SimulationViewModel.FINISH_PROCESS, (key, payload) -> {
+        pampaSimViewModel.subscribe(PampaSimViewModel.FINISH_PROCESS, (key, payload) -> {
             Paint p = CpuContainer1.getFill();
             CpuContainer1.setFill(CpuContainertemp.getFill());
             CpuContainertemp.setFill(p);
@@ -119,11 +125,11 @@ public class PampaSimView implements FxmlView<SimulationViewModel>, Initializabl
         bindViewModel();
         createProcessDialog = new Dialog<>();
         selectSchedulerDialog = new Dialog<>();
-        var processDialogPane = loadDialogPane(CreateProcessDialogView.class,simulationViewModel.getProcessScope());
-        var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class,simulationViewModel.getSchedulerScope());
+        var processDialogPane = loadDialogPane(CreateProcessDialogView.class, pampaSimViewModel.getProcessScope());
+        var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class, pampaSimViewModel.getSchedulerScope());
         configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> simulationViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
     }
 }
