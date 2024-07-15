@@ -4,6 +4,7 @@ import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimResources.Process;
+import org.pampasim.SimResources.ProcessorCore;
 
 import java.util.ArrayList;
 import java.util.Comparator;
