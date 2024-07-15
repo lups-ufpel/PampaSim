@@ -61,7 +61,7 @@ public class PampaSimEntity implements SimEntity {
             buffer = null;
         }
     }
-    protected void setEventBuffer(PampaSimEvent evt) {
+    public void setEventBuffer(PampaSimEvent evt) {
         this.buffer = evt;
     }
 }
