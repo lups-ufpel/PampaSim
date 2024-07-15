@@ -98,17 +98,16 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     private void bindViewModel() {
         pampaSimViewModel.subscribe(PampaSimViewModel.NEW_PROCESS,(key, payload) -> {
             String colorString = pampaSimViewModel.getProcessScope().getColorProperty().getValue();
-            System.out.println("color string"+ colorString);
             Color selectedColor = Color.web(colorString);
             var circle = new Circle(30, selectedColor);
             NewList.getChildren().add(circle);
         });
-        pampaSimViewModel.subscribe(PampaSimViewModel.START_PROCESS,(key, payload) -> {
-            var circle = NewList.getChildren().remove(0);
+        pampaSimViewModel.subscribe(PampaSimViewModel.READY_PROCESS,(key, payload) -> {
+            var circle = NewList.getChildren().removeFirst();
             ReadyList.getChildren().add(circle);
         });
-        pampaSimViewModel.subscribe(PampaSimViewModel.RUN_PROCESS,(key, payload) -> {
-            CpuContainertemp= (Circle) ReadyList.getChildren().remove(0);
+        pampaSimViewModel.subscribe(PampaSimViewModel.START_RUNNING_PROCESS,(key, payload) -> {
+            CpuContainertemp= (Circle) ReadyList.getChildren().removeFirst();
             var paint = CpuContainer1.getFill();
             CpuContainer1.setFill(CpuContainertemp.getFill());
             CpuContainertemp.setFill(paint);
@@ -119,6 +118,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
             CpuContainertemp.setFill(p);
             FinishedList.getChildren().add(CpuContainertemp);
         });
+        pampaSimViewModel.subscribe(PampaSimViewModel.STOP_SIMULATION, (key, payload) -> this.animation.stop());
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ProcessManager extends PampaSimEntity{
+public class ProcessManager extends PampaSimEntity {
 
     private List<Process> processSubmittedList;
 

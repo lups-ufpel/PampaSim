@@ -8,10 +8,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Process {
-    private final Set<EventListener<EventInfo>> onStartListeners;
-    private final Set<EventListener<EventInfo>> onFinishListeners;
-    private final Set<EventListener<EventInfo>> onUpdateListeners;
     private final Set<EventListener<EventInfo>> onCreateListeners;
+    private final Set<EventListener<EventInfo>> onDispatchListeners;
+    private final Set<EventListener<EventInfo>> onFinishListeners;
+    private final Set<EventListener<EventInfo>> onStartRunningListeners;
+    private final Set<EventListener<EventInfo>> onUpdateListeners;
     private final Set<EventListener<EventInfo>> onSuspendListeners;
     private final Set<EventListener<EventInfo>> onResumeListeners;
 
@@ -29,12 +30,13 @@ public class Process {
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
         this.progressBar = "";
-        onStartListeners = new HashSet<>();
+        onDispatchListeners = new HashSet<>();
         onFinishListeners = new HashSet<>();
         onUpdateListeners = new HashSet<>();
         onCreateListeners = new HashSet<>();
         onSuspendListeners = new HashSet<>();
         onResumeListeners = new HashSet<>();
+        onStartRunningListeners = new HashSet<>();
     }
     public int getPriority() {
         return priority;
@@ -61,40 +63,35 @@ public class Process {
     public int getRemainingExecutionTime() {
         return burstTime - currExecTime;
     }
-    public void submit() {
-        if(getState() != State.NEW){
-            throw new IllegalStateException("resources.Process must be in NEW state to be submitted");
-        }
-        else{
-            setState(State.READY);
-        }
-    }
     public void create() {
         setState(State.NEW);
         notifyListenersOnCreate();
     }
-    public void dispatch() {
-        if(getState() != State.READY){
-            throw new IllegalStateException("resources.Process must be in READY state to be dispatched");
+    public void ready() {
+        if(getState() != State.NEW) {
+            throw new IllegalStateException("resources.Process must be in RUNNING state to be interrupted");
         }
-        else{
-            setState(State.RUNNING);
-        }
+        setState(State.READY);
+        notifyListenerOnDispatch();
+    }
+    public void startRunning() {
+        setState(State.RUNNING);
+        notifyListenersOnStartRunning();
     }
     public void interrupt() {
         if(getState() != State.RUNNING){
             throw new IllegalStateException("resources.Process must be in RUNNING state to be interrupted");
         }
-        else{
-            setState(State.READY);
-        }
+        setState(State.READY);
+        notifyListenersOnSuspend();
     }
     public void finish() {
-        if(getState() != State.RUNNING){
+        if(getState() != State.RUNNING) {
             throw new IllegalStateException("resources.Process must be in RUNNING state to be finished");
         }
-        else{
+        else {
             setState(State.TERMINATED);
+            notifyListenersOnFinish();
         }
     }
     public void forwardProcessExecution() {
@@ -104,12 +101,16 @@ public class Process {
         this.onCreateListeners.add(listener);
         return this;
     }
-    public Process addOnStartListener(EventListener<EventInfo> listener) {
-        this.onStartListeners.add(listener);
+    public Process addOnDispatchtListener(EventListener<EventInfo> listener) {
+        this.onDispatchListeners.add(listener);
         return this;
     }
     public Process addOnFinishListener(EventListener<EventInfo> listener) {
         this.onFinishListeners.add(listener);
+        return this;
+    }
+    public Process addOnStartRunningListener(EventListener<EventInfo> listener) {
+        this.onStartRunningListeners.add(listener);
         return this;
     }
     public Process addOnUpdateListener(EventListener<EventInfo> listener) {
@@ -134,18 +135,24 @@ public class Process {
     public void notifyListenersOnCreate() {
         onCreateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
     }
-    public void notifyListenersOnStart() {
-        onStartListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener,this)));
+    public void notifyListenerOnDispatch() {
+        onDispatchListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
     }
     public void notifyListenersOnFinish() {
         onFinishListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
         onFinishListeners.clear();
+    }
+    public void notifyListenersOnStartRunning() {
+        onStartRunningListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
     }
     public void notifyListenersOnSuspend() {
         onSuspendListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
     }
     public void notifyListenersOnResume() {
         onResumeListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+
+    public void addOnStartListener(Object notifyGuiOnStartProcess) {
     }
 
     public enum State {

@@ -54,6 +54,20 @@ public class PampaSim implements Simulation {
             return true;
         }
     }
+    public boolean runClockAndProcessEventsSync() {
+        executeRunnableEntities();
+        if(future.isEmpty()) {
+            return false;
+        } else {
+            while(!future.isEmpty() && future.first().delay() == clock) {
+                final PampaSimEvent first = future.first();
+                processEvent(first);
+                future.remove(first);
+            }
+            clock +=1;
+            return true;
+        }
+    }
     private void executeRunnableEntities() {
         for (PampaSimEntity pampaSimEntity : entityList) {
             if(pampaSimEntity.getState() == SimEntity.State.RUNNABLE) {

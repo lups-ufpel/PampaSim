@@ -7,5 +7,6 @@ public interface Simulation {
     double getClock();
     void send(final PampaSimEvent event);
     void start();
+    boolean runClockAndProcessEventsSync();
     <T extends PampaSimEntity> T getEntity(Class<T> entityClass);
 }

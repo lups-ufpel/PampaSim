@@ -20,7 +20,7 @@ public class Scheduler extends PampaSimEntity {
         super(simulation);
         readyList = new PriorityQueue<>(Comparator.comparingInt(Process::getPriority));
         terminatedList = new ArrayList<>();
-        quantum = 3;
+        quantum = 999;
     }
 
     @Override
@@ -35,6 +35,7 @@ public class Scheduler extends PampaSimEntity {
     }
 
     private void handleRunProcessAck(Process process) {
+        process.notifyListenersOnUpdate();
         if(process.isFinished()) {
             send(this, getSimulation().getClock()  + 0, PampaSimEventID.TERMINATE_PROCESS, process);
         }
@@ -50,6 +51,7 @@ public class Scheduler extends PampaSimEntity {
 
     public void finish(Process process) {
         terminatedList.add(process);
+        process.finish();
         System.out.println("[Scheduler] processo " + process.name + " finalizado.");
         Processor processor = getSimulation().getEntity(Processor.class);
         processor.getCore().setStatus(ProcessorCore.Status.FREE);
@@ -59,6 +61,7 @@ public class Scheduler extends PampaSimEntity {
     }
 
     public void ready(List<Process> process) {
+        process.forEach(Process::ready);
         readyList.addAll(process);
         Processor processor = getSimulation().getEntity(Processor.class);
         if(processor.isFree()) {
@@ -70,7 +73,7 @@ public class Scheduler extends PampaSimEntity {
         if (!readyList.isEmpty()) {
             var readyWaitingProcess = readyList.poll();
             var processor = getSimulation().getEntity(Processor.class);
-            readyWaitingProcess.setState(Process.State.RUNNING);
+            readyWaitingProcess.startRunning();
             send(processor, getSimulation().getClock() + 0, PampaSimEventID.RUN_PROCESS, readyWaitingProcess);
             processor.getCore().setStatus(ProcessorCore.Status.BUSY);
         }
