@@ -14,10 +14,11 @@ module org.pampasim {
 
     exports org.pampasim;
     exports org.pampasim.gui;
-    exports org.pampasim.Os;
+    exports org.pampasim.SimCore;
+    exports org.pampasim.SimResources;
+    exports org.pampasim.SimEntity;
     exports org.pampasim.gui.view;
     exports org.pampasim.gui.viewmodel;
-    exports org.pampasim.gui.listeners;
     exports org.pampasim.gui.scopes;
     opens org.pampasim.gui.scopes to de.saxsys.mvvmfx, javafx.fxml;
 }
