@@ -15,8 +15,10 @@ public class ProcessManager extends PampaSimEntity{
 
     public ProcessManager(Simulation simulation) {
         super(simulation);
+        processSubmittedList = new ArrayList<>();
     }
     public void submitProcess(Process process) {
+        process.create();
         processSubmittedList.add(process);
         System.out.println("[ProcessManager] Submetendo processo: " + process.name);
     }

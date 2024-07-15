@@ -2,6 +2,7 @@ package org.pampasim.SimResources;
 
 import org.pampasim.SimCore.EventInfo;
 import org.pampasim.SimCore.EventListener;
+import org.pampasim.SimCore.ProcessEventInfo;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +24,6 @@ public class Process {
     protected String progressBar;
     public String name;
     public Process(int priority, int totalBurst, int arrivalTime) {
-        this.state = State.NEW;
         this.priority = priority;
         this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;
@@ -39,7 +39,7 @@ public class Process {
     public int getPriority() {
         return priority;
     }
-    public void setPriority(int priority){
+    public void setPriority(int priority) {
         this.priority = priority;
     }
     public int getArrivalTime(){
@@ -68,6 +68,10 @@ public class Process {
         else{
             setState(State.READY);
         }
+    }
+    public void create() {
+        setState(State.NEW);
+        notifyListenersOnCreate();
     }
     public void dispatch() {
         if(getState() != State.READY){
@@ -123,6 +127,25 @@ public class Process {
 
     public boolean isFinished() {
         return currExecTime == burstTime;
+    }
+    public void notifyListenersOnUpdate() {
+        onUpdateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public void notifyListenersOnCreate() {
+        onCreateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public void notifyListenersOnStart() {
+        onStartListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener,this)));
+    }
+    public void notifyListenersOnFinish() {
+        onFinishListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+        onFinishListeners.clear();
+    }
+    public void notifyListenersOnSuspend() {
+        onSuspendListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
+    }
+    public void notifyListenersOnResume() {
+        onResumeListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
     }
 
     public enum State {
