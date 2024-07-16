@@ -40,7 +40,7 @@ public class Scheduler extends PampaSimEntity {
             send(this, getSimulation().getClock()  + 0, PampaSimEventID.TERMINATE_PROCESS, process);
         }
         else if(process.getCurrentExecutionTime() > quantum) {
-            System.out.println("[Scheduler] Preempção do processo " + process.name);
+            System.out.println("[Scheduler] Preempção do processo " + process.getPid());
             process.interrupt();
             readyList.add(process);
             scheduleNextProcess();
@@ -52,7 +52,7 @@ public class Scheduler extends PampaSimEntity {
     public void finish(Process process) {
         terminatedList.add(process);
         process.finish();
-        System.out.println("[Scheduler] processo " + process.name + " finalizado.");
+        System.out.println("[Scheduler] processo " + process.getPid() + " finalizado.");
         Processor processor = getSimulation().getEntity(Processor.class);
         processor.getCore().setStatus(ProcessorCore.Status.FREE);
         if(!readyList.isEmpty()) {

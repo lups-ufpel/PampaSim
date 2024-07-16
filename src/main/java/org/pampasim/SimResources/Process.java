@@ -3,6 +3,7 @@ package org.pampasim.SimResources;
 import org.pampasim.SimCore.EventInfo;
 import org.pampasim.SimCore.EventListener;
 import org.pampasim.SimCore.ProcessEventInfo;
+import org.pampasim.Utils.PidAllocator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class Process {
     protected int currExecTime;
     private int execTimeSlice;
     protected String progressBar;
-    public String name;
+    private PidAllocator.Pid pid;
     public Process(int priority, int totalBurst, int arrivalTime) {
         this.priority = priority;
         this.burstTime = totalBurst;
@@ -37,6 +38,12 @@ public class Process {
         onSuspendListeners = new HashSet<>();
         onResumeListeners = new HashSet<>();
         onStartRunningListeners = new HashSet<>();
+    }
+    public String getPid() {
+        return pid.toString();
+    }
+    public void setPid(PidAllocator.Pid pid) {
+        this.pid = pid;
     }
     public int getPriority() {
         return priority;

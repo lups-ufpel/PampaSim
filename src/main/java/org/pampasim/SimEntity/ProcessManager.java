@@ -4,6 +4,7 @@ import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimResources.Process;
+import org.pampasim.Utils.PidAllocator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,15 +13,18 @@ import java.util.List;
 public class ProcessManager extends PampaSimEntity {
 
     private List<Process> processSubmittedList;
+    private final PidAllocator pidAllocator;
 
     public ProcessManager(Simulation simulation) {
         super(simulation);
         processSubmittedList = new ArrayList<>();
+        pidAllocator = new PidAllocator();
     }
     public void submitProcess(Process process) {
+        process.setPid(pidAllocator.assignPid());
         process.create();
         processSubmittedList.add(process);
-        System.out.println("[ProcessManager] Submetendo processo: " + process.name);
+        System.out.println("[ProcessManager] Submetendo processo: " + process.getPid());
     }
     public void createBatchProcesses() {
         HashMap<Integer, List<Process>> batchProcessMap = new HashMap<>();

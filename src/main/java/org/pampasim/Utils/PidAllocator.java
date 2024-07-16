@@ -25,6 +25,11 @@ public class PidAllocator {
         public void setFree() {
             this.inUse = false;
         }
+
+        @Override
+        public String toString() {
+            return String.valueOf(id);
+        }
     }
     private final int MAX_PID = Integer.MAX_VALUE;
     int lastPid = 0;

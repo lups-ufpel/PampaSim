@@ -27,7 +27,7 @@ public class Processor extends PampaSimEntity {
     private void handleExecutionRequest(Process process) {
         core.setStatus(ProcessorCore.Status.BUSY);
         System.out.println("[Processador] Execução de processo de identificador: " +
-                process.name);
+                process.getPid());
         core.execute(process);
         send(getSimulation().getEntity(Scheduler.class), getSimulation().getClock() + 1, PampaSimEventID.RUN_PROCESS_ACK, process); // Aumentar o tempo em 1 unidade
     }
