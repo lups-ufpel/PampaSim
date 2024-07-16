@@ -3,12 +3,17 @@ package org.pampasim.gui.viewmodel;
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import org.pampasim.SimCore.EventInfo;
+import org.pampasim.SimCore.ProcessEventInfo;
 import org.pampasim.SimCore.SimulatedScenario;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
+import org.pampasim.gui.ViewModelEvents.ProcessCreateEvent;
+import org.pampasim.gui.ViewModelEvents.ProcessFinishEvent;
+import org.pampasim.gui.ViewModelEvents.ProcessReadyEvent;
+import org.pampasim.gui.ViewModelEvents.ProcessStartRunningEvent;
 import org.pampasim.gui.scopes.ProcessScope;
 import org.pampasim.gui.scopes.SchedulerDialogScope;
 
@@ -84,20 +89,35 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void notifyGuiOnStartRunningProcess(EventInfo eventInfo) {
-        this.publish(START_RUNNING_PROCESS);
+        var process = ((ProcessEventInfo) eventInfo).getProcess();
+        String pid = process.getPid();
+        int priority = process.getPriority();
+        ProcessStartRunningEvent payload = new ProcessStartRunningEvent(pid, priority);
+        this.publish(START_RUNNING_PROCESS, payload);
     }
 
     private void notifyGuiOnReadyProcess(EventInfo eventInfo) {
-        this.publish(READY_PROCESS);
+        var process = ((ProcessEventInfo) eventInfo).getProcess();
+        String pid = process.getPid();
+        int priority = process.getPriority();
+        ProcessReadyEvent payload = new ProcessReadyEvent(pid, priority);
+        this.publish(READY_PROCESS, payload);
     }
     private void notifyGuiOnCreatedProcess(EventInfo eventInfo) {
-        this.publish(NEW_PROCESS);
+        var process = ((ProcessEventInfo) eventInfo).getProcess();
+        String pid = process.getPid();
+        int priority = process.getPriority();
+        ProcessCreateEvent payload = new ProcessCreateEvent(pid, priority);
+        this.publish(NEW_PROCESS, payload);
     }
     private void notifyGuiOnFinishedProcess(EventInfo eventInfo) {
-       this.publish(FINISH_PROCESS);
+        var process = ((ProcessEventInfo) eventInfo).getProcess();
+        String pid = process.getPid();
+        int priority = process.getPriority();
+        ProcessFinishEvent payload = new ProcessFinishEvent(pid, priority);
+        this.publish(FINISH_PROCESS, payload);
     }
     public void runSimulation() {
-//        boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEventsSync();
         boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEvents();
 
         if(!hasMoreEvents) {
