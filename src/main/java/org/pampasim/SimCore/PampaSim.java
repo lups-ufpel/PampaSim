@@ -42,7 +42,7 @@ public class PampaSim implements Simulation {
         }
         printProcessedEvents();
     }
-    private boolean runClockAndProcessEvents() {
+    public boolean runClockAndProcessEvents() {
         executeRunnableEntities();
         if(future.isEmpty()) {
             return false;

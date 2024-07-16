@@ -97,7 +97,9 @@ public class PampaSimViewModel implements ViewModel {
        this.publish(FINISH_PROCESS);
     }
     public void runSimulation() {
-        boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEventsSync();
+//        boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEventsSync();
+        boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEvents();
+
         if(!hasMoreEvents) {
             // Pause the animation
             publish(STOP_SIMULATION);
