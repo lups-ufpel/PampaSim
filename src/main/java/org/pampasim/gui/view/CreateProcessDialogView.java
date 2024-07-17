@@ -21,11 +21,11 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     CreateProcessDialogViewModel viewModel;
 
     @FXML
-    Spinner<Integer> burstSpinner;
-    @FXML
-    Spinner<Integer> prioritySpinner;
+    Spinner<Integer> startSpinner;
     @FXML
     Spinner<Integer> durationSpinner;
+    @FXML
+    Spinner<Integer> prioritySpinner;
     @FXML
     ColorPicker colorPicker;
 
@@ -35,11 +35,9 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     }
 
     public void bindViewValues() {
-        viewModel.getBurstProperty().bind(burstSpinner.valueProperty());
-        viewModel.getPriorityProperty().bind(prioritySpinner.valueProperty());
+        viewModel.getStartProperty().bind(startSpinner.valueProperty());
         viewModel.getDurationProperty().bind(durationSpinner.valueProperty());
-        //todo: the line above should be fixed in the future, it is needed because if user don't interact with
-        // colorpicker it don't select the default color.
+        viewModel.getPriorityProperty().bind(prioritySpinner.valueProperty());
         viewModel.getColorProperty().setValue(colorPicker.getValue().toString());
         colorPicker.setOnAction(this::handleColorPickerAction);
     }

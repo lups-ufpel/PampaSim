@@ -1,0 +1,16 @@
+package org.pampasim.gui.view;
+
+import de.saxsys.mvvmfx.FxmlView;
+import javafx.fxml.Initializable;
+import org.pampasim.gui.viewmodel.UpperToolBarComponentViewModel;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class UpperToolBarComponentView implements FxmlView<UpperToolBarComponentViewModel>, Initializable {
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    }
+}

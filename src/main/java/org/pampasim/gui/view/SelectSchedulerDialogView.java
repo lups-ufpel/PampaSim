@@ -26,6 +26,7 @@ public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialog
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         schedulerChoiceBox.getItems().add("FCFS");
+        schedulerChoiceBox.setValue("FCFS");
         schedulerChoiceBox.getItems().add("SJF");
         schedulerChoiceBox.getItems().add("Round Robin");
         schedulerChoiceBox.getItems().add("Priority");
