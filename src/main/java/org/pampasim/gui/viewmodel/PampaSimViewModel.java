@@ -2,6 +2,8 @@ package org.pampasim.gui.viewmodel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import org.pampasim.SimCore.EventInfo;
 import org.pampasim.SimCore.ProcessEventInfo;
 import org.pampasim.SimCore.SimulatedScenario;
@@ -25,7 +27,7 @@ public class PampaSimViewModel implements ViewModel {
     public final static String FINISH_PROCESS = "FINISH_PROCESS";
     public final static String STOP_SIMULATION = "PAUSE_SIMULATION";
     public SimulatedScenario simulatedScenario;
-
+    private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
     @InjectScope
     private ProcessScope processScope;
     @InjectScope
@@ -67,12 +69,15 @@ public class PampaSimViewModel implements ViewModel {
                 break;
         }
     }
-    public Boolean startSimulation() {
-        if (!this.isSchedulerSet()) {
-            return false;
+    public void startSimulation() {
+        if (!isSchedulerSet()) {
+            return;
         }
+        setSimulationRunning(true);
         simulatedScenario.getProcessManager().createBatchProcesses();
-        return true;
+    }
+    public void stopSimulation() {
+        setSimulationRunning(false);
     }
 
     public void addProcessListeners(Process process) {
@@ -119,10 +124,17 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void runSimulation() {
         boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEvents();
-
         if(!hasMoreEvents) {
-            // Pause the animation
-            publish(STOP_SIMULATION);
+            stopSimulation();
         }
+    }
+    public BooleanProperty getSimulationRunningProperty() {
+        return simulationRunning;
+    }
+    public boolean isSimulationRunning() {
+        return simulationRunning.get();
+    }
+    private void setSimulationRunning(boolean running) {
+        this.simulationRunning.set(running);
     }
 }

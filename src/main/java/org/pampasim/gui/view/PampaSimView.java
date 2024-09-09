@@ -51,17 +51,15 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
-        boolean canStart = pampaSimViewModel.startSimulation();
-        if (!canStart) {
-            return;
+        pampaSimViewModel.startSimulation();
+        if(pampaSimViewModel.isSimulationRunning()) {
+            animation.play();
         }
-        animation.play();
-        stopBtn.setDisable(false);
     }
     @FXML
     public void onFinishSimulation(ActionEvent actionEvent) {
         animation.pause();
-        stopBtn.setDisable(true);
+        pampaSimViewModel.stopSimulation();
     }
     private void configureDialog(Dialog<ButtonType> dialog,String title, DialogPane dialogPane, Callback<ButtonType,ButtonType> resultHandler) {
         dialog.setDialogPane(dialogPane);
@@ -78,7 +76,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void createProcess(ActionEvent actionEvent) {
         createProcessDialog.showAndWait();
     }
-
     @FXML
     public void selectScheduler(ActionEvent actionEvent) {
         selectSchedulerDialog.showAndWait();
@@ -188,5 +185,15 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
+        bindTimeLineProperty();
+    }
+    private void bindTimeLineProperty() {
+        pampaSimViewModel.getSimulationRunningProperty().addListener((obs, wasRunning, isRunning) -> {
+            runBtn.setDisable(isRunning);
+            stopBtn.setDisable(!isRunning);
+            if (!isRunning) {
+                animation.pause();
+            }
+        });
     }
 }
