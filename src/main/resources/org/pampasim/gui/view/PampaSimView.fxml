@@ -34,7 +34,7 @@
                         <FontIcon iconLiteral="fth-plus-circle" text="" />
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" mnemonicParsing="false" text="Abrir">
+                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Abrir">
                     <tooltip>
                         <Tooltip text="Abrir editor de código" />
                     </tooltip>
@@ -42,15 +42,15 @@
                         <FontIcon iconLiteral="fth-file-plus" />
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" mnemonicParsing="false" text="Compile">
+                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Compile">
                     <tooltip>
                         <Tooltip text="Compilar código" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconLiteral="fth-code" />
+                        <FontIcon disable="true" iconLiteral="fth-code" />
                     </graphic>
                 </Button>
-            <Button fx:id="selectSchedBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#selectScheduler" text="scheduler">
+            <Button fx:id="selectSchedBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#selectScheduler" prefHeight="26.0" prefWidth="17.0" text="scheduler">
                <tooltip>
                   <Tooltip text="Compilar código" />
                </tooltip>
@@ -157,7 +157,7 @@
                                     <Insets left="10.0" />
                                  </padding>
                                         </HBox>
-                              <TableView fx:id="procTable">
+                              <TableView fx:id="procTable" disable="true">
                                 <columns>
                                     <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
                                     <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
@@ -180,7 +180,7 @@
                 <Tab text="Memória">
 
                 </Tab>
-                <Tab text="Editor de código">
+                <Tab disable="true" text="Editor de código">
 
                 </Tab>
             </tabs>
@@ -192,9 +192,9 @@
             <HBox alignment="CENTER_LEFT" spacing="5.0">
                <children>
                    <ImageView fitHeight="40.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
-                       <Image url="@../../../../imgs/pampasimlogo.png"/>
+                       <Image url="@../../../../imgs/pampasimlogo.png" />
                    </ImageView>
-                  <Label text="PampaSim">
+                  <Label prefHeight="34.0" prefWidth="139.0" text="PampaSim">
                      <font>
                         <Font name="System Bold Italic" size="28.0" />
                      </font>
@@ -207,7 +207,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </padding>
             </HBox>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Carregar cenário" textFill="#1976d2">
+            <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Carregar cenário" textFill="#1976d2">
                <tooltip>
                   <Tooltip text="Criar processo" />
                </tooltip>
@@ -219,7 +219,7 @@
                   </FontIcon>
                </graphic>
             </Button>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Salvar cenário" textFill="#ff6d00">
+            <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Salvar cenário" textFill="#ff6d00">
                <tooltip>
                   <Tooltip text="Criar processo" />
                </tooltip>
@@ -231,7 +231,7 @@
                   </FontIcon>
                </graphic>
             </Button>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações" textFill="#0000007f">
+            <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações" textFill="#0000007f">
                <tooltip>
                   <Tooltip text="Configurações" />
                </tooltip>
