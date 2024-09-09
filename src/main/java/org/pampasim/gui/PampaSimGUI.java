@@ -20,7 +20,6 @@ public class PampaSimGUI extends Application {
 
     @Override
     public void start(Stage stage) {
-        //Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
         Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
         this.initializeMainFrame();
         this.configureStage(stage);
