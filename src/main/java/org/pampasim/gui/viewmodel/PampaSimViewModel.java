@@ -47,7 +47,7 @@ public class PampaSimViewModel implements ViewModel {
     public void createNewProcess() {
        var start = processScope.getStartTimeProperty().getValue();
        var duration = processScope.getDurationProperty().getValue();
-       var priority = processScope.getDurationProperty().getValue();
+       var priority = processScope.getPriorityProperty().getValue();
        var newProcess = new Process(priority,duration,start);
        simulatedScenario.getProcessManager().submitProcess(newProcess);
        this.addProcessListeners(newProcess);
