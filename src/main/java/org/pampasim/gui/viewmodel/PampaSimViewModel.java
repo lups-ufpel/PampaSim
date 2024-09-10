@@ -4,6 +4,9 @@ import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.paint.Color;
 import org.pampasim.SimCore.EventInfo;
 import org.pampasim.SimCore.ProcessEventInfo;
 import org.pampasim.SimCore.SimulatedScenario;
@@ -12,7 +15,6 @@ import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
-import org.pampasim.gui.ViewModelEvents.ProcessCreateEvent;
 import org.pampasim.gui.ViewModelEvents.ProcessFinishEvent;
 import org.pampasim.gui.ViewModelEvents.ProcessReadyEvent;
 import org.pampasim.gui.ViewModelEvents.ProcessStartRunningEvent;
@@ -20,18 +22,15 @@ import org.pampasim.gui.scopes.ProcessScope;
 import org.pampasim.gui.scopes.SchedulerDialogScope;
 
 public class PampaSimViewModel implements ViewModel {
-    public final static String NEW_PROCESS = "NEW_PROCESS";
-    public final static String READY_PROCESS = "READY_PROCESS";
-    public final static String START_RUNNING_PROCESS = "START_RUNNING_PROCESS";
-    public final static String UPDATE_RUNNING_PROCESS = "UPDATE_RUNNING_PROCESS";
-    public final static String FINISH_PROCESS = "FINISH_PROCESS";
-    public final static String STOP_SIMULATION = "PAUSE_SIMULATION";
-    public SimulatedScenario simulatedScenario;
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
+    private final ObservableList<ProcessViewModel> processes = FXCollections.observableArrayList();
+
     @InjectScope
     private ProcessScope processScope;
     @InjectScope
     private SchedulerDialogScope schedulerDialogScope;
+
+    public SimulatedScenario simulatedScenario;
 
     public PampaSimViewModel() {
         simulatedScenario = new SimulatedScenario();
@@ -39,6 +38,9 @@ public class PampaSimViewModel implements ViewModel {
         ProcessorCore core = new ProcessorCore(100);
         Processor processor = new Processor(simulatedScenario.getSimulation(), core);
         simulatedScenario.setProcessManager(kernel);
+    }
+    public ObservableList<ProcessViewModel> getProcesses() {
+        return processes;
     }
     public SchedulerDialogScope getSchedulerScope() {
         return schedulerDialogScope;
@@ -90,37 +92,54 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void notifyGuiOnRunningProcess(EventInfo eventInfo) {
-        this.publish(UPDATE_RUNNING_PROCESS);
+        var process = ((ProcessEventInfo) eventInfo).getProcess();
+        String pid = process.getPid();
+        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
+        if(processViewModel != null) {
+            processViewModel.setState(process.getState());
+        }
     }
 
     private void notifyGuiOnStartRunningProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
         String pid = process.getPid();
-        int priority = process.getPriority();
-        ProcessStartRunningEvent payload = new ProcessStartRunningEvent(pid, priority);
-        this.publish(START_RUNNING_PROCESS, payload);
+        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
+        if(processViewModel != null) {
+            processViewModel.setState(process.getState());
+        }
     }
 
     private void notifyGuiOnReadyProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        int priority = process.getPriority();
-        ProcessReadyEvent payload = new ProcessReadyEvent(pid, priority);
-        this.publish(READY_PROCESS, payload);
+        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
+        if(processViewModel != null) {
+            processViewModel.setState(process.getState());
+        }
     }
     private void notifyGuiOnCreatedProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
         String pid = process.getPid();
         int priority = process.getPriority();
-        ProcessCreateEvent payload = new ProcessCreateEvent(pid, priority);
-        this.publish(NEW_PROCESS, payload);
+        Color selectedColor = Color.web(processScope.getColorProperty().getValue());
+        ProcessViewModel processViewModel = new ProcessViewModel(pid,priority,selectedColor);
+        processViewModel.setState(process.getState());
+        processes.add(processViewModel);
     }
     private void notifyGuiOnFinishedProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
         String pid = process.getPid();
-        int priority = process.getPriority();
-        ProcessFinishEvent payload = new ProcessFinishEvent(pid, priority);
-        this.publish(FINISH_PROCESS, payload);
+        ProcessViewModel processViewModel = findProcessViewModel(pid);
+        if(processViewModel != null) {
+            processViewModel.setState(process.getState());
+        }
+    }
+    private ProcessViewModel findProcessViewModel(String pid) {
+        for (ProcessViewModel processViewModel : processes) {
+            if (processViewModel.pid().equals(pid)) {
+                return processViewModel;
+            }
+        }
+        return null;
     }
     public void runSimulation() {
         boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEvents();

@@ -3,6 +3,7 @@ package org.pampasim.gui.view;
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,15 +12,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.pampasim.gui.ViewModelEvents.ProcessCreateEvent;
-import org.pampasim.gui.ViewModelEvents.ProcessFinishEvent;
-import org.pampasim.gui.ViewModelEvents.ProcessReadyEvent;
-import org.pampasim.gui.ViewModelEvents.ProcessStartRunningEvent;
+import org.pampasim.SimResources.Process;
 import org.pampasim.gui.viewmodel.PampaSimViewModel;
+import org.pampasim.gui.viewmodel.ProcessViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     private PampaSimViewModel pampaSimViewModel;
     @FXML
     public Circle CpuContainer1;
-    public Circle CpuContainerTemp;
     @FXML
     public HBox NewList;
     @FXML
@@ -98,85 +95,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
         return null;
     }
-    private Circle removeCircleById(ObservableList<Node> list, String id) {
-        for (Node node : list) {
-            if (node instanceof Circle && id.equals(node.getId())) {
-                list.remove(node);
-                return (Circle) node;
-            }
-        }
-        return null;
-    }
-    private void addCircleSortedByPriority(ObservableList<Node> list, Circle circle) {
-        int priority = (int) circle.getUserData();
-        int index = 0;
-        for (Node node : list) {
-            if (node instanceof Circle) {
-                int nodePriority = (int) ((Circle) node).getUserData();
-                if (priority < nodePriority) {
-                    break;
-                }
-            }
-            index++;
-        }
-        list.add(index, circle);
-    }
-    private void bindViewModel() {
-        pampaSimViewModel.subscribe(PampaSimViewModel.NEW_PROCESS, this::handleNewProcess);
-        pampaSimViewModel.subscribe(PampaSimViewModel.READY_PROCESS, this::handleReadyProcess);
-        pampaSimViewModel.subscribe(PampaSimViewModel.START_RUNNING_PROCESS, this::handleStartRunningProcess);
-        pampaSimViewModel.subscribe(PampaSimViewModel.FINISH_PROCESS, this::handleFinishedProcess);
-        pampaSimViewModel.subscribe(PampaSimViewModel.STOP_SIMULATION, (key, payload) -> this.animation.stop());
-    }
-    private void handleNewProcess(String key, Object... payload) {
-        if (payload.length > 0 && payload[0] instanceof ProcessCreateEvent processCreateEvent) {
-            String colorString = pampaSimViewModel.getProcessScope().getColorProperty().getValue();
-            Color selectedColor = Color.web(colorString);
-            Circle circle = new Circle(30, selectedColor);
-            String id = processCreateEvent.getPid();
-            int priority = processCreateEvent.getPriority();
-            circle.setId(id);
-            circle.setUserData(priority);
-            addCircleSortedByPriority(NewList.getChildren(), circle);
-        } else {
-            throw new IllegalArgumentException("Payload is not of type ProcessCreateEvent");
-        }
-    }
-    private void handleReadyProcess(String key, Object... payload) {
-        if(payload.length > 0 && payload[0] instanceof ProcessReadyEvent processReadyEvent) {
-            String id = processReadyEvent.getPid();
-            Circle circle = removeCircleById(NewList.getChildren(), id);
-            if(circle != null) {
-                addCircleSortedByPriority(ReadyList.getChildren(), circle);
-            }
-        } else {
-            throw new IllegalArgumentException("Payload is not of type ProcessReadyEvent");
-        }
-    }
-    private void handleStartRunningProcess(String key, Object... payload) {
-        if(payload.length > 0 && payload[0] instanceof ProcessStartRunningEvent processStartRunningEvent) {
-            String id = processStartRunningEvent.getPid();
-            CpuContainerTemp = removeCircleById(ReadyList.getChildren(), id);
-            Paint paint = CpuContainer1.getFill();
-            CpuContainer1.setFill(CpuContainerTemp.getFill());
-            CpuContainerTemp.setFill(paint);
-        } else {
-            throw new IllegalArgumentException("Payload is not of type ProcessStartRunningEvent");
-        }
-    }
-    private void handleFinishedProcess(String key, Object... payload) {
-        if(payload.length > 0 && payload[0] instanceof ProcessFinishEvent processFinishEvent) {
-            Paint p = CpuContainer1.getFill();
-            CpuContainer1.setFill(CpuContainerTemp.getFill());
-            CpuContainerTemp.setFill(p);
-            FinishedList.getChildren().add(CpuContainerTemp);
-        } else {
-            throw new IllegalArgumentException("Payload is not of type ProcessFinishEvent");
-        }
-    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        bindViewModel();
         createProcessDialog = new Dialog<>();
         selectSchedulerDialog = new Dialog<>();
         var processDialogPane = loadDialogPane(CreateProcessDialogView.class, pampaSimViewModel.getProcessScope());
@@ -186,6 +106,69 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
+
+        pampaSimViewModel.getProcesses().addListener((ListChangeListener<ProcessViewModel>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (ProcessViewModel process : change.getAddedSubList()) {
+                        addProcessToUI(process);
+                    }
+                }
+            }
+        });
+    }
+    private Circle createCircleForProcess(ProcessViewModel process) {
+        Circle circle = new Circle(30, process.getColor());
+        circle.setId(process.pid());
+        circle.setUserData(process.getPriority());
+        return circle;
+    }
+    private void addProcessToUI(ProcessViewModel process) {
+        Circle circle = createCircleForProcess(process);
+
+        // Adiciona o processo ao container correto com base no estado
+        switch (process.getState()) {
+            case NEW:
+                NewList.getChildren().add(circle);
+                break;
+            case READY:
+                ReadyList.getChildren().add(circle);
+                break;
+            case TERMINATED:
+                FinishedList.getChildren().add(circle);
+                break;
+        }
+
+        // Observa mudanças de estado do processo para mover automaticamente o círculo entre os containers
+        process.stateProperty().addListener((obs, oldState, newState) -> {
+            moveCircleToCorrectContainer(circle, newState);
+        });
+    }
+    private void moveCircleToCorrectContainer(Circle circle, Process.State newState) {
+        // Remove o círculo de todos os containers
+        NewList.getChildren().remove(circle);
+        ReadyList.getChildren().remove(circle);
+        FinishedList.getChildren().remove(circle);
+        CpuContainer1.setFill(Color.TRANSPARENT);
+        // Adiciona ao container correto com base no novo estado
+        switch (newState) {
+            case NEW:
+                NewList.getChildren().add(circle);
+                break;
+            case READY:
+                ReadyList.getChildren().add(circle);
+                break;
+            case TERMINATED:
+                FinishedList.getChildren().add(circle);
+                break;
+            case RUNNING:
+                setProcessToCpuContainer(circle);
+                break;
+        }
+    }
+    private void setProcessToCpuContainer(Circle circle) {
+        // Exibe o processo em execução na CPU
+        CpuContainer1.setFill(circle.getFill());
     }
     private void bindTimeLineProperty() {
         pampaSimViewModel.getSimulationRunningProperty().addListener((obs, wasRunning, isRunning) -> {
