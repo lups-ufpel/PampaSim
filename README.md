@@ -31,6 +31,19 @@ JUNIT
 
 # 4. Building and Installation PampaOs
 
+## Requirements
+
+_mininum version_:
+- **Java:** 21.0.2
+- **Maven:** 3.9.9
+
+## Using a Terminal
+
+Open a terminal at the project root directory and type the following commands:
+
+on Linux/macOs
+`mvn clean install`
+`mvn javafx:run`
 # 5. How to use it
 
 # 6. Contributors
