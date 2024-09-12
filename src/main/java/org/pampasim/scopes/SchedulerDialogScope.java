@@ -1,4 +1,4 @@
-package org.pampasim.gui.scopes;
+package org.pampasim.scopes;
 
 import de.saxsys.mvvmfx.Scope;
 import javafx.beans.property.*;

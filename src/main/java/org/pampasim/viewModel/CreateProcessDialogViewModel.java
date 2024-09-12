@@ -1,9 +1,9 @@
-package org.pampasim.gui.viewmodel;
+package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.Property;
-import org.pampasim.gui.scopes.ProcessScope;
+import org.pampasim.scopes.ProcessScope;
 
 public class CreateProcessDialogViewModel implements ViewModel {
 

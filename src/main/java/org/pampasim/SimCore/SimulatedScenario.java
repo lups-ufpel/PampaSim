@@ -8,7 +8,8 @@ import org.pampasim.SimEntity.Scheduler;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 public class SimulatedScenario {
 
     public List<Processor> processors;

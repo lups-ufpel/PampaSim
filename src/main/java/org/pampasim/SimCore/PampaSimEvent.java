@@ -1,7 +1,6 @@
 package org.pampasim.SimCore;
 
 import org.pampasim.SimEntity.PampaSimEntity;
-
 public class PampaSimEvent implements EventInfo, Comparable<PampaSimEvent> {
     private Simulation simulation;
     private final Type type;

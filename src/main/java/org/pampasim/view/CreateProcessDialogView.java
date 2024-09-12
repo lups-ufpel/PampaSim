@@ -1,4 +1,4 @@
-package org.pampasim.gui.view;
+package org.pampasim.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -10,7 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Spinner;
 import javafx.scene.paint.Color;
-import org.pampasim.gui.viewmodel.CreateProcessDialogViewModel;
+import org.pampasim.viewModel.CreateProcessDialogViewModel;
 
 import java.net.URL;
 import java.util.ResourceBundle;

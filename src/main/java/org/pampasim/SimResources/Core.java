@@ -17,6 +17,7 @@ package org.pampasim.SimResources;
  * @version 1.0
  * @since 2023-3-21
  */
+
 public interface Core {
     /**
      * Executes the process provided, advancing to its conclusion in one or more instructions.

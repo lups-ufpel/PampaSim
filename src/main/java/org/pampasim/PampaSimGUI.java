@@ -1,16 +1,15 @@
-package org.pampasim.gui;
+package org.pampasim;
 
-import atlantafx.base.theme.CupertinoLight;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.pampasim.gui.scopes.ProcessScope;
-import org.pampasim.gui.scopes.SchedulerDialogScope;
-import org.pampasim.gui.view.PampaSimView;
-import org.pampasim.gui.viewmodel.PampaSimViewModel;
+import org.pampasim.scopes.ProcessScope;
+import org.pampasim.scopes.SchedulerDialogScope;
+import org.pampasim.view.PampaSimView;
+import org.pampasim.viewModel.PampaSimViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,7 @@ public class PampaSimGUI extends Application {
 
     @Override
     public void start(Stage stage) {
-        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
         this.initializeMainFrame();
         this.configureStage(stage);
     }
@@ -39,4 +38,3 @@ public class PampaSimGUI extends Application {
         stage.show();
     }
 }
-

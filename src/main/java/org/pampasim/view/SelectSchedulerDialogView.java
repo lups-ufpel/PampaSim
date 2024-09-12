@@ -1,4 +1,4 @@
-package org.pampasim.gui.view;
+package org.pampasim.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -7,7 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Spinner;
-import org.pampasim.gui.viewmodel.SelectSchedulerDialogViewModel;
+import org.pampasim.viewModel.SelectSchedulerDialogViewModel;
 
 import java.net.URL;
 import java.util.ResourceBundle;

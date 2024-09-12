@@ -22,7 +22,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.gui.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
@@ -34,7 +34,7 @@
                         <FontIcon iconLiteral="fth-plus-circle" text="" />
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" mnemonicParsing="false" text="Abrir">
+                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Abrir">
                     <tooltip>
                         <Tooltip text="Abrir editor de código" />
                     </tooltip>
@@ -42,22 +42,22 @@
                         <FontIcon iconLiteral="fth-file-plus" />
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" mnemonicParsing="false" text="Compile">
+                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Compile">
                     <tooltip>
                         <Tooltip text="Compilar código" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconLiteral="fth-code" />
+                        <FontIcon disable="true" iconLiteral="fth-code" />
                     </graphic>
                 </Button>
-            <Button fx:id="selectSchedBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#selectScheduler" text="scheduler">
-               <tooltip>
-                  <Tooltip text="Compilar código" />
-               </tooltip>
-               <graphic>
-                  <FontIcon iconLiteral="fth-calendar" />
-               </graphic>
-            </Button>
+                <Button fx:id="selectSchedBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#selectScheduler" prefHeight="26.0" prefWidth="17.0" text="scheduler">
+                    <tooltip>
+                        <Tooltip text="Compilar código" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconLiteral="fth-calendar" />
+                    </graphic>
+                </Button>
                 <Separator />
                 <Button fx:id="runBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onStartSimulation" text="Run">
                     <tooltip>
@@ -84,11 +84,11 @@
                         <FontIcon iconLiteral="fth-stop-circle" />
                     </graphic>
                 </Button>
-            <Pane VBox.vgrow="ALWAYS" />
+                <Pane VBox.vgrow="ALWAYS" />
             </items>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
+            <BorderPane.margin>
+                <Insets />
+            </BorderPane.margin>
         </ToolBar>
     </left>
     <center>
@@ -107,7 +107,7 @@
                                                         <Font name="System Bold" size="24.0" />
                                                     </font>
                                                 </Label>
-                                    <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" />
+                                                <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" />
                                             </children>
                                         </VBox>
                                         <Circle fx:id="CpuContainer1" fill="#f8f8f2" radius="40.0" stroke="BLACK" strokeType="INSIDE">
@@ -121,12 +121,12 @@
                                             </HBox.margin>
                                         </ProgressBar>
                                     </children>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets left="10.0" />
-                           </padding>
+                                    <opaqueInsets>
+                                        <Insets />
+                                    </opaqueInsets>
+                                    <padding>
+                                        <Insets left="10.0" />
+                                    </padding>
                                 </HBox>
                                 <VBox alignment="TOP_CENTER" spacing="5.0">
                                     <children>
@@ -135,42 +135,42 @@
                                             <VBox.margin>
                                                 <Insets left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
-                                 <padding>
-                                    <Insets left="10.0" />
-                                 </padding>
+                                            <padding>
+                                                <Insets left="10.0" />
+                                            </padding>
                                         </HBox>
                                         <Label text="PROCESSOS PRONTOS" />
                                         <HBox fx:id="ReadyList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                             <VBox.margin>
                                                 <Insets left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
-                                 <padding>
-                                    <Insets left="10.0" />
-                                 </padding>
+                                            <padding>
+                                                <Insets left="10.0" />
+                                            </padding>
                                         </HBox>
                                         <Label text="PROCESSOS FINALIZADOS" />
                                         <HBox fx:id="FinishedList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                             </VBox.margin>
-                                 <padding>
-                                    <Insets left="10.0" />
-                                 </padding>
+                                            <padding>
+                                                <Insets left="10.0" />
+                                            </padding>
                                         </HBox>
-                              <TableView fx:id="procTable">
-                                <columns>
-                                    <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
-                                    <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
-                                    <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
-                                    <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
-                                    <TableColumn fx:id="priorityCol" prefWidth="85.0" text="PRIORIDADE" />
-                                    <TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />
-                                    <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO" />
-                                </columns>
-                                 <columnResizePolicy>
-                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                 </columnResizePolicy>
-                              </TableView>
+                                        <TableView fx:id="procTable" disable="true">
+                                            <columns>
+                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
+                                                <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
+                                                <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
+                                                <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
+                                                <TableColumn fx:id="priorityCol" prefWidth="85.0" text="PRIORIDADE" />
+                                                <TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />
+                                                <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO" />
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
                                     </children>
                                 </VBox>
                             </items>
@@ -180,66 +180,66 @@
                 <Tab text="Memória">
 
                 </Tab>
-                <Tab text="Editor de código">
+                <Tab disable="true" text="Editor de código">
 
                 </Tab>
             </tabs>
         </TabPane>
     </center>
-   <top>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <items>
-            <HBox alignment="CENTER_LEFT" spacing="5.0">
-               <children>
-                   <ImageView fitHeight="40.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
-                       <Image url="@../../../../imgs/pampasimlogo.png"/>
-                   </ImageView>
-                  <Label text="PampaSim">
-                     <font>
-                        <Font name="System Bold Italic" size="28.0" />
-                     </font>
-                  </Label>
-               </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </HBox>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Carregar cenário" textFill="#1976d2">
-               <tooltip>
-                  <Tooltip text="Criar processo" />
-               </tooltip>
-               <graphic>
-                  <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square-fill" iconSize="22" selectionFill="BLACK">
-                     <font>
-                        <Font size="27.0" />
-                     </font>
-                  </FontIcon>
-               </graphic>
-            </Button>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Salvar cenário" textFill="#ff6d00">
-               <tooltip>
-                  <Tooltip text="Criar processo" />
-               </tooltip>
-               <graphic>
-                  <FontIcon iconColor="#ff6d00" iconLiteral="fth-save" iconSize="22">
-                     <font>
-                        <Font size="27.0" />
-                     </font>
-                  </FontIcon>
-               </graphic>
-            </Button>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações" textFill="#0000007f">
-               <tooltip>
-                  <Tooltip text="Configurações" />
-               </tooltip>
-               <graphic>
-                  <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="19" />
-               </graphic>
-            </Button>
-        </items>
-      </ToolBar>
-   </top>
+    <top>
+        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <items>
+                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                    <children>
+                        <ImageView fitHeight="40.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+                            <Image url="@../../../imgs/pampasimlogo.png" />
+                        </ImageView>
+                        <Label prefHeight="34.0" prefWidth="139.0" text="PampaSim">
+                            <font>
+                                <Font name="System Bold Italic" size="28.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                    <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                    </padding>
+                </HBox>
+                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Carregar cenário" textFill="#1976d2">
+                    <tooltip>
+                        <Tooltip text="Criar processo"/>
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square-fill" iconSize="22" selectionFill="BLACK">
+                            <font>
+                                <Font size="27.0" />
+                            </font>
+                        </FontIcon>
+                    </graphic>
+                </Button>
+                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Salvar cenário" textFill="#ff6d00">
+                    <tooltip>
+                        <Tooltip text="Criar processo" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#ff6d00" iconLiteral="fth-save" iconSize="22">
+                            <font>
+                                <Font size="27.0" />
+                            </font>
+                        </FontIcon>
+                    </graphic>
+                </Button>
+                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações" textFill="#0000007f">
+                    <tooltip>
+                        <Tooltip text="Configurações" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="19" />
+                    </graphic>
+                </Button>
+            </items>
+        </ToolBar>
+    </top>
 </BorderPane>

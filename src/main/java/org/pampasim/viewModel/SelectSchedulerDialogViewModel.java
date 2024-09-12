@@ -1,9 +1,9 @@
-package org.pampasim.gui.viewmodel;
+package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.Property;
-import org.pampasim.gui.scopes.SchedulerDialogScope;
+import org.pampasim.scopes.SchedulerDialogScope;
 
 public class SelectSchedulerDialogViewModel implements ViewModel {
     @InjectScope

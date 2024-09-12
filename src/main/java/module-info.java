@@ -1,24 +1,19 @@
 module org.pampasim {
-    requires slf4j.api;
     requires javafx.controls;
-    requires javafx.fxml;
     requires javafx.graphics;
-    requires atlantafx.base;
+    requires javafx.base;
+    requires javafx.fxml;
+    requires static lombok;
     requires de.saxsys.mvvmfx;
-    requires lombok;
+    requires slf4j.api;
 
-    opens org.pampasim to javafx.fxml, de.saxsys.mvvmfx;
-    opens org.pampasim.gui to javafx.fxml, de.saxsys.mvvmfx;
-    opens org.pampasim.gui.viewmodel to javafx.fxml, de.saxsys.mvvmfx;
-    opens org.pampasim.gui.view to de.saxsys.mvvmfx, javafx.fxml;
-
-    exports org.pampasim;
-    exports org.pampasim.gui;
+    opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
+    opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
+    opens org.pampasim.scopes to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
+    opens org.pampasim.view to javafx.fxml, de.saxsys.mvvmfx;
+    exports org.pampasim.scopes;
     exports org.pampasim.SimCore;
-    exports org.pampasim.SimResources;
     exports org.pampasim.SimEntity;
-    exports org.pampasim.gui.view;
-    exports org.pampasim.gui.viewmodel;
-    exports org.pampasim.gui.scopes;
-    opens org.pampasim.gui.scopes to de.saxsys.mvvmfx, javafx.fxml;
+    exports org.pampasim.SimResources;
+    exports org.pampasim.viewModel;
 }
