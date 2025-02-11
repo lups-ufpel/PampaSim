@@ -2,6 +2,8 @@ package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -16,8 +18,12 @@ import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
+import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
+
+import java.io.File;
+import java.io.IOException;
 
 public class PampaSimViewModel implements ViewModel {
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
@@ -35,6 +41,8 @@ public class PampaSimViewModel implements ViewModel {
     public PampaSimViewModel() {
         simulatedScenario = new SimulatedScenario();
         ProcessManager kernel = new ProcessManager(simulatedScenario.getSimulation());
+        // These were getting dropped at the end of this scope, why?
+        // UPDATE: now i know why. this doesn't make me feel any better about this.
         ProcessorCore core = new ProcessorCore(100);
         Processor processor = new Processor(simulatedScenario.getSimulation(), core);
         simulatedScenario.setProcessManager(kernel);
@@ -151,5 +159,18 @@ public class PampaSimViewModel implements ViewModel {
     }
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);
+    }
+    public void exportSimulationGraph() throws IOException {
+        var sim = this.simulatedScenario.getSimulation();
+        if (sim instanceof GraphVisualizeable) {
+            var graph = ((GraphVisualizeable)sim).exportGraph();
+            Graphviz.fromGraph(graph)
+                    .render(Format.SVG)
+                    .toFile(new File("graph.svg"));
+            Graphviz.fromGraph(graph)
+                    .render(Format.DOT)
+                    .toFile(new File("graph.dot"));
+        }
+
     }
 }

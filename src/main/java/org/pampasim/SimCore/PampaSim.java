@@ -1,12 +1,17 @@
 package org.pampasim.SimCore;
 
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.Node;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
+import org.pampasim.Utils.GraphVisualizeable;
+import static guru.nidi.graphviz.model.Factory.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PampaSim implements Simulation {
+public class PampaSim implements Simulation, GraphVisualizeable {
     private final List<PampaSimEntity> entityList;
     private final FutureQueue future;
     private final List<PampaSimEvent> processedEvents;
@@ -115,5 +120,27 @@ public class PampaSim implements Simulation {
                 .map(entityClass::cast)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public Graph exportGraph() {
+        String name = this.getClass().getSimpleName();
+        String bufferTable= "<table border='0' cellborder='1' cellspacing='0'><tr>" +
+                (this.future.isEmpty()? "<td>empty</td>" :
+                this.future.stream().map(Object::toString)
+                        .reduce("", (acc, elem) -> acc + "<td>" + elem + "</td>")
+                ) +
+                "</tr></table>";
+        String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>" +
+                "<tr><td>" + name + "</td></tr>" +
+                "<tr><td>" + bufferTable + "</td></tr>" +
+                "</table>";
+        Node root = node(Label.html(htmlTable));
+        Graph g = graph(name);
+        // this probably needs to use the mutable graph api, to avoid too many allocs
+        for (PampaSimEntity ent : this.entityList) {
+            g = g.with(root.link(ent.exportGraph()));
+        }
+
+        return g;
     }
 }

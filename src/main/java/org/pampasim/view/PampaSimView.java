@@ -75,6 +75,13 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void selectScheduler(ActionEvent actionEvent) {
         selectSchedulerDialog.showAndWait();
     }
+    @FXML
+    public void exportSimulationGraph(ActionEvent actionEvent) {
+        try { pampaSimViewModel.exportSimulationGraph(); }
+        catch (Exception e) {
+            System.err.println("error:" + e);
+        }
+    }
 
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {

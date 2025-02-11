@@ -239,6 +239,14 @@
                         <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="19" />
                     </graphic>
                 </Button>
+                <Button alignment="CENTER" contentDisplay="TOP" disable="false" graphicTextGap="5.0" mnemonicParsing="false" onAction="#exportSimulationGraph" text="Exportar gráfico" textFill="#0000007f">
+                    <tooltip>
+                        <Tooltip text="Exporta um SVG que descreve a relação das entidades da simulação." />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="19" />
+                    </graphic>
+                </Button>
             </items>
         </ToolBar>
     </top>

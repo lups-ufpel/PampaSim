@@ -1,11 +1,15 @@
 package org.pampasim.SimEntity;
 
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.model.Graph;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.Utils.GraphVisualizeable;
+import static guru.nidi.graphviz.model.Factory.*;
 
 import static java.util.Objects.requireNonNullElse;
 
-public class PampaSimEntity implements SimEntity {
+public class PampaSimEntity implements SimEntity, GraphVisualizeable {
 
     private Simulation simulation;
     private State state;
@@ -63,5 +67,15 @@ public class PampaSimEntity implements SimEntity {
     }
     public void setEventBuffer(PampaSimEvent evt) {
         this.buffer = evt;
+    }
+
+    public Graph exportGraph() {
+        String name = this.getClass().getSimpleName();
+        String bufferDesc = (this.buffer == null)? "empty" : this.buffer.toString();
+        String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>" +
+                "<tr><td>" + name + "</td></tr>" +
+                "<tr><td>" + bufferDesc + "</td></tr>" +
+                "</table>";
+        return graph(name).with(node(Label.html(htmlTable)));
     }
 }
