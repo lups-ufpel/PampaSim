@@ -111,4 +111,14 @@ public class PampaSimEvent implements EventInfo, Comparable<PampaSimEvent> {
     private static synchronized long generateSerial() {
         return ++serialCounter;  // Incrementa e retorna o serial único
     }
+
+    public String toString() {
+        return "Event #" + serial + " from " + source.getClass().getSimpleName() +
+                " to " + destination.getClass().getSimpleName() +
+                " with id " + eventID +
+                " of type " + type +
+                " with delay " + delay +
+                " endWaitingTime " + endWaitingTime + // unused?
+                ".";
+        }
 }
