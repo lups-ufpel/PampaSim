@@ -166,10 +166,10 @@ public class PampaSimViewModel implements ViewModel {
             var graph = ((GraphVisualizeable)sim).exportGraph();
             Graphviz.fromGraph(graph)
                     .render(Format.SVG)
-                    .toFile(new File("graph.svg"));
+                    .toFile(new File("graph" + sim.getClock() + ".svg"));
             Graphviz.fromGraph(graph)
                     .render(Format.DOT)
-                    .toFile(new File("graph.dot"));
+                    .toFile(new File("graph" + sim.getClock() + ".dot"));
         }
 
     }

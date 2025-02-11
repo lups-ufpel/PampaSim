@@ -40,6 +40,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button stopBtn;
     @FXML
     public Button selectSchedBtn;
+    @FXML
+    public CheckBox genGraphs;
     private Timeline animation;
     private Dialog<ButtonType> createProcessDialog;
     private Dialog<ButtonType> selectSchedulerDialog;
@@ -75,8 +77,13 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void selectScheduler(ActionEvent actionEvent) {
         selectSchedulerDialog.showAndWait();
     }
-    @FXML
-    public void exportSimulationGraph(ActionEvent actionEvent) {
+
+    public void runSimulation() {
+        if (genGraphs.isSelected()) { exportSimulationGraph(); }
+        pampaSimViewModel.runSimulation();
+    }
+
+    public void exportSimulationGraph() {
         try { pampaSimViewModel.exportSimulationGraph(); }
         catch (Exception e) {
             System.err.println("error:" + e);
@@ -102,13 +109,14 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         createProcessDialog = new Dialog<>();
         selectSchedulerDialog = new Dialog<>();
         var processDialogPane = loadDialogPane(CreateProcessDialogView.class, pampaSimViewModel.getProcessScope());
         var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class, pampaSimViewModel.getSchedulerScope());
         configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
@@ -121,6 +129,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 }
             }
         });
+
+        genGraphs.setAllowIndeterminate(false);
+        genGraphs.setSelected(false);
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
         Circle circle = new Circle(30, process.getColor());
