@@ -78,18 +78,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         selectSchedulerDialog.showAndWait();
     }
 
-    public void runSimulation() {
-        if (genGraphs.isSelected()) { exportSimulationGraph(); }
-        pampaSimViewModel.runSimulation();
-    }
-
-    public void exportSimulationGraph() {
-        try { pampaSimViewModel.exportSimulationGraph(); }
-        catch (Exception e) {
-            System.err.println("error:" + e);
-        }
-    }
-
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             pampaSimViewModel.setSimulationScheduler();
@@ -116,7 +104,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class, pampaSimViewModel.getSchedulerScope());
         configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
@@ -132,6 +120,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
         genGraphs.setAllowIndeterminate(false);
         genGraphs.setSelected(false);
+        pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
         Circle circle = new Circle(30, process.getColor());
@@ -187,7 +176,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         CpuContainer1.setFill(circle.getFill());
     }
     private void bindTimeLineProperty() {
-        pampaSimViewModel.getSimulationRunningProperty().addListener((obs, wasRunning, isRunning) -> {
+        pampaSimViewModel.getSimulationRunning().addListener((obs, wasRunning, isRunning) -> {
             runBtn.setDisable(isRunning);
             stopBtn.setDisable(!isRunning);
             if (!isRunning) {

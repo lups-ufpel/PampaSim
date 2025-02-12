@@ -7,6 +7,7 @@ module org.pampasim {
     requires de.saxsys.mvvmfx;
     requires slf4j.api;
     requires guru.nidi.graphviz;
+    requires java.desktop;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

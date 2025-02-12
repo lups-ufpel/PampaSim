@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import lombok.Setter;
 import org.pampasim.SimCore.EventInfo;
 import org.pampasim.SimCore.ProcessEventInfo;
 import org.pampasim.SimCore.SimulatedScenario;
@@ -22,11 +23,16 @@ import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 
 public class PampaSimViewModel implements ViewModel {
+    @Getter
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
+    @Getter
+    private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
+    private int graphNum = 0;
     @Getter
     private final ObservableList<ProcessViewModel> processes = FXCollections.observableArrayList();
 
@@ -150,9 +156,12 @@ public class PampaSimViewModel implements ViewModel {
         if(!hasMoreEvents) {
             stopSimulation();
         }
-    }
-    public BooleanProperty getSimulationRunningProperty() {
-        return simulationRunning;
+        if (genGraphs.get()) {
+            try { exportSimulationGraph(); }
+            catch(Exception e) {
+                JOptionPane.showMessageDialog(null, e);
+            }
+        }
     }
     public boolean isSimulationRunning() {
         return simulationRunning.get();
@@ -160,16 +169,20 @@ public class PampaSimViewModel implements ViewModel {
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);
     }
+    public void setGenGraphs(boolean val) {
+        this.genGraphs.set(val);
+    }
     public void exportSimulationGraph() throws IOException {
         var sim = this.simulatedScenario.getSimulation();
         if (sim instanceof GraphVisualizeable) {
             var graph = ((GraphVisualizeable)sim).exportGraph();
             Graphviz.fromGraph(graph)
                     .render(Format.SVG)
-                    .toFile(new File("graph" + sim.getClock() + ".svg"));
+                    .toFile(new File("graph" + graphNum + ".svg"));
             Graphviz.fromGraph(graph)
                     .render(Format.DOT)
-                    .toFile(new File("graph" + sim.getClock() + ".dot"));
+                    .toFile(new File("graph" + graphNum + ".dot"));
         }
+        graphNum++;
     }
 }

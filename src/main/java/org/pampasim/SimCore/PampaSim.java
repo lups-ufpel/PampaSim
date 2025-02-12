@@ -100,9 +100,7 @@ public class PampaSim implements Simulation {
 
     private void printProcessedEvents() {
         System.out.println("Eventos processados na ordem de ocorrência:");
-        for (PampaSimEvent event : processedEvents) {
-            System.out.println("Evento " + event.getEventID() + " Tipo: " + event.getType() + " Tempo: " + event.delay());
-        }
+        processedEvents.forEach(System.out::println);
     }
 
     private void processSendEvent(final PampaSimEvent evt) {

@@ -38,4 +38,8 @@ public class FutureQueue implements EventQueue {
     public boolean remove(final PampaSimEvent event) {
         return sortedSet.remove(event);
     }
+
+    public void clear() {
+        sortedSet.clear();
+    }
 }

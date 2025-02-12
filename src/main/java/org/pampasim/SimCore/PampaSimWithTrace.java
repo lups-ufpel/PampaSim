@@ -28,52 +28,53 @@ import static guru.nidi.graphviz.model.Factory.*;
  * entityList: private -> protected
  */
 public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
-    private List<PampaSimEvent> currentClockEvents = null;
+    private final FutureQueue currentClockEvents = new FutureQueue();
+
     @Override
     public boolean runClockAndProcessEvents() {
-        currentClockEvents = null;
-        executeRunnableEntities();
-        // the point of it all
-        currentClockEvents = future.stream().collect(Collectors.toList());
-        if(future.isEmpty()) {
-            return false;
-        } else {
-            final PampaSimEvent first = future.first();
-            clock = first.delay();
-            processEvent(first);
-            future.remove(first);
-            return true;
-        }
+        // Had to mod FutureQueue to expose this method
+        currentClockEvents.clear();
+        System.out.println("Cleared current clock events!");
+        return super.runClockAndProcessEvents();
+    }
+
+    @Override
+    protected void processEvent(PampaSimEvent evt) {
+        super.processEvent(evt);
+        System.out.println("Got ev: " + evt);
+        currentClockEvents.addEvent(evt);
+        System.out.println("Current clock (" + getClock() + ") events:");
+        currentClockEvents.stream().forEach((e) -> System.out.println("\t" + e));
     }
 
     @Override
     public Graph exportGraph() {
         String name = this.getClass().getSimpleName();
-        boolean noEvents = currentClockEvents == null || currentClockEvents.isEmpty();
+        boolean noEvents = currentClockEvents.isEmpty();
         String bufferTable= "<table border='0' cellborder='1' cellspacing='0'>\n" +
                 (noEvents? "<tr><td>empty</td></tr>\n" :
                         currentClockEvents.stream()
                                 .collect(StringBuilder::new,
                                         (acc, elem) ->
-                                                acc.append("<tr><td port=\"portev")
-                                                        .append(elem.getSerial())
-                                                        .append("\">")
-                                                        .append(elem)
-                                                        .append("</td></tr>\n"),
-                                                //acc.append("<tr><td>").append(elem).append("</td></tr>"),
+                                                acc.append("<tr><td port=\"ev")
+                                                   .append(elem.getSerial())
+                                                   .append("\">")
+                                                   .append(elem)
+                                                   .append("</td></tr>\n"),
                                         StringBuilder::append).toString()
                 ) +
                 "</table>\n";
         String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>\n" +
                 "<tr><td>" + name + "</td><td>Clock " + this.getClock() + "</td></tr>\n" +
-                "<tr><td colspan='2'>" + bufferTable + "</td></tr>\n" +
+                "<tr><td colspan='2' cellborder='0'>" + bufferTable + "</td></tr>\n" +
                 "</table>\n";
         Node root = node(graphNodeName())
                 .with(Shape.PLAIN_TEXT)
                 .with(Label.html(htmlTable));
         Graph g = graph(name)
                 .directed()
-                .graphAttr().with(Rank.dir(LEFT_TO_RIGHT));
+                .graphAttr().with(Rank.dir(LEFT_TO_RIGHT))
+                .with(root);
         // this probably needs to use the mutable graph api, to avoid too many allocs
         var entityGraphMap = this.entityList.stream().collect(
                 () -> new HashMap<String, Graph>(),
@@ -83,11 +84,11 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
             g = g.with(subgraph);
         }
         if (!noEvents) {
-            for (PampaSimEvent ev : this.currentClockEvents) {
+            for (PampaSimEvent ev : this.currentClockEvents.stream().toList()) {
                 g = g.with(
                         root.link(
                                 between(
-                                        port("portev" + ev.getSerial()),
+                                        port("ev" + ev.getSerial()),
                                         entityGraphMap.get(ev.getDestination().graphNodeName())
                                 )
                         ),

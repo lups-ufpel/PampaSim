@@ -1,6 +1,7 @@
 package org.pampasim.SimEntity;
 
 import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
@@ -14,6 +15,7 @@ public class PampaSimEntity implements SimEntity {
     private Simulation simulation;
     private State state;
     private PampaSimEvent buffer;
+    private PampaSimEvent lastProcessedEvent;
 
     public PampaSimEntity(Simulation simulation) {
         this.simulation = simulation;
@@ -62,6 +64,7 @@ public class PampaSimEntity implements SimEntity {
     public void run() {
         if(buffer != null) {
             processEvent(buffer);
+            lastProcessedEvent = buffer;
             buffer = null;
         }
     }
@@ -72,7 +75,7 @@ public class PampaSimEntity implements SimEntity {
     @Override
     public Graph exportGraph() {
         String name = this.getClass().getSimpleName();
-        String bufferDesc = (this.buffer == null)? "empty" : this.buffer.toString();
+        String bufferDesc = (this.lastProcessedEvent == null)? "empty" : this.lastProcessedEvent.toString();
         String htmlTable =
             "<table border='0' cellborder='1' cellspacing='0'>" +
                 "<tr>" +
@@ -81,7 +84,8 @@ public class PampaSimEntity implements SimEntity {
                 "</tr>" +
                 "<tr><td colspan='2'>" + bufferDesc + "</td></tr>" +
             "</table>";
-        return graph(graphNodeName()).with(node(Label.html(htmlTable)));
+        return graph(graphNodeName())
+                .with(node(Label.html(htmlTable)).with(Shape.PLAIN_TEXT));
     }
 
     @Override
