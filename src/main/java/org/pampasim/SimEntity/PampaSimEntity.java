@@ -9,7 +9,7 @@ import static guru.nidi.graphviz.model.Factory.*;
 
 import static java.util.Objects.requireNonNullElse;
 
-public class PampaSimEntity implements SimEntity, GraphVisualizeable {
+public class PampaSimEntity implements SimEntity {
 
     private Simulation simulation;
     private State state;
@@ -69,13 +69,26 @@ public class PampaSimEntity implements SimEntity, GraphVisualizeable {
         this.buffer = evt;
     }
 
+    @Override
     public Graph exportGraph() {
         String name = this.getClass().getSimpleName();
         String bufferDesc = (this.buffer == null)? "empty" : this.buffer.toString();
-        String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>" +
-                "<tr><td>" + name + "</td></tr>" +
-                "<tr><td>" + bufferDesc + "</td></tr>" +
-                "</table>";
-        return graph(name).with(node(Label.html(htmlTable)));
+        String htmlTable =
+            "<table border='0' cellborder='1' cellspacing='0'>" +
+                "<tr>" +
+                    "<td>" + name + "</td>" +
+                    "<td>State: " + this.getState() + "</td>" +
+                "</tr>" +
+                "<tr><td colspan='2'>" + bufferDesc + "</td></tr>" +
+            "</table>";
+        return graph(graphNodeName()).with(node(Label.html(htmlTable)));
+    }
+
+    @Override
+    public String graphNodeName() {
+        // WARN / FIXME: will name conflict if there are multiple entities of the same type in a simulation!
+        // e.g. multiple schedulers or multiple process managers
+        // I'll let it be for now, since that edge case is very unlikely
+        return this.getClass().getSimpleName();
     }
 }

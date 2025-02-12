@@ -18,6 +18,6 @@ public class SimulatedScenario {
     public final Simulation simulation;
 
     public SimulatedScenario() {
-        this.simulation = new PampaSim();
+        this.simulation = new PampaSimWithTrace();
     }
 }

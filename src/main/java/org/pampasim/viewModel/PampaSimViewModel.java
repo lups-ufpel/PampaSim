@@ -171,6 +171,5 @@ public class PampaSimViewModel implements ViewModel {
                     .render(Format.DOT)
                     .toFile(new File("graph" + sim.getClock() + ".dot"));
         }
-
     }
 }
