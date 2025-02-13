@@ -85,7 +85,7 @@ public class PampaSimEntity implements SimEntity {
                 "<tr><td colspan='2'>" + bufferDesc + "</td></tr>" +
             "</table>";
         return graph(graphNodeName())
-                .with(node(Label.html(htmlTable)).with(Shape.PLAIN_TEXT));
+                .with(node(name).with(Label.html(htmlTable)).with(Shape.PLAIN_TEXT));
     }
 
     @Override

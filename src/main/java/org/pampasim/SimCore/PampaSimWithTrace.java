@@ -3,6 +3,7 @@ package org.pampasim.SimCore;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.attribute.Shape;
+import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Link;
@@ -82,6 +83,7 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
                 HashMap::putAll);
         for(var subgraph : entityGraphMap.values()) {
             g = g.with(subgraph);
+            g = g.with(root.link(to(subgraph).with(Style.INVIS)));
         }
         if (!noEvents) {
             for (PampaSimEvent ev : this.currentClockEvents.stream().toList()) {
