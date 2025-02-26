@@ -3,14 +3,15 @@ package org.pampasim.SimEntity;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 
+import java.util.Queue;
+
 import static java.util.Objects.requireNonNullElse;
 
 public class PampaSimEntity implements SimEntity {
 
     private Simulation simulation;
     private State state;
-    private PampaSimEvent buffer;
-
+    private Queue<PampaSimEvent> buffer;
     public PampaSimEntity(Simulation simulation) {
         this.simulation = simulation;
         state = State.RUNNABLE;
@@ -57,11 +58,12 @@ public class PampaSimEntity implements SimEntity {
     }
     public void run() {
         if(buffer != null) {
-            processEvent(buffer);
+            processEvent(buffer.remove());
             buffer = null;
         }
     }
-    public void setEventBuffer(PampaSimEvent evt) {
-        this.buffer = evt;
+    public void acceptEvent(PampaSimEvent evt) {
+        this.buffer.add(evt);
     }
+
 }

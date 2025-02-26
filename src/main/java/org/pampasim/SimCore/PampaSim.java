@@ -104,7 +104,7 @@ public class PampaSim implements Simulation {
 
     private void processSendEvent(final PampaSimEvent evt) {
         final PampaSimEntity dest = evt.getDestination();
-        dest.setEventBuffer(new PampaSimEvent(evt));
+        dest.acceptEvent(new PampaSimEvent(evt));
         dest.setState(SimEntity.State.RUNNABLE);
         System.out.println("[PampaSim] Evento enviado para o destino: " + dest.getClass().getSimpleName());
     }
