@@ -8,6 +8,8 @@ module org.pampasim {
     requires slf4j.api;
     requires guru.nidi.graphviz;
     requires java.desktop;
+    requires java.xml;
+    requires java.management;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
@@ -18,4 +20,5 @@ module org.pampasim {
     exports org.pampasim.SimEntity;
     exports org.pampasim.SimResources;
     exports org.pampasim.viewModel;
+    exports org.pampasim.SimCoreRefactor;
 }
