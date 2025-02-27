@@ -3,6 +3,7 @@ package org.pampasim.SimEntity;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCoreRefactor.EventType;
 import org.pampasim.SimResources.Process;
 import org.pampasim.Utils.PidAllocator;
 
@@ -19,6 +20,12 @@ public class ProcessManager extends PampaSimEntity {
         super(simulation);
         processSubmittedList = new ArrayList<>();
         pidAllocator = new PidAllocator();
+
+        // Adding the events which this entity handles
+        simulation.getEventManager().addEventHandler(EventType.PROCESS_ARRIVAL, this);
+        simulation.getEventManager().addEventHandler(EventType.READY_PROCESS, this);
+        simulation.getEventManager().addEventHandler(EventType.PROCESS_EXECUTION_END, this);
+
     }
     public void submitProcess(Process process) {
         process.setPid(pidAllocator.assignPid());

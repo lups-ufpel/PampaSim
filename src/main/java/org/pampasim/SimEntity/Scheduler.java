@@ -3,6 +3,7 @@ package org.pampasim.SimEntity;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCoreRefactor.EventType;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
 
@@ -21,6 +22,10 @@ public class Scheduler extends PampaSimEntity {
         readyList = new PriorityQueue<>(Comparator.comparingInt(Process::getPriority));
         terminatedList = new ArrayList<>();
         quantum = 999;
+
+        // Adding the events which this entity handles
+        simulation.getEventManager().addEventHandler(EventType.SCHEDULE_PROCESS, this);
+        simulation.getEventManager().addEventHandler(EventType.RUN_PROCESS_ACK, this);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package org.pampasim.SimCore;
 
+import lombok.Getter;
+import org.pampasim.SimCoreRefactor.EventManager;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
 
@@ -10,10 +12,13 @@ public class PampaSim implements Simulation {
     private final List<PampaSimEntity> entityList;
     private final FutureQueue future;
     private final List<PampaSimEvent> processedEvents;
+    @Getter
+    private final EventManager eventManager;
     private double clock;
 
     public PampaSim() {
         this.entityList = new ArrayList<>();
+        this.eventManager = new EventManager();
         this.processedEvents = new ArrayList<>();
         this.future = new FutureQueue();
         this.clock = 0;

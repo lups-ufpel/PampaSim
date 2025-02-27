@@ -3,6 +3,7 @@ package org.pampasim.SimEntity;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCoreRefactor.EventType;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
 
@@ -12,6 +13,11 @@ public class Processor extends PampaSimEntity {
     public Processor(Simulation simulation, ProcessorCore core) {
         super(simulation);
         this.core = core;
+
+        // Adding the events which this entity handles
+        simulation.getEventManager().addEventHandler(EventType.RUN_PROCESS, this);
+        simulation.getEventManager().addEventHandler(EventType.RUN_PROCESS_CONTINUE, this);
+        simulation.getEventManager().addEventHandler(EventType.PREEMPT_PROCESS, this);
     }
 
     @Override
