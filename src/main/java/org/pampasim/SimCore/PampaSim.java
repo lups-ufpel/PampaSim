@@ -3,6 +3,8 @@ package org.pampasim.SimCore;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
+import lombok.Getter;
+import org.pampasim.SimCoreRefactor.EventManager;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
@@ -16,9 +18,12 @@ public class PampaSim implements Simulation {
     protected final FutureQueue future;
     private final List<PampaSimEvent> processedEvents;
     protected double clock;
+    @Getter
+    private final EventManager eventManager;
 
     public PampaSim() {
         this.entityList = new ArrayList<>();
+        this.eventManager = new EventManager();
         this.processedEvents = new ArrayList<>();
         this.future = new FutureQueue();
         this.clock = 0;

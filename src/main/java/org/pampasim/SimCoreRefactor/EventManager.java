@@ -16,6 +16,9 @@ public class EventManager {
     }
 
     public void addEventHandler(EventType eventType, PampaSimEntity handler) {
+        if (handlers.containsKey(eventType)) {
+            throw new IllegalArgumentException("A handler for event type " + eventType + " already exists.");
+        }
         handlers.put(eventType, handler);
     }
 
