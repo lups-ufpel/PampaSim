@@ -42,7 +42,7 @@ public class Scheduler extends PampaSimEntity {
     private void handleRunProcessAck(Process process) {
         process.notifyListenersOnUpdate();
         if(process.isFinished()) {
-            send(this, getSimulation().getClock()  + 0, PampaSimEventID.TERMINATE_PROCESS, process);
+            send(this, getSimulation().getCpuClock()  + 0, PampaSimEventID.TERMINATE_PROCESS, process);
         }
         else if(process.getCurrentExecutionTime() > quantum) {
             System.out.println("[Scheduler] Preempção do processo " + process.getPid());
@@ -50,7 +50,7 @@ public class Scheduler extends PampaSimEntity {
             readyList.add(process);
             scheduleNextProcess();
         } else {
-            send(getSimulation().getEntity(Processor.class), getSimulation().getClock() + 0, PampaSimEventID.RUN_PROCESS , process);
+            send(getSimulation().getEntity(Processor.class), getSimulation().getCpuClock() + 0, PampaSimEventID.RUN_PROCESS , process);
         }
     }
 
@@ -79,7 +79,7 @@ public class Scheduler extends PampaSimEntity {
             var readyWaitingProcess = readyList.poll();
             var processor = getSimulation().getEntity(Processor.class);
             readyWaitingProcess.startRunning();
-            send(processor, getSimulation().getClock() + 0, PampaSimEventID.RUN_PROCESS, readyWaitingProcess);
+            send(processor, getSimulation().getCpuClock() + 0, PampaSimEventID.RUN_PROCESS, readyWaitingProcess);
             processor.getCore().setStatus(ProcessorCore.Status.BUSY);
         }
     }
