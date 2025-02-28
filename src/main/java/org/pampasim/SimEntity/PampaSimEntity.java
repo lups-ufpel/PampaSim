@@ -1,12 +1,15 @@
 package org.pampasim.SimEntity;
 
+import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
-import org.pampasim.SimCore.PampaSimEvent;
+//import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.Utils.GraphVisualizeable;
 import static guru.nidi.graphviz.model.Factory.*;
+import org.pampasim.SimCoreRefactor.Event;
+import org.pampasim.SimCoreRefactor.EventType;
 
 import java.util.Queue;
 
@@ -14,6 +17,7 @@ import static java.util.Objects.requireNonNullElse;
 
 public class PampaSimEntity implements SimEntity {
 
+    @Getter
     private Simulation simulation;
     private State state;
     private Queue<PampaSimEvent> buffer;
@@ -55,10 +59,6 @@ public class PampaSimEntity implements SimEntity {
         return false;
     }
 
-    public Simulation getSimulation () {
-        return simulation;
-    }
-
     @Override
     public void processEvent(PampaSimEvent evt) {
     }
@@ -70,6 +70,10 @@ public class PampaSimEntity implements SimEntity {
     }
     public void acceptEvent(PampaSimEvent evt) {
         this.buffer.add(evt);
+    }
+
+    public void sendEvent(Process process, EventType type) {
+        simulation.send(new Event(process, type));
     }
 
     @Override

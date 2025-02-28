@@ -4,6 +4,7 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
+import org.pampasim.SimCoreRefactor.Event;
 import org.pampasim.SimCoreRefactor.EventManager;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
@@ -16,17 +17,25 @@ import java.util.List;
 public class PampaSim implements Simulation {
     protected final List<PampaSimEntity> entityList;
     protected final FutureQueue future;
+    private final ArrayList<Event> eventsOnNextClock;
     private final List<PampaSimEvent> processedEvents;
     protected double clock;
     @Getter
     private final EventManager eventManager;
 
+    @Getter
+    private double cpuClock;
+    @Getter
+    private double simulationClock;
+
     public PampaSim() {
         this.entityList = new ArrayList<>();
         this.eventManager = new EventManager();
+        this.eventsOnNextClock = new ArrayList<>();
         this.processedEvents = new ArrayList<>();
         this.future = new FutureQueue();
-        this.clock = 0;
+        this.cpuClock = 0;
+        this.simulationClock = 0;
     }
 
     @Override
@@ -35,30 +44,21 @@ public class PampaSim implements Simulation {
     }
 
     @Override
-    public double getClock() {
-        return clock;
-    }
-
-    @Override
     public void send(PampaSimEvent event) {
         future.addEvent(event);
         future.stream().forEach(System.out::println);
     }
-    @Override
-    public void start() {
-        //while(runClockAndProcessEvents()) {
-        //}
-        printProcessedEvents();
-    }
+
     public boolean runClockAndProcessEvents() {
+        // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
+        // and send them to the buffer of each entity that handles the event
         executeRunnableEntities();
-        if(future.isEmpty()) {
+        if(eventsOnNextClock.isEmpty()) {
+            simulationClock += 1;
             return false;
         } else {
-            final PampaSimEvent first = future.first();
-            clock = first.delay();
-            processEvent(first);
-            future.remove(first);
+            eventsOnNextClock.forEach(eventManager::handleEvent);
+            simulationClock += 1;
             return true;
         }
     }
@@ -67,12 +67,12 @@ public class PampaSim implements Simulation {
         if(future.isEmpty()) {
             return false;
         } else {
-            while(!future.isEmpty() && future.first().delay() == clock) {
+            while(!future.isEmpty() && future.first().delay() == cpuClock) {
                 final PampaSimEvent first = future.first();
                 processEvent(first);
                 future.remove(first);
             }
-            clock +=1;
+            cpuClock +=1;
             return true;
         }
     }
@@ -84,7 +84,7 @@ public class PampaSim implements Simulation {
         }
     }
     protected void processEvent(final PampaSimEvent evt) {
-        System.out.println("[PampaSim] Processando evento: " + evt.getEventID() + " no tempo " + clock);
+        System.out.println("[PampaSim] Processando evento: " + evt.getEventID() + " no tempo " + cpuClock);
         processEventByType(evt);
         processedEvents.add(evt);
     }
