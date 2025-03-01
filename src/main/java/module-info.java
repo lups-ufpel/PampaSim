@@ -10,6 +10,7 @@ module org.pampasim {
     requires java.desktop;
     requires java.xml;
     requires java.management;
+    requires org.antlr.antlr4.runtime;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

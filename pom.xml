@@ -14,6 +14,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <antlr4.plugin.version>4.13.2</antlr4.plugin.version>
+        <antlr4.version>4.13.2</antlr4.version>
     </properties>
 
     <dependencies>
@@ -82,6 +84,18 @@
             <artifactId>graphviz-java</artifactId>
             <version>0.18.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.antlr/antlr4-runtime -->
+        <!-- https://github.com/Rospaccio/learnantlr/blob/master/pom.xml -->
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr4.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-maven-plugin</artifactId>
+            <version>${antlr4.plugin.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -109,6 +123,19 @@
                 <configuration>
                     <mainClass>org.pampasim.Launcher</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr4.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>antlr</id>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
