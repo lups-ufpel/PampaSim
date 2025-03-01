@@ -13,5 +13,5 @@ public enum EventType {
     PREEMPT_PROCESS, // handled by Processor
     PROCESS_EXECUTION_END, // handled by ProcessManager
     END_PROCESS, // handled by Memory
-    KILL_PROCESS // handled by Simulation
+    KILL_PROCESS, // handled by Simulation
 }

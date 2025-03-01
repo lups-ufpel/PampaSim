@@ -67,7 +67,7 @@ public class PampaSimEntity implements SimEntity {
     }
 
     public void sendEvent(Process process, EventType type) {
-        simulation.send(new Event(process, type));
+        //simulation.send(new Event(process, type));
     }
 
 }
