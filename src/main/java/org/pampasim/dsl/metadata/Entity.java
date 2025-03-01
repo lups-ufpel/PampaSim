@@ -1,4 +1,4 @@
-package org.pampasim.dsl;
+package org.pampasim.dsl.metadata;
 
 /// Each entity instance will have their own state
 /// Enum class, which needs to be referenced here somehow.
@@ -9,7 +9,7 @@ package org.pampasim.dsl;
 /// [StackOverflow re: generic over Enums](https://stackoverflow.com/a/24466815)
 public class Entity {
     protected final Class<? extends Enum<?>> stateEnumClass;
-    protected HandlerDescriptionData handlers;
+    protected Handler handlers;
 
     public Entity(Class<? extends Enum<?>> stateEnumClass) {
         this.stateEnumClass = stateEnumClass;

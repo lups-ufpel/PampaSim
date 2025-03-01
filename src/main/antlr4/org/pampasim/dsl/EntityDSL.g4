@@ -1,10 +1,6 @@
 grammar EntityDSL; // Must match file name
 // Lexer rules start with an uppercase letter
 // Grammar rules start with a lowercase letter
-@members {
-int test_member;
-}
-
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' eventDeclsBlock;
 eventDeclsBlock: '{' eventGroupDecl+ '}';
