@@ -5,44 +5,58 @@ grammar EntityDSL; // Must match file name
 int test_member;
 }
 
-descriptionFile
-    : entitySection EOF
+descriptionFile : eventsSection entitySection EOF;
+eventsSection: 'events' eventDeclsBlock;
+eventDeclsBlock: '{' eventGroupDecl+ '}';
+eventGroupDecl: 'transmitting' eventDataType eventDeclList;
+eventDataType: javaType | 'nothing';
+javaType: ID ('.' ID)*?;
+eventDeclList: '{' (eventId ';')+ '}';
+entitySection : entity+;
+entity : ID entityBlock;
+entityBlock : '{' eventBlock+ '}';
+eventBlock: 'on' ID mappings;
+mappings
+    : 'do' handlerMap
+    | 'transition' transitionMap
+    | transitionMap // specifier optional
     ;
-entitySection
-    : entity+
-    ;
-entity
-    : ID entityBlock
-    ;
-entityBlock
-    : '{' eventBlock+ '}'
-    ;
-eventBlock:
-    'on' ID handlerList
-    ;
-handlerList
-    : '{' eventHandler+ '}'
-    ;
+handlerMap : '{' eventHandler+ '}';
 eventHandler
-    : stateId '/' eventHandlerDesc '/' handlerResult ';'
+    : stateId 'then' eventHandlerDesc handlerTransition handlerResult ';'
+    ;
+handlerTransition
+    : TRANSITION_OPERATOR handlerTransitionADT
+    | // optional, equivalent to no transition
+    ;
+handlerTransitionADT
+    : stateId         # Immediate
+    | '...' handlerTransitionADT # Eventual
+    | stateId '|' handlerTransitionADT # Or
+    | '(' handlerTransitionADT ')' # Paren
     ;
 handlerResult
-    : eventId
-    | NO_EVENT // may not be part of an event chain
+    : 'chains' eventId
+    | 'nochain'
+    | // optional, equivalent to nochain
+    ;
+transitionMap: '{' transition+ '}';
+transition
+    : statePattern TRANSITION_OPERATOR stateId ';'
     ;
 stateId
     : ID
     ;
-eventPattern
-    : eventId
-    | ANY // Used to broadly match 
+statePattern
+    : stateId
+    | ANY // Used to match all not previously matched
     ;
 eventId
     : ID
     ;
 eventHandlerDesc: QUOTED;
 WS: [\r\n\t ]+ -> skip;
-NO_EVENT: '!';
 ANY: '_';
 QUOTED: '"' .*? '"';
+TRANSITION_OPERATOR: '->';
 ID: [A-Za-z_][A-Za-z0-9_]*;

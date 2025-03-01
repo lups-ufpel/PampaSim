@@ -1,0 +1,68 @@
+events {
+  transmitting org.pampasim.SimResources.Process {
+    CLOCK;
+    PROCESS_ARRIVAL;
+    ALLOCATE_PROCESS;
+    READY_PROCESS;
+    SCHEDULE_PROCESS;
+    DISPATCH_PROCESS;
+    RUN_PROCESS;
+    RUN_PROCESS_ACK;
+    RUN_PROCESS_CONTINUE;
+    IO_OPERATION;
+    PREEMPT_PROCESS;
+    PROCESS_EXECUTION_END;
+    END_PROCESS;
+    KILL_PROCESS;
+  }
+}
+
+ProcessManager {
+  on CLOCK do {
+    IDLE then "wait for events";
+    NEW then "handle an arriving process" -> IDLE;
+    READY then "handle a freshly allocated process" -> IDLE;
+    ENDED then "handle a process that just got evicted from the processor" -> IDLE;
+    ERROR then "fatal error!" chains PROCESSMANAGER_ERROR;
+  }
+  on PROCESS_ARRIVAL { IDLE -> NEW; }
+  on READY_PROCESS { IDLE -> READY; }
+  on PROCESS_EXECUTION_END { IDLE -> ENDED; }
+}
+
+Scheduler {
+  on CLOCK do {
+    IDLE then "wait for events";
+    ENQUEUE then "handle a process schedule request" -> IDLE;
+    EXEC_ACK then "handle an acknowledgement of a run request" -> IDLE;
+  }
+  on SCHEDULE_PROCESS { IDLE -> ENQUEUE; }
+  on RUN_PROCESS_ACK { IDLE -> EXEC_ACK; }
+}
+
+Processor {
+  on CLOCK do {
+    IDLE then "do nothing";
+    EXEC then "execute a process";
+    CTX_SWITCH then "switch to a different process" chains PROCESS_EXECUTION_END;
+    ERROR then "fatal error!" chains PROCESSOR_ERROR;
+  }
+  on PREEMPT_PROCESS { EXEC -> CTX_SWITCH; _ -> ERROR; }
+  on RUN_PROCESS_CONTINUE { EXEC -> EXEC; }
+  on RUN_PROCESS { IDLE -> EXEC; _ -> ERROR; }
+}
+
+Memory {
+  on CLOCK do {
+    IDLE then "wait for events";
+    ALLOC_PROC then "allocates a given process" -> ...IDLE chains READY_PROCESS;
+    FREE_PROC then "frees a given process" -> ...IDLE chains KILL_PROCESS;
+    LOAD_PROC then "swaps in a given processes pages if needed" -> ...IDLE chains RUN_PROCESS;
+    IO then "performs some IO operation" -> ...IDLE chains SCHEDULE_PROCESS;
+    ERROR then "fatal error!" chains MEMORY_ERROR;
+  }
+  on ALLOCATE_PROCESS { IDLE -> ALLOC; }
+  on END_PROCESS { IDLE -> FREE; }
+  on DISPATCH_PROCESS { IDLE -> LOAD_PROC; }
+  on IO_OPERATION { IDLE -> IO; }
+}
