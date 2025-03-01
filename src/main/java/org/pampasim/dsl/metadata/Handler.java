@@ -1,9 +1,12 @@
 package org.pampasim.dsl.metadata;
 
-import org.pampasim.SimCoreRefactor.EventType;
+import lombok.Getter;
 
-public final class Handler {
-    private Entity owner;
-    private EventType eventType;
-    private String state;
-}
+import java.util.ArrayList;
+
+public record Handler(
+        Entity owner,
+        EventStatePair eventStatePair,
+        ArrayList<AssociatedState> nextStates,
+        String associatedMethod
+) { }

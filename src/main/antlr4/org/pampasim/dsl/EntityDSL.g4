@@ -4,22 +4,21 @@ grammar EntityDSL; // Must match file name
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' eventDeclsBlock;
 eventDeclsBlock: '{' eventGroupDecl+ '}';
-eventGroupDecl: 'transmitting' eventDataType eventDeclList;
+eventGroupDecl: 'transmitting' associatedType=eventDataType eventDeclList[associatedType.text];
 eventDataType: javaType | 'nothing';
 javaType: ID ('.' ID)*?;
-eventDeclList: '{' (eventId ';')+ '}';
+eventDeclList[String associatedTypeName]: '{' (eventId ';')+ '}';
 entitySection : entity+;
-entity : ID entityBlock;
-entityBlock : '{' eventBlock+ '}';
-eventBlock: 'on' ID mappings;
-mappings
-    : 'do' handlerMap
-    | 'transition' transitionMap
-    | transitionMap // specifier optional
+entity : name=ID entityBlock[name];
+entityBlock[String entityName] : '{' eventBlock[entityName]+ '}';
+eventBlock[String entityName]: 'on' ID mappings[entityName];
+mappings[String entityName]
+    : 'do' handlerMap[entityName]
+    | 'transition'? transitionMap[entityName]
     ;
-handlerMap : '{' eventHandler+ '}';
-eventHandler
-    : stateId 'then' eventHandlerDesc handlerTransition handlerResult ';'
+handlerMap[String entityName] : '{' eventHandler[entityName]+ '}';
+eventHandler[String entityName]
+    : from=stateId 'then' desc=eventHandlerDesc to=handlerTransition handlerResult ';'
     ;
 handlerTransition
     : TRANSITION_OPERATOR handlerTransitionADT
@@ -36,9 +35,9 @@ handlerResult
     | 'nochain'
     | // optional, equivalent to nochain
     ;
-transitionMap: '{' transition+ '}';
-transition
-    : statePattern TRANSITION_OPERATOR stateId ';'
+transitionMap[String entityName]: '{' transition[entityName]+ '}';
+transition[String entityName]
+    : from=statePattern TRANSITION_OPERATOR to=stateId ';'
     ;
 stateId
     : ID
