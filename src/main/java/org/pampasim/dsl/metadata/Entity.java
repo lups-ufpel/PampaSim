@@ -3,7 +3,10 @@ package org.pampasim.dsl.metadata;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 /// Each entity instance will have their own state
@@ -15,28 +18,17 @@ import java.util.stream.Collectors;
 /// [StackOverflow re: generic over Enums](https://stackoverflow.com/a/24466815)
 @Setter
 @Getter
-public class Entity implements Mergeable<Entity> {
+public class Entity {
     protected String name = null;
-    protected ArrayList<Handler> handlers = new ArrayList<>();
+    protected Map<String, Handler> handlers = new HashMap<>();
 
-    public ArrayList<String> allStateNames() {
-        return handlers.stream()
+    public List<String> allStateNames() {
+        return handlers.values().stream()
                 .map(h -> h.eventStatePair().getState().getStateName())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
-    public ArrayList<String> allAcceptedEventNames() {
-        return handlers.stream()
-                .map(h -> h.eventStatePair().getEventName())
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
 
-    public Entity merge(Entity other) {
-        if (this.name != null && other.name != null && !this.name.equals(other.name)) {
-            System.err.println("name change while merging entities, this was "
-                    + this.getName() + " new one is " + other.getName());
-        }
-        this.name = other.name;
-        this.handlers.addAll(other.handlers);
-        return this;
+    public List<String> allAcceptedEventNames() {
+        return new ArrayList<>(handlers.keySet());
     }
 }
