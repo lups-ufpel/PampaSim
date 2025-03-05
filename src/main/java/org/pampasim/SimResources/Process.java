@@ -8,6 +8,8 @@ import org.pampasim.Utils.PidAllocator;
 import java.util.HashSet;
 import java.util.Set;
 
+
+//TODO: define properly: What is the total time required for the process to finish, the amount of time the process has the CPU for (quantum), elapsed execution time
 public class Process {
     private final Set<EventListener<EventInfo>> onCreateListeners;
     private final Set<EventListener<EventInfo>> onDispatchListeners;
@@ -22,15 +24,12 @@ public class Process {
     final int burstTime;
     private int priority;
     protected int currExecTime;
-    private int execTimeSlice;
-    protected String progressBar;
     private PidAllocator.Pid pid;
     public Process(int priority, int totalBurst, int arrivalTime) {
         this.priority = priority;
         this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
-        this.progressBar = "";
         onDispatchListeners = new HashSet<>();
         onFinishListeners = new HashSet<>();
         onUpdateListeners = new HashSet<>();
@@ -54,9 +53,7 @@ public class Process {
     public int getArrivalTime(){
         return arrivalTime;
     }
-    public int getCurrentTimeSlice() {
-        return execTimeSlice;
-    }
+
     public State getState(){
         return state;
     }

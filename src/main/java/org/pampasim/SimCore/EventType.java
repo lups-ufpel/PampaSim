@@ -1,4 +1,4 @@
-package org.pampasim.SimCoreRefactor;
+package org.pampasim.SimCore;
 
 public enum EventType {
     PROCESS_ARRIVAL, // handled by Processor

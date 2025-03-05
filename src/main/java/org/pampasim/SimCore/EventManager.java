@@ -1,7 +1,6 @@
-package org.pampasim.SimCoreRefactor;
+package org.pampasim.SimCore;
 
 import org.pampasim.SimEntity.PampaSimEntity;
-import org.w3c.dom.Entity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class EventManager {
         Method to call the accept method for the registered handler of the event type. If there is no handler,
         it attempts to translate it to a different event type. If there is no translation, an exception is thrown
      */
-    public void handleEvent(Event event) {
+    public void handleEvent(PampaSimEvent event) {
         PampaSimEntity handler = null;
         do {
             handler = handlers.get(event.getEventType());
@@ -42,7 +41,7 @@ public class EventManager {
         handler.acceptEvent(event);
     }
 
-    private void translateEvent(Event event) {
+    private void translateEvent(PampaSimEvent event) {
         if (!translations.containsKey(event.getEventType())) {
             throw new IllegalArgumentException("No event translation for: " + event.getEventType());
         } else {

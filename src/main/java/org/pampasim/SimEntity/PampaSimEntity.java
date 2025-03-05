@@ -1,10 +1,8 @@
 package org.pampasim.SimEntity;
 
 import lombok.Getter;
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCoreRefactor.Event;
-import org.pampasim.SimCoreRefactor.EventType;
+import org.pampasim.SimCore.PampaSimEvent;
 
 import java.util.Queue;
 
@@ -13,9 +11,9 @@ import static java.util.Objects.requireNonNullElse;
 public class PampaSimEntity implements SimEntity {
 
     @Getter
-    private Simulation simulation;
+    private final Simulation simulation;
     private State state;
-    private Queue<PampaSimEvent> buffer;
+    protected Queue<PampaSimEvent> buffer;
     public PampaSimEntity(Simulation simulation) {
         this.simulation = simulation;
         state = State.RUNNABLE;
@@ -33,9 +31,9 @@ public class PampaSimEntity implements SimEntity {
     protected void startInternal() {
     };
     @Override
-    public boolean schedule(PampaSimEvent evt) {
-        simulation.send(evt);
-        return true;
+    public void scheduleToNextClock(PampaSimEvent event) {
+        System.out.println("["+this.getClass().getSimpleName()+"] Evento Enviado: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
+        simulation.scheduleToNextClock(event);
     }
     @Override
     public State getState() {
@@ -53,21 +51,14 @@ public class PampaSimEntity implements SimEntity {
         return false;
     }
 
-    @Override
-    public void processEvent(PampaSimEvent evt) {
+    public void processEvent(PampaSimEvent event) {}
+    public void processEventsInBuffer() {
+        buffer.forEach(this::processEvent);
+        buffer.clear();
     }
-    public void run() {
-        if(buffer != null) {
-            processEvent(buffer.remove());
-            buffer = null;
-        }
-    }
-    public void acceptEvent(PampaSimEvent evt) {
-        this.buffer.add(evt);
-    }
-
-    public void sendEvent(Process process, EventType type) {
-        simulation.send(new Event(process, type));
+    public void acceptEvent(org.pampasim.SimCore.PampaSimEvent event) {
+        System.out.println("["+this.getClass().getSimpleName()+"] Evento recebido: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
+        this.buffer.add(event);
     }
 
 }

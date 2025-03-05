@@ -1,8 +1,6 @@
 package org.pampasim.SimCore;
 
 import lombok.Getter;
-import org.pampasim.SimCoreRefactor.Event;
-import org.pampasim.SimCoreRefactor.EventManager;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
 
@@ -12,8 +10,8 @@ import java.util.List;
 public class PampaSim implements Simulation {
     private final List<PampaSimEntity> entityList;
     private final FutureQueue future;
-    private final ArrayList<Event> eventsOnNextClock;
-    private final List<PampaSimEvent> processedEvents;
+    private final ArrayList<PampaSimEvent> eventsOnNextClock;
+    private final List<org.pampasim.SimCore.PampaSimEvent> processedEvents;
     @Getter
     private final EventManager eventManager;
     @Getter
@@ -37,11 +35,8 @@ public class PampaSim implements Simulation {
     }
 
     @Override
-    public void send(PampaSimEvent event) {
+    public void scheduleToNextClock(org.pampasim.SimCore.PampaSimEvent event) {
         future.addEvent(event);
-        future.stream().forEach(pampaSimEvent -> {
-            System.out.println("evento de id: " + pampaSimEvent.getEventID());
-        });
     }
     public boolean runClockAndProcessEvents() {
         // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
@@ -62,7 +57,7 @@ public class PampaSim implements Simulation {
             return false;
         } else {
             while(!future.isEmpty() && future.first().delay() == cpuClock) {
-                final PampaSimEvent first = future.first();
+                final org.pampasim.SimCore.PampaSimEvent first = future.first();
                 processEvent(first);
                 future.remove(first);
             }
@@ -73,16 +68,16 @@ public class PampaSim implements Simulation {
     private void executeRunnableEntities() {
         for (PampaSimEntity pampaSimEntity : entityList) {
             if(pampaSimEntity.getState() == SimEntity.State.RUNNABLE) {
-                pampaSimEntity.run();
+                pampaSimEntity.processEventsinBuffer();
             }
         }
     }
-    protected void processEvent(final PampaSimEvent evt) {
+    protected void processEvent(final org.pampasim.SimCore.PampaSimEvent evt) {
         System.out.println("[PampaSim] Processando evento: " + evt.getEventID() + " no tempo " + cpuClock);
         processEventByType(evt);
         processedEvents.add(evt);
     }
-    private void processEventByType(final PampaSimEvent evt) {
+    private void processEventByType(final org.pampasim.SimCore.PampaSimEvent evt) {
         switch (evt.getType()) {
             case NULL -> throw new IllegalArgumentException("Event has null type.");
             case CREATE -> processCreateEvent(evt);
@@ -90,7 +85,7 @@ public class PampaSim implements Simulation {
             default -> System.out.println("[PampaSim] Tipo de evento desconhecido: " + evt.getType());
         }
     }
-    private void processCreateEvent(final PampaSimEvent evt) {
+    private void processCreateEvent(final org.pampasim.SimCore.PampaSimEvent evt) {
         final PampaSimEntity entity = (PampaSimEntity) evt.getData();
         entity.start();
         System.out.println("[PampaSim] Evento de criação processado para a entidade: "
@@ -99,14 +94,14 @@ public class PampaSim implements Simulation {
 
     private void printProcessedEvents() {
         System.out.println("Eventos processados na ordem de ocorrência:");
-        for (PampaSimEvent event : processedEvents) {
+        for (org.pampasim.SimCore.PampaSimEvent event : processedEvents) {
             System.out.println("Evento " + event.getEventID() + " Tipo: " + event.getType() + " Tempo: " + event.delay());
         }
     }
 
-    private void processSendEvent(final PampaSimEvent evt) {
+    private void processSendEvent(final org.pampasim.SimCore.PampaSimEvent evt) {
         final PampaSimEntity dest = evt.getDestination();
-        dest.acceptEvent(new PampaSimEvent(evt));
+        dest.acceptEvent(new org.pampasim.SimCore.PampaSimEvent(evt));
         dest.setState(SimEntity.State.RUNNABLE);
         System.out.println("[PampaSim] Evento enviado para o destino: " + dest.getClass().getSimpleName());
     }
