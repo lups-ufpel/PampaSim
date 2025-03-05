@@ -38,7 +38,7 @@ public class EventManager {
             }
         } while (handler == null);
 
-        handler.acceptEvent(event);
+        //handler.acceptEvent(event);
     }
 
     private void translateEvent(PampaSimEvent event) {
