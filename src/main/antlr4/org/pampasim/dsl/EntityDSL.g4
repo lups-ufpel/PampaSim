@@ -1,54 +1,110 @@
 grammar EntityDSL; // Must match file name
 // Lexer rules start with an uppercase letter
 // Grammar rules start with a lowercase letter
+
+@header {
+import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.HashSet;
+import org.pampasim.dsl.metadata.*;
+}
+@members {
+Map<String, Entity> entities = new HashMap<>();
+Set<String> events = new HashSet<>();
+}
 descriptionFile : eventsSection entitySection EOF;
-eventsSection: 'events' eventDeclsBlock;
+eventsSection: 'events' eventDeclsBlock {
+    System.out.println("Events list:\n" + events);
+};
 eventDeclsBlock: '{' eventGroupDecl+ '}';
-eventGroupDecl: 'transmitting' associatedType=eventDataType eventDeclList[associatedType.text];
+eventGroupDecl: 'transmitting' associatedType=eventDataType eventDeclList;
 eventDataType: javaType | 'nothing';
 javaType: ID ('.' ID)*?;
-eventDeclList[String associatedTypeName]: '{' (eventId ';')+ '}';
-entitySection : entity+;
-entity : name=ID entityBlock[name];
-entityBlock[String entityName] : '{' eventBlock[entityName]+ '}';
-eventBlock[String entityName]: 'on' ID mappings[entityName];
-mappings[String entityName]
-    : 'do' handlerMap[entityName]
-    | 'transition'? transitionMap[entityName]
+eventDeclList: '{' (events+=eventId ';')+ '}' {
+    // FIXME: the associated type is ignored for now
+    for (var evtok : $events) {
+        var evName = evtok.getText();
+        var unique = events.add(evName);
+        if (!unique) {
+            System.err.println("duplicate event \"" + evName + "\"");
+        }
+    }
+};
+entitySection: entity+;
+entity locals [Entity ent]: name=ID
+    {
+        $ent = new Entity();
+        $ent.setName($name.text);
+        $ent.setHandlers(new HashMap<>());
+    }
+    entityBlock
+    {
+        entities.put($ent.getName(), $ent);
+    }
     ;
-handlerMap[String entityName] : '{' eventHandler[entityName]+ '}';
-eventHandler[String entityName]
-    : from=stateId 'then' desc=eventHandlerDesc to=handlerTransition handlerResult ';'
+entityBlock: '{' eventHandler+ '}';
+eventHandler
+    locals [ String eventNameStr ]
+    : 'on' eventName=ID { $eventNameStr = $eventName.text; } mappings;
+mappings
+    : 'do' handlerMap
+    | 'transition'? transitionMap
     ;
-handlerTransition
-    : TRANSITION_OPERATOR handlerTransitionADT
+handlerMap: '{' eventAction+ '}';
+eventAction
+    : from=stateId 'then' desc=eventHandlerDesc to=actionTransition actionResult ';'
+    {
+        Entity ent = $entity::ent;
+        String eventName = $eventHandler::eventNameStr;
+        String fromStateName = $from.text;
+        AssociatedState fromState = new AssociatedState(ent, fromStateName);
+        EventStatePair pair = new EventStatePair(eventName, fromState);
+        // FIXME: nextStates need to be passed along
+        var handler = new Handler(ent, pair, null, $desc.text);
+        ent.getHandlers().put(eventName, handler);
+    }
+    ;
+actionTransition
+    : TRANSITION_OPERATOR actionTransitionExpr
     | // optional, equivalent to no transition
     ;
-handlerTransitionADT
+actionTransitionExpr
     : stateId         # Immediate
-    | '...' handlerTransitionADT # Eventual
-    | stateId '|' handlerTransitionADT # Or
-    | '(' handlerTransitionADT ')' # Paren
+    | '...' actionTransitionExpr # Eventual
+    | stateId '|' actionTransitionExpr # Or
+    | '(' actionTransitionExpr ')' # Paren
     ;
-handlerResult
+actionResult
     : 'chains' eventId
     | 'nochain'
     | // optional, equivalent to nochain
     ;
-transitionMap[String entityName]: '{' transition[entityName]+ '}';
-transition[String entityName]
+transitionMap: '{' transition+ '}';
+transition
     : from=statePattern TRANSITION_OPERATOR to=stateId ';'
+    {
+        Entity ent = $entity::ent;
+        String eventName = $eventHandler::eventNameStr;
+        String fromStateName = $from.text;
+        String toStateName = $to.text;
+        AssociatedState fromState = new AssociatedState(ent, fromStateName);
+        AssociatedState toState = new AssociatedState(ent, toStateName);
+        EventStatePair pair = new EventStatePair(eventName, fromState);
+        var nextStates = new ArrayList<AssociatedState>();
+        nextStates.add(toState);
+        var handler = new Handler(ent, pair, nextStates, "simple transition");
+        ent.getHandlers().put(eventName, handler);
+    }
     ;
-stateId
-    : ID
-    ;
+stateId: ID;
 statePattern
     : stateId
     | ANY // Used to match all not previously matched
     ;
-eventId
-    : ID
-    ;
+eventId: ID;
 eventHandlerDesc: QUOTED;
 WS: [\r\n\t ]+ -> skip;
 ANY: '_';
