@@ -1,7 +1,6 @@
 package org.pampasim.SimEntity;
 
 import org.pampasim.SimCore.PampaSimEvent;
-import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimCore.EventType;
 import org.pampasim.SimResources.Process;
@@ -78,7 +77,7 @@ public class Processor extends PampaSimEntity {
         System.out.println("[Processador] Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
     }
     public boolean isFree() {
-        return this.core.isFree();
+        return ProcessorCore.Status.FREE == this.core.getStatus();
     }
 
     private int getEventPriority(PampaSimEvent event) {

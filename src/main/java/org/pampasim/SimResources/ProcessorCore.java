@@ -1,5 +1,10 @@
 package org.pampasim.SimResources;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ProcessorCore extends ResourceManageableAbstract implements Core {
 
     private static double defaultMips = 1000;
@@ -18,18 +23,10 @@ public class ProcessorCore extends ResourceManageableAbstract implements Core {
         this.status = Status.FREE;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     @Override
     public void execute(Process process) {
         process.forwardProcessExecution();
         System.out.println("[Núcleo CPU] Executando um tick do processo: " +
                 process.getPid() + " (tempo restante): " + process.getRemainingExecutionTime());
-    }
-
-    public boolean isFree() {
-        return Status.FREE.equals(status);
     }
 }

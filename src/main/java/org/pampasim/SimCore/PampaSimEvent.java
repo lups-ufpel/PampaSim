@@ -22,5 +22,4 @@ public class PampaSimEvent {
     private static synchronized long generateSerial() {
         return ++serialCounter;  // Increments and returns a unique serial
     }
-
 }

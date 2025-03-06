@@ -34,19 +34,19 @@ public class EventManager {
         do {
             handler = handlers.get(event.getEventType());
             if (handler != null) {
-                translateEvent(event);
+                event = translateEvent(event);
             }
         } while (handler == null);
 
-        //handler.acceptEvent(event);
+        handler.acceptEvent(event);
     }
 
-    private void translateEvent(PampaSimEvent event) {
+    private PampaSimEvent translateEvent(PampaSimEvent event) {
         if (!translations.containsKey(event.getEventType())) {
             throw new IllegalArgumentException("No event translation for: " + event.getEventType());
         } else {
-            event.setEventType(translations.get(event.getEventType()));
             System.out.println("Event translated: " + event.getEventType() + " to " + translations.get(event.getEventType()));
+            return event.changeType(translations.get(event.getEventType()));
         }
     }
 
