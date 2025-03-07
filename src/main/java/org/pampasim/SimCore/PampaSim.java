@@ -11,14 +11,12 @@ import org.pampasim.Utils.PidAllocator;
 
 import static guru.nidi.graphviz.model.Factory.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PampaSim implements Simulation {
     protected final ArrayList<PampaSimEntity> entityList;
     private final Map<Integer, ArrayList<PampaSimEvent>> future; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
+    private final TreeSet<Integer> futureKeys; // used in the check if there are any "future" events after any given clock
     private final ArrayList<PampaSimEvent> eventsOnNextClock;
     private final List<PampaSimEvent> finishedProcesses;
     @Getter
@@ -34,6 +32,7 @@ public class PampaSim implements Simulation {
         this.eventsOnNextClock = new ArrayList<>();
         this.finishedProcesses = new ArrayList<>();
         this.future = new HashMap<>();
+        this.futureKeys = new TreeSet<>();
         this.simulationClock = 0;
         this.pidAllocator = new PidAllocator();
     }
@@ -51,6 +50,7 @@ public class PampaSim implements Simulation {
     public void scheduleToClock(int clock, final PampaSimEvent event) { // used to schedule events before the simulation starts
         if(!future.containsKey(clock)) {
             future.put(clock, new ArrayList<>());
+            futureKeys.add(clock);
         }
         future.get(clock).add(event);
     }
@@ -70,6 +70,10 @@ public class PampaSim implements Simulation {
                 .filter(event -> event.getEventType() == EventType.KILL_PROCESS)
                 .toList();
 
+        for (PampaSimEvent event : killProcessEvents) {
+            System.out.println("[PampaSim] Processo com Pid " + event.getProcess().getPid() + " finalizou sua execução e foi terminado com sucesso" );
+        }
+
         // Add all KILL_PROCESS events into the finished processes list
         finishedProcesses.addAll(killProcessEvents);
 
@@ -78,7 +82,7 @@ public class PampaSim implements Simulation {
 
         // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
         // and send them to the buffer of each entity that handles the event
-        if(eventsOnNextClock.isEmpty()) {
+        if(eventsOnNextClock.isEmpty() && futureKeys.higher(simulationClock) == null) { // no events on next clock and also no future events scheduled
             simulationClock += 1;
             return false;
         } else {

@@ -38,11 +38,13 @@ public class ProcessManager extends PampaSimEntity {
     }
 
     private void handleReadyProcess(PampaSimEvent event) {
+        event.getProcess().setReady();
         scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));
     }
 
     private void handleProcessExecutionEnd(PampaSimEvent event) {
         if (event.getProcess().isFinished()) {
+            event.getProcess().setTerminated();
             scheduleToNextClock(event.changeType(EventType.END_PROCESS));
         } else {
             scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));

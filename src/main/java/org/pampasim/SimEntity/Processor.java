@@ -46,30 +46,26 @@ public class Processor extends PampaSimEntity {
     private void handleRunProcess(PampaSimEvent event) {
         getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_ACK));
         Process process = event.getProcess();
+        process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
-        System.out.println("[Processador] Execução de processo de identificador:" + process.getPid());
+        System.out.println("[Processador] Início da execução do processo de identificador:" + process.getPid());
         core.execute(event.getProcess());
-        if (process.isFinished() || process.getBurstTime() == 0) {
-            core.setStatus(ProcessorCore.Status.FREE);
-            getSimulation().scheduleToNextClock(event.changeType(EventType.PROCESS_EXECUTION_END));
-            System.out.println("[Processador] Fim do turno de execução de processo de identificador:" + process.getPid());
-        } else {
-            getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
-        }
+        getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
     }
     private void handleRunProcessContinue(PampaSimEvent event) {
         Process process = event.getProcess();
-        core.setStatus(ProcessorCore.Status.BUSY);
-        System.out.println("[Processador] Continuação da Execução de processo de identificador:" + process.getPid());
-        core.execute(event.getProcess());
         if (process.isFinished() || process.getBurstTime() == 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
             preemption = false;
             getSimulation().scheduleToNextClock(event.changeType(EventType.PROCESS_EXECUTION_END));
-            System.out.println("[Processador] Fim do turno de execução de processo de identificador:" + process.getPid());
+            process.setSuspended();
+            System.out.println("[Processador] Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
+            System.out.println("[Processador] Continuação da Execução do processo de identificador:" + process.getPid());
+            core.execute(event.getProcess());
             getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
         }
+
     }
     private void handlePreemptProcess(PampaSimEvent event) {
         preemption = true;

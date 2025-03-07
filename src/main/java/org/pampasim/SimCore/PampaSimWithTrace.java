@@ -34,7 +34,7 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
     public boolean runClockAndProcessEvents() {
         // Had to mod FutureQueue to expose this method
         currentClockEvents.clear();
-        System.out.println("Cleared current clock events!");
+        //System.out.println("Cleared current clock events!");
         return super.runClockAndProcessEvents();
     }
 

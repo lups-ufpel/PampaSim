@@ -23,15 +23,18 @@ public class Process {
 
     State state;
     final int arrivalTime; // when the process arrives to be allocated
-    final int burstTime; // length of the next "turn" on the processor
+    @Setter
+    int burstTime; // length of the next "turn" on the processor
+    int totalExecTime; // total required exec time
     @Setter
     private int priority;
     private int currExecTime; // elapsed execution time
     private final Pid pid;
-    public Process(int priority, int totalBurst, int arrivalTime, Pid pid) {
+    public Process(int priority, int totalExecTime, int arrivalTime, Pid pid) {
         this.state = State.NEW;
         this.priority = priority;
-        this.burstTime = totalBurst;
+        this.totalExecTime = totalExecTime;
+        this.burstTime = 0;
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
         this.pid = pid;
@@ -48,11 +51,12 @@ public class Process {
     }
 
     public int getRemainingExecutionTime() {
-        return burstTime - currExecTime;
+        return totalExecTime - currExecTime;
     }
 
     public void forwardProcessExecution() {
         this.currExecTime +=1;
+        this.burstTime -= 1;
     }
     public void addOnCreateListener(EventListener<EventInfo> listener) {
         this.onCreateListeners.add(listener);
@@ -79,7 +83,7 @@ public class Process {
     }
 
     public boolean isFinished() {
-        return currExecTime == burstTime;
+        return currExecTime == totalExecTime;
     }
     public void notifyListenersOnUpdate() {
         onUpdateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
@@ -105,6 +109,23 @@ public class Process {
     }
 
     public void addOnStartListener(Object notifyGuiOnStartProcess) {
+    }
+
+    public void setReady() {
+        state  = State.READY;
+        notifyListenerOnDispatch();
+    }
+    public void setRunning() {
+        state  = State.RUNNING;
+        notifyListenersOnStartRunning();
+    }
+    public void setSuspended() {
+        state = State.WAITING;
+        notifyListenersOnSuspend();
+    }
+    public void setTerminated() {
+        state = State.TERMINATED;
+        notifyListenersOnFinish();
     }
 
     public enum State {
