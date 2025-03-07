@@ -28,11 +28,11 @@ public class Entity {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<String> allAcceptedEventNames() {
+    public List<Event> allAcceptedEvents() {
         return new ArrayList<>(handlers
                         .keySet()
                         .stream()
-                        .map(EventStatePair::getEventName)
+                        .map(EventStatePair::getEvent)
                         .toList()
         );
     }

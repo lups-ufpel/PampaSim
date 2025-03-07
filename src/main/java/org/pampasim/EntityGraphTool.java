@@ -38,11 +38,11 @@ public class EntityGraphTool {
         System.out.println(parser.getEvents());
         System.out.println(parser.getEntities());
 
-        Map<String, Set<Entity>> eventDestinations = new HashMap<>();
-        Map<String, Set<Entity>> eventSources = new HashMap<>();
-        parser.getEvents().forEach(eventName -> {
-            eventSources.computeIfAbsent(eventName, k -> new HashSet<>());
-            eventDestinations.computeIfAbsent(eventName, k -> new HashSet<>());
+        Map<Event, Set<Entity>> eventDestinations = new HashMap<>();
+        Map<Event, Set<Entity>> eventSources = new HashMap<>();
+        parser.getEvents().forEach(event -> {
+            eventSources.computeIfAbsent(event, k -> new HashSet<>());
+            eventDestinations.computeIfAbsent(event, k -> new HashSet<>());
         });
 
         Map<Entity, Node> entityNodes = new HashMap<>();
@@ -53,13 +53,13 @@ public class EntityGraphTool {
             for (Handler h : e.getHandlers().values()) {
                 System.out.println(h);
                 { // Add to destinations
-                    String eventName = h.eventStatePair().getEventName();
-                    Set<Entity> dstSet = eventDestinations.get(eventName);
+                    Event event = h.eventStatePair().getEvent();
+                    Set<Entity> dstSet = eventDestinations.get(event);
                     dstSet.add(e);
                 }
                 { // Add to sources
-                    for (String eventName : h.chainedEvents()) {
-                        Set<Entity> srcSet = eventSources.get(eventName);
+                    for (Event event : h.chainedEvents()) {
+                        Set<Entity> srcSet = eventSources.get(event);
                         srcSet.add(e);
                     }
                 }
@@ -72,14 +72,14 @@ public class EntityGraphTool {
         Graph entGraph = graph("Entity graph").directed()
                 .with(entityNodes.values().stream().toList());
 
-        for (String eventName : parser.getEvents()) {
-            for (Entity src : eventSources.get(eventName)) {
+        for (Event event : parser.getEvents()) {
+            for (Entity src : eventSources.get(event)) {
                 Node srcNode = entityNodes.get(src);
                 assert(srcNode != null);
-                for (Entity dst : eventDestinations.get(eventName)) {
+                for (Entity dst : eventDestinations.get(event)) {
                     Node dstNode = entityNodes.get(dst); //.with(linkAttrs()));
                     entGraph = entGraph.with(
-                            srcNode.link(to(dstNode).with(Label.of(eventName)))
+                            srcNode.link(to(dstNode).with(Label.of(event.name())))
                     );
                     System.out.println("link " + src.getName() + " -> " + dst.getName());
                 }

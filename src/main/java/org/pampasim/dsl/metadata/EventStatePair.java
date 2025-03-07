@@ -5,16 +5,16 @@ import org.pampasim.SimCore.EventType;
 
 @Getter
 public class EventStatePair {
-    private String eventName;
+    private Event event;
     private AssociatedState state;
 
-    public EventStatePair(String eventName, AssociatedState state) {
-        this.eventName = eventName;
+    public EventStatePair(Event event, AssociatedState state) {
+        this.event = event;
         this.state = state;
     }
 
     @Override
     public String toString() {
-        return "(" + getEventName() + "," + getState() + ")";
+        return "(" + getEvent() + "," + getState() + ")";
     }
 }

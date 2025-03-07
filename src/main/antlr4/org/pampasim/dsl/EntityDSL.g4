@@ -11,12 +11,13 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.pampasim.dsl.metadata.*;
+import org.pampasim.dsl.errors.*;
 }
 @members {
 @Getter
 private Map<String, Entity> entities = new HashMap<>();
 @Getter
-private Set<String> events = new HashSet<>();
+private Set<Event> events = new HashSet<>();
 }
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' eventDeclsBlock {
@@ -26,11 +27,11 @@ eventDeclsBlock: '{' eventGroupDecl+ '}';
 eventGroupDecl: 'transmitting' associatedType=eventDataType eventDeclList;
 eventDataType: javaType | 'nothing';
 javaType: ID ('.' ID)*?;
-eventDeclList: '{' (events+=eventId ';')+ '}' {
+eventDeclList: '{' (eventsList+=eventId ';')+ '}' {
     // FIXME: the associated type is ignored for now
-    for (var evtok : $events) {
+    for (var evtok : $eventsList) {
         var evName = evtok.getText();
-        var unique = events.add(evName);
+        var unique = events.add(new Event(evName));
         if (!unique) {
             System.err.println("duplicate event \"" + evName + "\"");
         }
@@ -50,21 +51,26 @@ entity locals [Entity ent]: name=ID
     ;
 entityBlock: '{' eventHandler+ '}';
 eventHandler
-    locals [ String eventNameStr ]
-    : 'on' eventName=ID { $eventNameStr = $eventName.text; } mappings;
+    locals [ Event event ]
+    : 'on' eventName=ID {
+        $event = new Event($eventName.text);
+        if (!events.contains($event)) {
+            throw new UndeclaredEvent($event);
+        }
+    } mappings;
 mappings
     : 'do' handlerMap
     | 'transition'? transitionMap
     ;
 handlerMap: '{' eventAction+ '}';
-eventAction locals [ ArrayList<String> chainedEvents = new ArrayList<>() ]
+eventAction locals [ ArrayList<Event> chainedEvents = new ArrayList<>() ]
     : from=stateId 'then' desc=eventHandlerDesc to=actionTransition actionResult ';'
     {
         Entity ent = $entity::ent;
-        String eventName = $eventHandler::eventNameStr;
+        Event event = $eventHandler::event;
         String fromStateName = $from.text;
         AssociatedState fromState = new AssociatedState(ent, fromStateName);
-        EventStatePair pair = new EventStatePair(eventName, fromState);
+        EventStatePair pair = new EventStatePair(event, fromState);
 
         // FIXME: nextStates need to be passed along
         var handler = new Handler(ent, pair, null, $chainedEvents, $desc.text);
@@ -82,7 +88,13 @@ actionTransitionExpr
     | '(' actionTransitionExpr ')' # Paren
     ;
 actionResult
-    : 'chains' eventId { $eventAction::chainedEvents.add($eventId.text); }
+    : 'chains' eventId {
+        Event event = new Event($eventId.text);
+        if (!events.contains(event)) {
+            throw new UndeclaredEvent(event);
+        }
+        $eventAction::chainedEvents.add(event);
+    }
     | 'nochain'
     | // optional, equivalent to nochain
     ;
@@ -91,12 +103,12 @@ transition
     : from=statePattern TRANSITION_OPERATOR to=stateId ';'
     {
         Entity ent = $entity::ent;
-        String eventName = $eventHandler::eventNameStr;
+        Event event = $eventHandler::event;
         String fromStateName = $from.text;
         String toStateName = $to.text;
         AssociatedState fromState = new AssociatedState(ent, fromStateName);
         AssociatedState toState = new AssociatedState(ent, toStateName);
-        EventStatePair pair = new EventStatePair(eventName, fromState);
+        EventStatePair pair = new EventStatePair(event, fromState);
         var nextStates = new ArrayList<AssociatedState>();
         nextStates.add(toState);
         var handler = new Handler(ent, pair, nextStates, new ArrayList<>(), "simple transition");
