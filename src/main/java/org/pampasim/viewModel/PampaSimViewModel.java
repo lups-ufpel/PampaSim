@@ -95,7 +95,7 @@ public class PampaSimViewModel implements ViewModel {
 
     public void addProcessListeners(Process process) {
         process.addOnCreateListener(this::notifyGuiOnCreatedProcess);
-        process.addOnDispatchtListener(this::notifyGuiOnReadyProcess);
+        process.addOnDispatchListener(this::notifyGuiOnReadyProcess);
         process.addOnStartRunningListener(this::notifyGuiOnStartRunningProcess);
         process.addOnFinishListener(this::notifyGuiOnFinishedProcess);
         process.addOnUpdateListener(this::notifyGuiOnRunningProcess);

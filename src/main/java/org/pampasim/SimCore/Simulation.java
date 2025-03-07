@@ -6,9 +6,7 @@ import org.pampasim.SimEntity.PampaSimEntity;
 
 public interface Simulation {
     void addEntity(PampaSimEntity entity);
-    double getCpuClock();
-    void send(final PampaSimEvent event);
-    boolean runClockAndProcessEventsSync();
+    void scheduleToNextClock(final PampaSimEvent event);
     boolean runClockAndProcessEvents();
     <T extends PampaSimEntity> T getEntity(Class<T> entityClass);
     EventManager getEventManager();

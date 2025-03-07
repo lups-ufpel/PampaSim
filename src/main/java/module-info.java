@@ -21,5 +21,5 @@ module org.pampasim {
     exports org.pampasim.SimEntity;
     exports org.pampasim.SimResources;
     exports org.pampasim.viewModel;
-    exports org.pampasim.SimCoreRefactor;
+    exports org.pampasim.Utils;
 }

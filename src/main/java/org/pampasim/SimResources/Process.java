@@ -1,13 +1,17 @@
 package org.pampasim.SimResources;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.pampasim.SimCore.EventInfo;
 import org.pampasim.SimCore.EventListener;
 import org.pampasim.SimCore.ProcessEventInfo;
-import org.pampasim.Utils.PidAllocator;
+import org.pampasim.Utils.PidAllocator.Pid;
+
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
 public class Process {
     private final Set<EventListener<EventInfo>> onCreateListeners;
     private final Set<EventListener<EventInfo>> onDispatchListeners;
@@ -18,19 +22,18 @@ public class Process {
     private final Set<EventListener<EventInfo>> onResumeListeners;
 
     State state;
-    final int arrivalTime;
-    final int burstTime;
+    final int arrivalTime; // when the process arrives to be allocated
+    final int burstTime; // length of the next "turn" on the processor
+    @Setter
     private int priority;
-    protected int currExecTime;
-    private int execTimeSlice;
-    protected String progressBar;
-    private PidAllocator.Pid pid;
-    public Process(int priority, int totalBurst, int arrivalTime) {
+    private int currExecTime; // elapsed execution time
+    private final Pid pid;
+    public Process(int priority, int totalBurst, int arrivalTime, Pid pid) {
         this.priority = priority;
         this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
-        this.progressBar = "";
+        this.pid = pid;
         onDispatchListeners = new HashSet<>();
         onFinishListeners = new HashSet<>();
         onUpdateListeners = new HashSet<>();
@@ -42,87 +45,28 @@ public class Process {
     public String getPid() {
         return pid.toString();
     }
-    public void setPid(PidAllocator.Pid pid) {
-        this.pid = pid;
-    }
-    public int getPriority() {
-        return priority;
-    }
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-    public int getArrivalTime(){
-        return arrivalTime;
-    }
-    public int getCurrentTimeSlice() {
-        return execTimeSlice;
-    }
-    public State getState(){
-        return state;
-    }
-    public void setState(State state){
-        this.state = state;
-    }
-    public int getBurstTime(){ return burstTime; }
-    public int getCurrentExecutionTime() {
-        return currExecTime;
-    }
+
     public int getRemainingExecutionTime() {
         return burstTime - currExecTime;
     }
-    public void create() {
-        setState(State.NEW);
-        notifyListenersOnCreate();
-    }
-    public void ready() {
-        if(getState() != State.NEW) {
-            throw new IllegalStateException("resources.Process must be in RUNNING state to be interrupted");
-        }
-        setState(State.READY);
-        notifyListenerOnDispatch();
-    }
-    public void startRunning() {
-        setState(State.RUNNING);
-        notifyListenersOnStartRunning();
-    }
-    public void interrupt() {
-        if(getState() != State.RUNNING){
-            throw new IllegalStateException("resources.Process must be in RUNNING state to be interrupted");
-        }
-        setState(State.READY);
-        notifyListenersOnSuspend();
-    }
-    public void finish() {
-        if(getState() != State.RUNNING) {
-            throw new IllegalStateException("resources.Process must be in RUNNING state to be finished");
-        }
-        else {
-            setState(State.TERMINATED);
-            notifyListenersOnFinish();
-        }
-    }
+
     public void forwardProcessExecution() {
         this.currExecTime +=1;
     }
-    public Process addOnCreateListener(EventListener<EventInfo> listener) {
+    public void addOnCreateListener(EventListener<EventInfo> listener) {
         this.onCreateListeners.add(listener);
-        return this;
     }
-    public Process addOnDispatchtListener(EventListener<EventInfo> listener) {
+    public void addOnDispatchListener(EventListener<EventInfo> listener) {
         this.onDispatchListeners.add(listener);
-        return this;
     }
-    public Process addOnFinishListener(EventListener<EventInfo> listener) {
+    public void addOnFinishListener(EventListener<EventInfo> listener) {
         this.onFinishListeners.add(listener);
-        return this;
     }
-    public Process addOnStartRunningListener(EventListener<EventInfo> listener) {
+    public void addOnStartRunningListener(EventListener<EventInfo> listener) {
         this.onStartRunningListeners.add(listener);
-        return this;
     }
-    public Process addOnUpdateListener(EventListener<EventInfo> listener) {
+    public void addOnUpdateListener(EventListener<EventInfo> listener) {
         this.onUpdateListeners.add(listener);
-        return this;
     }
     public Process addOnSuspendListener(EventListener<EventInfo> listener) {
         this.onSuspendListeners.add(listener);

@@ -3,7 +3,7 @@ package org.pampasim.SimEntity;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCoreRefactor.EventType;
+import org.pampasim.SimCore.EventType;
 import org.pampasim.SimResources.Process;
 import org.pampasim.Utils.PidAllocator;
 
@@ -13,13 +13,8 @@ import java.util.List;
 
 public class ProcessManager extends PampaSimEntity {
 
-    private List<Process> processSubmittedList;
-    private final PidAllocator pidAllocator;
-
     public ProcessManager(Simulation simulation) {
         super(simulation);
-        processSubmittedList = new ArrayList<>();
-        pidAllocator = new PidAllocator();
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(EventType.PROCESS_ARRIVAL, this);
@@ -27,39 +22,30 @@ public class ProcessManager extends PampaSimEntity {
         simulation.getEventManager().addEventHandler(EventType.PROCESS_EXECUTION_END, this);
 
     }
-    public void submitProcess(Process process) {
-        process.setPid(pidAllocator.assignPid());
-        process.create();
-        processSubmittedList.add(process);
-        System.out.println("[ProcessManager] Submetendo processo: " + process.getPid());
-    }
-    public void createBatchProcesses() {
-        HashMap<Integer, List<Process>> batchProcessMap = new HashMap<>();
-        for (Process process : processSubmittedList) {
-            var arrival = process.getArrivalTime();
-            batchProcessMap.computeIfAbsent(arrival, k -> new ArrayList<>()).add(process);
-        }
-
-        batchProcessMap.forEach((key, value) -> {
-            schedule(createBatchProcessSubmittedEvent(key, value));
-        });
-    }
-
-    private PampaSimEvent createBatchProcessSubmittedEvent(Integer delay, List<Process> processSubmittedList) {
-        PampaSimEntity source = this;
-        PampaSimEntity dest = getSimulation().getEntity(Scheduler.class);
-        System.out.println("[ProcessManager] Evento de criação de processo criado: " +
-                "com delay de " + delay);
-        return new PampaSimEvent(PampaSimEvent.Type.SEND, delay, source, dest, PampaSimEventID.READY_PROCESS, processSubmittedList);
-    }
 
     @Override
     public void processEvent(PampaSimEvent event) {
-        System.out.println("[ProcessManager] Evento recebido: " + event.getEventID());
+        switch (event.getEventType()) {
+            case PROCESS_ARRIVAL -> handleProcessArrival(event);
+            case READY_PROCESS -> handleReadyProcess(event);
+            case PROCESS_EXECUTION_END -> handleProcessExecutionEnd(event);
+            default -> throw new IllegalStateException("[ProcessManager] Evento do tipo " + event.getEventType() + " não pode ser tratado, evento serial: " + event.getSerial());
+        }
     }
-    private void send(final PampaSimEntity dest, double delay, PampaSimEventID eventID, final Object data) {
-        System.out.println("[ProcessManager] Enviando evento: "
-                + eventID + " para " + dest.getClass().getSimpleName() + " com delay de " + delay);
-        schedule(new PampaSimEvent(PampaSimEvent.Type.SEND, delay, this, dest, eventID, data));
+
+    private void handleProcessArrival(PampaSimEvent event) {
+        scheduleToNextClock(event.changeType(EventType.ALLOCATE_PROCESS));
+    }
+
+    private void handleReadyProcess(PampaSimEvent event) {
+        scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));
+    }
+
+    private void handleProcessExecutionEnd(PampaSimEvent event) {
+        if (event.getProcess().isFinished()) {
+            scheduleToNextClock(event.changeType(EventType.END_PROCESS));
+        } else {
+            scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));
+        }
     }
 }

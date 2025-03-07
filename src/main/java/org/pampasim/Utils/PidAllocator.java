@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 
 public class PidAllocator {
-
     public static final class Pid {
         long id;
         boolean inUse;
@@ -31,7 +30,6 @@ public class PidAllocator {
             return String.valueOf(id);
         }
     }
-    private final int MAX_PID = Integer.MAX_VALUE;
     int lastPid = 0;
     private final LinkedList<Pid> pids;
 
@@ -40,6 +38,7 @@ public class PidAllocator {
     }
     public Pid assignPid() {
         Pid pid;
+        int MAX_PID = Integer.MAX_VALUE;
         if(lastPid < MAX_PID) {
             int curr_id = ++lastPid;
             pid = new Pid(curr_id, true);
