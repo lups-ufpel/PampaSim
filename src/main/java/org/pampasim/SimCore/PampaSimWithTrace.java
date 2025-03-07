@@ -38,14 +38,14 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
         return super.runClockAndProcessEvents();
     }
 
-    @Override
-    protected void processEvent(PampaSimEvent evt) {
-        super.processEvent(evt);
-        System.out.println("Got ev: " + evt);
-        currentClockEvents.addEvent(evt);
-        System.out.println("Current sim clock (" + getSimulationClock() + ") events:");
-        currentClockEvents.stream().forEach((e) -> System.out.println("\t" + e));
-    }
+//    @Override
+//    protected void processEvent(PampaSimEvent evt) {
+//        super.processEvent(evt);
+//        System.out.println("Got ev: " + evt);
+//        currentClockEvents.addEvent(evt);
+//        System.out.println("Current sim clock (" + getSimulationClock() + ") events:");
+//        currentClockEvents.stream().forEach((e) -> System.out.println("\t" + e));
+//    }
 
     @Override
     public Graph exportGraph() {
@@ -85,15 +85,20 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
         }
         if (!noEvents) {
             for (PampaSimEvent ev : this.currentClockEvents.stream().toList()) {
-                g = g.with(
-                        root.link(
-                                between(
-                                        port("ev" + ev.getSerial()),
-                                        entityGraphMap.get(ev.getDestination().graphNodeName())
-                                )
-                        ),
-                        entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
-                );
+                List<PampaSimEntity> dsts = this.getEventManager().getAllDestinations(ev.getEventType());
+                for (var dstEntity : dsts) {
+                    g = g.with(
+                            root.link(
+                                    between(
+                                            port("ev" + ev.getSerial()),
+                                            entityGraphMap.get(dstEntity.graphNodeName())
+                                    )
+                            )
+                            // FIXME: getting the source is no longer trivial
+
+                            //entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
+                    );
+                }
             }
         }
         return g;

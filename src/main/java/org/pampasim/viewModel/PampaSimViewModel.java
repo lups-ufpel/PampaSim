@@ -21,6 +21,7 @@ import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.GraphVisualizeable;
+import org.pampasim.Utils.PidAllocator;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
@@ -63,8 +64,10 @@ public class PampaSimViewModel implements ViewModel {
         var start = processScope.getStartTimeProperty().getValue();
         var duration = processScope.getDurationProperty().getValue();
         var priority = processScope.getPriorityProperty().getValue();
-        var newProcess = new Process(priority,duration,start);
-        simulatedScenario.getProcessManager().submitProcess(newProcess);
+        var newProcess = new Process(priority,duration,start,
+                new PidAllocator.Pid(0,true) // FIXME: Here just to compile, very incorrect
+                );
+        //simulatedScenario.getProcessManager().submitProcess(newProcess);
         this.addProcessListeners(newProcess);
         newProcess.notifyListenersOnCreate();
     }
@@ -87,7 +90,7 @@ public class PampaSimViewModel implements ViewModel {
             return;
         }
         setSimulationRunning(true);
-        simulatedScenario.getProcessManager().createBatchProcesses();
+        //simulatedScenario.getProcessManager().createBatchProcesses();
     }
     public void stopSimulation() {
         setSimulationRunning(false);

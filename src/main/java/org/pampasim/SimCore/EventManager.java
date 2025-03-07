@@ -2,7 +2,9 @@ package org.pampasim.SimCore;
 
 import org.pampasim.SimEntity.PampaSimEntity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EventManager {
@@ -50,4 +52,10 @@ public class EventManager {
         }
     }
 
+    public List<PampaSimEntity> getAllDestinations(EventType event) {
+        return handlers.entrySet().stream()
+                .filter(entry -> entry.getKey() == event)
+                .map(Map.Entry::getValue)
+                .toList();
+    }
 }

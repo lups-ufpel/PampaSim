@@ -8,8 +8,6 @@ import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.Utils.GraphVisualizeable;
 import static guru.nidi.graphviz.model.Factory.*;
-import org.pampasim.SimCoreRefactor.Event;
-import org.pampasim.SimCoreRefactor.EventType;
 
 import java.util.Queue;
 

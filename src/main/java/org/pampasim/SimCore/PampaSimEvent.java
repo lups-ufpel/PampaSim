@@ -24,12 +24,6 @@ public class PampaSimEvent {
     }
 
     public String toString() {
-        return "Event #" + serial + " from " + source.getClass().getSimpleName() +
-                " to " + destination.getClass().getSimpleName() +
-                " with id " + eventID +
-                " of type " + type +
-                " with delay " + delay +
-                " endWaitingTime " + endWaitingTime + // unused?
-                ".";
+        return "Event #" + getSerial() + " of type " + getEventType();
         }
 }
