@@ -4,10 +4,11 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
-import org.pampasim.SimCore.EventManager;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
+import org.pampasim.Utils.PidAllocator;
+
 import static guru.nidi.graphviz.model.Factory.*;
 
 import java.util.ArrayList;
@@ -17,14 +18,15 @@ import java.util.Map;
 
 public class PampaSim implements Simulation {
     protected final ArrayList<PampaSimEntity> entityList;
-    // RFC (Pedro): Double doesn't have full equivalence guarantees, so I'd prefer if we changed the clocks to an integer type
-    private final Map<Double, ArrayList<PampaSimEvent>> future; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
+    private final Map<Integer, ArrayList<PampaSimEvent>> future; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
     private final ArrayList<PampaSimEvent> eventsOnNextClock;
     private final List<PampaSimEvent> finishedProcesses;
     @Getter
     private final EventManager eventManager;
     @Getter
-    private double simulationClock;
+    private int simulationClock;
+    @Getter
+    private PidAllocator pidAllocator;
 
     public PampaSim() {
         this.entityList = new ArrayList<>();
@@ -33,6 +35,7 @@ public class PampaSim implements Simulation {
         this.finishedProcesses = new ArrayList<>();
         this.future = new HashMap<>();
         this.simulationClock = 0;
+        this.pidAllocator = new PidAllocator();
     }
 
     @Override
@@ -41,11 +44,11 @@ public class PampaSim implements Simulation {
     }
 
     @Override
-    public void scheduleToNextClock(PampaSimEvent event) {
+    public void scheduleToNextClock(final PampaSimEvent event) {
         eventsOnNextClock.add(event);
     }
 
-    public void scheduleToClock(double clock, PampaSimEvent event) { // used to schedule events before the simulation starts
+    public void scheduleToClock(int clock, final PampaSimEvent event) { // used to schedule events before the simulation starts
         if(!future.containsKey(clock)) {
             future.put(clock, new ArrayList<>());
         }

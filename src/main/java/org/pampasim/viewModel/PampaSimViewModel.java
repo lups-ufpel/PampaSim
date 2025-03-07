@@ -12,9 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.SimCore.EventInfo;
-import org.pampasim.SimCore.ProcessEventInfo;
-import org.pampasim.SimCore.SimulatedScenario;
+import org.pampasim.SimCore.*;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimEntity.Scheduler;
@@ -64,10 +62,11 @@ public class PampaSimViewModel implements ViewModel {
         var start = processScope.getStartTimeProperty().getValue();
         var duration = processScope.getDurationProperty().getValue();
         var priority = processScope.getPriorityProperty().getValue();
-        var newProcess = new Process(priority,duration,start,
-                new PidAllocator.Pid(0,true) // FIXME: Here just to compile, very incorrect
+        Process newProcess = new Process(priority,duration,start,
+                simulatedScenario.simulation.getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
-        //simulatedScenario.getProcessManager().submitProcess(newProcess);
+        var newEvent = new PampaSimEvent(newProcess, EventType.PROCESS_ARRIVAL);
+        simulatedScenario.simulation.scheduleToClock(start, newEvent);
         this.addProcessListeners(newProcess);
         newProcess.notifyListenersOnCreate();
     }
