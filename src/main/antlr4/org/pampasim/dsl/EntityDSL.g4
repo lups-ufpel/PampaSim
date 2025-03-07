@@ -58,7 +58,7 @@ mappings
     | 'transition'? transitionMap
     ;
 handlerMap: '{' eventAction+ '}';
-eventAction
+eventAction locals [ ArrayList<String> chainedEvents = new ArrayList<>() ]
     : from=stateId 'then' desc=eventHandlerDesc to=actionTransition actionResult ';'
     {
         Entity ent = $entity::ent;
@@ -66,8 +66,9 @@ eventAction
         String fromStateName = $from.text;
         AssociatedState fromState = new AssociatedState(ent, fromStateName);
         EventStatePair pair = new EventStatePair(eventName, fromState);
+
         // FIXME: nextStates need to be passed along
-        var handler = new Handler(ent, pair, null, $desc.text);
+        var handler = new Handler(ent, pair, null, $chainedEvents, $desc.text);
         ent.getHandlers().put(eventName, handler);
     }
     ;
@@ -82,7 +83,7 @@ actionTransitionExpr
     | '(' actionTransitionExpr ')' # Paren
     ;
 actionResult
-    : 'chains' eventId
+    : 'chains' eventId { $eventAction::chainedEvents.add($eventId.text); }
     | 'nochain'
     | // optional, equivalent to nochain
     ;
@@ -99,7 +100,7 @@ transition
         EventStatePair pair = new EventStatePair(eventName, fromState);
         var nextStates = new ArrayList<AssociatedState>();
         nextStates.add(toState);
-        var handler = new Handler(ent, pair, nextStates, "simple transition");
+        var handler = new Handler(ent, pair, nextStates, new ArrayList<>(), "simple transition");
         ent.getHandlers().put(eventName, handler);
     }
     ;
