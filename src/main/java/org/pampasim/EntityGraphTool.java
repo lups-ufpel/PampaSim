@@ -6,13 +6,19 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import org.pampasim.dsl.EntityDSLLexer;
 import org.pampasim.dsl.EntityDSLParser;
+import org.pampasim.dsl.metadata.*;
 
 import java.io.IOException;
+import java.io.File;
+
+import static guru.nidi.graphviz.model.Factory.*;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.model.Graph;
 
 public class EntityGraphTool {
-    public static void main(String[] args) {
-        assert args.length > 1;
-        String fileName = args[1];
+    public static void main(String[] args) throws IOException {
+        String fileName = args[0];
         CharStream stream = null;
         try {
             stream = CharStreams.fromFileName(fileName);
@@ -26,8 +32,16 @@ public class EntityGraphTool {
         parser.setBuildParseTree(true);
         EntityDSLParser.DescriptionFileContext tree
                 = parser.descriptionFile();
-        var treeStr = tree.toStringTree();
         System.out.println(parser.getEvents());
         System.out.println(parser.getEntities());
+        Graph entGraph = graph("Entity graph");
+
+        for (Entity e : parser.getEntities().values()) {
+            entGraph = entGraph.with(node(e.getName()));
+        }
+
+        Graphviz.fromGraph(entGraph)
+                .render(Format.SVG)
+                .toFile(new File("entity-network.svg"));
     }
 }

@@ -35,8 +35,8 @@ NothingDoer {
                 = parser.descriptionFile();
         var treeStr = tree.toStringTree();
         System.out.println(treeStr);
-        System.out.println(parser.events);
-        System.out.println(parser.entities);
+        System.out.println(parser.getEvents());
+        System.out.println(parser.getEntities());
     }
     public static void theWholeThing() {
         String fileName = "refactor.ent";
@@ -55,7 +55,7 @@ NothingDoer {
                 = parser.descriptionFile();
         var treeStr = tree.toStringTree();
         System.out.println(treeStr);
-        System.out.println(parser.events);
-        System.out.println(parser.entities);
+        System.out.println(parser.getEvents());
+        System.out.println(parser.getEntities());
     }
 }

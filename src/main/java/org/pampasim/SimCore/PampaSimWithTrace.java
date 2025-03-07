@@ -43,7 +43,7 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
         super.processEvent(evt);
         System.out.println("Got ev: " + evt);
         currentClockEvents.addEvent(evt);
-        System.out.println("Current clock (" + getClock() + ") events:");
+        System.out.println("Current sim clock (" + getSimulationClock() + ") events:");
         currentClockEvents.stream().forEach((e) -> System.out.println("\t" + e));
     }
 
@@ -65,7 +65,7 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
                 ) +
                 "</table>\n";
         String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>\n" +
-                "<tr><td>" + name + "</td><td>Clock " + this.getClock() + "</td></tr>\n" +
+                "<tr><td>" + name + "</td><td>Clock " + this.getSimulationClock() + "</td></tr>\n" +
                 "<tr><td colspan='2' cellborder='0'>" + bufferTable + "</td></tr>\n" +
                 "</table>\n";
         Node root = node(graphNodeName())

@@ -4,7 +4,7 @@ import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
-//import org.pampasim.SimCore.PampaSimEvent;
+import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.Utils.GraphVisualizeable;
 import static guru.nidi.graphviz.model.Factory.*;
@@ -79,14 +79,15 @@ public class PampaSimEntity implements SimEntity {
     @Override
     public Graph exportGraph() {
         String name = this.getClass().getSimpleName();
-        String bufferDesc = (this.lastProcessedEvent == null)? "empty" : this.lastProcessedEvent.toString();
+        // FIXME: bufferDesc doesn't make much sense atm (refactor)
+        //String bufferDesc = (this.lastProcessedEvent == null)? "empty" : this.lastProcessedEvent.toString();
         String htmlTable =
             "<table border='0' cellborder='1' cellspacing='0'>" +
                 "<tr>" +
                     "<td>" + name + "</td>" +
                     "<td>State: " + this.getState() + "</td>" +
                 "</tr>" +
-                "<tr><td colspan='2'>" + bufferDesc + "</td></tr>" +
+                //"<tr><td colspan='2'>" + bufferDesc + "</td></tr>" +
             "</table>";
         return graph(graphNodeName())
                 .with(node(Label.html(htmlTable)).with(Shape.PLAIN_TEXT));
