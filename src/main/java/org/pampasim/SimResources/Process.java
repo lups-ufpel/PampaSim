@@ -29,6 +29,7 @@ public class Process {
     private int currExecTime; // elapsed execution time
     private final Pid pid;
     public Process(int priority, int totalBurst, int arrivalTime, Pid pid) {
+        this.state = State.NEW;
         this.priority = priority;
         this.burstTime = totalBurst;
         this.arrivalTime = arrivalTime;

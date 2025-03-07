@@ -30,7 +30,7 @@ public class PampaSim implements Simulation {
 
     public PampaSim() {
         this.entityList = new ArrayList<>();
-        this.eventManager = new EventManager();
+        this.eventManager = new EventManager(this);
         this.eventsOnNextClock = new ArrayList<>();
         this.finishedProcesses = new ArrayList<>();
         this.future = new HashMap<>();
@@ -63,6 +63,8 @@ public class PampaSim implements Simulation {
             queuedEvents.forEach(this::scheduleToNextClock);
         }
 
+        executeRunnableEntities();
+
         // Collect all KILL_PROCESS events in finishedProcesses
         List<PampaSimEvent> killProcessEvents = eventsOnNextClock.stream()
                 .filter(event -> event.getEventType() == EventType.KILL_PROCESS)
@@ -76,12 +78,15 @@ public class PampaSim implements Simulation {
 
         // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
         // and send them to the buffer of each entity that handles the event
-        executeRunnableEntities();
         if(eventsOnNextClock.isEmpty()) {
             simulationClock += 1;
             return false;
         } else {
-            eventsOnNextClock.forEach(eventManager::handleEvent);
+            // Necessary to create a copy of the eventsOnNextClock to iterate over since handleEvent can add a KILL_PROCESS event
+            // to the list as it's being iterated over
+            List<PampaSimEvent> eventsToProcess = new ArrayList<>(eventsOnNextClock);
+            eventsOnNextClock.clear();
+            eventsToProcess.forEach(eventManager::handleEvent);
             simulationClock += 1;
             return true;
         }

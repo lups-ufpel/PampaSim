@@ -8,12 +8,20 @@ import java.util.List;
 import java.util.Map;
 
 public class EventManager {
-    private Map<EventType, PampaSimEntity> handlers;
-    private Map<EventType, EventType> translations;
+    private final Map<EventType, PampaSimEntity> handlers;
+    private final Map<EventType, EventType> translations;
+    private Simulation simulation;
 
-    public EventManager() {
+    public EventManager(Simulation simulation) {
         handlers = new HashMap<>();
         translations = new HashMap<>();
+        this.simulation = simulation;
+
+        // FIXME: Temporary, adding event translations manually so that testing can be done
+        translations.put(EventType.ALLOCATE_PROCESS, EventType.READY_PROCESS);
+        translations.put(EventType.END_PROCESS, EventType.KILL_PROCESS);
+        translations.put(EventType.DISPATCH_PROCESS, EventType.RUN_PROCESS);
+        translations.put(EventType.IO_OPERATION, EventType.SCHEDULE_PROCESS);
     }
 
     public void addEventHandler(EventType eventType, PampaSimEntity handler) {
@@ -35,8 +43,12 @@ public class EventManager {
         PampaSimEntity handler = null;
         do {
             handler = handlers.get(event.getEventType());
-            if (handler != null) {
+            if (handler == null) {
                 event = translateEvent(event);
+                if (event.getEventType() == EventType.KILL_PROCESS) {
+                    simulation.scheduleToNextClock(event);
+                    return;
+                }
             }
         } while (handler == null);
 

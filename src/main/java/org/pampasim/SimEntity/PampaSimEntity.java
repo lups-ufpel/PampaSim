@@ -9,6 +9,7 @@ import org.pampasim.SimCore.Simulation;
 import org.pampasim.Utils.GraphVisualizeable;
 import static guru.nidi.graphviz.model.Factory.*;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
 import static java.util.Objects.requireNonNullElse;
@@ -25,6 +26,7 @@ public class PampaSimEntity implements SimEntity {
         state = State.RUNNABLE;
         this.simulation.addEntity(this);
         System.out.println("[" + this.getClass().getSimpleName() + "] PampaSim entity created.");
+        this.buffer = new LinkedList<>();
     }
     @Override
     public final boolean start() {
