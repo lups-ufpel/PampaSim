@@ -3,6 +3,8 @@ grammar EntityDSL; // Must match file name
 // Grammar rules start with a lowercase letter
 
 @header {
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.List;
 import java.util.Set;
@@ -12,8 +14,10 @@ import java.util.HashSet;
 import org.pampasim.dsl.metadata.*;
 }
 @members {
-Map<String, Entity> entities = new HashMap<>();
-Set<String> events = new HashSet<>();
+@Getter
+private Map<String, Entity> entities = new HashMap<>();
+@Getter
+private Set<String> events = new HashSet<>();
 }
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' eventDeclsBlock {
