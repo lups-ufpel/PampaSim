@@ -11,4 +11,5 @@ public interface Simulation {
     <T extends PampaSimEntity> T getEntity(Class<T> entityClass);
     EventManager getEventManager();
     PidAllocator getPidAllocator();
+    int getSimulationClock();
 }
