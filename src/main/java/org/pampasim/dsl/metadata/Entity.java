@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Getter
 public class Entity {
     protected String name = null;
-    protected Map<String, Handler> handlers = new HashMap<>();
+    protected Map<EventStatePair, Handler> handlers = new HashMap<>();
 
     public List<String> allStateNames() {
         return handlers.values().stream()
@@ -29,6 +29,16 @@ public class Entity {
     }
 
     public List<String> allAcceptedEventNames() {
-        return new ArrayList<>(handlers.keySet());
+        return new ArrayList<>(handlers
+                        .keySet()
+                        .stream()
+                        .map(EventStatePair::getEventName)
+                        .toList()
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "Entity " + getName();
     }
 }

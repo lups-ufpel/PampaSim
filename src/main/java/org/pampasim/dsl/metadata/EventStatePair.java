@@ -12,4 +12,9 @@ public class EventStatePair {
         this.eventName = eventName;
         this.state = state;
     }
+
+    @Override
+    public String toString() {
+        return "(" + getEventName() + "," + getState() + ")";
+    }
 }

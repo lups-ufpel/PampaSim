@@ -69,7 +69,7 @@ eventAction locals [ ArrayList<String> chainedEvents = new ArrayList<>() ]
 
         // FIXME: nextStates need to be passed along
         var handler = new Handler(ent, pair, null, $chainedEvents, $desc.text);
-        ent.getHandlers().put(eventName, handler);
+        ent.getHandlers().put(pair, handler);
     }
     ;
 actionTransition
@@ -101,7 +101,7 @@ transition
         var nextStates = new ArrayList<AssociatedState>();
         nextStates.add(toState);
         var handler = new Handler(ent, pair, nextStates, new ArrayList<>(), "simple transition");
-        ent.getHandlers().put(eventName, handler);
+        ent.getHandlers().put(pair, handler);
     }
     ;
 stateId: ID;

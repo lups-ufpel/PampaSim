@@ -24,9 +24,9 @@ events {
 ProcessManager {
   on CLOCK do {
     IDLE then "wait for events";
-    NEW then "handle an arriving process" -> IDLE;
-    READY then "handle a freshly allocated process" -> IDLE;
-    ENDED then "handle a process that just got evicted from the processor" -> IDLE;
+    NEW then "handle an arriving process" -> IDLE chains ALLOCATE_PROCESS;
+    READY then "handle a freshly allocated process" -> IDLE chains SCHEDULE_PROCESS;
+    ENDED then "handle a process that just got evicted from the processor" -> IDLE chains END_PROCESS;
     ERROR then "fatal error!" chains PROCESSMANAGER_ERROR;
   }
   on PROCESS_ARRIVAL { IDLE -> NEW; }
@@ -37,7 +37,7 @@ ProcessManager {
 Scheduler {
   on CLOCK do {
     IDLE then "wait for events";
-    ENQUEUE then "handle a process schedule request" -> IDLE;
+    ENQUEUE then "handle a process schedule request" -> IDLE chains DISPATCH_PROCESS;
     EXEC_ACK then "handle an acknowledgement of a run request" -> IDLE;
   }
   on SCHEDULE_PROCESS { IDLE -> ENQUEUE; }
@@ -47,7 +47,7 @@ Scheduler {
 Processor {
   on CLOCK do {
     IDLE then "do nothing";
-    EXEC then "execute a process";
+    EXEC then "execute a process" chains RUN_PROCESS_CONTINUE;
     CTX_SWITCH then "switch to a different process" chains PROCESS_EXECUTION_END;
     ERROR then "fatal error!" chains PROCESSOR_ERROR;
   }

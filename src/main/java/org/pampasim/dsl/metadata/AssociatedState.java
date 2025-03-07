@@ -13,4 +13,9 @@ public class AssociatedState {
         this.owner = owner;
         this.stateName = stateName;
     }
+
+    @Override
+    public String toString() {
+        return "(" + getStateName() + " of " + getOwner() + ")";
+    }
 }

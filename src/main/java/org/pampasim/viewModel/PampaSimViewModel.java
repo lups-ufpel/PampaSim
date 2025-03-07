@@ -2,6 +2,7 @@ package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
+import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
@@ -176,11 +177,10 @@ public class PampaSimViewModel implements ViewModel {
         var sim = this.simulatedScenario.getSimulation();
         if (sim instanceof GraphVisualizeable) {
             var graph = ((GraphVisualizeable)sim).exportGraph();
-            Graphviz.fromGraph(graph)
-                    .render(Format.SVG)
+            Graphviz viz = Graphviz.fromGraph(graph);
+            viz.render(Format.SVG)
                     .toFile(new File("graph" + graphNum + ".svg"));
-            Graphviz.fromGraph(graph)
-                    .render(Format.DOT)
+            viz.render(Format.DOT)
                     .toFile(new File("graph" + graphNum + ".dot"));
         }
         graphNum++;

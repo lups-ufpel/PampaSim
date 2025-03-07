@@ -1,5 +1,7 @@
 package org.pampasim;
 
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.model.*;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -49,6 +51,7 @@ public class EntityGraphTool {
             Node entNode = node(e.getName());
             entityNodes.put(e, entNode);
             for (Handler h : e.getHandlers().values()) {
+                System.out.println(h);
                 { // Add to destinations
                     String eventName = h.eventStatePair().getEventName();
                     Set<Entity> dstSet = eventDestinations.get(eventName);
@@ -75,17 +78,16 @@ public class EntityGraphTool {
                 assert(srcNode != null);
                 for (Entity dst : eventDestinations.get(eventName)) {
                     Node dstNode = entityNodes.get(dst); //.with(linkAttrs()));
-                    entGraph = entGraph.with(srcNode.link(dstNode));
+                    entGraph = entGraph.with(
+                            srcNode.link(to(dstNode).with(Label.of(eventName)))
+                    );
                     System.out.println("link " + src.getName() + " -> " + dst.getName());
                 }
             }
         }
 
-        Graphviz.fromGraph(entGraph)
-                .render(Format.SVG)
-                .toFile(new File("entity-network.svg"));
-        Graphviz.fromGraph(entGraph)
-                .render(Format.DOT)
-                .toFile(new File("entity-network.dot"));
+        var viz = Graphviz.fromGraph(entGraph);
+        viz.render(Format.SVG).toFile(new File("entity-network.svg"));
+        viz.render(Format.DOT).toFile(new File("entity-network.dot"));
     }
 }
