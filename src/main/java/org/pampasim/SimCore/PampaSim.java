@@ -55,6 +55,7 @@ public class PampaSim implements Simulation {
 
     public boolean runClockAndProcessEvents() {
         ArrayList<PampaSimEvent> currentEvents;
+
         if (eventsSchedule.containsKey(simulationClock)) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
             // at this clock tick, add them to the list of events to be processed

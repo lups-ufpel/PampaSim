@@ -58,8 +58,10 @@ public class Scheduler extends PampaSimEntity {
     }
 
     private void scheduleNextProcess() { // TODO: choose between several algorithms, right now it's choosing the one with the highest priority
+        if (processEnRoute) { return; }
         Process process = readyList.poll();
         scheduleToNextClock(new PampaSimEvent(process, EventType.DISPATCH_PROCESS));
+        processEnRoute = true;
     }
 
 }

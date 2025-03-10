@@ -104,7 +104,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class, pampaSimViewModel.getSchedulerScope());
         configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(2000), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
