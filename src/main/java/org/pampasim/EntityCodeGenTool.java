@@ -1,10 +1,5 @@
 package org.pampasim;
 
-import guru.nidi.graphviz.attribute.Label;
-import guru.nidi.graphviz.engine.Format;
-import guru.nidi.graphviz.engine.Graphviz;
-import guru.nidi.graphviz.model.Graph;
-import guru.nidi.graphviz.model.Node;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -14,30 +9,70 @@ import org.pampasim.dsl.metadata.Entity;
 import org.pampasim.dsl.metadata.Event;
 import org.pampasim.dsl.metadata.Handler;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static guru.nidi.graphviz.model.Factory.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /// Generates a specialized EventManager for a given
 /// description file, along with the Entities used within,
 /// using accompanying EntityImpl classes
 public class EntityCodeGenTool {
-    protected String implCodePath = "src/main/java/org/pampasim/SimEntityImpls";
+    public record GlobalSections (String eventElements) {};
+    public record EntitySections(GlobalSections globals, String stateElements, String eventRegistration, String processEvent) {
+        public static EntitySections of(String classCode, GlobalSections globals, Entity entity) {
+            Matcher simulationNameRe = Pattern.compile("Simulation\\s+(\\w+)").matcher(classCode);
+            var m = simulationNameRe.find();
+            assert m;
+            String simulationVarName = simulationNameRe.group(1);
 
-    public record CodeSections (String eventElements, String eventRegistration, String processEvent) {
+            return new EntitySections(
+                    globals,
+                    generateStateElements(entity),
+                    generateEventRegistrations(simulationVarName, entity),
+                    generateProcessEvent(simulationVarName, entity)
+            );
+        }
         public String patchClass(String classCode) {
             String acc = classCode;
-            acc = acc.replaceFirst("//\s*codegen\s+events\s*\n", eventElements);
-            acc = acc.replaceFirst("//\s*codegen\s+register\s+handlers\s*\n", eventRegistration);
-            acc = acc.replaceFirst("//\s*codegen\s+processEvent\s*\n", processEvent);
+            acc = acc.replaceAll("//\\s*codegen\\s+events *\\R", globals.eventElements());
+            acc = acc.replaceAll("//\\s*codegen\\s+states *\\R", stateElements);
+            acc = acc.replaceAll("//\\s*codegen\\s+register\\s+handlers\\s*\\R", eventRegistration);
+            acc = acc.replaceAll("//\\s*codegen\\s+processEvent\\s*\\R", processEvent);
             return acc;
         }
+        public static String generateStateElements(Entity e) {
+            StringBuilder acc = new StringBuilder();
+            for (String state : e.allStateNames()) {
+                acc.append(state).append(",\n");
+            };
+            return acc.toString();
+        }
+        public static String generateEventRegistrations(String simulationVarName, Entity e) {
+            StringBuilder acc = new StringBuilder();
+            for (Event event : e.allAcceptedEvents()) {
+                acc.append(simulationVarName)
+                        .append(".getEventManager().addEventHandler(")
+                        .append("EventType.")
+                        .append(event.name())
+                        .append(");\n");
+            };
+            return acc.toString();
+        }
+        public static String generateProcessEvent(String simulationVarName, Entity e) {
+            StringBuilder acc = new StringBuilder("""
+                    @Override
+                    public void processEvent(PampaSimEvent event) {
+                    }
+                    """);
+            return acc.toString();
+        }
     };
+
+    protected static final String implCodePath = "src/main/java/org/pampasim/SimEntityImpls";
+    protected static final String destCodePath = "src/main/java/org/pampasim/SimEntityGen";
 
     public static void main(String[] args) throws IOException {
         String fileName = args[0];
@@ -57,56 +92,23 @@ public class EntityCodeGenTool {
         System.out.println(parser.getEvents());
         System.out.println(parser.getEntities());
 
-        Map<Event, Set<Entity>> eventDestinations = new HashMap<>();
-        Map<Event, Set<Entity>> eventSources = new HashMap<>();
-        parser.getEvents().forEach(event -> {
-            eventSources.computeIfAbsent(event, k -> new HashSet<>());
-            eventDestinations.computeIfAbsent(event, k -> new HashSet<>());
-        });
-
-        Map<Entity, Node> entityNodes = new HashMap<>();
+        StringBuilder eventElements = new StringBuilder();
+        for (String evName : parser.getEvents().stream().map(Event::name).toList()) {
+            eventElements.append(evName).append(",\n");
+        }
+        GlobalSections globals = new GlobalSections(eventElements.toString());
 
         for (Entity e : parser.getEntities().values()) {
-            Node entNode = node(e.getName());
-            entityNodes.put(e, entNode);
-            for (Handler h : e.getHandlers().values()) {
-                System.out.println(h);
-                { // Add to destinations
-                    Event event = h.eventStatePair().getEvent();
-                    Set<Entity> dstSet = eventDestinations.get(event);
-                    dstSet.add(e);
-                }
-                { // Add to sources
-                    for (Event event : h.chainedEvents()) {
-                        Set<Entity> srcSet = eventSources.get(event);
-                        srcSet.add(e);
-                    }
-                }
-            }
+            // FIXME: use the Path API
+            FileInputStream srcFile = new FileInputStream(implCodePath + "/" + e.getName() + ".java");
+            FileOutputStream dstFile = new FileOutputStream(destCodePath + "/" + e.getName() + ".java");
+            System.out.println("Processing " + e.getName() + ": " + srcFile + " -> " + dstFile);
+            String classCode = new String(srcFile.readAllBytes());
+            System.out.println(classCode);
+            EntitySections genSections = EntitySections.of(classCode, globals, e);
+            dstFile.write(genSections.patchClass(classCode).getBytes(StandardCharsets.UTF_8));
         }
-
-
-        System.out.println("srcs " + eventSources);
-        System.out.println("dsts " + eventDestinations);
-        Graph entGraph = graph("Entity graph").directed()
-                .with(entityNodes.values().stream().toList());
-
-        for (Event event : parser.getEvents()) {
-            for (Entity src : eventSources.get(event)) {
-                Node srcNode = entityNodes.get(src);
-                assert(srcNode != null);
-                for (Entity dst : eventDestinations.get(event)) {
-                    Node dstNode = entityNodes.get(dst); //.with(linkAttrs()));
-                    entGraph = entGraph.with(
-                            srcNode.link(to(dstNode).with(Label.of(event.name())))
-                    );
-                    System.out.println("link " + src.getName() + " -> " + dst.getName());
-                }
-            }
-        }
-
-        var viz = Graphviz.fromGraph(entGraph);
-        viz.render(Format.SVG).toFile(new File("entity-network.svg"));
-        viz.render(Format.DOT).toFile(new File("entity-network.dot"));
     }
+
+
 }
