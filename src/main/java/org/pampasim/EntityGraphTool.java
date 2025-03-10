@@ -1,5 +1,6 @@
 package org.pampasim;
 
+import guru.nidi.graphviz.attribute.Attributes;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.model.*;
@@ -70,7 +71,9 @@ public class EntityGraphTool {
         System.out.println("srcs " + eventSources);
         System.out.println("dsts " + eventDestinations);
         Graph entGraph = graph("Entity graph").directed()
-                .with(entityNodes.values().stream().toList());
+                .with(entityNodes.values().stream().toList())
+                .nodeAttr().with(Attributes.attr("fontsize", 24))
+                .linkAttr().with(Attributes.attr("fontsize", 12), Attributes.attr("len", 4));
 
         for (Event event : parser.getEvents()) {
             for (Entity src : eventSources.get(event)) {
@@ -79,7 +82,7 @@ public class EntityGraphTool {
                 for (Entity dst : eventDestinations.get(event)) {
                     Node dstNode = entityNodes.get(dst); //.with(linkAttrs()));
                     entGraph = entGraph.with(
-                            srcNode.link(to(dstNode).with(Label.of(event.name())))
+                            srcNode.link(to(dstNode).with(Label.of(event.getName())))
                     );
                     System.out.println("link " + src.getName() + " -> " + dst.getName());
                 }
@@ -87,7 +90,10 @@ public class EntityGraphTool {
         }
 
         var viz = Graphviz.fromGraph(entGraph);
-        viz.render(Format.SVG).toFile(new File("entity-network.svg"));
+        viz.engine(Engine.DOT).render(Format.SVG).toFile(new File("entity-network.dot.svg"));
+        viz.engine(Engine.CIRCO).render(Format.SVG).toFile(new File("entity-network.circo.svg"));
+        viz.engine(Engine.FDP).render(Format.SVG).toFile(new File("entity-network.fdp.svg"));
+        viz.engine(Engine.NEATO).render(Format.SVG).toFile(new File("entity-network.neato.svg"));
         viz.render(Format.DOT).toFile(new File("entity-network.dot"));
     }
 }

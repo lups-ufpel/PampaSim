@@ -8,20 +8,31 @@ import org.pampasim.dsl.EntityDSLParser;
 import org.pampasim.dsl.metadata.AssociatedState;
 import org.pampasim.dsl.metadata.Entity;
 import org.pampasim.dsl.metadata.Event;
-import org.pampasim.dsl.metadata.Handler;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.BinaryOperator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /// Generates a specialized EventManager for a given
 /// description file, along with the Entities used within,
 /// using accompanying EntityImpl classes
 public class EntityCodeGenTool {
-    public record GlobalSections (String eventElements) {};
+    public record GlobalSections (String eventElements) {
+        public static GlobalSections of(Stream<Event> events) {
+            StringBuilder eventElements = new StringBuilder();
+            for (String evName : events.map(Event::getName).toList()) {
+                eventElements.append(evName).append(",\n");
+            }
+            return new GlobalSections(eventElements.toString());
+        }
+
+        public String patchEventManager(String eventManagerCode) {
+            return null;
+        }
+    };
     public record EntitySections(GlobalSections globals, String stateElements, String eventRegistration, String processEvent) {
         public static EntitySections of(String classCode, GlobalSections globals, Entity entity) {
             Matcher simulationNameRe = Pattern.compile("Simulation\\s+(\\w+)").matcher(classCode);
@@ -73,8 +84,11 @@ public class EntityCodeGenTool {
         }
     };
 
-    protected static final String implCodePath = "src/main/java/org/pampasim/SimEntityImpls";
-    protected static final String destCodePath = "src/main/java/org/pampasim/SimEntityGen";
+    protected static final String packagePath = "src/main/java/org/pampasim";
+    protected static final String implCodePackagePath = "SimEntityImpls";
+    protected static final String implDstPackagePath = "SimEntityGen";
+    protected static final String eventManagerCodePath = "SimCoreGen";
+    protected static final String eventManagerDstPath = "SimCoreGen";
 
     public static void main(String[] args) throws IOException {
         String fileName = args[0];
@@ -94,22 +108,31 @@ public class EntityCodeGenTool {
         System.out.println(parser.getEvents());
         System.out.println(parser.getEntities());
 
-        StringBuilder eventElements = new StringBuilder();
-        for (String evName : parser.getEvents().stream().map(Event::getName).toList()) {
-            eventElements.append(evName).append(",\n");
+        GlobalSections globals = GlobalSections.of(parser.getEvents().stream());
+        {
+            FileInputStream srcFile;
+            try {
+                srcFile = new FileInputStream(packagePath + "/" + eventManagerCodePath + "/EventManager.java");
+            } catch (FileNotFoundException fnfe) {
+                System.out.println("No implementation file for the EventManager, Abort!");
+                assert false;
+                return; // here so the IDE static analysis doesn't break
+            }
+            FileOutputStream dstFile = new FileOutputStream(packagePath + "/" + implDstPackagePath + "/PampaSimEventManager.java");
+            var out = globals.patchEventManager(new String(srcFile.readAllBytes()));
+
         }
-        GlobalSections globals = new GlobalSections(eventElements.toString());
 
         for (Entity e : parser.getEntities().values()) {
             // FIXME: use the Path API
             FileInputStream srcFile;
             try {
-                srcFile = new FileInputStream(implCodePath + "/" + e.getName() + ".java");
+                srcFile = new FileInputStream(packagePath + "/" + implCodePackagePath + "/" + e.getName() + ".java");
             } catch (FileNotFoundException fnfe) {
                 System.out.println("No implementation file for " + e + ", skipping...");
                 continue;
             }
-            FileOutputStream dstFile = new FileOutputStream(destCodePath + "/" + e.getName() + ".java");
+            FileOutputStream dstFile = new FileOutputStream(packagePath + "/" + implDstPackagePath + "/" + e.getName() + ".java");
             System.out.println("Processing " + e.getName() + ": " + srcFile + " -> " + dstFile);
             String classCode = new String(srcFile.readAllBytes());
             EntitySections genSections = EntitySections.of(classCode, globals, e);
