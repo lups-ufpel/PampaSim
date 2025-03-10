@@ -1,10 +1,12 @@
 package org.pampasim.dsl.metadata;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.Arrays;
 
 @Getter
+@EqualsAndHashCode
 public class AssociatedState {
     private Entity owner;
     private String stateName;

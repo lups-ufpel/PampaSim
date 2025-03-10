@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.pampasim.dsl.EntityDSLLexer;
 import org.pampasim.dsl.EntityDSLParser;
+import org.pampasim.dsl.metadata.AssociatedState;
 import org.pampasim.dsl.metadata.Entity;
 import org.pampasim.dsl.metadata.Event;
 import org.pampasim.dsl.metadata.Handler;
@@ -45,8 +46,9 @@ public class EntityCodeGenTool {
         }
         public static String generateStateElements(Entity e) {
             StringBuilder acc = new StringBuilder();
-            for (String state : e.allStateNames()) {
-                acc.append(state).append(",\n");
+            System.out.println("---\n" + e.allStates());
+            for (AssociatedState state : e.allStates()) {
+                acc.append(state.getStateName()).append(",\n");
             };
             return acc.toString();
         }
@@ -56,7 +58,7 @@ public class EntityCodeGenTool {
                 acc.append(simulationVarName)
                         .append(".getEventManager().addEventHandler(")
                         .append("EventType.")
-                        .append(event.name())
+                        .append(event.getName())
                         .append(");\n");
             };
             return acc.toString();
@@ -93,18 +95,23 @@ public class EntityCodeGenTool {
         System.out.println(parser.getEntities());
 
         StringBuilder eventElements = new StringBuilder();
-        for (String evName : parser.getEvents().stream().map(Event::name).toList()) {
+        for (String evName : parser.getEvents().stream().map(Event::getName).toList()) {
             eventElements.append(evName).append(",\n");
         }
         GlobalSections globals = new GlobalSections(eventElements.toString());
 
         for (Entity e : parser.getEntities().values()) {
             // FIXME: use the Path API
-            FileInputStream srcFile = new FileInputStream(implCodePath + "/" + e.getName() + ".java");
+            FileInputStream srcFile;
+            try {
+                srcFile = new FileInputStream(implCodePath + "/" + e.getName() + ".java");
+            } catch (FileNotFoundException fnfe) {
+                System.out.println("No implementation file for " + e + ", skipping...");
+                continue;
+            }
             FileOutputStream dstFile = new FileOutputStream(destCodePath + "/" + e.getName() + ".java");
             System.out.println("Processing " + e.getName() + ": " + srcFile + " -> " + dstFile);
             String classCode = new String(srcFile.readAllBytes());
-            System.out.println(classCode);
             EntitySections genSections = EntitySections.of(classCode, globals, e);
             dstFile.write(genSections.patchClass(classCode).getBytes(StandardCharsets.UTF_8));
         }

@@ -3,10 +3,7 @@ package org.pampasim.dsl.metadata;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /// Each entity instance will have their own state
@@ -22,19 +19,18 @@ public class Entity {
     protected String name = null;
     protected Map<EventStatePair, Handler> handlers = new HashMap<>();
 
-    public List<String> allStateNames() {
+    public Set<AssociatedState> allStates() {
         return handlers.values().stream()
-                .map(h -> h.eventStatePair().getState().getStateName())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .map(h -> h.eventStatePair().getState())
+                .collect(Collectors.toSet());
     }
 
-    public List<Event> allAcceptedEvents() {
-        return new ArrayList<>(handlers
-                        .keySet()
-                        .stream()
-                        .map(EventStatePair::getEvent)
-                        .toList()
-        );
+    public Set<Event> allAcceptedEvents() {
+        return handlers
+                .keySet()
+                .stream()
+                .map(EventStatePair::getEvent)
+                .collect(Collectors.toSet());
     }
 
     @Override
