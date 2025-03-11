@@ -122,8 +122,11 @@ statePattern
     ;
 eventId: ID;
 eventHandlerDesc: QUOTED;
+
+COMMENT: COMMENT_LEADER ~[\n]* '\n' -> skip;
 WS: [\r\n\t ]+ -> skip;
 ANY: '_';
 QUOTED: '"' .*? '"';
 TRANSITION_OPERATOR: '->';
 ID: [A-Za-z_][A-Za-z0-9_]*;
+fragment COMMENT_LEADER: '//';
