@@ -58,7 +58,7 @@ public class Processor extends PampaSimEntity {
         if (process.isFinished() || process.getBurstTime() == 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(event.changeType(EventType.PROCESS_EXECUTION_END));
-            process.setSuspended();
+            process.updateStateOnExecutionEnd();
             System.out.println("[Processador] Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
             System.out.println("[Processador] Continuação da Execução do processo de identificador:" + process.getPid());

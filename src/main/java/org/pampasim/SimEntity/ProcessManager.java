@@ -44,7 +44,6 @@ public class ProcessManager extends PampaSimEntity {
 
     private void handleProcessExecutionEnd(PampaSimEvent event) {
         if (event.getProcess().isFinished()) {
-            event.getProcess().setTerminated();
             scheduleToNextClock(event.changeType(EventType.END_PROCESS));
         } else {
             scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));
