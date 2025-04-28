@@ -14,3 +14,8 @@ god all my DSLs would probably work better as S-expressions but in for a penny i
 figured out a good way to do plugins with [classgraph](https://github.com/classgraph/classgraph)
 it should be able to autodetect classes implementing some interface (like specific entities' interfaces)
 just a matter of writing a good query
+
+tried registering and immediately calling process observer callbacks inside the pampasim
+view model's constructor, but that broke some assumption the mvvm framework holds
+(i don't know which) so we can't load a spec inside the constructor. \shrug
+that functionality is behind the already present "load scene" button

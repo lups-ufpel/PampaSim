@@ -43,9 +43,7 @@ public class SimulatedScenario {
         var specParser = new SpecFileParser(tokStream);
         var specVisitor = new SpecVisitor();
         this.spec = specVisitor.visit(specParser.specFile());
-        System.out.println(spec);
-        this.simulation.applySpec(this.spec);
-        // alrighty, this is the happy path, but the interface doesn't
-        // know jack about the current (updated) state of the events.
+        // alrighty, this is the happy path, but the spec is just chilling here, no telling when it'll be used
+        // and the interface still doesn't know jack about the current state of the events.
     }
 }

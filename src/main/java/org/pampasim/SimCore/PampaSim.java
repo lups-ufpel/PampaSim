@@ -5,6 +5,8 @@ import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
 import org.pampasim.SimEntity.PampaSimEntity;
+import org.pampasim.SimEntity.Processor;
+import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.Utils.PidAllocator;
@@ -107,11 +109,19 @@ public class PampaSim implements Simulation {
                 .orElse(null);
     }
 
+    public boolean isFresh() {
+        return this.eventsSchedule.isEmpty() && (getSimulationClock() == 0);
+    }
+
     public void applySpec(Spec s) {
         // only apply specs to a clean sim
-        assert(this.eventsSchedule.isEmpty());
+        if (!isFresh()) {
+            throw new RuntimeException("Can't apply spec to already running simulation!");
+        }
         // Here's where we'd instantiate the right scheduler
         this.pidAllocator = s.getPidAlloc();
         this.eventsSchedule = s.getEventSchedule();
     }
+
+
 }

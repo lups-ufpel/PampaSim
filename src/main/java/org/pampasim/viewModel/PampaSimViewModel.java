@@ -2,7 +2,6 @@ package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
@@ -11,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.Setter;
 import org.pampasim.SimCore.*;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
@@ -19,7 +17,6 @@ import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.GraphVisualizeable;
-import org.pampasim.Utils.PidAllocator;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
@@ -32,6 +29,10 @@ public class PampaSimViewModel implements ViewModel {
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
     @Getter
     private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
+    @Getter
+    private final BooleanProperty simulationIsValidSetup = new SimpleBooleanProperty(false);
+    @Getter
+    private final BooleanProperty simulationIsFresh = new SimpleBooleanProperty(true);
     private int graphNum = 0;
     @Getter
     private final ObservableList<ProcessViewModel> processes = FXCollections.observableArrayList();
@@ -53,11 +54,12 @@ public class PampaSimViewModel implements ViewModel {
         ProcessorCore core = new ProcessorCore(100);
         Processor processor = new Processor(simulatedScenario.getSimulation(), core);
         simulatedScenario.setProcessManager(kernel);
-
+        updateProps();
     }
 
     public void loadSpec() {
         var spec = simulatedScenario.getSpec();
+        simulatedScenario.getSimulation().applySpec(spec);
         System.out.println("got spec " + spec);
         if (spec != null) {
             for (var events : spec.getEventSchedule().values()) {
@@ -70,6 +72,7 @@ public class PampaSimViewModel implements ViewModel {
                 }
             }
         }
+        updateProps();
     }
 
     public SchedulerDialogScope getSchedulerScope() {
@@ -87,6 +90,7 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario.simulation.scheduleToClock(start, newEvent);
         this.addProcessListeners(newProcess);
         newProcess.notifyListenersOnCreate();
+        updateProps();
     }
     public boolean hasProcesses() {
         return true;
@@ -205,5 +209,16 @@ public class PampaSimViewModel implements ViewModel {
                     .toFile(new File("graph" + graphNum + ".dot"));
         }
         graphNum++;
+    }
+    public boolean isValidSetup() {
+        // FIXME / TODO: this can be made more thorough by analysing if there are any unhandled events
+        return simulatedScenario.getSimulation().getEntity(Scheduler.class) != null
+            && simulatedScenario.getSimulation().getEntity(Processor.class) != null
+            && simulatedScenario.getSimulation().getEntity(ProcessManager.class) != null;
+    }
+
+    public void updateProps() {
+        simulationIsValidSetup.set(isValidSetup());
+        simulationIsFresh.set(simulatedScenario.getSimulation().isFresh());
     }
 }

@@ -208,7 +208,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
-                <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
+                <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
                     <tooltip>
                         <Tooltip text="Carrega arquivo de descrição de cenário"/>
                     </tooltip>

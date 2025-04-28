@@ -13,5 +13,10 @@ public interface Simulation {
     EventManager getEventManager();
     PidAllocator getPidAllocator();
     int getSimulationClock();
+
+    /// returns whether the simulation is "fresh" as in loading a Spec won't override any configurations
+    boolean isFresh();
+    /// makes this simulation inherit the configurations defined in a Spec
+    /// throws a runtime error if not "fresh"
     void applySpec(Spec s);
 }
