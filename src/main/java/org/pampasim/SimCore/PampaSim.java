@@ -8,6 +8,7 @@ import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.Utils.PidAllocator;
+import org.pampasim.dsl.spec.Spec;
 
 import static guru.nidi.graphviz.model.Factory.*;
 
@@ -15,7 +16,7 @@ import java.util.*;
 
 public class PampaSim implements Simulation {
     protected final ArrayList<PampaSimEntity> entityList;
-    private final Map<Integer, ArrayList<PampaSimEvent>> eventsSchedule; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
+    private Map<Integer, ArrayList<PampaSimEvent>> eventsSchedule; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
     private final TreeSet<Integer> futureKeys; // used in the check if there are any "future" events after any given clock
     private final List<PampaSimEvent> finishedProcesses;
     @Getter
@@ -23,7 +24,7 @@ public class PampaSim implements Simulation {
     @Getter
     private int simulationClock;
     @Getter
-    private final PidAllocator pidAllocator;
+    private PidAllocator pidAllocator;
 
     public PampaSim() {
         this.entityList = new ArrayList<>();
@@ -104,5 +105,13 @@ public class PampaSim implements Simulation {
                 .map(entityClass::cast)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void applySpec(Spec s) {
+        // only apply specs to a clean sim
+        assert(this.eventsSchedule.isEmpty());
+        // Here's where we'd instantiate the right scheduler
+        this.pidAllocator = s.getPidAlloc();
+        this.eventsSchedule = s.getEventSchedule();
     }
 }

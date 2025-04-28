@@ -46,12 +46,30 @@ public class PampaSimViewModel implements ViewModel {
 
     public PampaSimViewModel() {
         simulatedScenario = new SimulatedScenario();
+
         ProcessManager kernel = new ProcessManager(simulatedScenario.getSimulation());
         // These were getting dropped at the end of this scope, why?
         // UPDATE: now i know why. this doesn't make me feel any better about this.
         ProcessorCore core = new ProcessorCore(100);
         Processor processor = new Processor(simulatedScenario.getSimulation(), core);
         simulatedScenario.setProcessManager(kernel);
+
+    }
+
+    public void loadSpec() {
+        var spec = simulatedScenario.getSpec();
+        System.out.println("got spec " + spec);
+        if (spec != null) {
+            for (var events : spec.getEventSchedule().values()) {
+                for (var ev : events) {
+                    Process p = ev.getProcess();
+                    System.out.println("registering proc " + p);
+                    // treat them like the create process button would
+                    addProcessListeners(p);
+                    p.notifyListenersOnCreate();
+                }
+            }
+        }
     }
 
     public SchedulerDialogScope getSchedulerScope() {
@@ -133,7 +151,8 @@ public class PampaSimViewModel implements ViewModel {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
         String pid = process.getPid();
         int priority = process.getPriority();
-        Color selectedColor = Color.web(processScope.getColorProperty().getValue());
+        //Color selectedColor = Color.web(processScope.getColorProperty().getValue());
+        Color selectedColor = Color.web("#000000");
         ProcessViewModel processViewModel = new ProcessViewModel(pid,priority,selectedColor);
         processViewModel.setState(process.getState());
         processes.add(processViewModel);

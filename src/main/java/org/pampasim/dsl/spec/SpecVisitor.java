@@ -32,10 +32,15 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
     public Spec visitSpecFile(SpecFileParser.SpecFileContext ctx) {
         var configCommandV = new ConfigCommandVisitor();
         var commandV = new CommandVisitor();
-        this.spec = configCommandV.visit(ctx.getChild(0));
-        for (int i = 0; i < ctx.getChild(1).getChildCount(); i++) {
-            var cmd = ctx.getChild(1).getChild(i);
+        for (var cmd : ctx.confCmds) {
+            System.out.println(cmd);
+            this.spec = configCommandV.visit(cmd);
+        }
+        System.out.println("---");
+        for (var cmd : ctx.cmds) {
+            System.out.println(cmd);
             commandV.visit(cmd);
+            System.out.println("got proc " + cmd);
         }
         return spec;
     }

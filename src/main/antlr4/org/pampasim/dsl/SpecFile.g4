@@ -1,6 +1,6 @@
 grammar SpecFile;
 options { caseInsensitive=true; }
-specFile: configCommand+ command* EOF;
+specFile: confCmds+=configCommand+ cmds+=command* EOF;
 
 configCommand:
     SCHEDULER_CMD schedulerInfo EOCOMMAND;

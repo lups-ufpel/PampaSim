@@ -25,8 +25,8 @@ public class Spec {
     }
     public Spec(String schedulerName) {
         this.schedulerName = schedulerName;
-        pidAlloc = new PidAllocator();
-        eventSchedule = new HashMap<>();
+        this.pidAlloc = new PidAllocator();
+        this.eventSchedule = new HashMap<>();
     }
 
     public PampaSimEvent addProcessArrival(Process p) {
@@ -49,5 +49,10 @@ public class Spec {
             }
         });
         return ev;
+    }
+
+    @Override
+    public String toString() {
+        return "Spec with " + this.eventSchedule.size() + " events";
     }
 }
