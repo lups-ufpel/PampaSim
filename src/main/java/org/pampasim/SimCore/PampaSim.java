@@ -1,25 +1,16 @@
 package org.pampasim.SimCore;
 
-import guru.nidi.graphviz.attribute.Label;
-import guru.nidi.graphviz.model.Graph;
-import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
 import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimEntity.Processor;
-import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimEntity.SimEntity;
-import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.Utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;
-
-import static guru.nidi.graphviz.model.Factory.*;
 
 import java.util.*;
 
 public class PampaSim implements Simulation {
     protected final ArrayList<PampaSimEntity> entityList;
-    private Map<Integer, ArrayList<PampaSimEvent>> eventsSchedule; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
-    private final TreeSet<Integer> futureKeys; // used in the check if there are any "future" events after any given clock
+    private EventSchedule eventsSchedule;
     private final List<PampaSimEvent> finishedProcesses;
     @Getter
     private final EventManager eventManager;
@@ -32,8 +23,7 @@ public class PampaSim implements Simulation {
         this.entityList = new ArrayList<>();
         this.eventManager = new EventManager(this);
         this.finishedProcesses = new ArrayList<>();
-        this.eventsSchedule = new HashMap<>();
-        this.futureKeys = new TreeSet<>();
+        this.eventsSchedule = new EventSchedule();
         this.simulationClock = 0;
         this.pidAllocator = new PidAllocator();
     }
@@ -49,17 +39,13 @@ public class PampaSim implements Simulation {
     }
 
     public void scheduleToClock(int clock, final PampaSimEvent event) { // used to schedule events before the simulation starts
-        if(!eventsSchedule.containsKey(clock)) {
-            eventsSchedule.put(clock, new ArrayList<>());
-            futureKeys.add(clock);
-        }
-        eventsSchedule.get(clock).add(event);
+        eventsSchedule.schedule(clock, event);
     }
 
     public boolean runClockAndProcessEvents() {
         ArrayList<PampaSimEvent> currentEvents;
 
-        if (eventsSchedule.containsKey(simulationClock)) {
+        if (eventsSchedule.hasEventsFor(simulationClock)) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
             // at this clock tick, add them to the list of events to be processed
              currentEvents = new ArrayList<>(eventsSchedule.get(simulationClock));
@@ -78,7 +64,7 @@ public class PampaSim implements Simulation {
 
         // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
         // and send them to the buffer of each entity that handles the event
-        if(currentEvents.isEmpty() && futureKeys.higher(simulationClock) == null) { // no events on next clock and also no future events scheduled
+        if(currentEvents.isEmpty() && !eventsSchedule.hasAnyAfter(simulationClock)) { // no events on next clock and also no future events scheduled
             simulationClock += 1;
             return false;
         } else {
@@ -88,7 +74,6 @@ public class PampaSim implements Simulation {
                     .filter(event -> event.getEventType() != EventType.KILL_PROCESS)
                     .forEach(eventManager::handleEvent); // processes all events except KILL_PROCESS events
             simulationClock += 1;
-            System.out.println("clock:" + simulationClock);
             return true;
         }
     }

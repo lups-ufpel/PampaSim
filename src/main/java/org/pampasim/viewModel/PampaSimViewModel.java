@@ -60,7 +60,7 @@ public class PampaSimViewModel implements ViewModel {
     public void loadSpec() {
         var spec = simulatedScenario.getSpec();
         simulatedScenario.getSimulation().applySpec(spec);
-        System.out.println("got spec " + spec);
+        System.out.println("got " + spec);
         if (spec != null) {
             for (var events : spec.getEventSchedule().values()) {
                 for (var ev : events) {
@@ -107,8 +107,8 @@ public class PampaSimViewModel implements ViewModel {
         }
     }
     public void startSimulation() {
-        if (!isSchedulerSet()) {
-            return;
+        if (!isValidSetup()) {
+            throw new RuntimeException("tried to start a simulation without the correct setup");
         }
         setSimulationRunning(true);
         //simulatedScenario.getProcessManager().createBatchProcesses();

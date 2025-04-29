@@ -1,6 +1,7 @@
 package org.pampasim.dsl.spec;
 
 import lombok.Getter;
+import org.pampasim.SimCore.EventSchedule;
 import org.pampasim.SimCore.EventType;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimResources.Process;
@@ -18,7 +19,7 @@ public class Spec {
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
     String schedulerName;
     PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
-    Map<Integer, ArrayList<PampaSimEvent>> eventSchedule;
+    EventSchedule eventSchedule;
 
     public Spec() {
         this("FCFS");
@@ -26,7 +27,7 @@ public class Spec {
     public Spec(String schedulerName) {
         this.schedulerName = schedulerName;
         this.pidAlloc = new PidAllocator();
-        this.eventSchedule = new HashMap<>();
+        this.eventSchedule = new EventSchedule();
     }
 
     public PampaSimEvent addProcessArrival(Process p) {
@@ -38,21 +39,12 @@ public class Spec {
         var ev = new PampaSimEvent(p, EventType.PROCESS_ARRIVAL);
         var arrivalTime = p.getArrivalTime();
 
-        eventSchedule.compute(arrivalTime, (key, val) -> {
-            if (val != null) {
-                val.add(ev);
-                return val;
-            } else {
-                var arr = new ArrayList<PampaSimEvent>();
-                arr.add(ev);
-                return arr;
-            }
-        });
+        eventSchedule.schedule(arrivalTime, ev);
         return ev;
     }
 
     @Override
     public String toString() {
-        return "Spec with " + this.eventSchedule.size() + " events";
+        return "Spec with " + this.eventSchedule;
     }
 }

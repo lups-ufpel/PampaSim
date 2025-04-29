@@ -50,10 +50,13 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
+        System.out.print("run call with " + actionEvent);
         pampaSimViewModel.startSimulation();
         if(pampaSimViewModel.isSimulationRunning()) {
+            System.out.print(" started animation");
             animation.play();
         }
+        System.out.println();
     }
     @FXML
     public void onFinishSimulation(ActionEvent actionEvent) {
@@ -189,7 +192,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     private void bindTimeLineProperty() {
         pampaSimViewModel.getSimulationRunning().addListener((obs, wasRunning, isRunning) -> {
-            runBtn.setDisable(isRunning);
             stopBtn.setDisable(!isRunning);
             if (!isRunning) {
                 animation.pause();
