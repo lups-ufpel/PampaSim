@@ -155,8 +155,14 @@ public class PampaSimViewModel implements ViewModel {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
         String pid = process.getPid();
         int priority = process.getPriority();
-        //Color selectedColor = Color.web(processScope.getColorProperty().getValue());
-        Color selectedColor = Color.web("#000000");
+        Color selectedColor = Color.web(processScope.getColorProperty().getValue());
+        var spec = simulatedScenario.getSpec();
+        if (spec != null) {
+            Color c = spec.getColorMap().getOrDefault(process, null);
+            if (c != null) {
+                selectedColor = c;
+            }
+        }
         ProcessViewModel processViewModel = new ProcessViewModel(pid,priority,selectedColor);
         processViewModel.setState(process.getState());
         processes.add(processViewModel);

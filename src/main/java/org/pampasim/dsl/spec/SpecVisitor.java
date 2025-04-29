@@ -1,5 +1,6 @@
 package org.pampasim.dsl.spec;
 
+import javafx.scene.paint.Color;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.dsl.SpecFileBaseVisitor;
 import org.pampasim.dsl.SpecFileParser;
@@ -21,10 +22,12 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
             int start    = Integer.parseInt(ctx.getChild(1).getChild(2*1 - 1).getText());
             int duration = Integer.parseInt(ctx.getChild(1).getChild(2*2 - 1).getText());
             int priority = Integer.parseInt(ctx.getChild(1).getChild(2*3 - 1).getText());
-            //int clr      = Integer.parseInt(ctx.getChild(1).getChild(2*4 - 1).getText());
-            return spec.addProcessArrival(
-                new Process(priority, duration, start, spec.getPidAlloc().assignPid())
-            );
+            Process p = new Process(priority, duration, start, spec.getPidAlloc().assignPid());
+            try {
+                String clr = ctx.getChild(1).getChild(2*4 - 1).getText();
+                spec.getColorMap().put(p, Color.web(clr));
+            } catch (Exception ignored) {}
+            return spec.addProcessArrival(p);
         }
     }
 

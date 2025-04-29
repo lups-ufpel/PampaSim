@@ -1,5 +1,6 @@
 package org.pampasim.dsl.spec;
 
+import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.SimCore.EventSchedule;
 import org.pampasim.SimCore.EventType;
@@ -7,7 +8,6 @@ import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimResources.Process;
 import org.pampasim.Utils.PidAllocator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +20,7 @@ public class Spec {
     String schedulerName;
     PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
     EventSchedule eventSchedule;
+    Map<Process, Color> colorMap;
 
     public Spec() {
         this("FCFS");
@@ -28,6 +29,7 @@ public class Spec {
         this.schedulerName = schedulerName;
         this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
+        this.colorMap = new HashMap<>();
     }
 
     public PampaSimEvent addProcessArrival(Process p) {
@@ -38,7 +40,6 @@ public class Spec {
         // which is a bummer
         var ev = new PampaSimEvent(p, EventType.PROCESS_ARRIVAL);
         var arrivalTime = p.getArrivalTime();
-
         eventSchedule.schedule(arrivalTime, ev);
         return ev;
     }
