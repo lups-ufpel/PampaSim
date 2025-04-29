@@ -6,7 +6,6 @@ import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.Utils.GraphVisualizeable;
 import static guru.nidi.graphviz.model.Factory.*;
 
 import java.util.LinkedList;
@@ -25,7 +24,7 @@ public class PampaSimEntity implements SimEntity {
         this.simulation = simulation;
         state = State.RUNNABLE;
         this.simulation.addEntity(this);
-        System.out.println("[" + this.getClass().getSimpleName() + "] PampaSim entity created.");
+        logInfo("PampaSim entity created.");
         this.buffer = new LinkedList<>();
     }
     @Override
@@ -40,7 +39,7 @@ public class PampaSimEntity implements SimEntity {
     };
     @Override
     public void scheduleToNextClock(PampaSimEvent event) {
-        System.out.println("["+this.getClass().getSimpleName()+"] Evento Enviado: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
+        logInfo("Evento Enviado: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
         simulation.scheduleToNextClock(event);
     }
     @Override
@@ -65,8 +64,16 @@ public class PampaSimEntity implements SimEntity {
         buffer.clear();
     }
     public void acceptEvent(org.pampasim.SimCore.PampaSimEvent event) {
-        System.out.println("["+this.getClass().getSimpleName()+"] Evento recebido: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
+        logInfo("Evento recebido: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
         this.buffer.add(event);
+    }
+
+    public void logInfo(String info) {
+        // delightfully devilish (and expensive, i think)
+        System.out.println(
+                "[" + getClass().getSimpleName() + " @ "
+                        + getSimulation().getSimulationClock()
+                        + "] " + info);
     }
 
     @Override

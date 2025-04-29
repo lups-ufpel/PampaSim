@@ -48,7 +48,7 @@ public class Processor extends PampaSimEntity {
         Process process = event.getProcess();
         process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
-        System.out.println("[Processador] Início da execução do processo de identificador:" + process.getPid());
+        logInfo("Início da execução do processo de identificador:" + process.getPid());
         preemption = false;
         core.execute(event.getProcess());
         getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
@@ -59,9 +59,9 @@ public class Processor extends PampaSimEntity {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(event.changeType(EventType.PROCESS_EXECUTION_END));
             process.setSuspended();
-            System.out.println("[Processador] Fim do turno de execução do processo de identificador:" + process.getPid());
+            logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
-            System.out.println("[Processador] Continuação da Execução do processo de identificador:" + process.getPid());
+            logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
             core.execute(event.getProcess());
             getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
         }
@@ -69,7 +69,7 @@ public class Processor extends PampaSimEntity {
     }
     private void handlePreemptProcess(PampaSimEvent event) {
         preemption = true;
-        System.out.println("[Processador] Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
+        logInfo("Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
     }
     public boolean isFree() {
         return ProcessorCore.Status.FREE == this.core.getStatus();
