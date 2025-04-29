@@ -2,6 +2,7 @@ package org.pampasim.SimCore;
 
 import lombok.Getter;
 import org.pampasim.SimEntity.PampaSimEntity;
+import org.pampasim.SimEntity.Scheduler;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.Utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;
@@ -103,7 +104,9 @@ public class PampaSim implements Simulation {
         if (!isFresh()) {
             throw new RuntimeException("Can't apply spec to already running simulation!");
         }
-        // Here's where we'd instantiate the right scheduler
+        // populate the scheduler with the only one we have implemented atm
+        // FIXME when the time comes™
+        this.addEntity(new Scheduler(this));
         this.pidAllocator = s.getPidAlloc();
         this.eventsSchedule = s.getEventSchedule();
     }
