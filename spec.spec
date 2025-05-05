@@ -1,4 +1,6 @@
+processor core mips 100 count 1;
 scheduler FCFS;
+procmanager;
 proc start 1 duration 1 priority 1 clr #ed1515;
 proc start 2 duration 1 priority 1 clr #ed9715;
 proc start 3 duration 2 priority 1 clr #81ed15;

@@ -9,6 +9,7 @@ import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.Node;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
+import org.pampasim.dsl.spec.Spec;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,11 @@ import static guru.nidi.graphviz.model.Factory.*;
  */
 public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
     private final FutureQueue currentClockEvents = new FutureQueue();
+
+    public PampaSimWithTrace() { super(); }
+    public PampaSimWithTrace(Spec spec) {
+        super(spec);
+    }
 
     @Override
     public boolean runClockAndProcessEvents() {

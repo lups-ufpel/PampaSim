@@ -1,9 +1,8 @@
 package org.pampasim.SimCore;
 
 import lombok.Getter;
-import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimEntity.Scheduler;
-import org.pampasim.SimEntity.SimEntity;
+import org.pampasim.SimEntity.*;
+import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;
 
@@ -27,6 +26,11 @@ public class PampaSim implements Simulation {
         this.eventsSchedule = new EventSchedule();
         this.simulationClock = 0;
         this.pidAllocator = new PidAllocator();
+    }
+
+    public PampaSim(Spec spec) {
+        this();
+        applySpec(spec);
     }
 
     @Override
@@ -99,6 +103,7 @@ public class PampaSim implements Simulation {
         return this.eventsSchedule.isEmpty() && (getSimulationClock() == 0);
     }
 
+    // TODO: This references all the entity interfaces, might need decoupling
     public void applySpec(Spec s) {
         // only apply specs to a clean sim
         if (!isFresh()) {
@@ -106,10 +111,26 @@ public class PampaSim implements Simulation {
         }
         // populate the scheduler with the only one we have implemented atm
         // FIXME when the time comes™
-        this.addEntity(new Scheduler(this));
+        new Scheduler(this);
+        try {
+            new Processor(this,
+                new ProcessorCore(
+                    s.getProcessors()
+                        .getFirst() // Single processor, for now
+                        .coreCapacities()
+                        .getFirst() // Single core, for now
+                    )
+                );
+        } catch (NoSuchElementException e) {
+            System.out.println("Possible mistake: no processor set up by spec!");
+        }
+
+        if (s.isHasProcManager()) {
+            new ProcessManager(this);
+        } else {
+            System.out.println("Possible mistake: no process manager set up by spec!");
+        }
         this.pidAllocator = s.getPidAlloc();
         this.eventsSchedule = s.getEventSchedule();
     }
-
-
 }

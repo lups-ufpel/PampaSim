@@ -3,6 +3,9 @@ package org.pampasim.view;
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +22,8 @@ import org.pampasim.viewModel.ProcessViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -37,6 +42,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public Button runBtn;
     @FXML
+    public Button resetBtn;
+    @FXML
     public Button stopBtn;
     @FXML
     public Button selectSchedBtn;
@@ -50,7 +57,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
-        System.out.print("run call with " + actionEvent);
         pampaSimViewModel.startSimulation();
         if(pampaSimViewModel.isSimulationRunning()) {
             System.out.print(" started animation");
@@ -58,6 +64,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         }
         System.out.println();
     }
+    @FXML
+    public void onResetSimulation(ActionEvent actionEvent) {
+        pampaSimViewModel.resetSimulation();
+    }
+    // somewhat misleading name, also called when the stop button is clicked
     @FXML
     public void onFinishSimulation(ActionEvent actionEvent) {
         animation.pause();
@@ -84,8 +95,12 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void loadSpec() {
-        pampaSimViewModel.loadSpec();
-        pampaSimViewModel.updateProps();
+        try {
+            var spec = URI.create("file:./spec.spec").toURL();
+            pampaSimViewModel.loadSpec(spec);
+        } catch (MalformedURLException e) {
+            new Alert(Alert.AlertType.ERROR, "bad url! " + e);
+        }
     }
 
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
@@ -130,12 +145,16 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         genGraphs.setAllowIndeterminate(false);
         genGraphs.setSelected(false);
         pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
-        runBtn.disableProperty()
-                .bind(pampaSimViewModel.getSimulationIsValidSetup().not()
+        runBtn.disableProperty().bind(
+                pampaSimViewModel
+                        .getSimulationIsValidSetup().not()
                         .or(pampaSimViewModel.getSimulationRunning())
-                    );
+        );
+        resetBtn.disableProperty()
+                .bind(pampaSimViewModel.getSimulationIsFresh());
         loadSpecBtn.disableProperty()
                 .bind(pampaSimViewModel.getSimulationIsFresh().not());
+        pampaSimViewModel.updateProps();
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
         Circle circle = new Circle(30, process.getColor());

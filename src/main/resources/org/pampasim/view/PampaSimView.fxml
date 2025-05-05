@@ -69,7 +69,7 @@
                     </graphic>
                     <text>New</text>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Reset">
+                <Button fx:id="resetBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onResetSimulation" text="Reset">
                     <tooltip>
                         <Tooltip text="Reiniciar simulação" />
                     </tooltip>

@@ -8,6 +8,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.SimCore.*;
@@ -21,8 +23,12 @@ import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
 import javax.swing.*;
+import javafx.scene.control.ChoiceDialog;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 public class PampaSimViewModel implements ViewModel {
     @Getter
@@ -53,13 +59,13 @@ public class PampaSimViewModel implements ViewModel {
         // UPDATE: now i know why. this doesn't make me feel any better about this.
         ProcessorCore core = new ProcessorCore(100);
         Processor processor = new Processor(simulatedScenario.getSimulation(), core);
-        simulatedScenario.setProcessManager(kernel);
         updateProps();
     }
 
-    public void loadSpec() {
+    public void loadSpec(URL url) {
+        simulatedScenario.loadSpec(url);
         var spec = simulatedScenario.getSpec();
-        simulatedScenario.getSimulation().applySpec(spec);
+        System.out.println("scheduler " + simulatedScenario.getSimulation().getEntity(Scheduler.class));
         System.out.println("got " + spec);
         if (spec != null) {
             for (var events : spec.getEventSchedule().values()) {
@@ -87,32 +93,37 @@ public class PampaSimViewModel implements ViewModel {
                 simulatedScenario.simulation.getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
         var newEvent = new PampaSimEvent(newProcess, EventType.PROCESS_ARRIVAL);
-        simulatedScenario.simulation.scheduleToClock(start, newEvent);
+        simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
+        simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
+        // FIXME: since we are updating the spec, we may as well make the start of the sim
+        // load from this built up spec, no?
         this.addProcessListeners(newProcess);
         newProcess.notifyListenersOnCreate();
         updateProps();
-    }
-    public boolean hasProcesses() {
-        return true;
-    }
-    public boolean isSchedulerSet() {
-        return simulatedScenario.getScheduler() != null;
     }
     public void setSimulationScheduler() {
         String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();
         switch (schedulerName) {
             case "FCFS", "SJF", "Round Robin", "Priority":
-                simulatedScenario.setScheduler(new Scheduler(simulatedScenario.getSimulation()));
+                new Scheduler(simulatedScenario.getSimulation());
                 break;
         }
+        simulatedScenario.getSpec().setSchedulerName(schedulerName);
     }
     public void startSimulation() {
         if (!isValidSetup()) {
             throw new RuntimeException("tried to start a simulation without the correct setup");
         }
         setSimulationRunning(true);
-        //simulatedScenario.getProcessManager().createBatchProcesses();
     }
+
+    public void resetSimulation() {
+        ChoiceDialog<String> confirmationDialog = new ChoiceDialog<>("No", "Yes", "No");
+        if (confirmationDialog.getSelectedItem() == "Yes") {
+            simulatedScenario.resetToSpec();
+        }
+    }
+
     public void stopSimulation() {
         setSimulationRunning(false);
     }

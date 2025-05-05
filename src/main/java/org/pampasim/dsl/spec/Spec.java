@@ -2,12 +2,15 @@ package org.pampasim.dsl.spec;
 
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import lombok.Setter;
 import org.pampasim.SimCore.EventSchedule;
 import org.pampasim.SimCore.EventType;
 import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimResources.Process;
 import org.pampasim.Utils.PidAllocator;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,19 +20,28 @@ import java.util.Map;
 public class Spec {
     // This string-based programming is really awkward, but needed:
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
-    String schedulerName;
-    PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
-    EventSchedule eventSchedule;
-    Map<Process, Color> colorMap;
+    @Setter
+    private String schedulerName;
+    public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
+    @Setter
+    private ArrayList<ProcessorInfo> processors;
+    @Setter
+    private boolean hasProcManager;
+    private PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
+    private EventSchedule eventSchedule;
+    private Map<Process, Color> colorMap;
 
     public Spec() {
         this("FCFS");
     }
+
     public Spec(String schedulerName) {
         this.schedulerName = schedulerName;
         this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
         this.colorMap = new HashMap<>();
+        this.processors = new ArrayList<>();
+        this.hasProcManager = false;
     }
 
     public PampaSimEvent addProcessArrival(Process p) {

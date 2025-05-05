@@ -25,6 +25,13 @@ broadcast `Clock` event, that way a queue of events can be accumulated for each 
 process all at once. This processing may, and usually does involve dispatching more events,
 and those get queued for processing in the next `Clock` dispatch.
 
+### Simulation recursion
+We've got a pretty generic abstraction in the form of a simulation / simulated scenario / spec
+file, so what's holding us back from describing the simulation as a tree where you can either have
+an entity leaf and a few subsystem simulation subtrees? that would help keep the code duplication
+down, lessen the burden on tooling and visualization dev. by making the program structure more
+homogenous, and just be kinda neat.
+
 ### Model quirks
 Making every entity capable of broadcasting an arbitrary amount of events every clock cycle
 requires a pretty well-defined event handling sequence, so we don't end up modelling our way into
