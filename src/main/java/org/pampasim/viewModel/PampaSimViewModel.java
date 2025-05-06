@@ -53,13 +53,6 @@ public class PampaSimViewModel implements ViewModel {
 
     public PampaSimViewModel() {
         simulatedScenario = new SimulatedScenario();
-
-        ProcessManager kernel = new ProcessManager(simulatedScenario.getSimulation());
-        // These were getting dropped at the end of this scope, why?
-        // UPDATE: now i know why. this doesn't make me feel any better about this.
-        ProcessorCore core = new ProcessorCore(100);
-        Processor processor = new Processor(simulatedScenario.getSimulation(), core);
-        updateProps();
     }
 
     public void loadSpec(URL url) {
@@ -119,7 +112,8 @@ public class PampaSimViewModel implements ViewModel {
 
     public void resetSimulation() {
         ChoiceDialog<String> confirmationDialog = new ChoiceDialog<>("No", "Yes", "No");
-        if (confirmationDialog.getSelectedItem() == "Yes") {
+
+        if (confirmationDialog.showAndWait().orElse("No").equals("Yes")) {
             simulatedScenario.resetToSpec();
         }
     }
