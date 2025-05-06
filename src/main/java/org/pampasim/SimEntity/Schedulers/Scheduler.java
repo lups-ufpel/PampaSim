@@ -14,10 +14,12 @@ import java.util.PriorityQueue;
 
 public abstract class Scheduler extends PampaSimEntity {
     boolean processEnRoute;
+    protected Process lastRunningProcess;
 
     public Scheduler(Simulation simulation) {
         super(simulation);
         processEnRoute = false;
+        lastRunningProcess = null;
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(EventType.SCHEDULE_PROCESS, this);
@@ -25,7 +27,7 @@ public abstract class Scheduler extends PampaSimEntity {
     }
 
     @Override
-    public void processEventsInBuffer() {
+    public void run() {
         buffer.forEach(this::processEvent);
         buffer.clear();
 
@@ -49,7 +51,17 @@ public abstract class Scheduler extends PampaSimEntity {
     protected void handleRunProcessAck(PampaSimEvent event) {
         event.getProcess().notifyListenersOnUpdate();
         processEnRoute = false;
+        lastRunningProcess = event.getProcess();
     }
 
-    protected abstract void scheduleNextProcess();
+    protected abstract Process nextProcessToSchedule();
+
+    // kept private so we are sure the books are up to date
+    private void scheduleNextProcess() {
+        if (processEnRoute) { return; }
+        Process proc = nextProcessToSchedule();
+        if (proc == null) { return; }
+        scheduleToNextClock(new PampaSimEvent(proc, EventType.DISPATCH_PROCESS));
+        processEnRoute = true;
+    }
 }

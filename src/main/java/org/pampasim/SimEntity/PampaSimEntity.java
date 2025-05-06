@@ -59,7 +59,7 @@ public class PampaSimEntity implements SimEntity {
     }
 
     public void processEvent(PampaSimEvent event) {}
-    public void processEventsInBuffer() {
+    public void run() {
         buffer.forEach(this::processEvent);
         buffer.clear();
     }

@@ -12,7 +12,7 @@ public interface SimEntity extends GraphVisualizeable {
     boolean start();
     Simulation getSimulation();
     void processEvent(PampaSimEvent evt);
-    void processEventsInBuffer();
+    void run();
     void scheduleToNextClock(PampaSimEvent evt);
     void acceptEvent(PampaSimEvent evt);
     void logInfo(String info);

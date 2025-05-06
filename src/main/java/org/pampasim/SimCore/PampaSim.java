@@ -87,7 +87,7 @@ public class PampaSim implements Simulation {
     private void executeRunnableEntities() {
         for (PampaSimEntity pampaSimEntity : entityList) {
             if(pampaSimEntity.getState() == SimEntity.State.RUNNABLE) {
-                pampaSimEntity.processEventsInBuffer();
+                pampaSimEntity.run();
             }
         }
     }

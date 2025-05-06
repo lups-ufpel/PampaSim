@@ -27,7 +27,7 @@ public class Processor extends EntityImpl {
     }
 
     @Override
-    public void processEventsInBuffer() {
+    public void run() {
         while (!buffer.isEmpty()) {
             processEvent(buffer.poll()); // Order: PREEMPT_PROCESS -> RUN_PROCESS_CONTINUE -> RUN_PROCESS
         }

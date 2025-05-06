@@ -23,10 +23,8 @@ public abstract class RankingScheduler extends Scheduler {
     public abstract Comparator<Process> processRankingAlgorithm();
 
     @Override
-    protected void scheduleNextProcess() {
-        if (processEnRoute) { return; }
-        scheduleToNextClock(new PampaSimEvent(readyList.poll(), EventType.DISPATCH_PROCESS));
-        processEnRoute = true;
+    protected Process nextProcessToSchedule() {
+        return readyList.poll();
     }
 
     @Override

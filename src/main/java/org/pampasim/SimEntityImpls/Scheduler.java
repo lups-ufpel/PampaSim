@@ -31,7 +31,7 @@ public class Scheduler extends EntityImpl {
     }
 
     @Override
-    public void processEventsInBuffer() {
+    public void run() {
         buffer.forEach(this::processEvent);
         buffer.clear();
 
