@@ -2,6 +2,7 @@ package org.pampasim.SimCore;
 
 import lombok.Getter;
 import org.pampasim.SimEntity.*;
+import org.pampasim.SimEntity.Schedulers.Scheduler;
 import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;

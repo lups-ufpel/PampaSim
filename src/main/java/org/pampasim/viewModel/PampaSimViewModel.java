@@ -8,26 +8,21 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.SimCore.*;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
-import org.pampasim.SimEntity.Scheduler;
+import org.pampasim.SimEntity.Schedulers.Scheduler;
 import org.pampasim.SimResources.Process;
-import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
 import javax.swing.*;
-import javafx.scene.control.ChoiceDialog;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 
 public class PampaSimViewModel implements ViewModel {

@@ -22,4 +22,5 @@ module org.pampasim {
     exports org.pampasim.SimResources;
     exports org.pampasim.viewModel;
     exports org.pampasim.Utils;
+    exports org.pampasim.SimEntity.Schedulers;
 }
