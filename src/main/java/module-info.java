@@ -8,9 +8,8 @@ module org.pampasim {
     requires slf4j.api;
     requires guru.nidi.graphviz;
     requires java.desktop;
-    requires java.xml;
-    requires java.management;
     requires org.antlr.antlr4.runtime;
+    requires io.github.classgraph;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

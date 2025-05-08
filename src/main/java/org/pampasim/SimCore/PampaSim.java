@@ -1,5 +1,9 @@
 package org.pampasim.SimCore;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import lombok.Getter;
 import org.pampasim.SimEntity.*;
 import org.pampasim.SimEntity.Schedulers.Scheduler;
@@ -7,6 +11,8 @@ import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class PampaSim implements Simulation {
@@ -110,9 +116,16 @@ public class PampaSim implements Simulation {
         if (!isFresh()) {
             throw new RuntimeException("Can't apply spec to already running simulation!");
         }
-        // populate the scheduler with the only one we have implemented atm
-        // FIXME when the time comes™
-        new Scheduler(this);
+
+        Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
+        if (schedulerClass != null) try {
+            Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
+            cons.newInstance(this);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException("Error trying to instantiate scheduler: " + e);
+        }
         try {
             new Processor(this,
                 new ProcessorCore(

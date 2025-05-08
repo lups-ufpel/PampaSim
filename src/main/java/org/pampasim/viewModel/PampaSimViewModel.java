@@ -24,6 +24,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 public class PampaSimViewModel implements ViewModel {
     @Getter
@@ -91,12 +92,14 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void setSimulationScheduler() {
         String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();
-        switch (schedulerName) {
-            case "FCFS", "SJF", "Round Robin", "Priority":
-                new Scheduler(simulatedScenario.getSimulation());
-                break;
-        }
-        simulatedScenario.getSpec().setSchedulerName(schedulerName);
+        Integer schedulerQuantum = schedulerDialogScope.getQuantumProperty().getValue();
+        // TODO: It would be nice to disable the quantum input
+        //  if it doesn't make sense for the currently selected algorithm
+        simulatedScenario.getSpec()
+                .setSchedulerInfo(
+                        schedulerName,
+                        Optional.ofNullable(schedulerQuantum));
+        // TODO/FIXME: need to figure out how to apply it immediately here
     }
     public void startSimulation() {
         if (!isValidSetup()) {

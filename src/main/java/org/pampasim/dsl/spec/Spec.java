@@ -1,18 +1,27 @@
 package org.pampasim.dsl.spec;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.SimCore.EventSchedule;
 import org.pampasim.SimCore.EventType;
 import org.pampasim.SimCore.PampaSimEvent;
+import org.pampasim.SimEntity.Schedulers.FCFS;
+import org.pampasim.SimEntity.Schedulers.Scheduler;
 import org.pampasim.SimResources.Process;
 import org.pampasim.Utils.PidAllocator;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /// Data to set up a simulation scenario
 /// Usually comes from a spec file
@@ -20,8 +29,9 @@ import java.util.Map;
 public class Spec {
     // This string-based programming is really awkward, but needed:
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
+    public record SchedulerInfo(Class<? extends Scheduler> clazz, Optional<Integer> quantum) {};
     @Setter
-    private String schedulerName;
+    private SchedulerInfo schedulerInfo;
     public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
     @Setter
     private ArrayList<ProcessorInfo> processors;
@@ -32,11 +42,11 @@ public class Spec {
     private Map<Process, Color> colorMap;
 
     public Spec() {
-        this("FCFS");
+        this(new SchedulerInfo(FCFS.class, Optional.of(0)));
     }
 
-    public Spec(String schedulerName) {
-        this.schedulerName = schedulerName;
+    public Spec(SchedulerInfo schedulerInfo) {
+        this.schedulerInfo = schedulerInfo;
         this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
         this.colorMap = new HashMap<>();
@@ -54,6 +64,29 @@ public class Spec {
         var arrivalTime = p.getArrivalTime();
         eventSchedule.schedule(arrivalTime, ev);
         return ev;
+    }
+
+    public void setSchedulerInfo(String name, Optional<Integer> quantum) {
+        try (ScanResult scanResult =
+                     new ClassGraph()
+                             .verbose()
+                             //.enableClassInfo()
+                             .enableAllInfo()
+                             .acceptPackages("org.pampasim") // dunno if needed
+                             .scan()
+        ) {
+            ClassInfoList schedulerClasses
+                    = scanResult.getSubclasses(Scheduler.class.getName());
+            ClassInfo schedulerInfo = schedulerClasses.filter(clazz -> clazz.getName().contains(name)).getFirst();
+            if (schedulerInfo == null) { throw new RuntimeException("scheduler " + name + " not found!"); }
+            try {
+                setSchedulerInfo(
+                    new SchedulerInfo((Class<? extends Scheduler>) schedulerInfo.loadClass(), quantum)
+                );
+            } catch (ClassCastException e) {
+                throw new RuntimeException("type cast error during scheduler class load: " + e);
+            }
+        }
     }
 
     @Override

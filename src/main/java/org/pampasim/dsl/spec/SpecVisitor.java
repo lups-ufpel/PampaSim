@@ -10,14 +10,23 @@ import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.SimResources.Process;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
     private Spec spec = new Spec();
     @Override
     public Spec visitConfigCommand(SpecFileParser.ConfigCommandContext ctx) {
         switch (ctx.start.getType()) {
-            case SpecFileParser.SCHEDULER_CMD:
-                spec.setSchedulerName(ctx.schedulerInfo().getText());
+            case SpecFileParser.SCHEDULER_CMD: {
+                var schInfo = ctx.schedulerInfo();
+                Optional<Integer> quantum
+                        = Optional.ofNullable(
+                        (schInfo.quantum != null)?
+                            Integer.parseInt(schInfo.quantum.getText())
+                            : null
+                        );
+                spec.setSchedulerInfo( schInfo.className.getText(), quantum );
+                }
                 break;
             case SpecFileParser.PROCESSOR_CMD: {
                 var cores = new ArrayList<Integer>();

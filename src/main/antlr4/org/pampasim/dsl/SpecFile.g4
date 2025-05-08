@@ -8,11 +8,7 @@ configCommand:
     | (PROCESSMANAGER_CMD processManagerInfo EOCOMMAND);
 
 // other fields may be supplied here when time comes
-schedulerInfo:
-    'FCFS'
-    | 'SJF'
-    | 'Round-Robin'
-    | 'Priority-Queue'; // really annoying keyword conflict issue
+schedulerInfo: className=ID (',' quantum=QUANTUM_KW NUMBER)?;
 
 processorInfo: CORE_KW MIPS_KW mips=NUMBER COUNT_KW count=NUMBER nextInfo=processorInfo?;
 processManagerInfo: ;
@@ -38,6 +34,7 @@ PROC_CMD: 'proc';
 START_KW: 'start';
 DURATION_KW: 'duration';
 PRIORITY_KW: 'priority';
+QUANTUM_KW: 'quantum';
 CLR_KW: 'clr';
 NUMBER: [0-9]+;
 CLR_VAL: '#' HEXDIG HEXDIG HEXDIG HEXDIG HEXDIG HEXDIG;
