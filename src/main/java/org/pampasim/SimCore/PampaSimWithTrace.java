@@ -104,7 +104,7 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
                             )
                             // FIXME: getting the source is no longer trivial
 
-                            //entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
+                            entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
                     );
                 }
             }

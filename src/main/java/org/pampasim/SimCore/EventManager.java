@@ -10,6 +10,7 @@ import java.util.Map;
 public class EventManager {
     private final Map<EventType, PampaSimEntity> handlers;
     private final Map<EventType, EventType> translations;
+    private static long eventSerialCounter;
     private Simulation simulation;
 
     public EventManager(Simulation simulation) {
@@ -69,5 +70,11 @@ public class EventManager {
                 .filter(entry -> entry.getKey() == event)
                 .map(Map.Entry::getValue)
                 .toList();
+    }
+
+    public long nextEventSerial() {
+        var s = eventSerialCounter;
+        eventSerialCounter++;
+        return s;
     }
 }
