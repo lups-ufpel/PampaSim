@@ -1,6 +1,7 @@
 processor core mips 100 count 1;
 //scheduler FCFS;
-scheduler SJF;
+//scheduler SJF;
+scheduler RoundRobin;
 procmanager;
 
 proc start 0 duration 5 priority 2 clr #0000ff; // t1

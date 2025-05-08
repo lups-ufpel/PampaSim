@@ -28,7 +28,8 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
         super.run();
         // don't get me wrong, it will never be less than zero
         // BUT! think about the infinitesimal chance of a cosmic ray bitflip!
-        if (lastRunningProcess.getBurstTime() <= 0) {
+        if (lastRunningProcess != null
+                && lastRunningProcess.getBurstTime() <= 0) {
             // Preempt!
             scheduleToNextClock(new PampaSimEvent(lastRunningProcess, EventType.PREEMPT_PROCESS));
         }
