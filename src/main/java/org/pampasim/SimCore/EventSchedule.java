@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
+import org.pampasim.SimCore.events.Event;
 
 public class EventSchedule {
-    private final Map<Integer, ArrayList<PampaSimEvent>> map; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
+    private final Map<Integer, ArrayList<Event>> map; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)
     private final TreeSet<Integer> futureKeys; // used in the check if there are any "future" events after any given clock
 
     public EventSchedule() {
@@ -14,7 +15,7 @@ public class EventSchedule {
         futureKeys = new TreeSet<>();
     }
 
-    public void schedule(int clock, final PampaSimEvent event) {
+    public void schedule(int clock, final Event event) {
         if (!map.containsKey(clock)) {
             map.put(clock, new ArrayList<>());
             futureKeys.add(clock);
@@ -22,7 +23,7 @@ public class EventSchedule {
         map.get(clock).add(event);
     }
 
-    public java.util.Collection<ArrayList<PampaSimEvent>> values() {
+    public java.util.Collection<ArrayList<Event>> values() {
         return map.values();
     }
 
@@ -34,7 +35,7 @@ public class EventSchedule {
         return map.containsKey(clock);
     }
 
-    public ArrayList<PampaSimEvent> get(int clock) {
+    public ArrayList<Event> get(int clock) {
         return map.get(clock);
     }
 

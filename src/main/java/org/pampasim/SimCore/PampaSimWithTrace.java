@@ -8,6 +8,7 @@ import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.Node;
+import org.pampasim.SimCore.events.Event;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.dsl.spec.Spec;
@@ -92,8 +93,8 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
             g = g.with(root.link(to(subgraph).with(Style.INVIS)));
         }
         if (!noEvents) {
-            for (PampaSimEvent ev : this.currentClockEvents.stream().toList()) {
-                List<PampaSimEntity> dsts = this.getEventManager().getAllDestinations(ev.getEventType());
+            for (Event ev : this.currentClockEvents.stream().toList()) {
+                List<PampaSimEntity> dsts = this.getEventManager().getAllDestinations(ev.getClass());
                 for (var dstEntity : dsts) {
                     g = g.with(
                             root.link(
@@ -101,9 +102,7 @@ public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
                                             port("ev" + ev.getSerial()),
                                             entityGraphMap.get(dstEntity.graphNodeName())
                                     )
-                            )
-                            // FIXME: getting the source is no longer trivial
-
+                            ),
                             entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
                     );
                 }

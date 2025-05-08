@@ -2,7 +2,10 @@ package org.pampasim.SimCore.events;
 
 import org.pampasim.SimEntity.PampaSimEntity;
 import lombok.Getter;
+import org.pampasim.SimResources.Process;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 
 @Getter
@@ -22,6 +25,15 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
     @Override
     public int compareTo(Event event) {
         return (int)(this.getSerial() - event.getSerial());
+    }
+
+    public Event cloneAs(Class<? extends Event> otherClass) throws IncompatibleEventDataException {
+        try {
+            Constructor<? extends Event> cons = otherClass.getConstructor(PampaSimEntity.class);
+            return cons.newInstance(getSource());
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException _e) {
+            throw new IncompatibleEventDataException();
+        }
     }
 
     public String toString() {

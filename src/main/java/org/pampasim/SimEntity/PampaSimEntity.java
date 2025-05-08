@@ -5,6 +5,7 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCore.events.*;
 import static guru.nidi.graphviz.model.Factory.*;
 
 import java.util.LinkedList;
@@ -17,7 +18,7 @@ public class PampaSimEntity implements SimEntity {
     @Getter
     private final Simulation simulation;
     private State state;
-    protected Queue<PampaSimEvent> buffer;
+    protected Queue<Event> buffer;
 
     public PampaSimEntity(Simulation simulation) {
         this.simulation = simulation;
@@ -37,8 +38,8 @@ public class PampaSimEntity implements SimEntity {
     protected void startInternal() {
     };
     @Override
-    public void scheduleToNextClock(PampaSimEvent event) {
-        logInfo("Evento Enviado: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
+    public void scheduleToNextClock(Event event) {
+        logInfo("Evento Enviado: Tipo: " + event.getClass().getSimpleName() + " com Serial: " + event.getSerial());
         simulation.scheduleToNextClock(event);
     }
     @Override
@@ -57,13 +58,13 @@ public class PampaSimEntity implements SimEntity {
         return false;
     }
 
-    public void processEvent(PampaSimEvent event) {}
+    public void processEvent(Event event) {}
     public void run() {
         buffer.forEach(this::processEvent);
         buffer.clear();
     }
-    public void acceptEvent(org.pampasim.SimCore.PampaSimEvent event) {
-        logInfo("Evento recebido: Tipo: " + event.getEventType().name() + " com Serial: " + event.getSerial());
+    public void acceptEvent(Event event) {
+        logInfo("Evento recebido: Tipo: " + event.getClass().getSimpleName() + " com Serial: " + event.getSerial());
         this.buffer.add(event);
     }
 

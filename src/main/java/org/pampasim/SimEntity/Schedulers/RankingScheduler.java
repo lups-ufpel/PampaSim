@@ -1,6 +1,7 @@
 package org.pampasim.SimEntity.Schedulers;
 
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCore.events.ProcessSchedule;
 import org.pampasim.SimResources.Process;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public abstract class RankingScheduler extends Scheduler {
     }
 
     @Override
-    protected void handleScheduleProcess(PampaSimEvent event) {
+    protected void handleProcessSchedule(ProcessSchedule event) {
         readyList.add(event.getProcess());
     }
 }

@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.SimCore.EventSchedule;
-import org.pampasim.SimCore.EventType;
+import org.pampasim.SimCore.events.*;
 import org.pampasim.SimEntity.Schedulers.FCFS;
 import org.pampasim.SimEntity.Schedulers.Scheduler;
 import org.pampasim.SimResources.Process;
@@ -50,13 +50,13 @@ public class Spec {
         this.hasProcManager = false;
     }
 
-    public PampaSimEvent addProcessArrival(Process p) {
+    public Event addProcessArrival(Process p) {
         // color isn't a member of the Process class
         // for separation of concerns reasons? between the UI and the Sim
         // either way, that means we can't set the color here
         // colors from the spec ain't supported yet
         // which is a bummer
-        var ev = new PampaSimEvent(p, EventType.PROCESS_ARRIVAL);
+        var ev = new ProcessArrival(null, p);
         var arrivalTime = p.getArrivalTime();
         eventSchedule.schedule(arrivalTime, ev);
         return ev;

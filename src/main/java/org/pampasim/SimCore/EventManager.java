@@ -39,7 +39,6 @@ public class EventManager {
 
     public void addTranslation(Class<? extends Event> eventClass, Class<? extends Event> translationClass) {
         try {
-            Constructor<? extends Event> cons = translationClass.getConstructor(Event.class);
             translations.put(eventClass, cons);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("No valid constructors for event " + translationClass.getSimpleName() + ", error: " + e);

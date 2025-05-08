@@ -1,6 +1,7 @@
 package org.pampasim.SimEntity;
 
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCore.events.*;
 import org.pampasim.Utils.GraphVisualizeable;
 
 public interface SimEntity extends GraphVisualizeable {
@@ -10,9 +11,9 @@ public interface SimEntity extends GraphVisualizeable {
     boolean isStarted();
     boolean start();
     Simulation getSimulation();
-    void processEvent(PampaSimEvent evt);
+    void processEvent(Event evt);
     void run();
-    void scheduleToNextClock(PampaSimEvent evt);
-    void acceptEvent(PampaSimEvent evt);
+    void scheduleToNextClock(Event evt);
+    void acceptEvent(Event evt);
     void logInfo(String info);
 }

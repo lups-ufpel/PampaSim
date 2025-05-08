@@ -1,7 +1,7 @@
 package org.pampasim.SimEntity.Schedulers;
 
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.EventType;
+import org.pampasim.SimCore.events.*;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimResources.Process;
@@ -16,8 +16,8 @@ public abstract class Scheduler extends PampaSimEntity {
         lastRunningProcess = null;
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(EventType.SCHEDULE_PROCESS, this);
-        simulation.getEventManager().addEventHandler(EventType.RUN_PROCESS_ACK, this);
+        simulation.getEventManager().addEventHandler(ProcessSchedule.class, this);
+        simulation.getEventManager().addEventHandler(ProcessRunAck.class, this);
     }
 
     @Override
@@ -33,16 +33,16 @@ public abstract class Scheduler extends PampaSimEntity {
     }
 
     @Override
-    public void processEvent(PampaSimEvent event) {
-        switch (event.getEventType()) {
-            case SCHEDULE_PROCESS -> handleScheduleProcess(event);
-            case RUN_PROCESS_ACK -> handleRunProcessAck(event);
-            default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getEventType() + " não pode ser tratado, evento serial: " + event.getSerial());
+    public void processEvent(Event event) {
+        switch (event) {
+            case ProcessSchedule e -> handleProcessSchedule(e);
+            case ProcessRunAck e -> handleProcessRunAck(e);
+            default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getClass().getSimpleName() + " não pode ser tratado, evento serial: " + event.getSerial());
         }
     }
 
-    protected abstract void handleScheduleProcess(PampaSimEvent event);
-    protected void handleRunProcessAck(PampaSimEvent event) {
+    protected abstract void handleProcessSchedule(ProcessSchedule event);
+    protected void handleProcessRunAck(ProcessRunAck event) {
         event.getProcess().notifyListenersOnUpdate();
         processEnRoute = false;
         lastRunningProcess = event.getProcess();
@@ -55,7 +55,7 @@ public abstract class Scheduler extends PampaSimEntity {
         if (processEnRoute) { return; }
         Process proc = nextProcessToSchedule();
         if (proc == null) { return; }
-        scheduleToNextClock(new PampaSimEvent(proc, EventType.DISPATCH_PROCESS));
+        scheduleToNextClock(new ProcessDispatch(this, proc));
         processEnRoute = true;
     }
 }

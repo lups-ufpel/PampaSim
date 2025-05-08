@@ -12,6 +12,8 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.SimCore.*;
+import org.pampasim.SimCore.events.ProcessArrival;
+import org.pampasim.SimCore.events.ProcessEvent;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimEntity.Schedulers.Scheduler;
@@ -25,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PampaSimViewModel implements ViewModel {
     @Getter
@@ -58,7 +61,7 @@ public class PampaSimViewModel implements ViewModel {
         System.out.println("got " + spec);
         if (spec != null) {
             for (var events : spec.getEventSchedule().values()) {
-                for (var ev : events) {
+                for (var ev : events.stream().filter(e -> e instanceof ProcessEvent).map(e -> (ProcessEvent)e).toList()) {
                     Process p = ev.getProcess();
                     System.out.println("registering proc " + p);
                     // treat them like the create process button would
@@ -81,7 +84,7 @@ public class PampaSimViewModel implements ViewModel {
         Process newProcess = new Process(priority,duration,start,
                 simulatedScenario.simulation.getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
-        var newEvent = new PampaSimEvent(newProcess, EventType.PROCESS_ARRIVAL);
+        var newEvent = new ProcessArrival(null, newProcess);
         simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
         simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
         // FIXME: since we are updating the spec, we may as well make the start of the sim

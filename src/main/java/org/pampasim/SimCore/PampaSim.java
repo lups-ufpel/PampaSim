@@ -1,16 +1,13 @@
 package org.pampasim.SimCore;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
 import lombok.Getter;
 import org.pampasim.SimEntity.*;
 import org.pampasim.SimEntity.Schedulers.Scheduler;
 import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;
-
+import org.pampasim.SimCore.events.Event;
+import org.pampasim.SimCore.events.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -18,7 +15,7 @@ import java.util.*;
 public class PampaSim implements Simulation {
     protected final ArrayList<PampaSimEntity> entityList;
     private EventSchedule eventsSchedule;
-    private final List<PampaSimEvent> finishedProcesses;
+    private final List<Event> finishedProcesses;
     @Getter
     private final EventManager eventManager;
     @Getter
@@ -46,16 +43,16 @@ public class PampaSim implements Simulation {
     }
 
     @Override
-    public void scheduleToNextClock(final PampaSimEvent event) {
+    public void scheduleToNextClock(final Event event) {
         scheduleToClock(simulationClock+1, event);
     }
 
-    public void scheduleToClock(int clock, final PampaSimEvent event) { // used to schedule events before the simulation starts
+    public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
         eventsSchedule.schedule(clock, event);
     }
 
     public boolean runClockAndProcessEvents() {
-        ArrayList<PampaSimEvent> currentEvents;
+        ArrayList<Event> currentEvents;
 
         if (eventsSchedule.hasEventsFor(simulationClock)) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
@@ -66,11 +63,12 @@ public class PampaSim implements Simulation {
         }
         executeRunnableEntities();
 
-        List<PampaSimEvent> killProcessEvents = currentEvents.stream()
-                .filter(event -> event.getEventType() == EventType.KILL_PROCESS)
+        List<ProcessEvent> killProcessEvents = currentEvents.stream()
+                .filter(event -> event instanceof ProcessKill)
+                .map(e -> (ProcessEvent) e)
                 .peek(event -> System.out.println("[PampaSim] Processo com Pid " + event.getProcess().getPid() +
                         " finalizou sua execução e foi terminado com sucesso"))
-                .toList(); // collects and logs KILL_PROCESS events
+                .toList(); // collects and logs ProcessKill events
 
         finishedProcesses.addAll(killProcessEvents); // adds to the finished processes list
 
@@ -83,8 +81,8 @@ public class PampaSim implements Simulation {
             // Necessary to create a copy of the eventsOnNextClock to iterate over since handleEvent can add a KILL_PROCESS event
             // to the list as it's being iterated over
             currentEvents.stream()
-                    .filter(event -> event.getEventType() != EventType.KILL_PROCESS)
-                    .forEach(eventManager::handleEvent); // processes all events except KILL_PROCESS events
+                    .filter(event -> !(event instanceof ProcessKill))
+                    .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
             simulationClock += 1;
             return true;
         }
