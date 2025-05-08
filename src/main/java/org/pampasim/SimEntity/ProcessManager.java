@@ -1,15 +1,7 @@
 package org.pampasim.SimEntity;
 
-import org.pampasim.SimCore.PampaSimEvent;
-import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimCore.EventType;
-import org.pampasim.SimResources.Process;
-import org.pampasim.Utils.PidAllocator;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class ProcessManager extends PampaSimEntity {
 

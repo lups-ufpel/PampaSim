@@ -4,7 +4,6 @@ import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import static guru.nidi.graphviz.model.Factory.*;
 

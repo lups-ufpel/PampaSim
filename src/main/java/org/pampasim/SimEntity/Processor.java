@@ -1,6 +1,5 @@
 package org.pampasim.SimEntity;
 
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimCore.EventType;
 import org.pampasim.SimResources.Process;

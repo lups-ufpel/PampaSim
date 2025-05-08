@@ -10,15 +10,14 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
     private final PampaSimEntity source;
     private final long serial;
     private final int creationTick;
-    private final Object data;
 
-    public AbstractEvent(PampaSimEntity source, Object data) {
+    public AbstractEvent(PampaSimEntity source) {
         var sim = source.getSimulation();
         this.source = source;
         this.serial = sim.getEventManager().nextEventSerial();
         this.creationTick = sim.getSimulationClock();
-        this.data = data;
     }
+
 
     @Override
     public int compareTo(Event event) {

@@ -1,10 +1,6 @@
 package org.pampasim.SimEntityImpls;
 
-import org.pampasim.SimCore.EventType;
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
 
 import java.util.Comparator;

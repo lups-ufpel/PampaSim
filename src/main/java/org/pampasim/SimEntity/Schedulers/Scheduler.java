@@ -1,16 +1,10 @@
 package org.pampasim.SimEntity.Schedulers;
 
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimCore.EventType;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimResources.Process;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
 
 public abstract class Scheduler extends PampaSimEntity {
     boolean processEnRoute;

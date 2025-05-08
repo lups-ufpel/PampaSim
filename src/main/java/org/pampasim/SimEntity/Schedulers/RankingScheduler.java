@@ -1,7 +1,5 @@
 package org.pampasim.SimEntity.Schedulers;
 
-import org.pampasim.SimCore.EventType;
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimResources.Process;
 

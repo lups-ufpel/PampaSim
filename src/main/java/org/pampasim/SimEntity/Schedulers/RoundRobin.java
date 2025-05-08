@@ -3,7 +3,6 @@ package org.pampasim.SimEntity.Schedulers;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.SimCore.EventType;
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimResources.Process;
 

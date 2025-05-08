@@ -1,10 +1,6 @@
 package org.pampasim.dsl.spec;
 
 import javafx.scene.paint.Color;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.pampasim.SimCore.EventType;
-import org.pampasim.SimCore.PampaSimEvent;
-import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.dsl.SpecFileBaseVisitor;
 import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.SimResources.Process;
