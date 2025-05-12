@@ -5,13 +5,12 @@ import org.pampasim.SimCore.events.*;
 import org.pampasim.Utils.GraphVisualizeable;
 
 public interface SimEntity extends GraphVisualizeable {
-    enum State {RUNNABLE, WAITING, HOLDING, FINISHED}
-    State getState();
-    SimEntity setState(State state);
     boolean isStarted();
     boolean start();
     Simulation getSimulation();
-    void processEvent(Event evt);
+    Simulation getTopLevelSimulation();
+    SimEntity getParent();
+    //void processEvent(Event evt); this is internal, acceptEvent is the public interface
     void run();
     void scheduleToNextClock(Event evt);
     void acceptEvent(Event evt);

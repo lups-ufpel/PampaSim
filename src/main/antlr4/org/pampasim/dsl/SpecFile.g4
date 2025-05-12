@@ -8,7 +8,7 @@ configCommand:
     | (PROCESSMANAGER_CMD processManagerInfo EOCOMMAND);
 
 // other fields may be supplied here when time comes
-schedulerInfo: className=ID (',' quantum=QUANTUM_KW NUMBER)?;
+schedulerInfo: className=ID (',' QUANTUM_KW quantum=NUMBER)?;
 
 processorInfo: CORE_KW MIPS_KW mips=NUMBER COUNT_KW count=NUMBER nextInfo=processorInfo?;
 processManagerInfo: ;

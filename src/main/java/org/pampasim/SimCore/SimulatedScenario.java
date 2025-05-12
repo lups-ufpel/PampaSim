@@ -29,7 +29,7 @@ public class SimulatedScenario {
     private Spec spec;
 
     public SimulatedScenario() {
-        this.simulation = new PampaSimWithTrace();
+        this.simulation = new PampaSim(null);
         this.spec = new Spec();
     }
 
@@ -51,6 +51,7 @@ public class SimulatedScenario {
     }
 
     public void resetToSpec() {
-        this.simulation = new PampaSimWithTrace(getSpec());
+        this.simulation = new PampaSim(null);
+        this.simulation.applySpec(getSpec());
     }
 }

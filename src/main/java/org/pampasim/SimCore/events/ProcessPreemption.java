@@ -1,10 +1,10 @@
 package org.pampasim.SimCore.events;
 
-import org.pampasim.SimEntity.PampaSimEntity;
+import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.SimResources.Process;
 
 public class ProcessPreemption extends ProcessEvent {
-    public ProcessPreemption(PampaSimEntity source, Process proc) {
+    public ProcessPreemption(SimEntity source, Process proc) {
         super(source, proc);
     }
 }

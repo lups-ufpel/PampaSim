@@ -4,19 +4,16 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
-import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
-import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.Node;
 import org.pampasim.SimCore.events.Event;
 import org.pampasim.SimEntity.PampaSimEntity;
+import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.dsl.spec.Spec;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
 import static guru.nidi.graphviz.model.Factory.*;
@@ -33,10 +30,7 @@ import static guru.nidi.graphviz.model.Factory.*;
 public class PampaSimWithTrace extends PampaSim implements GraphVisualizeable {
     private final FutureQueue currentClockEvents = new FutureQueue();
 
-    public PampaSimWithTrace() { super(); }
-    public PampaSimWithTrace(Spec spec) {
-        super(spec);
-    }
+    public PampaSimWithTrace(SimEntity parent) { super(parent); }
 
     @Override
     public boolean runClockAndProcessEvents() {

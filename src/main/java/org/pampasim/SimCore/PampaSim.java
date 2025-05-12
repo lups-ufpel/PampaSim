@@ -1,5 +1,11 @@
 package org.pampasim.SimCore;
 
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Rank;
+import guru.nidi.graphviz.attribute.Shape;
+import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
 import org.pampasim.SimEntity.*;
 import org.pampasim.SimEntity.Schedulers.Scheduler;
@@ -11,10 +17,16 @@ import org.pampasim.SimCore.events.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Stream;
 
-public class PampaSim implements Simulation {
-    protected final ArrayList<PampaSimEntity> entityList;
+import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
+import static guru.nidi.graphviz.model.Factory.*;
+
+public class PampaSim extends PampaSimEntity implements Simulation {
+    protected final ArrayList<SimEntity> entityList;
     private EventSchedule eventsSchedule;
+    private List<Event> lastClockInputs;
+    private List<Event> lastClockOutputs = new ArrayList<>();
     private final List<Event> finishedProcesses;
     @Getter
     private final EventManager eventManager;
@@ -23,7 +35,8 @@ public class PampaSim implements Simulation {
     @Getter
     private PidAllocator pidAllocator;
 
-    public PampaSim() {
+    public PampaSim(SimEntity parent) {
+        super(parent);
         this.entityList = new ArrayList<>();
         this.eventManager = new EventManager(this);
         this.finishedProcesses = new ArrayList<>();
@@ -32,13 +45,8 @@ public class PampaSim implements Simulation {
         this.pidAllocator = new PidAllocator();
     }
 
-    public PampaSim(Spec spec) {
-        this();
-        applySpec(spec);
-    }
-
     @Override
-    public void addEntity(PampaSimEntity entity) {
+    public void addEntity(SimEntity entity) {
         entityList.add(entity);
     }
 
@@ -47,8 +55,14 @@ public class PampaSim implements Simulation {
         scheduleToClock(simulationClock+1, event);
     }
 
+    @Override
+    public void acceptEvent(Event evt) {
+        scheduleToNextClock(evt); // I believe this is correct
+    }
+
     public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
         eventsSchedule.schedule(clock, event);
+        lastClockOutputs.add(event);
     }
 
     public boolean runClockAndProcessEvents() {
@@ -61,6 +75,8 @@ public class PampaSim implements Simulation {
         } else {
             currentEvents = new ArrayList<>();
         }
+        lastClockInputs = currentEvents;
+        lastClockOutputs.clear();
         executeRunnableEntities();
 
         List<ProcessEvent> killProcessEvents = currentEvents.stream()
@@ -72,10 +88,10 @@ public class PampaSim implements Simulation {
 
         finishedProcesses.addAll(killProcessEvents); // adds to the finished processes list
 
+        simulationClock += 1;
         // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
         // and send them to the buffer of each entity that handles the event
-        if(currentEvents.isEmpty() && !eventsSchedule.hasAnyAfter(simulationClock)) { // no events on next clock and also no future events scheduled
-            simulationClock += 1;
+        if(currentEvents.isEmpty() && !hasPendingEvents()) { // no events on next clock and also no future events scheduled
             return false;
         } else {
             // Necessary to create a copy of the eventsOnNextClock to iterate over since handleEvent can add a KILL_PROCESS event
@@ -83,20 +99,17 @@ public class PampaSim implements Simulation {
             currentEvents.stream()
                     .filter(event -> !(event instanceof ProcessKill))
                     .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
-            simulationClock += 1;
             return true;
         }
     }
 
     private void executeRunnableEntities() {
-        for (PampaSimEntity pampaSimEntity : entityList) {
-            if(pampaSimEntity.getState() == SimEntity.State.RUNNABLE) {
-                pampaSimEntity.run();
-            }
+        for (SimEntity pampaSimEntity : entityList) {
+            pampaSimEntity.run();
         }
     }
 
-    public <T extends PampaSimEntity> T getEntity(Class<T> entityClass) {
+    public <T extends SimEntity> T getEntity(Class<T> entityClass) {
         return entityList.stream()
                 .filter(entityClass::isInstance)
                 .map(entityClass::cast)
@@ -106,6 +119,11 @@ public class PampaSim implements Simulation {
 
     public boolean isFresh() {
         return this.eventsSchedule.isEmpty() && (getSimulationClock() == 0);
+    }
+
+    @Override
+    public boolean hasPendingEvents() {
+        return !eventsSchedule.hasAnyAfter(getSimulationClock());
     }
 
     // TODO: This references all the entity interfaces, might need decoupling
@@ -144,5 +162,86 @@ public class PampaSim implements Simulation {
         }
         this.pidAllocator = s.getPidAlloc();
         this.eventsSchedule = s.getEventSchedule();
+    }
+
+    @Override
+    public boolean isStarted() {
+        return !isFresh();
+    }
+
+    @Override
+    public Simulation getSimulation() {
+        return this;
+    }
+
+
+    @Override
+    public void run() {
+        runClockAndProcessEvents();
+    }
+
+    @Override
+    public Graph exportGraph() {
+        String name = this.getClass().getSimpleName();
+        List<Event> lastClockEvents = Stream.concat(lastClockInputs.stream(), lastClockOutputs.stream()).toList();
+        boolean noEvents = lastClockEvents.isEmpty();
+        String bufferTable= "<table border='0' cellborder='1' cellspacing='0'>\n" +
+                (noEvents? "<tr><td>empty</td></tr>\n" :
+                        lastClockEvents.stream()
+                                .collect(StringBuilder::new,
+                                        (acc, elem) ->
+                                                acc.append("<tr><td port=\"ev")
+                                                        .append(elem.getSerial())
+                                                        .append("\">")
+                                                        .append(elem)
+                                                        .append("</td></tr>\n"),
+                                        StringBuilder::append).toString()
+                ) +
+                "</table>\n";
+        String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>\n" +
+                "<tr><td>" + name + "</td><td>Clock " + (this.getSimulationClock()-1) + "</td></tr>\n" +
+                "<tr><td colspan='2' cellborder='0'>" + bufferTable + "</td></tr>\n" +
+                "</table>\n";
+        Node root = node(graphNodeName())
+                .with(Shape.PLAIN_TEXT)
+                .with(Label.html(htmlTable));
+        Graph g = graph(name)
+                .directed()
+                .graphAttr().with(Rank.dir(LEFT_TO_RIGHT))
+                .with(root);
+        // this probably needs to use the mutable graph api, to avoid too many allocs
+        var entityGraphMap = this.entityList.stream().collect(
+                () -> new HashMap<String, Graph>(),
+                (map, entity) -> map.put(entity.graphNodeName(), entity.exportGraph()),
+                HashMap::putAll);
+        for(var subgraph : entityGraphMap.values()) {
+            g = g.with(subgraph);
+            g = g.with(root.link(to(subgraph).with(Style.INVIS)));
+        }
+        if (!noEvents) {
+            for (Event ev : lastClockEvents.stream().toList()) {
+                List<PampaSimEntity> dsts = this.getEventManager().getAllDestinations(ev.getClass());
+                for (var dstEntity : dsts) {
+                    g = g.with(
+                            root.link(
+                                    between(
+                                            port("ev" + ev.getSerial()),
+                                            entityGraphMap.get(dstEntity.graphNodeName())
+                                    )
+                            ),
+                            entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
+                    );
+                }
+            }
+        }
+        return g;
+    }
+
+    @Override
+    public String graphNodeName() {
+        // WARN / FIXME: will name conflict if there are multiple entities of the same type in a simulation!
+        // I'll let it be for now, since that edge case is very unlikely
+        // ...this being the even more special case as the graph root
+        return this.getClass().getSimpleName();
     }
 }

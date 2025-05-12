@@ -11,20 +11,24 @@ import static guru.nidi.graphviz.model.Factory.*;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static java.util.Objects.requireNonNullElse;
-
 public class PampaSimEntity implements SimEntity {
 
     @Getter
     private final Simulation simulation;
-    private State state;
+    @Getter
+    private final SimEntity parent;
     protected Queue<Event> buffer;
 
-    public PampaSimEntity(Simulation simulation) {
-        this.simulation = simulation;
-        state = State.RUNNABLE;
-        this.simulation.addEntity(this);
-        logInfo("PampaSim entity created.");
+    public PampaSimEntity(SimEntity parent) {
+        if (parent != null) {
+            this.simulation = parent.getSimulation();
+            this.simulation.addEntity(this);
+            this.parent = parent;
+        } else {
+            this.parent = null;
+            this.simulation = (Simulation)this; // this will fail if the entity is not a simulation, by design
+        }
+        logInfo("PampaSim entity " + getClass().getSimpleName() + " created.");
         this.buffer = new LinkedList<>();
     }
     @Override
@@ -40,17 +44,7 @@ public class PampaSimEntity implements SimEntity {
     @Override
     public void scheduleToNextClock(Event event) {
         logInfo("Evento Enviado: Tipo: " + event.getClass().getSimpleName() + " com Serial: " + event.getSerial());
-        simulation.scheduleToNextClock(event);
-    }
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public SimEntity setState(State state) {
-        this.state = requireNonNullElse(state, State.RUNNABLE);
-        return this;
+        simulation.acceptEvent(event);
     }
 
     @Override
@@ -69,7 +63,6 @@ public class PampaSimEntity implements SimEntity {
     }
 
     public void logInfo(String info) {
-        // delightfully devilish (and expensive, i think)
         System.out.println(
                 "[" + getClass().getSimpleName() + " @ "
                         + getSimulation().getSimulationClock()
@@ -85,7 +78,6 @@ public class PampaSimEntity implements SimEntity {
             "<table border='0' cellborder='1' cellspacing='0'>" +
                 "<tr>" +
                     "<td>" + name + "</td>" +
-                    "<td>State: " + this.getState() + "</td>" +
                 "</tr>" +
                 //"<tr><td colspan='2'>" + bufferDesc + "</td></tr>" +
             "</table>";
@@ -101,4 +93,13 @@ public class PampaSimEntity implements SimEntity {
         return this.getClass().getSimpleName();
     }
 
+    @Override
+    public Simulation getTopLevelSimulation() {
+        SimEntity parent = getParent();
+        if (parent != null) {
+            return parent.getTopLevelSimulation();
+        } else {
+            return this.getSimulation();
+        }
+    }
 }

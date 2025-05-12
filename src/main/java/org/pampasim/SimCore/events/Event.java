@@ -1,10 +1,11 @@
 package org.pampasim.SimCore.events;
 
-import org.pampasim.SimEntity.PampaSimEntity;
+import org.pampasim.SimEntity.SimEntity;
 
 public interface Event extends Comparable<Event> {
-    PampaSimEntity getSource();
+    SimEntity getSource();
     long getSerial();
     int getCreationTick();
+    Event cloneAs(Class<? extends Event> asClass) throws IncompatibleEventDataException;
     Object getData();
 }

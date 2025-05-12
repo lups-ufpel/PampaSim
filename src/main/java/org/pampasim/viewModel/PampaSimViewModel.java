@@ -190,8 +190,9 @@ public class PampaSimViewModel implements ViewModel {
         return null;
     }
     public void runSimulation() {
-        boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEvents();
-        if(!hasMoreEvents) {
+        Simulation sim = simulatedScenario.getSimulation();
+        sim.run();
+        if(!sim.hasPendingEvents()) {
             stopSimulation();
         }
         if (genGraphs.get()) {
@@ -212,7 +213,7 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void exportSimulationGraph() throws IOException {
         var sim = this.simulatedScenario.getSimulation();
-        if (sim instanceof GraphVisualizeable) {
+        if (sim != null) {
             var graph = ((GraphVisualizeable)sim).exportGraph();
             Graphviz viz = Graphviz.fromGraph(graph);
             viz.render(Format.SVG)

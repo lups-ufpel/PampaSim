@@ -3,18 +3,14 @@ package org.pampasim.SimCore;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimCore.events.Event;
 import org.pampasim.SimCore.events.*;
-import org.pampasim.SimEntity.Schedulers.Scheduler;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class EventManager {
     private final Map<Class<? extends Event>, PampaSimEntity> handlers;
-    private final Map<Class<? extends Event>, Constructor<? extends Event>> translations;
+    private final Map<Class<? extends Event>, Class<? extends Event>> translations;
     private static long eventSerialCounter;
     private Simulation simulation;
 
@@ -38,11 +34,7 @@ public class EventManager {
     }
 
     public void addTranslation(Class<? extends Event> eventClass, Class<? extends Event> translationClass) {
-        try {
-            translations.put(eventClass, cons);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No valid constructors for event " + translationClass.getSimpleName() + ", error: " + e);
-        }
+        translations.put(eventClass, translationClass);
     }
 
     /*
@@ -68,15 +60,17 @@ public class EventManager {
     private Event translateEvent(Event event) {
         if (!translations.containsKey(event.getClass())) {
             throw new IllegalArgumentException("No event translation for: " + event);
-        } else try {
-            var translationConstructor = translations.get(event.getClass());
-            var translated = translationConstructor.newInstance(event);
-            System.out.println("Event translated: " + event + " to " + translated);
-            return translated;
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(
-                    "Error trying to translate "
-                            + event + ": " + e);
+        } else {
+            var translationClass = translations.get(event.getClass());
+            try {
+                var translated = event.cloneAs(translationClass);
+                System.out.println("Event translated: " + event + " to " + translated);
+                return translated;
+            } catch (IncompatibleEventDataException e) {
+                throw new RuntimeException(
+                        "Error trying to translate "
+                                + event + ": " + e);
+            }
         }
     }
 
