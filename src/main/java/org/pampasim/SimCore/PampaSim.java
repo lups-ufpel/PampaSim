@@ -123,7 +123,7 @@ public class PampaSim extends PampaSimEntity implements Simulation {
 
     @Override
     public boolean hasPendingEvents() {
-        return !eventsSchedule.hasAnyAfter(getSimulationClock());
+        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getSimulationClock());
     }
 
     // TODO: This references all the entity interfaces, might need decoupling
