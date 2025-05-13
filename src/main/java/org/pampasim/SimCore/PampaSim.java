@@ -4,7 +4,9 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.LinkTarget;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
 import org.pampasim.SimEntity.*;
@@ -25,8 +27,8 @@ import static guru.nidi.graphviz.model.Factory.*;
 public class PampaSim extends PampaSimEntity implements Simulation {
     protected final ArrayList<SimEntity> entityList;
     private EventSchedule eventsSchedule;
-    private List<Event> lastClockInputs;
-    private List<Event> lastClockOutputs = new ArrayList<>();
+    private final List<Event> lastClockInputs = new ArrayList<>();
+    private final List<Event> lastClockOutputs = new ArrayList<>();
     private final List<Event> finishedProcesses;
     @Getter
     private final EventManager eventManager;
@@ -34,11 +36,13 @@ public class PampaSim extends PampaSimEntity implements Simulation {
     private int simulationClock;
     @Getter
     private PidAllocator pidAllocator;
+    @Getter
+    private final RealClock realClock = new RealClock();
 
     public PampaSim(SimEntity parent) {
         super(parent);
         this.entityList = new ArrayList<>();
-        this.eventManager = new EventManager(this);
+        this.eventManager = new InterimEventManager(this);
         this.finishedProcesses = new ArrayList<>();
         this.eventsSchedule = new EventSchedule();
         this.simulationClock = 0;
@@ -58,6 +62,7 @@ public class PampaSim extends PampaSimEntity implements Simulation {
     @Override
     public void acceptEvent(Event evt) {
         scheduleToNextClock(evt); // I believe this is correct
+        setStateIfNotBlocked(EntityState.Run);
     }
 
     public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
@@ -65,19 +70,47 @@ public class PampaSim extends PampaSimEntity implements Simulation {
         lastClockOutputs.add(event);
     }
 
-    public boolean runClockAndProcessEvents() {
-        ArrayList<Event> currentEvents;
+    @Override
+    public void innerRun() {
+        SimEntity parent = getParent();
+        logInfo("");
+        lastClockInputs.clear();
+        lastClockOutputs.clear();
+        // Reuse memory, change var name mostly
+        final List<Event> currentEvents = lastClockInputs;
 
         if (eventsSchedule.hasEventsFor(simulationClock)) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
             // at this clock tick, add them to the list of events to be processed
-             currentEvents = new ArrayList<>(eventsSchedule.get(simulationClock));
-        } else {
-            currentEvents = new ArrayList<>();
+            currentEvents.addAll(eventsSchedule.get(simulationClock));
         }
-        lastClockInputs = currentEvents;
-        lastClockOutputs.clear();
-        executeRunnableEntities();
+
+        // Necessary to create a copy to iterate over since handleEvent can add a KILL_PROCESS event
+        // to the list as it's being iterated over
+        currentEvents.stream()
+                .filter(event -> !(event instanceof ProcessKill)) // shouldn't be needed
+                .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
+
+        boolean isTopLevel = parent == null;
+        if (!isTopLevel) {
+            if (parent.getParent().getState() == EntityState.Blocked) {
+                if (this.state != EntityState.Blocked) {
+                    throw new RuntimeException("invalid blocked state");
+                }
+                for (SimEntity entity : entityList) {
+                    entity.run();
+                }
+            }
+            else { executeRunnableEntities(); }
+        } else {
+            if (getState() == EntityState.Blocked) {
+                for (SimEntity entity : entityList) {
+                    entity.clearBlock();
+                    entity.run();
+                }
+                getRealClock().next();
+            } else { executeRunnableEntities(); }
+        }
 
         List<ProcessEvent> killProcessEvents = currentEvents.stream()
                 .filter(event -> event instanceof ProcessKill)
@@ -89,23 +122,33 @@ public class PampaSim extends PampaSimEntity implements Simulation {
         finishedProcesses.addAll(killProcessEvents); // adds to the finished processes list
 
         simulationClock += 1;
-        // REFACTOR: changed this function to make use of the event manager. It'll iterate through all future events on queue
-        // and send them to the buffer of each entity that handles the event
-        if(currentEvents.isEmpty() && !hasPendingEvents()) { // no events on next clock and also no future events scheduled
-            return false;
+
+        this.state = nextState();
+    }
+
+    private EntityState nextState() {
+        boolean hasBlocked = entityList
+                .stream()
+                .anyMatch(entity -> entity.getState() == EntityState.Blocked);
+        if (hasBlocked) {
+            boolean allSettled = entityList.stream().allMatch(entity -> {
+                EntityState state = entity.getState();
+                return state == EntityState.Blocked
+                        || state == EntityState.Idle;
+            });
+            if (allSettled) { return EntityState.Blocked; }
+            else { return EntityState.Run; }
         } else {
-            // Necessary to create a copy of the eventsOnNextClock to iterate over since handleEvent can add a KILL_PROCESS event
-            // to the list as it's being iterated over
-            currentEvents.stream()
-                    .filter(event -> !(event instanceof ProcessKill))
-                    .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
-            return true;
+            boolean hasEvents = this.hasPendingEvents();
+            if (hasEvents) { return EntityState.Run; }
+            else { return EntityState.Idle; }
         }
     }
 
     private void executeRunnableEntities() {
-        for (SimEntity pampaSimEntity : entityList) {
-            pampaSimEntity.run();
+        for (SimEntity entity : entityList) {
+            if (entity.getState() != EntityState.Run) { continue; }
+            entity.run();
         }
     }
 
@@ -174,12 +217,6 @@ public class PampaSim extends PampaSimEntity implements Simulation {
         return this;
     }
 
-
-    @Override
-    public void run() {
-        runClockAndProcessEvents();
-    }
-
     @Override
     public Graph exportGraph() {
         String name = this.getClass().getSimpleName();
@@ -190,7 +227,7 @@ public class PampaSim extends PampaSimEntity implements Simulation {
                         lastClockEvents.stream()
                                 .collect(StringBuilder::new,
                                         (acc, elem) ->
-                                                acc.append("<tr><td port=\"ev")
+                                                acc.append("<tr><td port=\"evs")
                                                         .append(elem.getSerial())
                                                         .append("\">")
                                                         .append(elem)
@@ -199,12 +236,16 @@ public class PampaSim extends PampaSimEntity implements Simulation {
                 ) +
                 "</table>\n";
         String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>\n" +
-                "<tr><td>" + name + "</td><td>Clock " + (this.getSimulationClock()-1) + "</td></tr>\n" +
-                "<tr><td colspan='2' cellborder='0'>" + bufferTable + "</td></tr>\n" +
+                "<tr><td>" + name + "</td>" +
+                "<td>Clock real " + this.getRealClock() + ", sim " + (this.getSimulationClock()-1) + "</td>" +
+                "<td>" + this.getState() + "</td>" +
+                "</tr>\n" +
+                "<tr><td colspan='3' cellborder='0'>" + bufferTable + "</td></tr>\n" +
                 "</table>\n";
         Node root = node(graphNodeName())
                 .with(Shape.PLAIN_TEXT)
                 .with(Label.html(htmlTable));
+        Node nullNode = node("null").with(Shape.PLAIN_TEXT);
         Graph g = graph(name)
                 .directed()
                 .graphAttr().with(Rank.dir(LEFT_TO_RIGHT))
@@ -220,17 +261,21 @@ public class PampaSim extends PampaSimEntity implements Simulation {
         }
         if (!noEvents) {
             for (Event ev : lastClockEvents.stream().toList()) {
-                List<PampaSimEntity> dsts = this.getEventManager().getAllDestinations(ev.getClass());
+                List<SimEntity> dsts = this.getEventManager().getAllDestinations(ev.getClass());
                 for (var dstEntity : dsts) {
-                    g = g.with(
-                            root.link(
-                                    between(
-                                            port("ev" + ev.getSerial()),
-                                            entityGraphMap.get(dstEntity.graphNodeName())
-                                    )
-                            ),
-                            entityGraphMap.get(ev.getSource().graphNodeName()).link(root)
-                    );
+                    SimEntity source = ev.getSource();
+                    if (source != null) {
+                        g = g.with(
+                                root.link(
+                                        between(
+                                                port("evs" + ev.getSerial(), Compass.EAST),
+                                                //port("ev" + ev.getSerial(), Compass.WEST)
+                                                entityGraphMap.get(dstEntity.graphNodeName()).asLinkTarget()
+                                        )
+                                ),
+                                entityGraphMap.get(source != null ? source.graphNodeName() : nullNode).link(root)
+                        );
+                    }
                 }
             }
         }

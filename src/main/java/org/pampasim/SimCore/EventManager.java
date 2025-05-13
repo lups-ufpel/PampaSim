@@ -3,28 +3,32 @@ package org.pampasim.SimCore;
 import org.pampasim.SimEntity.PampaSimEntity;
 import org.pampasim.SimCore.events.Event;
 import org.pampasim.SimCore.events.*;
+import org.pampasim.SimEntity.SimEntity;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EventManager {
-    private final Map<Class<? extends Event>, PampaSimEntity> handlers;
-    private final Map<Class<? extends Event>, Class<? extends Event>> translations;
+public abstract class EventManager {
+    protected final Map<Class<? extends Event>, SimEntity> handlers;
+    protected final Map<Class<? extends Event>, Class<? extends Event>> translations;
+    protected final Map<Class<? extends Event>, Boolean> takesTime;
     private static long eventSerialCounter;
-    private Simulation simulation;
+    private final Simulation simulation;
 
     public EventManager(Simulation simulation) {
         handlers = new HashMap<>();
         translations = new HashMap<>();
+        takesTime = new HashMap<>();
         this.simulation = simulation;
-
-        // FIXME: Temporary, adding event translations manually so that testing can be done
-        addTranslation(ProcessAllocate.class, ProcessReady.class);
-        addTranslation(ProcessEnd.class, ProcessKill.class);
-        addTranslation(ProcessDispatch.class, ProcessRun.class);
-        addTranslation(ProcessIoOperation.class, ProcessSchedule.class);
+        setupHandlers();
+        setupTranslations();
+        setupFlags();
     }
+
+    public abstract void setupHandlers();
+    public abstract void setupTranslations();
+    public abstract void setupFlags();
 
     public void addEventHandler(Class<? extends Event> eventClass, PampaSimEntity handler) {
         if (handlers.containsKey(eventClass)) {
@@ -42,7 +46,7 @@ public class EventManager {
         it attempts to translate it to a different event type. If there is no translation, an exception is thrown
      */
     public void handleEvent(Event event) {
-        PampaSimEntity handler = null;
+        SimEntity handler = null;
         do {
             handler = handlers.get(event.getClass());
             if (handler == null) {
@@ -74,7 +78,7 @@ public class EventManager {
         }
     }
 
-    public List<PampaSimEntity> getAllDestinations(Class<? extends Event> eventClass) {
+    public List<SimEntity> getAllDestinations(Class<? extends Event> eventClass) {
         return handlers.entrySet().stream()
                 .filter(entry -> entry.getKey() == eventClass)
                 .map(Map.Entry::getValue)
@@ -85,5 +89,9 @@ public class EventManager {
         var s = eventSerialCounter;
         eventSerialCounter++;
         return s;
+    }
+
+    public boolean eventTakesTime(Event ev) {
+        return takesTime.getOrDefault(ev.getClass(), false);
     }
 }

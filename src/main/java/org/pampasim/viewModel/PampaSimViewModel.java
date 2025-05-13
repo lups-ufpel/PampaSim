@@ -216,10 +216,11 @@ public class PampaSimViewModel implements ViewModel {
         if (sim != null) {
             var graph = ((GraphVisualizeable)sim).exportGraph();
             Graphviz viz = Graphviz.fromGraph(graph);
+            String uniqueId = String.format("%04d", graphNum);
             viz.render(Format.SVG)
-                    .toFile(new File("graph" + graphNum + ".svg"));
+                    .toFile(new File("graph" + uniqueId + ".svg"));
             viz.render(Format.DOT)
-                    .toFile(new File("graph" + graphNum + ".dot"));
+                    .toFile(new File("graph" + uniqueId + ".dot"));
         }
         graphNum++;
     }

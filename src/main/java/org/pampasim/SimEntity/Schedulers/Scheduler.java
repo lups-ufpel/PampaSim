@@ -21,7 +21,7 @@ public abstract class Scheduler extends PampaSimEntity {
     }
 
     @Override
-    public void run() {
+    public void innerRun() {
         buffer.forEach(this::processEvent);
         buffer.clear();
 

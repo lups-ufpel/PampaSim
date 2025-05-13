@@ -10,6 +10,7 @@ public interface Simulation extends SimEntity {
     void scheduleToClock(int clock, Event event);
     <T extends SimEntity> T getEntity(Class<T> entityClass);
     EventManager getEventManager();
+    RealClock getRealClock();
     PidAllocator getPidAllocator();
     int getSimulationClock();
 

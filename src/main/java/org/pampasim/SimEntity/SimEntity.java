@@ -5,6 +5,9 @@ import org.pampasim.SimCore.events.*;
 import org.pampasim.Utils.GraphVisualizeable;
 
 public interface SimEntity extends GraphVisualizeable {
+    enum EntityState { Run, Blocked, Idle };
+    EntityState getState();
+    void clearBlock();
     boolean isStarted();
     boolean start();
     Simulation getSimulation();

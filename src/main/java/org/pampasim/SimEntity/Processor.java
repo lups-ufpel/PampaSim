@@ -26,7 +26,7 @@ public class Processor extends PampaSimEntity {
     }
 
     @Override
-    public void run() {
+    public void innerRun() {
         while (!buffer.isEmpty()) {
             processEvent(buffer.poll()); // Order: PREEMPT_PROCESS -> RUN_PROCESS_CONTINUE -> RUN_PROCESS
         }

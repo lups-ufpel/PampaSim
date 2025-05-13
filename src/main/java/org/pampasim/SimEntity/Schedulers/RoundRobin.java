@@ -24,8 +24,8 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     }
 
     @Override
-    public void run() {
-        super.run();
+    public void innerRun() {
+        super.innerRun();
         // don't get me wrong, it will never be less than zero
         // BUT! think about the infinitesimal chance of a cosmic ray bitflip!
         if (lastRunningProcess != null
