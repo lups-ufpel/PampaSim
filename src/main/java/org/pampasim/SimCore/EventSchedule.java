@@ -38,6 +38,10 @@ public class EventSchedule {
     public ArrayList<Event> get(int clock) {
         return map.get(clock);
     }
+    public ArrayList<Event> consume(int clock) {
+        futureKeys.remove(clock);
+        return map.remove(clock);
+    }
 
     public boolean isEmpty() {
         return map.isEmpty();
