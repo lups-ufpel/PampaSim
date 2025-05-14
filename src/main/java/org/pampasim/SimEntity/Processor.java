@@ -26,7 +26,7 @@ public class Processor extends PampaSimEntity {
     }
 
     @Override
-    public void innerRun() {
+    public void managedRun() {
         while (!buffer.isEmpty()) {
             processEvent(buffer.poll()); // Order: PREEMPT_PROCESS -> RUN_PROCESS_CONTINUE -> RUN_PROCESS
         }
@@ -47,25 +47,25 @@ public class Processor extends PampaSimEntity {
     }
 
     private void handleProcessRun(ProcessRun event) {
-        getSimulation().scheduleToNextClock(new ProcessRunAck(this, event.getProcess()));
         Process process = event.getProcess();
+        getSimulation().scheduleToNextClock(new ProcessRunAck(this, process));
         process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
         logInfo("Início da execução do processo de identificador:" + process.getPid());
         preemption = false;
-        core.execute(event.getProcess());
-        getSimulation().scheduleToNextClock(new ProcessRunContinue(this, event.getProcess()));
+        core.execute(process);
+        getSimulation().scheduleToNextClock(new ProcessRunContinue(this, process));
     }
     private void handleProcessRunContinue(ProcessRunContinue event) {
         Process process = event.getProcess();
-        if (process.isFinished() || process.getBurstTime() == 0 || preemption) {
+        if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(new ProcessRunPaused(this, process));
             process.setSuspended();
             logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
             logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
-            core.execute(event.getProcess());
+            core.execute(process);
             getSimulation().scheduleToNextClock(new ProcessRunContinue(this, process));
         }
     }

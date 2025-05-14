@@ -24,15 +24,21 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     }
 
     @Override
-    public void innerRun() {
-        super.innerRun();
+    public void managedRun() {
+        super.managedRun();
         // don't get me wrong, it will never be less than zero
         // BUT! think about the infinitesimal chance of a cosmic ray bitflip!
-        if (lastRunningProcess != null
-                && lastRunningProcess.getBurstTime() <= 0) {
+        if (lastRunProcess != null
+                && lastRunProcess.getBurstTime() <= 0) {
             // Preempt!
-            scheduleToNextClock(new ProcessPreemption(this, lastRunningProcess));
+            scheduleToNextClock(new ProcessPreemption(this, lastRunProcess));
         }
+    }
+
+    @Override
+    public boolean shouldRunNextTick() {
+        return super.shouldRunNextTick()
+                || (this.lastProcessFinished() && !this.rrQueue.isEmpty());
     }
 
     @Override

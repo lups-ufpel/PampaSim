@@ -12,14 +12,18 @@ import java.util.PriorityQueue;
 // WARN: tightly coupled with baseclass thru the processEnRoute flag
 public abstract class RankingScheduler extends Scheduler {
     PriorityQueue<Process> readyList;
-    List<Process> terminatedList;
 
     public RankingScheduler(Simulation simulation) {
         super(simulation);
         readyList = new PriorityQueue<>(processRankingAlgorithm());
-        terminatedList = new ArrayList<>();
     }
     public abstract Comparator<Process> processRankingAlgorithm();
+
+    @Override
+    public boolean shouldRunNextTick() {
+        return super.shouldRunNextTick()
+                || (this.lastProcessFinished() && !this.readyList.isEmpty());
+    }
 
     @Override
     protected Process nextProcessToSchedule() {

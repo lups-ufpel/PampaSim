@@ -47,6 +47,7 @@ public class PampaSim extends PampaSimEntity implements Simulation {
         this.eventsSchedule = new EventSchedule();
         this.simulationClock = 0;
         this.pidAllocator = new PidAllocator();
+        this.state = EntityState.Run;
     }
 
     @Override
@@ -71,47 +72,73 @@ public class PampaSim extends PampaSimEntity implements Simulation {
     }
 
     @Override
-    public void innerRun() {
+    public void run() {
+        //  Run simulation, with steps:
+        var phase1 = "1 - clear last inputs and outputs";
+        var phase2 = "2 - gather all events for this clock from the schedule";
+        var phase3 = "3 - send the gathered events to the right handler entities (event manager)";
+        var phase4 = "4 - update idle states";
+        var phase5 = "5 - check which kind of simulation tick we should perform, based on simulation state:";
+            var phase5a = "5a - blocked tick, where all subordinate entities are either blocked or idle";
+            // advances "real" time, all entities get run indiscriminately.
+            var phase5b = "5b - running tick";
+            // advances only the simulation time, only running entities get run.
+        var phase6 = "6 - clean up the odd few manually handled events (ProcessKill)";
+        var phase7 = "7 - compute the next state of the simulation based on the subordinate entities";
+
         SimEntity parent = getParent();
-        logInfo("");
+        StringBuilder info = new StringBuilder("running, entities: ");
+        for (SimEntity entity : entityList) {
+            info.append("\n").append(entity);
+        }
+        logInfo(info.toString());
+        logInfo(phase1);
         lastClockInputs.clear();
         lastClockOutputs.clear();
         // Reuse memory, change var name mostly
         final List<Event> currentEvents = lastClockInputs;
 
+        logInfo(phase2);
         if (eventsSchedule.hasEventsFor(simulationClock)) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
             // at this clock tick, add them to the list of events to be processed
             currentEvents.addAll(eventsSchedule.get(simulationClock));
         }
 
+        logInfo(phase3);
         // Necessary to create a copy to iterate over since handleEvent can add a KILL_PROCESS event
         // to the list as it's being iterated over
         currentEvents.stream()
                 .filter(event -> !(event instanceof ProcessKill)) // shouldn't be needed
                 .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
 
+
+        logInfo(phase4);
+        for (var entity : entityList) {
+            entity.updateState();
+        }
+
+        logInfo(phase5);
         boolean isTopLevel = parent == null;
-        if (!isTopLevel) {
-            if (parent.getParent().getState() == EntityState.Blocked) {
-                if (this.state != EntityState.Blocked) {
-                    throw new RuntimeException("invalid blocked state");
-                }
-                for (SimEntity entity : entityList) {
-                    entity.run();
-                }
-            }
-            else { executeRunnableEntities(); }
-        } else {
-            if (getState() == EntityState.Blocked) {
+        if (getState() == EntityState.Blocked) {
+            logInfo(phase5a);
+            if (isTopLevel) {
+                logInfo("top level block resolution");
                 for (SimEntity entity : entityList) {
                     entity.clearBlock();
                     entity.run();
                 }
+                this.clearBlock();
                 getRealClock().next();
-            } else { executeRunnableEntities(); }
+            } else {
+                logInfo("blocked simulation");
+            }
+        } else {
+            logInfo(phase5b);
+            executeRunnableEntities();
         }
 
+        logInfo(phase6);
         List<ProcessEvent> killProcessEvents = currentEvents.stream()
                 .filter(event -> event instanceof ProcessKill)
                 .map(e -> (ProcessEvent) e)
@@ -123,7 +150,14 @@ public class PampaSim extends PampaSimEntity implements Simulation {
 
         simulationClock += 1;
 
+        logInfo(phase7);
         this.state = nextState();
+    }
+
+    @Override
+    public boolean shouldRunNextTick() {
+        boolean areEntitiesAllIdle = entityList.stream().allMatch(entity -> entity.getState() == EntityState.Idle);
+        return !areEntitiesAllIdle || this.hasPendingEvents();
     }
 
     private EntityState nextState() {

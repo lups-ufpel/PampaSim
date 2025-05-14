@@ -14,7 +14,6 @@ public class InterimEventManager extends EventManager {
 
     @Override
     public void setupTranslations() {
-        System.out.println("here, got called!");
         addTranslation(ProcessAllocate.class, ProcessReady.class);
         addTranslation(ProcessEnd.class, ProcessKill.class);
         addTranslation(ProcessDispatch.class, ProcessRun.class);

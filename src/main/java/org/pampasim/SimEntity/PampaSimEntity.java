@@ -47,7 +47,7 @@ public class PampaSimEntity implements SimEntity {
     };
     @Override
     public void scheduleToNextClock(Event event) {
-        logInfo("Evento Enviado: Tipo: " + event.getClass().getSimpleName() + " com Serial: " + event.getSerial());
+        logInfo("tx " + event);
         simulation.acceptEvent(event);
     }
 
@@ -57,19 +57,29 @@ public class PampaSimEntity implements SimEntity {
     }
 
     public void processEvent(Event event) {}
-    public final void run() {
+    public void run() {
+        logInfo("run");
         this.lastRunBuffer = buffer.stream().toList();
-        innerRun();
+        managedRun();
         buffer.clear();
-        setStateIfNotBlocked(EntityState.Idle);
     }
-    protected void innerRun() {
+    protected void managedRun() {
         buffer.forEach(this::processEvent);
     }
+    @Override
+    public boolean shouldRunNextTick() {
+        return !buffer.isEmpty();
+    }
+
+    @Override
+    public void updateState() {
+        setStateIfNotBlocked(this.shouldRunNextTick()?
+                EntityState.Run : EntityState.Idle
+        );
+    }
     public void acceptEvent(Event event) {
-        logInfo("Evento recebido: Tipo: " + event.getClass().getSimpleName() + " com Serial: " + event.getSerial());
+        logInfo("rx " + event);
         this.buffer.add(event);
-        setStateIfNotBlocked(EntityState.Run);
         if (this.getSimulation().getEventManager().eventTakesTime(event)) {
             logInfo("Blocked on " + event);
             this.state = EntityState.Blocked;
@@ -78,12 +88,19 @@ public class PampaSimEntity implements SimEntity {
 
     protected void setStateIfNotBlocked(EntityState newState) {
         if (getState() != EntityState.Blocked) {
+            if (getState() != newState) {
+                logInfo("transitioned to " + newState);
+            }
             this.state = newState;
+        } else {
+            logInfo("transition to " + newState + " blocked");
         }
     }
 
     public void clearBlock() {
-        this.state = buffer.isEmpty()? EntityState.Idle : EntityState.Run;
+        logInfo("block cleared");
+        this.state = EntityState.Idle;
+        updateState();
     }
 
     public void logInfo(String info) {

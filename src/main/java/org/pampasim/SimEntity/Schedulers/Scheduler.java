@@ -3,17 +3,16 @@ package org.pampasim.SimEntity.Schedulers;
 import org.pampasim.SimCore.Simulation;
 import org.pampasim.SimCore.events.*;
 import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimResources.Process;
 
 public abstract class Scheduler extends PampaSimEntity {
     boolean processEnRoute;
-    protected Process lastRunningProcess;
+    protected Process lastRunProcess;
 
     public Scheduler(Simulation simulation) {
         super(simulation);
         processEnRoute = false;
-        lastRunningProcess = null;
+        lastRunProcess = null;
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(ProcessSchedule.class, this);
@@ -21,13 +20,11 @@ public abstract class Scheduler extends PampaSimEntity {
     }
 
     @Override
-    public void innerRun() {
+    public void managedRun() {
         buffer.forEach(this::processEvent);
         buffer.clear();
 
-        Processor cpu = getSimulation().getEntity(Processor.class);
-
-        if (cpu.isFree() && !processEnRoute) {
+        if (this.lastProcessFinished() && !processEnRoute) {
             scheduleNextProcess();
         }
     }
@@ -45,7 +42,7 @@ public abstract class Scheduler extends PampaSimEntity {
     protected void handleProcessRunAck(ProcessRunAck event) {
         event.getProcess().notifyListenersOnUpdate();
         processEnRoute = false;
-        lastRunningProcess = event.getProcess();
+        lastRunProcess = event.getProcess();
     }
 
     protected abstract Process nextProcessToSchedule();
@@ -57,5 +54,10 @@ public abstract class Scheduler extends PampaSimEntity {
         if (proc == null) { return; }
         scheduleToNextClock(new ProcessDispatch(this, proc));
         processEnRoute = true;
+    }
+
+    protected boolean lastProcessFinished() {
+        var proc = lastRunProcess;
+        return proc == null || proc.getState() != Process.State.RUNNING;
     }
 }

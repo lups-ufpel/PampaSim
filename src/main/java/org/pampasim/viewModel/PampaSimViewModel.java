@@ -192,7 +192,7 @@ public class PampaSimViewModel implements ViewModel {
     public void runSimulation() {
         Simulation sim = simulatedScenario.getSimulation();
         sim.run();
-        if(!sim.hasPendingEvents()) {
+        if(!sim.shouldRunNextTick()) {
             stopSimulation();
         }
         if (genGraphs.get()) {
