@@ -53,7 +53,13 @@ public class Process {
     public int getRemainingExecutionTime() {
         return totalExecTime - currExecTime;
     }
-
+    public void updateStateOnExecutionEnd() {
+        if (isFinished()) {
+            setTerminated();
+        } else {
+            setReady();
+        }
+    }
     public void forwardProcessExecution() {
         this.currExecTime +=1;
         this.burstTime -= 1;
