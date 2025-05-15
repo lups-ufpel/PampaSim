@@ -17,6 +17,7 @@ import org.pampasim.SimCore.events.ProcessEvent;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
 import org.pampasim.SimEntity.Schedulers.Scheduler;
+import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.SimResources.Process;
 import org.pampasim.Utils.GraphVisualizeable;
 import org.pampasim.scopes.ProcessScope;
@@ -191,7 +192,11 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void runSimulation() {
         Simulation sim = simulatedScenario.getSimulation();
-        sim.run();
+        if (sim.getState() == SimEntity.EntityState.Blocked) {
+            sim.run();
+        } else {
+            sim.runUntilBlockedorIdle();
+        }
         if(!sim.shouldRunNextTick()) {
             stopSimulation();
         }

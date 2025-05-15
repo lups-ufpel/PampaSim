@@ -63,6 +63,11 @@ public class PampaSimEntity implements SimEntity {
         managedRun();
         buffer.clear();
     }
+    public void runUntilBlockedorIdle() {
+        while (getState() == EntityState.Run) {
+            run();
+        }
+    }
     protected void managedRun() {
         buffer.forEach(this::processEvent);
     }
