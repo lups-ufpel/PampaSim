@@ -20,4 +20,5 @@ public interface SimEntity extends GraphVisualizeable {
     void logInfo(String info);
     boolean shouldRunNextTick();
     void updateState();
+    public void runUntilBlockedorIdle();
 }
