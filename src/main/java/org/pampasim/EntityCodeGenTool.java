@@ -11,7 +11,6 @@ import org.pampasim.dsl.metadata.Event;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -29,6 +28,9 @@ public class EntityCodeGenTool {
             return new GlobalSections(eventElements.toString());
         }
 
+        //public String patchEventType(String eventTypeCode) {
+//
+        //}
         public String patchEventManager(String eventManagerCode) {
             return null;
         }
@@ -84,11 +86,8 @@ public class EntityCodeGenTool {
         }
     };
 
-    protected static final String packagePath = "src/main/java/org/pampasim";
-    protected static final String implCodePackagePath = "SimEntityImpls";
-    protected static final String implDstPackagePath = "SimEntityGen";
-    protected static final String eventManagerCodePath = "SimCoreGen";
-    protected static final String eventManagerDstPath = "SimCoreGen";
+    protected static final String pkg = "src/main/java/org/pampasim";
+    protected static final String generatedPkg = "target/generated-sources/entity-codegen-tool/org/pampasim";
 
     public static void main(String[] args) throws IOException {
         String fileName = args[0];
@@ -112,13 +111,13 @@ public class EntityCodeGenTool {
         {
             FileInputStream srcFile;
             try {
-                srcFile = new FileInputStream(packagePath + "/" + eventManagerCodePath + "/EventManager.java");
+                srcFile = new FileInputStream(pkg + "/SimCore/EventManager.java");
             } catch (FileNotFoundException fnfe) {
                 System.out.println("No implementation file for the EventManager, Abort!");
                 assert false;
                 return; // here so the IDE static analysis doesn't break
             }
-            FileOutputStream dstFile = new FileOutputStream(packagePath + "/" + implDstPackagePath + "/PampaSimEventManager.java");
+            FileOutputStream dstFile = new FileOutputStream(generatedPkg + "/PampaSimEventManager.java");
             var out = globals.patchEventManager(new String(srcFile.readAllBytes()));
 
         }
@@ -127,12 +126,12 @@ public class EntityCodeGenTool {
             // FIXME: use the Path API
             FileInputStream srcFile;
             try {
-                srcFile = new FileInputStream(packagePath + "/" + implCodePackagePath + "/" + e.getName() + ".java");
+                srcFile = new FileInputStream(pkg + "/SimEntityImpl/" + e.getName() + ".java");
             } catch (FileNotFoundException fnfe) {
                 System.out.println("No implementation file for " + e + ", skipping...");
                 continue;
             }
-            FileOutputStream dstFile = new FileOutputStream(packagePath + "/" + implDstPackagePath + "/" + e.getName() + ".java");
+            FileOutputStream dstFile = new FileOutputStream(pkg + "/SimEntityImpl/" + e.getName() + ".java");
             System.out.println("Processing " + e.getName() + ": " + srcFile + " -> " + dstFile);
             String classCode = new String(srcFile.readAllBytes());
             EntitySections genSections = EntitySections.of(classCode, globals, e);

@@ -1,15 +1,7 @@
 package org.pampasim.SimEntity;
 
-import org.pampasim.SimCore.PampaSimEvent;
-import org.pampasim.SimCore.PampaSimEventID;
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.EventType;
-import org.pampasim.SimResources.Process;
-import org.pampasim.Utils.PidAllocator;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import org.pampasim.SimCore.events.*;
 
 public class ProcessManager extends PampaSimEntity {
 
@@ -17,36 +9,40 @@ public class ProcessManager extends PampaSimEntity {
         super(simulation);
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(EventType.PROCESS_ARRIVAL, this);
-        simulation.getEventManager().addEventHandler(EventType.READY_PROCESS, this);
-        simulation.getEventManager().addEventHandler(EventType.PROCESS_EXECUTION_END, this);
+        simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
+        simulation.getEventManager().addEventHandler(ProcessReady.class, this);
+        simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
 
     }
 
     @Override
-    public void processEvent(PampaSimEvent event) {
-        switch (event.getEventType()) {
-            case PROCESS_ARRIVAL -> handleProcessArrival(event);
-            case READY_PROCESS -> handleReadyProcess(event);
-            case PROCESS_EXECUTION_END -> handleProcessExecutionEnd(event);
-            default -> throw new IllegalStateException("[ProcessManager] Evento do tipo " + event.getEventType() + " não pode ser tratado, evento serial: " + event.getSerial());
+    public void processEvent(Event event) {
+        switch (event) {
+            case ProcessArrival e -> handleProcessArrival(e);
+            case ProcessReady e -> handleProcessReady(e);
+            case ProcessRunPaused e -> handleProcessRunPaused(e);
+            default -> throw new IllegalStateException(
+                    "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
+                            + " não pode ser tratado, evento serial: " + event.getSerial()
+            );
         }
     }
 
-    private void handleProcessArrival(PampaSimEvent event) {
-        scheduleToNextClock(event.changeType(EventType.ALLOCATE_PROCESS));
+    private void handleProcessArrival(ProcessArrival event) {
+        scheduleToNextClock(new ProcessAllocate(this, event.getProcess()));
     }
 
-    private void handleReadyProcess(PampaSimEvent event) {
+    private void handleProcessReady(ProcessReady event) {
         event.getProcess().setReady();
-        scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));
+        scheduleToNextClock(new ProcessSchedule(this, event.getProcess()));
     }
 
-    private void handleProcessExecutionEnd(PampaSimEvent event) {
+    private void handleProcessRunPaused(ProcessRunPaused event) {
         if (event.getProcess().isFinished()) {
-            scheduleToNextClock(event.changeType(EventType.END_PROCESS));
+            event.getProcess().setTerminated();
+            scheduleToNextClock(new ProcessEnd(this, event.getProcess()));
         } else {
-            scheduleToNextClock(event.changeType(EventType.SCHEDULE_PROCESS));
+            scheduleToNextClock(new ProcessSchedule(this, event.getProcess()));
         }
     }
 }

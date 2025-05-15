@@ -1,8 +1,7 @@
 package org.pampasim.SimEntity;
 
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.EventType;
+import org.pampasim.SimCore.events.*;
 import org.pampasim.SimResources.Process;
 import org.pampasim.SimResources.ProcessorCore;
 
@@ -21,65 +20,68 @@ public class Processor extends PampaSimEntity {
         this.preemption = false;
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(EventType.RUN_PROCESS, this);
-        simulation.getEventManager().addEventHandler(EventType.RUN_PROCESS_CONTINUE, this);
-        simulation.getEventManager().addEventHandler(EventType.PREEMPT_PROCESS, this);
+        simulation.getEventManager().addEventHandler(ProcessRun.class, this);
+        simulation.getEventManager().addEventHandler(ProcessRunContinue.class, this);
+        simulation.getEventManager().addEventHandler(ProcessPreemption.class, this);
     }
 
     @Override
-    public void processEventsInBuffer() {
+    public void managedRun() {
         while (!buffer.isEmpty()) {
             processEvent(buffer.poll()); // Order: PREEMPT_PROCESS -> RUN_PROCESS_CONTINUE -> RUN_PROCESS
         }
     }
 
     @Override
-    public void processEvent(PampaSimEvent event) {
-        switch (event.getEventType()) {
-            case RUN_PROCESS -> handleRunProcess(event);
-            case RUN_PROCESS_CONTINUE -> handleRunProcessContinue(event);
-            case PREEMPT_PROCESS -> handlePreemptProcess(event);
-            default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getEventType() + " não pode ser tratado, evento serial: " + event.getSerial());
+    public void processEvent(Event event) {
+        switch (event) {
+            case ProcessRun e -> handleProcessRun(e);
+            case ProcessRunContinue e -> handleProcessRunContinue(e);
+            case ProcessPreemption e -> handleProcessPreemption(e);
+            default -> throw new IllegalStateException(
+                    "[Scheduler] Evento do tipo "
+                    + event.getClass().getSimpleName()
+                            + " não pode ser tratado, evento serial: " + event.getSerial()
+            );
         }
     }
 
-    private void handleRunProcess(PampaSimEvent event) {
-        getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_ACK));
+    private void handleProcessRun(ProcessRun event) {
         Process process = event.getProcess();
+        getSimulation().scheduleToNextClock(new ProcessRunAck(this, process));
         process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
-        System.out.println("[Processador] Início da execução do processo de identificador:" + process.getPid());
+        logInfo("Início da execução do processo de identificador:" + process.getPid());
         preemption = false;
-        core.execute(event.getProcess());
-        getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
+        core.execute(process);
+        getSimulation().scheduleToNextClock(new ProcessRunContinue(this, process));
     }
-    private void handleRunProcessContinue(PampaSimEvent event) {
+    private void handleProcessRunContinue(ProcessRunContinue event) {
         Process process = event.getProcess();
-        if (process.isFinished() || process.getBurstTime() == 0 || preemption) {
+        if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
-            getSimulation().scheduleToNextClock(event.changeType(EventType.PROCESS_EXECUTION_END));
-            process.updateStateOnExecutionEnd();
-            System.out.println("[Processador] Fim do turno de execução do processo de identificador:" + process.getPid());
+            getSimulation().scheduleToNextClock(new ProcessRunPaused(this, process));
+            process.setSuspended();
+            logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
-            System.out.println("[Processador] Continuação da Execução do processo de identificador:" + process.getPid());
-            core.execute(event.getProcess());
-            getSimulation().scheduleToNextClock(event.changeType(EventType.RUN_PROCESS_CONTINUE));
+            logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
+            core.execute(process);
+            getSimulation().scheduleToNextClock(new ProcessRunContinue(this, process));
         }
-
     }
-    private void handlePreemptProcess(PampaSimEvent event) {
+    private void handleProcessPreemption(ProcessPreemption event) {
         preemption = true;
-        System.out.println("[Processador] Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
+        logInfo("Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
     }
     public boolean isFree() {
         return ProcessorCore.Status.FREE == this.core.getStatus();
     }
 
-    private int getEventPriority(PampaSimEvent event) {
-        return switch (event.getEventType()) {
-            case PREEMPT_PROCESS -> 1;   // Highest priority
-            case RUN_PROCESS_CONTINUE -> 2;
-            case RUN_PROCESS -> 3;       // Lowest priority
+    private int getEventPriority(Event event) {
+        return switch (event) {
+            case ProcessPreemption _e -> 1;   // Highest priority
+            case ProcessRunContinue _e -> 2;
+            case ProcessRun _e -> 3;       // Lowest priority
             default -> Integer.MAX_VALUE;
         };
     }

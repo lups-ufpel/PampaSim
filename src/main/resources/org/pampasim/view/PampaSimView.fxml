@@ -69,7 +69,7 @@
                     </graphic>
                     <text>New</text>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Reset">
+                <Button fx:id="resetBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onResetSimulation" text="Reset">
                     <tooltip>
                         <Tooltip text="Reiniciar simulação" />
                     </tooltip>
@@ -208,9 +208,9 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
-                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Carregar cenário" textFill="#1976d2">
+                <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
                     <tooltip>
-                        <Tooltip text="Criar processo"/>
+                        <Tooltip text="Carrega arquivo de descrição de cenário"/>
                     </tooltip>
                     <graphic>
                         <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square-fill" iconSize="22" selectionFill="BLACK">

@@ -12,11 +12,25 @@
 
 # Draft
 ## Ideas
-Entities are just FSMs that get driven by events happening *to* them (alternatively,
-you could phrase it like them receiving an event).
-If we make it so the actual work the entity does only happen upon it
-receiving the globally broadcast `Clock` event, then the entity-specific events only
-need to handle the transitions between states.
+~~Entities are just FSMs that get driven by events happening *to* them (alternatively,
+you could phrase it like them receiving an event).~~
+
+Entities are not always representable as FSMs! Some of them are, but only a select few.
+New plan: entities are objects, in the classic "behavior and state" view, only with the added
+complication that some of them actively query other entities for performing their tasks, and
+that communication is currently done out-of-band of the events message system. Messy.
+
+We can make it so the actual work the entities do only happens when they receive a globally
+broadcast `Clock` event, that way a queue of events can be accumulated for each entity to
+process all at once. This processing may, and usually does involve dispatching more events,
+and those get queued for processing in the next `Clock` dispatch.
+
+### Simulation recursion
+We've got a pretty generic abstraction in the form of a simulation / simulated scenario / spec
+file, so what's holding us back from describing the simulation as a tree where you can either have
+an entity leaf and a few subsystem simulation subtrees? that would help keep the code duplication
+down, lessen the burden on tooling and visualization dev. by making the program structure more
+homogenous, and just be kinda neat.
 
 ### Model quirks
 Making every entity capable of broadcasting an arbitrary amount of events every clock cycle
@@ -28,71 +42,10 @@ As such, the stages of execution for a single `Clock` event:
 1. Start
 2. `Clock` event dispatch
 3. every entity runs, in an arbitrary order
-4. outbound events are collected into their respective entities outbound event queues
-5. Event priorities are assigned
-6. Existing resource locks are checked
-7. Events are collected into a simulation queue respecting priorities
-8. New resource locks are handed out, if applicable
-9. All the simple transition events are applied by priority
+    Entities:
+    1. Pop next event, if the queue is not empty
+    2. Process the event, possibly dispatching more events
+    3. Loop to step 1 until queue is empty
+4. parallel to entity 
 10. Simulation constraints are validated (deadlocks, resource exhaustion)
 11. End
-
-#### On notation
-I found myself writing an adhoc DSL for describing the maps below, so a small description
-is warranted:
-Each entities behavior can be described by a map from an input set
-(event E, state S) to a set (action A, result-events R)
-where
-    E is any event at all,
-    S is one of the states of the entity being described,
-    A is either a new state S for this entity, or a description of what work gets performed (for the special `Clock` event)
-    R is an [algebraic data type](https://en.wikipedia.org/wiki/Algebraic_data_type) describing the events that will be dispatched by the transition, if any.
-
-Additionally:
-  - `_` is the wildcard pattern for events and states, and is used to
-explicitly handle all the events or states that are not matched by the other entries in the map.
-
-  - `None` represents the absence of resulting events
-  - `?` when used in the resulting events ADTs marks that term as optional (`X?` is the same as `(X | None)`)
-  - `*` when used in the resulting events ADTs represents a whole family of events by name prefix, e.g. all Processor events would be `Processor*`
-  - Identifiers for states are written in ALLCAPS, and in PascalCase for events.
-
-So, for each entity, their map could be:
-### Processor
-- `Clock`
-   - `IDLE` / does nothing / `None`
-   - `BLOCKED` / waits for some event / `None`
-   - `EXEC` / drives a process / `(Processor* | Memory* | IO*)?`
-   - `CTXSWITCH` / changes to a different process / `ProcessorContextSwitch`
-   - `ERROR` / fatal error! / `ProcessorError`
-- `ProcessorExec`
-  - `IDLE` / `CTXSWITCH`
-  - `BLOCKED` / `CTXSWITCH`
-  - `_` / `ERROR`
-
-### Memory
-- `Clock`
-    - `IDLE` / does nothing / `None`
-    - `ALLOC` / allocates a page for a given process / `MemoryAllocResult?`
-    - `FREE` / frees a page from a given process / `MemoryFreeResult?`
-    - `READ` / drives a page read operation / `MemoryReadResult?`
-    - `WRITE` / drives a page write operation / `MemoryWriteResult?`
-    - `ERROR` / fatal error! / `MemoryError`
-- `MemoryAlloc`
-    - `IDLE` / `ALLOC`
-    - `_` / `ERROR`
-- `MemoryFree`
-    - `IDLE` / `FREE`
-    - `_` / `ERROR`
-- `MemoryRead`
-  - `IDLE` / `READ`
-  - `_` / `ERROR`
-- `MemoryReadResult`
-  - `READ` / `IDLE`
-  - `_` / `ERROR`
-- `MemoryWrite`
-  - `IDLE` / `WRITE`
-  - `_` / `ERROR`
-- `MemoryWriteResult`
-  - `WRITE` / `IDLE`
-  - `_` / `ERROR`

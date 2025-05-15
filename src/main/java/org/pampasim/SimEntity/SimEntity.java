@@ -1,18 +1,24 @@
 package org.pampasim.SimEntity;
 
-import org.pampasim.SimCore.PampaSimEvent;
 import org.pampasim.SimCore.Simulation;
+import org.pampasim.SimCore.events.*;
 import org.pampasim.Utils.GraphVisualizeable;
 
 public interface SimEntity extends GraphVisualizeable {
-    enum State {RUNNABLE, WAITING, HOLDING, FINISHED}
-    State getState();
-    SimEntity setState(State state);
+    enum EntityState { Run, Blocked, Idle };
+    EntityState getState();
+    void clearBlock();
     boolean isStarted();
     boolean start();
     Simulation getSimulation();
-    void processEvent(PampaSimEvent evt);
-    void processEventsInBuffer();
-    void scheduleToNextClock(PampaSimEvent evt);
-    void acceptEvent(PampaSimEvent evt);
+    Simulation getTopLevelSimulation();
+    SimEntity getParent();
+    //void processEvent(Event evt); this is internal, acceptEvent is the public interface
+    void run();
+    void scheduleToNextClock(Event evt);
+    void acceptEvent(Event evt);
+    void logInfo(String info);
+    boolean shouldRunNextTick();
+    void updateState();
+    public void runUntilBlockedorIdle();
 }

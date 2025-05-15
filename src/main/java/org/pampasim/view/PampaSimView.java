@@ -3,6 +3,9 @@ package org.pampasim.view;
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +22,8 @@ import org.pampasim.viewModel.ProcessViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -37,9 +42,13 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public Button runBtn;
     @FXML
+    public Button resetBtn;
+    @FXML
     public Button stopBtn;
     @FXML
     public Button selectSchedBtn;
+    @FXML
+    public Button loadSpecBtn;
     @FXML
     public CheckBox genGraphs;
     private Timeline animation;
@@ -50,9 +59,16 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void onStartSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.startSimulation();
         if(pampaSimViewModel.isSimulationRunning()) {
+            System.out.print(" started animation");
             animation.play();
         }
+        System.out.println();
     }
+    @FXML
+    public void onResetSimulation(ActionEvent actionEvent) {
+        pampaSimViewModel.resetSimulation();
+    }
+    // somewhat misleading name, also called when the stop button is clicked
     @FXML
     public void onFinishSimulation(ActionEvent actionEvent) {
         animation.pause();
@@ -77,10 +93,20 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void selectScheduler(ActionEvent actionEvent) {
         selectSchedulerDialog.showAndWait();
     }
+    @FXML
+    public void loadSpec() {
+        try {
+            var spec = URI.create("file:./spec.spec").toURL();
+            pampaSimViewModel.loadSpec(spec);
+        } catch (MalformedURLException e) {
+            new Alert(Alert.AlertType.ERROR, "bad url! " + e);
+        }
+    }
 
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             pampaSimViewModel.setSimulationScheduler();
+            pampaSimViewModel.updateProps();
         }
 
         return null;
@@ -88,9 +114,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     private ButtonType handleCreateProcessResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             pampaSimViewModel.createNewProcess();
-
-            if (pampaSimViewModel.isSchedulerSet())
-                runBtn.setDisable(false);
+            pampaSimViewModel.updateProps();
         }
 
         return null;
@@ -104,7 +128,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class, pampaSimViewModel.getSchedulerScope());
         configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
-        this.animation = new Timeline(new KeyFrame(Duration.millis(2000), e -> pampaSimViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
@@ -121,6 +145,16 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         genGraphs.setAllowIndeterminate(false);
         genGraphs.setSelected(false);
         pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
+        runBtn.disableProperty().bind(
+                pampaSimViewModel
+                        .getSimulationIsValidSetup().not()
+                        .or(pampaSimViewModel.getSimulationRunning())
+        );
+        resetBtn.disableProperty()
+                .bind(pampaSimViewModel.getSimulationIsFresh());
+        loadSpecBtn.disableProperty()
+                .bind(pampaSimViewModel.getSimulationIsFresh().not());
+        pampaSimViewModel.updateProps();
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
         Circle circle = new Circle(30, process.getColor());
@@ -177,7 +211,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     private void bindTimeLineProperty() {
         pampaSimViewModel.getSimulationRunning().addListener((obs, wasRunning, isRunning) -> {
-            runBtn.setDisable(isRunning);
             stopBtn.setDisable(!isRunning);
             if (!isRunning) {
                 animation.pause();

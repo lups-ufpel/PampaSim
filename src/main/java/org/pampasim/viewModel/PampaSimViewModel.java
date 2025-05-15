@@ -2,36 +2,43 @@ package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.Setter;
 import org.pampasim.SimCore.*;
+import org.pampasim.SimCore.events.ProcessArrival;
+import org.pampasim.SimCore.events.ProcessEvent;
 import org.pampasim.SimEntity.ProcessManager;
 import org.pampasim.SimEntity.Processor;
-import org.pampasim.SimEntity.Scheduler;
+import org.pampasim.SimEntity.Schedulers.Scheduler;
+import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.SimResources.Process;
-import org.pampasim.SimResources.ProcessorCore;
 import org.pampasim.Utils.GraphVisualizeable;
-import org.pampasim.Utils.PidAllocator;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PampaSimViewModel implements ViewModel {
     @Getter
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
     @Getter
     private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
+    @Getter
+    private final BooleanProperty simulationIsValidSetup = new SimpleBooleanProperty(false);
+    @Getter
+    private final BooleanProperty simulationIsFresh = new SimpleBooleanProperty(true);
     private int graphNum = 0;
     @Getter
     private final ObservableList<ProcessViewModel> processes = FXCollections.observableArrayList();
@@ -46,12 +53,25 @@ public class PampaSimViewModel implements ViewModel {
 
     public PampaSimViewModel() {
         simulatedScenario = new SimulatedScenario();
-        ProcessManager kernel = new ProcessManager(simulatedScenario.getSimulation());
-        // These were getting dropped at the end of this scope, why?
-        // UPDATE: now i know why. this doesn't make me feel any better about this.
-        ProcessorCore core = new ProcessorCore(100);
-        Processor processor = new Processor(simulatedScenario.getSimulation(), core);
-        simulatedScenario.setProcessManager(kernel);
+    }
+
+    public void loadSpec(URL url) {
+        simulatedScenario.loadSpec(url);
+        var spec = simulatedScenario.getSpec();
+        System.out.println("scheduler " + simulatedScenario.getSimulation().getEntity(Scheduler.class));
+        System.out.println("got " + spec);
+        if (spec != null) {
+            for (var events : spec.getEventSchedule().values()) {
+                for (var ev : events.stream().filter(e -> e instanceof ProcessEvent).map(e -> (ProcessEvent)e).toList()) {
+                    Process p = ev.getProcess();
+                    System.out.println("registering proc " + p);
+                    // treat them like the create process button would
+                    addProcessListeners(p);
+                    p.notifyListenersOnCreate();
+                }
+            }
+        }
+        updateProps();
     }
 
     public SchedulerDialogScope getSchedulerScope() {
@@ -65,32 +85,41 @@ public class PampaSimViewModel implements ViewModel {
         Process newProcess = new Process(priority,duration,start,
                 simulatedScenario.simulation.getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
-        var newEvent = new PampaSimEvent(newProcess, EventType.PROCESS_ARRIVAL);
-        simulatedScenario.simulation.scheduleToClock(start, newEvent);
+        var newEvent = new ProcessArrival(null, newProcess);
+        simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
+        simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
+        // FIXME: since we are updating the spec, we may as well make the start of the sim
+        // load from this built up spec, no?
         this.addProcessListeners(newProcess);
         newProcess.notifyListenersOnCreate();
-    }
-    public boolean hasProcesses() {
-        return true;
-    }
-    public boolean isSchedulerSet() {
-        return simulatedScenario.getScheduler() != null;
+        updateProps();
     }
     public void setSimulationScheduler() {
         String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();
-        switch (schedulerName) {
-            case "FCFS", "SJF", "Round Robin", "Priority":
-                simulatedScenario.setScheduler(new Scheduler(simulatedScenario.getSimulation()));
-                break;
-        }
+        Integer schedulerQuantum = schedulerDialogScope.getQuantumProperty().getValue();
+        // TODO: It would be nice to disable the quantum input
+        //  if it doesn't make sense for the currently selected algorithm
+        simulatedScenario.getSpec()
+                .setSchedulerInfo(
+                        schedulerName,
+                        Optional.ofNullable(schedulerQuantum));
+        // TODO/FIXME: need to figure out how to apply it immediately here
     }
     public void startSimulation() {
-        if (!isSchedulerSet()) {
-            return;
+        if (!isValidSetup()) {
+            throw new RuntimeException("tried to start a simulation without the correct setup");
         }
         setSimulationRunning(true);
-        //simulatedScenario.getProcessManager().createBatchProcesses();
     }
+
+    public void resetSimulation() {
+        ChoiceDialog<String> confirmationDialog = new ChoiceDialog<>("No", "Yes", "No");
+
+        if (confirmationDialog.showAndWait().orElse("No").equals("Yes")) {
+            simulatedScenario.resetToSpec();
+        }
+    }
+
     public void stopSimulation() {
         setSimulationRunning(false);
     }
@@ -134,6 +163,13 @@ public class PampaSimViewModel implements ViewModel {
         String pid = process.getPid();
         int priority = process.getPriority();
         Color selectedColor = Color.web(processScope.getColorProperty().getValue());
+        var spec = simulatedScenario.getSpec();
+        if (spec != null) {
+            Color c = spec.getColorMap().getOrDefault(process, null);
+            if (c != null) {
+                selectedColor = c;
+            }
+        }
         ProcessViewModel processViewModel = new ProcessViewModel(pid,priority,selectedColor);
         processViewModel.setState(process.getState());
         processes.add(processViewModel);
@@ -155,8 +191,13 @@ public class PampaSimViewModel implements ViewModel {
         return null;
     }
     public void runSimulation() {
-        boolean hasMoreEvents = simulatedScenario.getSimulation().runClockAndProcessEvents();
-        if(!hasMoreEvents) {
+        Simulation sim = simulatedScenario.getSimulation();
+        if (sim.getState() == SimEntity.EntityState.Blocked) {
+            sim.run();
+        } else {
+            sim.runUntilBlockedorIdle();
+        }
+        if(!sim.shouldRunNextTick()) {
             stopSimulation();
         }
         if (genGraphs.get()) {
@@ -177,14 +218,26 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void exportSimulationGraph() throws IOException {
         var sim = this.simulatedScenario.getSimulation();
-        if (sim instanceof GraphVisualizeable) {
+        if (sim != null) {
             var graph = ((GraphVisualizeable)sim).exportGraph();
             Graphviz viz = Graphviz.fromGraph(graph);
+            String uniqueId = String.format("%04d", graphNum);
             viz.render(Format.SVG)
-                    .toFile(new File("graph" + graphNum + ".svg"));
+                    .toFile(new File("graph" + uniqueId + ".svg"));
             viz.render(Format.DOT)
-                    .toFile(new File("graph" + graphNum + ".dot"));
+                    .toFile(new File("graph" + uniqueId + ".dot"));
         }
         graphNum++;
+    }
+    public boolean isValidSetup() {
+        // FIXME / TODO: this can be made more thorough by analysing if there are any unhandled events
+        return simulatedScenario.getSimulation().getEntity(Scheduler.class) != null
+            && simulatedScenario.getSimulation().getEntity(Processor.class) != null
+            && simulatedScenario.getSimulation().getEntity(ProcessManager.class) != null;
+    }
+
+    public void updateProps() {
+        simulationIsValidSetup.set(isValidSetup());
+        simulationIsFresh.set(simulatedScenario.getSimulation().isFresh());
     }
 }

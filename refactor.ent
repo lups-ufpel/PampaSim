@@ -1,6 +1,6 @@
 events {
   transmitting org.pampasim.SimResources.Process {
-    CLOCK;
+    CLOCK; // Special, broadcasted one
     PROCESS_ARRIVAL;
     ALLOCATE_PROCESS;
     READY_PROCESS;
@@ -51,9 +51,9 @@ Processor {
     CTX_SWITCH then "switch to a different process" chains PROCESS_EXECUTION_END;
     ERROR then "fatal error!" chains PROCESSOR_ERROR;
   }
-  on PREEMPT_PROCESS { EXEC -> CTX_SWITCH; _ -> ERROR; }
+  on PREEMPT_PROCESS { EXEC -> CTX_SWITCH; } // _ -> ERROR; }
   on RUN_PROCESS_CONTINUE { EXEC -> EXEC; }
-  on RUN_PROCESS { IDLE -> EXEC; _ -> ERROR; }
+  on RUN_PROCESS { IDLE -> EXEC; } //_ -> ERROR; }
 }
 
 Memory {

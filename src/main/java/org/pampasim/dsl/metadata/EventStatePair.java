@@ -1,7 +1,6 @@
 package org.pampasim.dsl.metadata;
 
 import lombok.Getter;
-import org.pampasim.SimCore.EventType;
 
 @Getter
 public class EventStatePair {

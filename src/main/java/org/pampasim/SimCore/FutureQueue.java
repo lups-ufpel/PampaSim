@@ -4,20 +4,21 @@ import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+import org.pampasim.SimCore.events.Event;
 
 public class FutureQueue implements EventQueue {
 
-    private final SortedSet<PampaSimEvent> sortedSet = new TreeSet<>();
+    private final SortedSet<Event> sortedSet = new TreeSet<>();
     private long maxEventsNumber;
     @Override
-    public void addEvent(PampaSimEvent event) {
+    public void addEvent(Event event) {
         sortedSet.add(event);
         System.out.println("Evento adicionado, total de eventos: " + sortedSet.size());
         maxEventsNumber = Math.max(maxEventsNumber, sortedSet.size());
     }
 
     @Override
-    public Stream<PampaSimEvent> stream() {
+    public Stream<Event> stream() {
         return sortedSet.stream();
     }
 
@@ -32,10 +33,10 @@ public class FutureQueue implements EventQueue {
     }
 
     @Override
-    public PampaSimEvent first() throws NoSuchElementException {
+    public Event first() throws NoSuchElementException {
         return sortedSet.first();
     }
-    public boolean remove(final PampaSimEvent event) {
+    public boolean remove(final Event event) {
         return sortedSet.remove(event);
     }
 

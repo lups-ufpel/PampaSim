@@ -34,7 +34,7 @@ public class Process {
         this.state = State.NEW;
         this.priority = priority;
         this.totalExecTime = totalExecTime;
-        this.burstTime = 0;
+        this.burstTime = totalExecTime;
         this.arrivalTime = arrivalTime;
         this.currExecTime = 0;
         this.pid = pid;
@@ -89,7 +89,7 @@ public class Process {
     }
 
     public boolean isFinished() {
-        return currExecTime == totalExecTime;
+        return getRemainingExecutionTime() <= 0;
     }
     public void notifyListenersOnUpdate() {
         onUpdateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
