@@ -23,4 +23,5 @@ module org.pampasim {
     exports org.pampasim.Utils;
     exports org.pampasim.SimEntity.Schedulers;
     exports org.pampasim.SimCore.events;
+    exports org.pampasim.SimCore.events.Memory;
 }
