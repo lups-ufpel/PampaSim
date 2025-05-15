@@ -208,5 +208,6 @@
   <modules>
     <module>core</module>
     <module>sim</module>
+    <module>tools</module>
   </modules>
 </project>
