@@ -20,7 +20,7 @@ public class PageTable extends AbstractSimEntity {
 
     public void processEvent(Event event) {
         switch (event) {
-            case CreatePageTableEntry e -> handleMemoryCreatePageTableEntry(e);
+            case Allocate e -> handleMemoryAllocate(e);
             case DeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);
             case TlbNoTranslation e -> handleMemoryTlbNoTranslation(e);
             default -> throw new IllegalStateException(
@@ -30,14 +30,14 @@ public class PageTable extends AbstractSimEntity {
         }
     }
 
-    private void handleMemoryCreatePageTableEntry(CreatePageTableEntry event) {
+    private void handleMemoryAllocate(Allocate event) {
         //TODO: Stub
-        scheduleToNextClock(new ReserveProcessMemory(this, event.getProcess()));
+        scheduleToNextClock(new AllocateFinished(this, event.getProcess()));
     }
 
     private void handleMemoryDeletePageTableEntry(DeletePageTableEntry event) {
         //TODO: Stub
-        scheduleToNextClock(new DeleteTlbEntry(this, event.getProcess()));
+        scheduleToNextClock(new FreeProcessMemory(this, event.getProcess()));
     }
 
     private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {

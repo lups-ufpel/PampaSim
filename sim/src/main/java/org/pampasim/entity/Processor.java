@@ -23,7 +23,8 @@ public class Processor extends AbstractSimEntity {
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Run.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunContinue.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Dispatch.class, this);
+        //simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunContinue.class, this);
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Preemption.class, this);
     }
 
@@ -37,8 +38,8 @@ public class Processor extends AbstractSimEntity {
     @Override
     public void processEvent(Event event) {
         switch (event) {
+            case org.pampasim.events.Process.Dispatch e -> handleProcessDispatch(e);
             case org.pampasim.events.Process.Run e -> handleProcessRun(e);
-            case org.pampasim.events.Process.RunContinue e -> handleProcessRunContinue(e);
             case org.pampasim.events.Process.Preemption e -> handleProcessPreemption(e);
             default -> throw new IllegalStateException(
                     "[Scheduler] Evento do tipo "
@@ -48,17 +49,17 @@ public class Processor extends AbstractSimEntity {
         }
     }
 
-    private void handleProcessRun(org.pampasim.events.Process.Run event) {
+    private void handleProcessDispatch(org.pampasim.events.Process.Dispatch event) {
         Process process = event.getProcess();
-        getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunAck(this, process));
+        //getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunAck(this, process));
         process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
         logInfo("Início da execução do processo de identificador:" + process.getPid());
         preemption = false;
         core.execute(process);
-        getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunContinue(this, process));
+        getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
     }
-    private void handleProcessRunContinue(org.pampasim.events.Process.RunContinue event) {
+    private void handleProcessRun(org.pampasim.events.Process.Run event) {
         Process process = event.getProcess();
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
@@ -68,7 +69,7 @@ public class Processor extends AbstractSimEntity {
         } else {
             logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
             core.execute(process);
-            getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunContinue(this, process));
+            getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
         }
     }
     private void handleProcessPreemption(org.pampasim.events.Process.Preemption event) {
@@ -82,8 +83,8 @@ public class Processor extends AbstractSimEntity {
     private int getEventPriority(Event event) {
         return switch (event) {
             case org.pampasim.events.Process.Preemption _e -> 1;   // Highest priority
-            case org.pampasim.events.Process.RunContinue _e -> 2;
-            case org.pampasim.events.Process.Run _e -> 3;       // Lowest priority
+            case org.pampasim.events.Process.Run _e -> 2;
+            case org.pampasim.events.Process.Dispatch _e -> 3;       // Lowest priority
             default -> Integer.MAX_VALUE;
         };
     }

@@ -24,9 +24,9 @@ public class VirtualMemory extends AbstractSimEntity {
             case org.pampasim.events.Process.Dispatch e -> handleProcessDispatch(e);
             case org.pampasim.events.Process.IoOperation e -> handleProcessIoOperation(e);
 
-            case ReserveProcessMemoryFinished e -> handleMemoryReserveProcessMemoryFinished(e);
+            case AllocateFinished e -> handleMemoryAllocateFinished(e);
             case FreeProcessMemoryFinished e -> handleMemoryFreeProcessMemoryFinished(e);
-            case IoOperationFinished e -> handleMemoryIoOperationFinished(e);
+            case DiskOperationFinished e -> handleMemoryDiskOperationFinished(e);
             case ProcessReady e -> handleMemoryProcessReady(e);
             default -> throw new IllegalStateException(
                     "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
@@ -38,7 +38,7 @@ public class VirtualMemory extends AbstractSimEntity {
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
         //TODO: Stub
         // TODO: could also result in a ProcessKill event if there aren't enough pages available in the virtual memory for the process
-        scheduleToNextClock(new CreatePageTableEntry(this, event.getProcess()));
+        scheduleToNextClock(new Allocate(this, event.getProcess()));
         scheduleToNextClock(new org.pampasim.events.Process.Kill(this, event.getProcess()));
     }
 
@@ -57,7 +57,7 @@ public class VirtualMemory extends AbstractSimEntity {
         scheduleToNextClock(new IoOperation(this, event.getProcess()));
     }
 
-    private void handleMemoryReserveProcessMemoryFinished(ReserveProcessMemoryFinished event) {
+    private void handleMemoryAllocateFinished(AllocateFinished event) {
         //TODO: Stub
         scheduleToNextClock(new org.pampasim.events.Process.Ready(this, event.getProcess()));
     }
@@ -67,7 +67,7 @@ public class VirtualMemory extends AbstractSimEntity {
         scheduleToNextClock(new org.pampasim.events.Process.Kill(this, event.getProcess()));
     }
 
-    private void handleMemoryIoOperationFinished(IoOperationFinished event) {
+    private void handleMemoryDiskOperationFinished(DiskOperationFinished event) {
         //TODO: Stub
         scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
     }

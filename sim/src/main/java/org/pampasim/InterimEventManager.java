@@ -28,12 +28,12 @@ public class InterimEventManager extends EventManager {
     public void setupTranslations() {
         addTranslation(org.pampasim.events.Process.Allocate.class, org.pampasim.events.Process.Ready.class);
         addTranslation(org.pampasim.events.Process.End.class, org.pampasim.events.Process.Kill.class);
-        addTranslation(org.pampasim.events.Process.Dispatch.class, org.pampasim.events.Process.Run.class);
+        addTranslation(org.pampasim.events.Process.Load.class, org.pampasim.events.Process.Run.class);
         addTranslation(org.pampasim.events.Process.IoOperation.class, org.pampasim.events.Process.Schedule.class);
     }
 
     @Override
     public void setupFlags() {
-        takesTime.put(org.pampasim.events.Process.RunContinue.class, true);
+        takesTime.put(org.pampasim.events.Process.Run.class, true);
     }
 }

@@ -6,13 +6,11 @@ events {
     Schedule;
     Dispatch;
     Run;
-    RunAck;
-    RunContinue;
+    Load;
     IoOperation;
     Preemption;
     RunPaused;
     End;
-    Load;
     Kill;
   }
 }
@@ -30,13 +28,13 @@ Scheduler {
 
 Processor {
   on Process.Preemption do "suspend and evict current process" chains Process.RunPaused;
-  on Process.RunContinue do "drive process execution" chains Process.RunContinue;
-  on Process.Run do "start process execution" chains Process.RunContinue;
+  on Process.Dispatch do "request for memory to load the pages for the current execution tick" chains Process.Run;
+  on Process.Run do "run process for 1 tick" chains Process.Load;
 }
 
 Memory {
   on Process.Allocate do "allocate memory" chains Process.Ready;
   on Process.End do "free memory" chains Process.Kill;
-  on Process.Dispatch do "run process" chains Process.Run;
+  on Process.Load do "Load requested pages into main memory" chains Process.Run; // Could also result in the process being suspended, and eventually a Process.Schedule event
   on Process.IoOperation do "perform expensive IO operations" chains Process.Schedule;
 }

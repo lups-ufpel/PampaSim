@@ -7,17 +7,15 @@ import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.resources.Process;
 
 public abstract class Scheduler extends AbstractSimEntity {
-    boolean processEnRoute;
     protected Process lastRunProcess;
 
     public Scheduler(Simulation simulation) {
         super(simulation);
-        processEnRoute = false;
         lastRunProcess = null;
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Schedule.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunAck.class, this);
+        //simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunAck.class, this);
     }
 
     @Override
@@ -25,7 +23,7 @@ public abstract class Scheduler extends AbstractSimEntity {
         buffer.forEach(this::processEvent);
         buffer.clear();
 
-        if (this.lastProcessFinished() && !processEnRoute) {
+        if (this.lastProcessFinished()) {
             scheduleNextProcess();
         }
     }
@@ -34,27 +32,22 @@ public abstract class Scheduler extends AbstractSimEntity {
     public void processEvent(Event event) {
         switch (event) {
             case org.pampasim.events.Process.Schedule e -> handleProcessSchedule(e);
-            case org.pampasim.events.Process.RunAck e -> handleProcessRunAck(e);
+            //case org.pampasim.events.Process.RunAck e -> handleProcessRunAck(e);
             default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getClass().getSimpleName() + " não pode ser tratado, evento serial: " + event.getSerial());
         }
     }
 
     protected abstract void handleProcessSchedule(org.pampasim.events.Process.Schedule event);
-    protected void handleProcessRunAck(org.pampasim.events.Process.RunAck event) {
-        event.getProcess().notifyListenersOnUpdate();
-        processEnRoute = false;
-        lastRunProcess = event.getProcess();
-    }
+
 
     protected abstract Process nextProcessToSchedule();
 
     // kept private so we are sure the books are up to date
     private void scheduleNextProcess() {
-        if (processEnRoute) { return; }
         Process proc = nextProcessToSchedule();
         if (proc == null) { return; }
         scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
-        processEnRoute = true;
+        lastRunProcess = proc;
     }
 
     protected boolean lastProcessFinished() {
