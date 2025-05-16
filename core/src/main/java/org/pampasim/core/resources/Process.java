@@ -1,144 +1,62 @@
 package org.pampasim.core.resources;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.EventInfo;
 import org.pampasim.core.EventListener;
 import org.pampasim.core.ProcessEventInfo;
 import org.pampasim.core.utils.PidAllocator.Pid;
-
-
 import java.util.HashSet;
-import java.util.Set;
 
 @Getter
+@EqualsAndHashCode
 public class Process {
+    /**
+     * @param arrivalTick  real ticks
+     * @param durationTick real ticks
+     */
+    public record CreationData(int arrivalTick, int durationTick, int startPriority) {};
+    @Getter
+    private final CreationData creationData;
+
+    ;
     //TODO: during each execution tick, the process can access several pages at once. This is important for the TLB
     //Every execution tick the process will access one, none, or several of it's virtual pages, it will send out an event which
     // will require the memory module to check the Page Table or the TLB, it can also suspend the process if a page fault
     // ends up happening. This is important to justify the existence of a TLB in the system
-    private final Set<EventListener<EventInfo>> onCreateListeners;
-    private final Set<EventListener<EventInfo>> onDispatchListeners;
-    private final Set<EventListener<EventInfo>> onFinishListeners;
-    private final Set<EventListener<EventInfo>> onStartRunningListeners;
-    private final Set<EventListener<EventInfo>> onUpdateListeners;
-    private final Set<EventListener<EventInfo>> onSuspendListeners;
-    private final Set<EventListener<EventInfo>> onResumeListeners;
 
+    private final Pid pid;
+    @Setter
     State state;
-    final int arrivalTime; // when the process arrives to be allocated
+    private int currExecTime; // elapsed execution time
     @Setter
     int burstTime; // length of the next "turn" on the processor
-    int totalExecTime; // total required exec time
     @Setter
     private int priority;
-    private int currExecTime; // elapsed execution time
-    private final Pid pid;
-    public Process(int priority, int totalExecTime, int arrivalTime, Pid pid) {
-        this.state = State.NEW;
-        this.priority = priority;
-        this.totalExecTime = totalExecTime;
-        this.burstTime = totalExecTime;
-        this.arrivalTime = arrivalTime;
-        this.currExecTime = 0;
+
+    public Process(Pid pid, CreationData creationData) {
         this.pid = pid;
-        onDispatchListeners = new HashSet<>();
-        onFinishListeners = new HashSet<>();
-        onUpdateListeners = new HashSet<>();
-        onCreateListeners = new HashSet<>();
-        onSuspendListeners = new HashSet<>();
-        onResumeListeners = new HashSet<>();
-        onStartRunningListeners = new HashSet<>();
+        this.state = State.NEW;
+        this.creationData = creationData;
+        this.burstTime = creationData.durationTick;
+        this.currExecTime = 0;
     }
     public String getPid() {
         return pid.toString();
     }
 
     public int getRemainingExecutionTime() {
-        return totalExecTime - currExecTime;
+        return creationData.arrivalTick - currExecTime;
     }
-    public void updateStateOnExecutionEnd() {
-        if (isFinished()) {
-            setTerminated();
-        } else {
-            setReady();
-        }
-    }
+
     public void forwardProcessExecution() {
         this.currExecTime +=1;
         this.burstTime -= 1;
     }
-    public void addOnCreateListener(EventListener<EventInfo> listener) {
-        this.onCreateListeners.add(listener);
-    }
-    public void addOnDispatchListener(EventListener<EventInfo> listener) {
-        this.onDispatchListeners.add(listener);
-    }
-    public void addOnFinishListener(EventListener<EventInfo> listener) {
-        this.onFinishListeners.add(listener);
-    }
-    public void addOnStartRunningListener(EventListener<EventInfo> listener) {
-        this.onStartRunningListeners.add(listener);
-    }
-    public void addOnUpdateListener(EventListener<EventInfo> listener) {
-        this.onUpdateListeners.add(listener);
-    }
-    public Process addOnSuspendListener(EventListener<EventInfo> listener) {
-        this.onSuspendListeners.add(listener);
-        return this;
-    }
-    public Process addOnResumeListener(EventListener<EventInfo> listener) {
-        this.onResumeListeners.add(listener);
-        return this;
-    }
 
     public boolean isFinished() {
         return getRemainingExecutionTime() <= 0;
-    }
-    public void notifyListenersOnUpdate() {
-        onUpdateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-    }
-    public void notifyListenersOnCreate() {
-        onCreateListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-    }
-    public void notifyListenerOnDispatch() {
-        onDispatchListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-    }
-    public void notifyListenersOnFinish() {
-        onFinishListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-        onFinishListeners.clear();
-    }
-    public void notifyListenersOnStartRunning() {
-        onStartRunningListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-    }
-    public void notifyListenersOnSuspend() {
-        onSuspendListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-    }
-    public void notifyListenersOnResume() {
-        onResumeListeners.forEach(listener -> listener.update(ProcessEventInfo.of(listener, this)));
-    }
-
-    public void addOnStartListener(Object notifyGuiOnStartProcess) {
-    }
-
-    public void setReady() {
-        state  = State.READY;
-        notifyListenerOnDispatch();
-    }
-    public void setRunning() {
-        state  = State.RUNNING;
-        notifyListenersOnStartRunning();
-    }
-    public void setSuspended() {
-        state = State.WAITING;
-        notifyListenersOnSuspend();
-    }
-    public void setTerminated() {
-        state = State.TERMINATED;
-        notifyListenersOnFinish();
-    }
-    public void setScheduled() {
-        state = State.SCHEDULED;
     }
 
     public enum State {
