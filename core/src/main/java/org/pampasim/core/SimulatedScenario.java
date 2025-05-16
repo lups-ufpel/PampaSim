@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.core.entity.Processor;
 import org.pampasim.core.dsl.SpecFileLexer;
 import org.pampasim.core.dsl.SpecFileParser;
 import org.pampasim.core.dsl.spec.Spec;
@@ -15,43 +14,28 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
+import java.util.function.Function;
 
 public class SimulatedScenario {
     @Getter
-    public Simulation simulation;
-
+    private Simulation simulation;
     @Getter
-    private Spec loadedSpec; // differs from spec when manual modifications are made
+    @Setter
+    private Function<Spec, Simulation> simulationFactory;
 
     @Getter
     @Setter
     private Spec spec;
 
-    public SimulatedScenario() {
-        this.simulation = new PampaSim(null);
-        this.spec = new Spec();
+    // feels not very java-y but by jove I love passing functions around
+    public SimulatedScenario(Spec template, Function<Spec, Simulation> simulationFactory) {
+        this.spec = template;
+        this.simulationFactory = simulationFactory;
+        this.simulation = simulationFactory.apply(template);
     }
 
-    public void loadSpec(URL url) {
-        try {
-            URLConnection conn = url.openConnection();
-            BufferedInputStream bufStream = new BufferedInputStream(conn.getInputStream());
-            CharStream stream = CharStreams.fromStream(bufStream);
-            var lexer = new SpecFileLexer(stream);
-            var tokStream = new CommonTokenStream(lexer);
-            var specParser = new SpecFileParser(tokStream);
-            var specVisitor = new SpecVisitor();
-            this.loadedSpec = specVisitor.visitSpecFile(specParser.specFile());
-            this.spec = loadedSpec;
-            resetToSpec();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void resetToSpec() {
-        this.simulation = new PampaSim(null);
-        this.simulation.applySpec(getSpec());
+        this.simulation = simulationFactory.apply(this.spec);
     }
 }

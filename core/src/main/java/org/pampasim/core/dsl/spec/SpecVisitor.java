@@ -60,16 +60,11 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
     @Override
     public Spec visitSpecFile(SpecFileParser.SpecFileContext ctx) {
         for (var cmd : ctx.confCmds) {
-            System.out.println(cmd);
             visitConfigCommand(cmd);
         }
-        System.out.println("---");
         for (var cmd : ctx.cmds) {
-            System.out.println(cmd);
             visitCommand(cmd);
-            System.out.println("got proc " + cmd);
         }
-        System.out.println("the jeezeless spec = " + spec);
         return this.spec;
     }
 }

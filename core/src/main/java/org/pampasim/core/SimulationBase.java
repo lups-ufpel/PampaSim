@@ -225,14 +225,17 @@ public abstract class SimulationBase extends PampaSimEntity implements Simulatio
             throw new RuntimeException("Can't apply spec to already running simulation!");
         }
 
-        Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
-        if (schedulerClass != null) try {
-            Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
-            cons.newInstance(this);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Error trying to instantiate scheduler: " + e);
+        Spec.SchedulerInfo schedulerInfo = s.getSchedulerInfo();
+        if (schedulerInfo != null) {
+            Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
+            if (schedulerClass != null) try {
+                Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
+                cons.newInstance(this);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Error trying to instantiate scheduler: " + e);
+            }
         }
         try {
             new Processor(this,

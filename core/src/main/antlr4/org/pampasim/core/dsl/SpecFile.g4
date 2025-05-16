@@ -22,6 +22,9 @@ durationMark: DURATION_KW | 'd';
 clrMark: CLR_KW | 'c';
 priorityMark: PRIORITY_KW | 'p';
 
+// funny thing with this comment token: you can't have the last line of a file
+// be a comment that ends with an EOF without triggering a lexing error!
+// dunno how to fix it :)
 COMMENT: COMMENT_LEADER ~[\n]* '\n' -> skip;
 WS: [\r\n\t ]+ -> skip;
 SCHEDULER_CMD: 'scheduler';

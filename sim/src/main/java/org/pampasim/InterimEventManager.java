@@ -1,5 +1,7 @@
-package org.pampasim.core;
+package org.pampasim;
 
+import org.pampasim.core.EventManager;
+import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 
 ///  Hardcoded for now

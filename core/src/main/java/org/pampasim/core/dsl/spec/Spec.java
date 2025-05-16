@@ -7,13 +7,22 @@ import io.github.classgraph.ScanResult;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.pampasim.core.EventSchedule;
+import org.pampasim.core.dsl.SpecFileLexer;
+import org.pampasim.core.dsl.SpecFileParser;
 import org.pampasim.core.events.*;
 import org.pampasim.core.entity.Schedulers.FCFS;
 import org.pampasim.core.entity.Schedulers.Scheduler;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,16 +47,29 @@ public class Spec {
     private Map<Process, Color> colorMap;
 
     public Spec() {
-        this(new SchedulerInfo(FCFS.class, Optional.of(0)));
-    }
-
-    public Spec(SchedulerInfo schedulerInfo) {
-        this.schedulerInfo = schedulerInfo;
+        this.schedulerInfo = null;
         this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
         this.colorMap = new HashMap<>();
         this.processors = new ArrayList<>();
         this.hasProcManager = false;
+    }
+
+    public static Spec loadSpec(URL url) {
+        Spec spec;
+        try {
+            URLConnection conn = url.openConnection();
+            BufferedInputStream bufStream = new BufferedInputStream(conn.getInputStream());
+            CharStream stream = CharStreams.fromStream(bufStream);
+            var lexer = new SpecFileLexer(stream);
+            var tokStream = new CommonTokenStream(lexer);
+            var specParser = new SpecFileParser(tokStream);
+            var specVisitor = new SpecVisitor();
+            spec = specVisitor.visitSpecFile(specParser.specFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return spec;
     }
 
     public Event addProcessArrival(Process p) {

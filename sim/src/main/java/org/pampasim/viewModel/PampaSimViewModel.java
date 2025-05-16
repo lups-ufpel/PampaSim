@@ -11,7 +11,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.pampasim.PampaSim;
 import org.pampasim.core.*;
+import org.pampasim.core.dsl.spec.Spec;
 import org.pampasim.core.events.ProcessArrival;
 import org.pampasim.core.events.ProcessEvent;
 import org.pampasim.core.entity.ProcessManager;
@@ -27,6 +29,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,23 +55,32 @@ public class PampaSimViewModel implements ViewModel {
     public SimulatedScenario simulatedScenario;
 
     public PampaSimViewModel() {
-        simulatedScenario = new SimulatedScenario();
+        var templateSpec = Spec.loadSpec(Objects.requireNonNull(PampaSim.class.getResource("template.spec")));
+        simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
+            var sim = new PampaSim(null);
+            sim.applySpec(spec);
+            return sim;
+        });
     }
 
     public void loadSpec(URL url) {
-        simulatedScenario.loadSpec(url);
-        var spec = simulatedScenario.getSpec();
+        var spec = Spec.loadSpec(url);
         System.out.println("scheduler " + simulatedScenario.getSimulation().getEntity(Scheduler.class));
         System.out.println("got " + spec);
-        if (spec != null) {
-            for (var events : spec.getEventSchedule().values()) {
-                for (var ev : events.stream().filter(e -> e instanceof ProcessEvent).map(e -> (ProcessEvent)e).toList()) {
-                    Process p = ev.getProcess();
-                    System.out.println("registering proc " + p);
-                    // treat them like the create process button would
-                    addProcessListeners(p);
-                    p.notifyListenersOnCreate();
-                }
+        if (spec == null) {
+            throw new RuntimeException("couldn't load spec file");
+        }
+
+        simulatedScenario.setSpec(spec);
+        simulatedScenario.resetToSpec();
+
+        for (var events : spec.getEventSchedule().values()) {
+            for (var ev : events.stream().filter(e -> e instanceof ProcessEvent).map(e -> (ProcessEvent)e).toList()) {
+                Process p = ev.getProcess();
+                System.out.println("registering proc " + p);
+                // treat them like the create process button would
+                addProcessListeners(p);
+                p.notifyListenersOnCreate();
             }
         }
         updateProps();
@@ -83,7 +95,7 @@ public class PampaSimViewModel implements ViewModel {
         var duration = processScope.getDurationProperty().getValue();
         var priority = processScope.getPriorityProperty().getValue();
         Process newProcess = new Process(priority,duration,start,
-                simulatedScenario.simulation.getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
+                simulatedScenario.getSimulation().getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
         var newEvent = new ProcessArrival(null, newProcess);
         simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
@@ -103,7 +115,7 @@ public class PampaSimViewModel implements ViewModel {
                 .setSchedulerInfo(
                         schedulerName,
                         Optional.ofNullable(schedulerQuantum));
-        // TODO/FIXME: need to figure out how to apply it immediately here
+        simulatedScenario.resetToSpec();
     }
     public void startSimulation() {
         if (!isValidSetup()) {
