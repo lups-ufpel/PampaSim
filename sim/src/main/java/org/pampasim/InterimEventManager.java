@@ -13,7 +13,7 @@ public class InterimEventManager extends EventManager {
 
     @Override
     protected Event translateEvent(Event event) {
-        if (event instanceof ProcessKill) {
+        if (event instanceof ProcessEvent.Kill) {
             ((SimulationBase)simulation).blackHoleEvent(event);
             return null;
         }
@@ -26,14 +26,14 @@ public class InterimEventManager extends EventManager {
 
     @Override
     public void setupTranslations() {
-        addTranslation(ProcessAllocate.class, ProcessReady.class);
-        addTranslation(ProcessEnd.class, ProcessKill.class);
-        addTranslation(ProcessDispatch.class, ProcessRun.class);
-        addTranslation(ProcessIoOperation.class, ProcessSchedule.class);
+        addTranslation(ProcessEvent.Allocate.class, ProcessEvent.Ready.class);
+        addTranslation(ProcessEvent.End.class, ProcessEvent.Kill.class);
+        addTranslation(ProcessEvent.Dispatch.class, ProcessEvent.Run.class);
+        addTranslation(ProcessEvent.IoOperation.class, ProcessEvent.Schedule.class);
     }
 
     @Override
     public void setupFlags() {
-        takesTime.put(ProcessRunContinue.class, true);
+        takesTime.put(ProcessEvent.RunContinue.class, true);
     }
 }

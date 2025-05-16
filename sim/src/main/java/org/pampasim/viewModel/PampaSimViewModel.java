@@ -21,7 +21,6 @@ import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
-import org.pampasim.events.ProcessArrival;
 import org.pampasim.events.ProcessEvent;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
@@ -97,7 +96,7 @@ public class PampaSimViewModel implements ViewModel {
         Process newProcess = new Process(priority,duration,start,
                 simulatedScenario.getSimulation().getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
-        var newEvent = new ProcessArrival(null, newProcess);
+        var newEvent = new ProcessEvent.Arrival(null, newProcess);
         simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
         simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
         // FIXME: since we are updating the spec, we may as well make the start of the sim

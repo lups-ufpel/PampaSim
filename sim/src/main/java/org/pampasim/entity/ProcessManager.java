@@ -11,18 +11,18 @@ public class ProcessManager extends AbstractSimEntity {
         super(simulation);
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.Arrival.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.Ready.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.RunPaused.class, this);
 
     }
 
     @Override
     public void processEvent(Event event) {
         switch (event) {
-            case ProcessArrival e -> handleProcessArrival(e);
-            case ProcessReady e -> handleProcessReady(e);
-            case ProcessRunPaused e -> handleProcessRunPaused(e);
+            case ProcessEvent.Arrival e -> handleProcessArrival(e);
+            case ProcessEvent.Ready e -> handleProcessReady(e);
+            case ProcessEvent.RunPaused e -> handleProcessRunPaused(e);
             default -> throw new IllegalStateException(
                     "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -30,21 +30,21 @@ public class ProcessManager extends AbstractSimEntity {
         }
     }
 
-    private void handleProcessArrival(ProcessArrival event) {
-        scheduleToNextClock(new ProcessAllocate(this, event.getProcess()));
+    private void handleProcessArrival(ProcessEvent.Arrival event) {
+        scheduleToNextClock(new ProcessEvent.Allocate(this, event.getProcess()));
     }
 
-    private void handleProcessReady(ProcessReady event) {
+    private void handleProcessReady(ProcessEvent.Ready event) {
         event.getProcess().setReady();
-        scheduleToNextClock(new ProcessSchedule(this, event.getProcess()));
+        scheduleToNextClock(new ProcessEvent.Schedule(this, event.getProcess()));
     }
 
-    private void handleProcessRunPaused(ProcessRunPaused event) {
+    private void handleProcessRunPaused(ProcessEvent.RunPaused event) {
         if (event.getProcess().isFinished()) {
             event.getProcess().setTerminated();
-            scheduleToNextClock(new ProcessEnd(this, event.getProcess()));
+            scheduleToNextClock(new ProcessEvent.End(this, event.getProcess()));
         } else {
-            scheduleToNextClock(new ProcessSchedule(this, event.getProcess()));
+            scheduleToNextClock(new ProcessEvent.Schedule(this, event.getProcess()));
         }
     }
 }

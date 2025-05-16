@@ -128,7 +128,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         // Necessary to create a copy to iterate over since handleEvent can add a KILL_PROCESS event
         // to the list as it's being iterated over
         currentEvents.stream()
-                .filter(event -> !(event instanceof ProcessKill)) // shouldn't be needed
+                .filter(event -> !(event instanceof ProcessEvent.Kill)) // shouldn't be needed
                 .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
 
 
