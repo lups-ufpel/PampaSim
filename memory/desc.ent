@@ -1,4 +1,4 @@
-events import ../sim/refactor.ent {
+events import sim/refactor.ent {
   Memory transmitting org.pampasim.core.resources.Process {
     Allocate;
     AllocateFinished;
@@ -47,7 +47,7 @@ VirtualMemory {
   on Process.End do "end process" chains Memory.DeletePageTableEntry;
   on Process.Load do "load process" chains Memory.TranslateVirtualAddress;
   on Process.IoOperation do "io operation" chains Memory.IoOperation;
-  on Memory.AllocateFinished do "allocate process finished" chains Memory.Process.Ready;
+  on Memory.AllocateFinished do "allocate process finished" chains Process.Ready;
   on Memory.FreeProcessMemoryFinished do "kill process" chains Process.Kill;
   on Memory.IoOperationFinished do "schedule process" chains Process.Schedule;
   on Memory.ProcessReady do "run process" chains Process.Run;

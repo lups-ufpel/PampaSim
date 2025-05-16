@@ -12,6 +12,7 @@ events {
     Preemption;
     RunPaused;
     End;
+    Load;
     Kill;
   }
 }

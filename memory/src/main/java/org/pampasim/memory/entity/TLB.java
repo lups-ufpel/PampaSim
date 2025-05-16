@@ -2,7 +2,7 @@ package org.pampasim.memory.entity;
 
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.memory.events.*;
+import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 
 public class TLB extends AbstractSimEntity {
@@ -18,8 +18,8 @@ public class TLB extends AbstractSimEntity {
 
     public void processEvent(Event event) {
         switch (event) {
-            case MemoryDeleteTlbEntry e -> handleMemoryDeleteTlbEntry(e);
-            case MemoryTranslateVirtualAddress e -> handleTranslateVirtualAddress(e);
+            case DeleteTlbEntry e -> handleMemoryDeleteTlbEntry(e);
+            case TranslateVirtualAddress e -> handleTranslateVirtualAddress(e);
             default -> throw new IllegalStateException(
                     "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -27,16 +27,16 @@ public class TLB extends AbstractSimEntity {
         }
     }
 
-    private void handleMemoryDeleteTlbEntry(MemoryDeleteTlbEntry event) {
+    private void handleMemoryDeleteTlbEntry(DeleteTlbEntry event) {
         //TODO: Stub
-        scheduleToNextClock(new MemoryFreeProcessMemory(this, event.getProcess()));
+        scheduleToNextClock(new FreeProcessMemory(this, event.getProcess()));
     }
 
-    private void handleTranslateVirtualAddress(MemoryTranslateVirtualAddress event) {
+    private void handleTranslateVirtualAddress(TranslateVirtualAddress event) {
         //TODO: Stub
-        //TODO: can result in a MemoryTlbNoTranslation, MemoryPageHit or MemoryPageFault event
-        scheduleToNextClock(new MemoryTlbNoTranslation(this, event.getProcess()));
-        scheduleToNextClock(new MemoryPageFault(this, event.getProcess()));
-        scheduleToNextClock(new MemoryPageHit(this, event.getProcess()));
+        //TODO: can result in a TlbNoTranslation, PageHit or PageFault event
+        scheduleToNextClock(new TlbNoTranslation(this, event.getProcess()));
+        scheduleToNextClock(new PageFault(this, event.getProcess()));
+        scheduleToNextClock(new PageHit(this, event.getProcess()));
     }
 }

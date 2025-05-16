@@ -2,7 +2,7 @@ package org.pampasim.memory.entity;
 
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.memory.events.*;
+import org.pampasim.events.Memory.*;
 import org.pampasim.core.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 
@@ -19,15 +19,15 @@ public class VirtualMemory extends AbstractSimEntity {
     @Override
     public void processEvent(Event event) {
         switch (event) {
-            case ProcessAllocate e -> handleProcessAllocate(e);
-            case ProcessEnd e -> handleProcessEnd(e);
-            case ProcessDispatch e -> handleProcessDispatch(e);
-            case ProcessIoOperation e -> handleProcessIoOperation(e);
+            case org.pampasim.events.Process.Allocate e -> handleProcessAllocate(e);
+            case org.pampasim.events.Process.End e -> handleProcessEnd(e);
+            case org.pampasim.events.Process.Dispatch e -> handleProcessDispatch(e);
+            case org.pampasim.events.Process.IoOperation e -> handleProcessIoOperation(e);
 
-            case MemoryReserveProcessMemoryFinished e -> handleMemoryReserveProcessMemoryFinished(e);
-            case MemoryFreeProcessMemoryFinished e -> handleMemoryFreeProcessMemoryFinished(e);
-            case MemoryIoOperationFinished e -> handleMemoryIoOperationFinished(e);
-            case MemoryProcessReady e -> handleMemoryProcessReady(e);
+            case ReserveProcessMemoryFinished e -> handleMemoryReserveProcessMemoryFinished(e);
+            case FreeProcessMemoryFinished e -> handleMemoryFreeProcessMemoryFinished(e);
+            case IoOperationFinished e -> handleMemoryIoOperationFinished(e);
+            case ProcessReady e -> handleMemoryProcessReady(e);
             default -> throw new IllegalStateException(
                     "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -35,48 +35,48 @@ public class VirtualMemory extends AbstractSimEntity {
         }
     }
 
-    private void handleProcessAllocate(ProcessAllocate event) {
+    private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
         //TODO: Stub
         // TODO: could also result in a ProcessKill event if there aren't enough pages available in the virtual memory for the process
-        scheduleToNextClock(new MemoryCreatePageTableEntry(this, event.getProcess()));
-        scheduleToNextClock(new ProcessKill(this, event.getProcess()));
+        scheduleToNextClock(new CreatePageTableEntry(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Kill(this, event.getProcess()));
     }
 
-    private void handleProcessEnd(ProcessEnd event) {
+    private void handleProcessEnd(org.pampasim.events.Process.End event) {
         //TODO: Stub
-        scheduleToNextClock(new MemoryDeletePageTableEntry(this, event.getProcess()));
+        scheduleToNextClock(new DeletePageTableEntry(this, event.getProcess()));
     }
 
-    private void handleProcessDispatch(ProcessDispatch event) {
+    private void handleProcessDispatch(org.pampasim.events.Process.Dispatch event) {
         //TODO: Stub
-        scheduleToNextClock(new MemoryTranslateVirtualAddress(this, event.getProcess()));
+        scheduleToNextClock(new TranslateVirtualAddress(this, event.getProcess()));
     }
 
-    private void handleProcessIoOperation(ProcessIoOperation event) {
+    private void handleProcessIoOperation(org.pampasim.events.Process.IoOperation event) {
         //TODO: Stub
-        scheduleToNextClock(new MemoryIoOperation(this, event.getProcess()));
+        scheduleToNextClock(new IoOperation(this, event.getProcess()));
     }
 
-    private void handleMemoryReserveProcessMemoryFinished(MemoryReserveProcessMemoryFinished event) {
+    private void handleMemoryReserveProcessMemoryFinished(ReserveProcessMemoryFinished event) {
         //TODO: Stub
-        scheduleToNextClock(new ProcessReady(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Ready(this, event.getProcess()));
     }
 
-    private void handleMemoryFreeProcessMemoryFinished(MemoryFreeProcessMemoryFinished event) {
+    private void handleMemoryFreeProcessMemoryFinished(FreeProcessMemoryFinished event) {
         //TODO: Stub
-        scheduleToNextClock(new ProcessKill(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Kill(this, event.getProcess()));
     }
 
-    private void handleMemoryIoOperationFinished(MemoryIoOperationFinished event) {
+    private void handleMemoryIoOperationFinished(IoOperationFinished event) {
         //TODO: Stub
-        scheduleToNextClock(new ProcessSchedule(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
     }
 
-    private void handleMemoryProcessReady(MemoryProcessReady event) {
+    private void handleMemoryProcessReady(ProcessReady event) {
         //TODO: Stub
         //TODO: could also result in a ProcessSchedule event if there was an IO operation needed
-        scheduleToNextClock(new ProcessRun(this, event.getProcess()));
-        scheduleToNextClock(new ProcessSchedule(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Run(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
     }
 
 }

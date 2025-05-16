@@ -31,9 +31,9 @@ descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' ('import' importList+=pathRule+)? eventDeclsBlock {
     for (var importPath : $importList) {
         CharStream stream = null;
-        System.out.println("trying to open " + importPath);
+        System.out.println("trying to open " + importPath.getText());
         try {
-            stream = CharStreams.fromFileName(importPath.toString());
+            stream = CharStreams.fromFileName(importPath.getText());
         } catch (IOException e) {
             System.err.println(importPath + " not found!");
         }
