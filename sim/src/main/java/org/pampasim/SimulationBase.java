@@ -1,4 +1,4 @@
-package org.pampasim.core;
+package org.pampasim;
 
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
@@ -8,17 +8,20 @@ import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
+import org.pampasim.core.EventManager;
+import org.pampasim.core.EventSchedule;
+import org.pampasim.core.RealClock;
+import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
-import org.pampasim.core.events.ProcessEvent;
-import org.pampasim.core.events.ProcessKill;
+import org.pampasim.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.core.entity.ProcessManager;
-import org.pampasim.core.entity.Processor;
-import org.pampasim.core.entity.Schedulers.Scheduler;
+import org.pampasim.entity.ProcessManager;
+import org.pampasim.entity.Processor;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.resources.ProcessorCore;
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.core.dsl.spec.Spec;
+import org.pampasim.dsl.spec.Spec;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +39,6 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     private EventSchedule eventsSchedule;
     private final List<Event> lastClockInputs = new ArrayList<>();
     private final List<Event> lastClockOutputs = new ArrayList<>();
-    private final List<Event> finishedProcesses;
     @Getter
     protected EventManager eventManager;
     @Getter
@@ -49,7 +51,6 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     public SimulationBase(SimEntity parent) {
         super(parent);
         this.entityList = new ArrayList<>();
-        this.finishedProcesses = new ArrayList<>();
         this.eventsSchedule = new EventSchedule();
         this.simulationClock = 0;
         this.pidAllocator = new PidAllocator();
@@ -71,6 +72,16 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         setStateIfNotBlocked(EntityState.Run);
     }
 
+    public void blackHoleEvent(Event event) {
+        switch (event) {
+            case ProcessEvent processEvent:
+                        logInfo("Processo com Pid " + processEvent.getProcess().getPid() +
+                                " finalizou sua execução e foi terminado com sucesso");
+                        break;
+            default: logInfo("black hole got event " + event); break;
+        }
+    }
+
     public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
         eventsSchedule.schedule(clock, event);
         lastClockOutputs.add(event);
@@ -90,8 +101,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         // advances only the simulation time, only running entities get run.
         var phase5c = "5c - idle tick, waiting for \"real\" time events";
         // advances "real" time.
-        var phase6 = "6 - clean up the odd few manually handled events (ProcessKill)";
-        var phase7 = "7 - compute the next state of the simulation based on the subordinate entities";
+        var phase6 = "6 - compute the next state of the simulation based on the subordinate entities";
 
         SimEntity parent = getParent();
         StringBuilder info = new StringBuilder("running, entities: ");
@@ -150,19 +160,11 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
             executeRunnableEntities();
         }
 
-        logInfo(phase6);
-        List<ProcessEvent> killProcessEvents = currentEvents.stream()
-                .filter(event -> event instanceof ProcessKill)
-                .map(e -> (ProcessEvent) e)
-                .peek(event -> logInfo("Processo com Pid " + event.getProcess().getPid() +
-                        " finalizou sua execução e foi terminado com sucesso"))
-                .toList(); // collects and logs ProcessKill events
 
-        finishedProcesses.addAll(killProcessEvents); // adds to the finished processes list
 
         simulationClock += 1;
 
-        logInfo(phase7);
+        logInfo(phase6);
         updateState();
     }
 

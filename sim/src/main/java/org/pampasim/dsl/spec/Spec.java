@@ -1,4 +1,4 @@
-package org.pampasim.core.dsl.spec;
+package org.pampasim.dsl.spec;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.pampasim.core.EventSchedule;
-import org.pampasim.core.dsl.SpecFileLexer;
-import org.pampasim.core.dsl.SpecFileParser;
+import org.pampasim.dsl.SpecFileLexer;
+import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.core.events.*;
-import org.pampasim.core.entity.Schedulers.FCFS;
-import org.pampasim.core.entity.Schedulers.Scheduler;
+import org.pampasim.events.*;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 

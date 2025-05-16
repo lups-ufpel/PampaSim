@@ -61,6 +61,10 @@
             <artifactId>tools</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -84,14 +88,18 @@
                 <configuration>
                     <mainClass>org.pampasim.tools.EventCodeGenTool</mainClass>
                     <arguments>
-                        <argument>./sim/refactor.ent</argument>
+                        <argument>sim/refactor.ent</argument>
                         <argument>org.pampasim.events</argument>
-                        <argument>./sim/target/generated-sources/events</argument>
+                        <argument>sim/target/generated-sources/events</argument>
                     </arguments>
                     <sourceRoot>
-                        ./sim/target/generated-sources/events
+                        target/generated-sources/events
                     </sourceRoot>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>

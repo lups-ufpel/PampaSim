@@ -13,7 +13,7 @@ public abstract class EventManager {
     protected final Map<Class<? extends Event>, Class<? extends Event>> translations;
     protected final Map<Class<? extends Event>, Boolean> takesTime;
     private static long eventSerialCounter;
-    private final Simulation simulation;
+    protected final Simulation simulation;
 
     public EventManager(Simulation simulation) {
         handlers = new HashMap<>();
@@ -47,20 +47,16 @@ public abstract class EventManager {
     public void handleEvent(Event event) {
         SimEntity handler = null;
         do {
+            if (event == null) { return; }
             handler = handlers.get(event.getClass());
             if (handler == null) {
                 event = translateEvent(event);
-                if (event instanceof ProcessKill) {
-                    simulation.scheduleToNextClock(event);
-                    return;
-                }
             }
         } while (handler == null);
-
         handler.acceptEvent(event);
     }
 
-    private Event translateEvent(Event event) {
+    protected Event translateEvent(Event event) {
         if (!translations.containsKey(event.getClass())) {
             throw new IllegalArgumentException("No event translation for: " + event);
         } else {

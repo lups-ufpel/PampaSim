@@ -1,10 +1,10 @@
-package org.pampasim.core.entity.Schedulers;
+package org.pampasim.entity.schedulers;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.ProcessPreemption;
-import org.pampasim.core.events.ProcessSchedule;
+import org.pampasim.events.ProcessPreemption;
+import org.pampasim.events.ProcessSchedule;
 import org.pampasim.core.resources.Process;
 
 import java.util.ArrayDeque;

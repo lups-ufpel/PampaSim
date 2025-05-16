@@ -1,7 +1,9 @@
-package org.pampasim.core.entity;
+package org.pampasim.entity;
 
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.*;
+import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.core.events.Event;
+import org.pampasim.events.*;
 
 public class ProcessManager extends AbstractSimEntity {
 

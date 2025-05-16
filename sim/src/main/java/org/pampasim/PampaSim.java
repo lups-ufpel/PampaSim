@@ -1,6 +1,5 @@
 package org.pampasim;
 
-import org.pampasim.core.SimulationBase;
 import org.pampasim.core.entity.*;
 
 public class PampaSim extends SimulationBase {

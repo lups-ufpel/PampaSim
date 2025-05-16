@@ -2,12 +2,22 @@ package org.pampasim;
 
 import org.pampasim.core.EventManager;
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.*;
+import org.pampasim.core.events.Event;
+import org.pampasim.events.*;
 
 ///  Hardcoded for now
 public class InterimEventManager extends EventManager {
     public InterimEventManager(Simulation s) {
         super(s);
+    }
+
+    @Override
+    protected Event translateEvent(Event event) {
+        if (event instanceof ProcessKill) {
+            ((SimulationBase)simulation).blackHoleEvent(event);
+            return null;
+        }
+        return super.translateEvent(event);
     }
 
     @Override

@@ -49,10 +49,6 @@
       <artifactId>log4j-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.github.classgraph</groupId>
-      <artifactId>classgraph</artifactId>
-    </dependency>
-    <dependency>
       <groupId>guru.nidi</groupId>
       <artifactId>graphviz-java</artifactId>
     </dependency>
