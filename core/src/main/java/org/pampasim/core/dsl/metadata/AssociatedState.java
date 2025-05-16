@@ -1,4 +1,4 @@
-package org.pampasim.dsl.metadata;
+package org.pampasim.core.dsl.metadata;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

@@ -19,7 +19,7 @@ import org.pampasim.core.entity.Processor;
 import org.pampasim.core.entity.Schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.resources.Process;
-import org.pampasim.Utils.GraphVisualizeable;
+import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 

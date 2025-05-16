@@ -1,6 +1,4 @@
-package org.pampasim.dsl.metadata;
-
-import lombok.Getter;
+package org.pampasim.core.dsl.metadata;
 
 import java.util.ArrayList;
 

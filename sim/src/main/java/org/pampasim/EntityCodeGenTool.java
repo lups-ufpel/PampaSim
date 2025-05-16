@@ -3,11 +3,11 @@ package org.pampasim;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.dsl.EntityDSLLexer;
-import org.pampasim.dsl.EntityDSLParser;
-import org.pampasim.dsl.metadata.AssociatedState;
-import org.pampasim.dsl.metadata.Entity;
-import org.pampasim.dsl.metadata.Event;
+import org.pampasim.core.dsl.EntityDSLLexer;
+import org.pampasim.core.dsl.EntityDSLParser;
+import org.pampasim.core.dsl.metadata.AssociatedState;
+import org.pampasim.core.dsl.metadata.Entity;
+import org.pampasim.core.dsl.metadata.Event;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

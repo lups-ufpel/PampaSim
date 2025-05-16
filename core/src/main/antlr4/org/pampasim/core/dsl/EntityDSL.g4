@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
-import org.pampasim.dsl.metadata.*;
-import org.pampasim.dsl.errors.*;
+import org.pampasim.core.dsl.metadata.*;
+import org.pampasim.core.dsl.errors.*;
 }
 @members {
 @Getter

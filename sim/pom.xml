@@ -68,9 +68,19 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>org.pampasim.Launcher</mainClass>
+                    <jlinkImageName>PampaSim</jlinkImageName>
+                    <jlinkZipName>PampaSimZip</jlinkZipName>
+                    <mainClass>org.pampasim.Launcher</mainClass>
                 </configuration>
             </plugin>
-
+            <!--
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.pampasim.Launcher</mainClass>
+                </configuration>
+            </plugin> -->
         </plugins>
     </build>
 </project>
