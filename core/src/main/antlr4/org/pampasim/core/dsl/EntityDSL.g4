@@ -17,24 +17,44 @@ import org.pampasim.core.dsl.errors.*;
 @Getter
 private Map<String, Entity> entities = new HashMap<>();
 @Getter
-private Set<Event> events = new HashSet<>();
+private Map<Class<?>, Set<Event>> eventGroups = new HashMap<>();
+@Getter
+private HashMap<String, Event> events = new HashMap<>();
 }
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' eventDeclsBlock {
     System.out.println("Events list:\n" + events);
 };
 eventDeclsBlock: '{' eventGroupDecl+ '}';
-eventGroupDecl: 'transmitting' associatedType=eventDataType eventDeclList;
-eventDataType: javaType | 'nothing';
+eventGroupDecl locals [Class<?> dataClass]:
+    'transmitting' associatedType=eventDataType
+    {
+        System.out.println($associatedType.start.getType());
+        System.out.println(NOTHING_KW);
+        if ($associatedType.start.getType() != NOTHING_KW) {
+            try {
+            $dataClass = Class.forName($associatedType.text);
+            } catch (ClassNotFoundException cnfe) {
+                throw new InvalidEventData($associatedType.text);
+            }
+        } else {
+            $dataClass = null;
+        }
+        eventGroups.computeIfAbsent($dataClass, _k -> new HashSet<>());
+    }
+    eventDeclList;
+eventDataType: javaType | NOTHING_KW;
 javaType: ID ('.' ID)*?;
 eventDeclList: '{' (eventsList+=eventId ';')+ '}' {
     // FIXME: the associated type is ignored for now
     for (var evtok : $eventsList) {
         var evName = evtok.getText();
-        var unique = events.add(new Event(evName));
-        if (!unique) {
-            System.err.println("duplicate event \"" + evName + "\"");
+        Event ev = new Event(evName, $eventGroupDecl::dataClass);
+        var evicted = events.put(evName, ev);
+        if (evicted != null) {
+            throw new DuplicateEvent(ev);
         }
+        eventGroups.get($eventGroupDecl::dataClass).add(ev);
     }
 };
 entitySection: entity+;
@@ -53,8 +73,8 @@ entityBlock: '{' eventHandler+ '}';
 eventHandler
     locals [ Event event ]
     : 'on' eventName=ID {
-        $event = new Event($eventName.text);
-        if (!events.contains($event)) {
+        $event = events.get($eventName.text);
+        if ($event == null) {
             throw new UndeclaredEvent($event);
         }
     } mappings;
@@ -89,8 +109,8 @@ actionTransitionExpr
     ;
 actionResult
     : 'chains' eventId {
-        Event event = new Event($eventId.text);
-        if (!events.contains(event)) {
+        Event event = events.get($eventId.text);
+        if (event == null) {
             throw new UndeclaredEvent(event);
         }
         $eventAction::chainedEvents.add(event);
@@ -128,5 +148,6 @@ WS: [\r\n\t ]+ -> skip;
 ANY: '_';
 QUOTED: '"' .*? '"';
 TRANSITION_OPERATOR: '->';
+NOTHING_KW: 'nothing';
 ID: [A-Za-z_][A-Za-z0-9_]*;
 fragment COMMENT_LEADER: '//';

@@ -107,7 +107,7 @@ public class EntityCodeGenTool {
         System.out.println(parser.getEvents());
         System.out.println(parser.getEntities());
 
-        GlobalSections globals = GlobalSections.of(parser.getEvents().stream());
+        GlobalSections globals = GlobalSections.of(parser.getEvents().values().stream());
         {
             FileInputStream srcFile;
             try {

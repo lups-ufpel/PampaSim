@@ -7,11 +7,13 @@ import lombok.Getter;
 @Getter
 public class Event {
     String name;
-    public Event(String name) {
+    Class<?> dataClass;
+    public Event(String name, Class<?> dataClass) {
         this.name = name;
+        this.dataClass = dataClass;
     }
     @Override
     public String toString() {
-        return "Event " + getName();
+        return "Event " + getName() + ((getDataClass() != null)? " transmitting " + getDataClass() : "");
     }
 }

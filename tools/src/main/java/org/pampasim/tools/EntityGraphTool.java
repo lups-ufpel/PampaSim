@@ -41,7 +41,7 @@ public class EntityGraphTool {
 
         Map<Event, Set<Entity>> eventDestinations = new HashMap<>();
         Map<Event, Set<Entity>> eventSources = new HashMap<>();
-        parser.getEvents().forEach(event -> {
+        parser.getEvents().values().forEach(event -> {
             eventSources.computeIfAbsent(event, k -> new HashSet<>());
             eventDestinations.computeIfAbsent(event, k -> new HashSet<>());
         });
@@ -75,7 +75,7 @@ public class EntityGraphTool {
                 .nodeAttr().with(Attributes.attr("fontsize", 24))
                 .linkAttr().with(Attributes.attr("fontsize", 12), Attributes.attr("len", 4));
 
-        for (Event event : parser.getEvents()) {
+        for (Event event : parser.getEvents().values()) {
             for (Entity src : eventSources.get(event)) {
                 Node srcNode = entityNodes.get(src);
                 assert(srcNode != null);
