@@ -1,4 +1,4 @@
-package org.pampasim.core.dsl.spec;
+package org.pampasim.dsl.spec;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.pampasim.core.EventSchedule;
-import org.pampasim.core.dsl.SpecFileLexer;
-import org.pampasim.core.dsl.SpecFileParser;
+import org.pampasim.dsl.SpecFileLexer;
+import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.core.events.*;
-import org.pampasim.core.entity.Schedulers.FCFS;
-import org.pampasim.core.entity.Schedulers.Scheduler;
+import org.pampasim.events.*;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 
@@ -78,7 +78,7 @@ public class Spec {
         // either way, that means we can't set the color here
         // colors from the spec ain't supported yet
         // which is a bummer
-        var ev = new ProcessArrival(null, p);
+        var ev = new ProcessEvent.Arrival(null, p);
         var arrivalTime = p.getArrivalTime();
         eventSchedule.schedule(arrivalTime, ev);
         return ev;

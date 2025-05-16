@@ -7,11 +7,15 @@ import lombok.Getter;
 @Getter
 public class Event {
     String name;
-    public Event(String name) {
+    Class<?> dataClass;
+    boolean realtime;
+    public Event(String name, Class<?> dataClass, boolean realtime) {
         this.name = name;
+        this.dataClass = dataClass;
+        this.realtime = realtime;
     }
     @Override
     public String toString() {
-        return "Event " + getName();
+        return "Event " + getName() + ((getDataClass() != null)? " transmitting " + getDataClass() : "");
     }
 }

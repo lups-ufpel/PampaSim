@@ -1,10 +1,9 @@
-package org.pampasim.core.entity.Schedulers;
+package org.pampasim.entity.schedulers;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.ProcessPreemption;
-import org.pampasim.core.events.ProcessSchedule;
+import org.pampasim.events.ProcessEvent;
 import org.pampasim.core.resources.Process;
 
 import java.util.ArrayDeque;
@@ -31,7 +30,7 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
         if (lastRunProcess != null
                 && lastRunProcess.getBurstTime() <= 0) {
             // Preempt!
-            scheduleToNextClock(new ProcessPreemption(this, lastRunProcess));
+            scheduleToNextClock(new ProcessEvent.Preemption(this, lastRunProcess));
         }
     }
 
@@ -42,7 +41,7 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     }
 
     @Override
-    protected void handleProcessSchedule(ProcessSchedule event) {
+    protected void handleProcessSchedule(ProcessEvent.Schedule event) {
         rrQueue.add(event.getProcess());
     }
 

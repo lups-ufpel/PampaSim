@@ -1,12 +1,10 @@
-package org.pampasim.core.entity.Schedulers;
+package org.pampasim.entity.schedulers;
 
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.ProcessSchedule;
+import org.pampasim.events.ProcessEvent;
 import org.pampasim.core.resources.Process;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.PriorityQueue;
 
 // WARN: tightly coupled with baseclass thru the processEnRoute flag
@@ -31,7 +29,7 @@ public abstract class RankingScheduler extends Scheduler {
     }
 
     @Override
-    protected void handleProcessSchedule(ProcessSchedule event) {
+    protected void handleProcessSchedule(ProcessEvent.Schedule event) {
         readyList.add(event.getProcess());
     }
 }

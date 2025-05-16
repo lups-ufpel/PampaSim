@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 public record Handler(
         Entity owner,
-        EventStatePair eventStatePair,
-        ArrayList<AssociatedState> nextStates,
+        Event event,
         ArrayList<Event> chainedEvents,
         String associatedMethod
 ) { }

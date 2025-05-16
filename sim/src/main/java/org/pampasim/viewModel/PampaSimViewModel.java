@@ -12,16 +12,16 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.PampaSim;
+import org.pampasim.SimulatedScenario;
 import org.pampasim.core.*;
-import org.pampasim.core.dsl.spec.Spec;
-import org.pampasim.core.events.ProcessArrival;
-import org.pampasim.core.events.ProcessEvent;
-import org.pampasim.core.entity.ProcessManager;
-import org.pampasim.core.entity.Processor;
-import org.pampasim.core.entity.Schedulers.Scheduler;
+import org.pampasim.dsl.spec.Spec;
+import org.pampasim.entity.ProcessManager;
+import org.pampasim.entity.Processor;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
+import org.pampasim.events.ProcessEvent;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class PampaSimViewModel implements ViewModel {
     @Getter
@@ -97,7 +96,7 @@ public class PampaSimViewModel implements ViewModel {
         Process newProcess = new Process(priority,duration,start,
                 simulatedScenario.getSimulation().getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
-        var newEvent = new ProcessArrival(null, newProcess);
+        var newEvent = new ProcessEvent.Arrival(null, newProcess);
         simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
         simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
         // FIXME: since we are updating the spec, we may as well make the start of the sim

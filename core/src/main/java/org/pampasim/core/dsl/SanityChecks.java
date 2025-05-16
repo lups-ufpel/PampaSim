@@ -34,7 +34,7 @@ NothingDoer {
                 = parser.descriptionFile();
         var treeStr = tree.toStringTree();
         System.out.println(treeStr);
-        System.out.println(parser.getEvents());
+        System.out.println(parser.getEventGroups());
         System.out.println(parser.getEntities());
     }
     public static void theWholeThing() {
@@ -54,7 +54,7 @@ NothingDoer {
                 = parser.descriptionFile();
         var treeStr = tree.toStringTree();
         System.out.println(treeStr);
-        System.out.println(parser.getEvents());
+        System.out.println(parser.getEventGroups());
         System.out.println(parser.getEntities());
     }
 }

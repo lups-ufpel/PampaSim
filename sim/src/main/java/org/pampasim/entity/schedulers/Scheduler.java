@@ -1,7 +1,8 @@
-package org.pampasim.core.entity.Schedulers;
+package org.pampasim.entity.schedulers;
 
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.*;
+import org.pampasim.core.events.Event;
+import org.pampasim.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.resources.Process;
 
@@ -15,8 +16,8 @@ public abstract class Scheduler extends AbstractSimEntity {
         lastRunProcess = null;
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(ProcessSchedule.class, this);
-        simulation.getEventManager().addEventHandler(ProcessRunAck.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.Schedule.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.RunAck.class, this);
     }
 
     @Override
@@ -32,14 +33,14 @@ public abstract class Scheduler extends AbstractSimEntity {
     @Override
     public void processEvent(Event event) {
         switch (event) {
-            case ProcessSchedule e -> handleProcessSchedule(e);
-            case ProcessRunAck e -> handleProcessRunAck(e);
+            case ProcessEvent.Schedule e -> handleProcessSchedule(e);
+            case ProcessEvent.RunAck e -> handleProcessRunAck(e);
             default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getClass().getSimpleName() + " não pode ser tratado, evento serial: " + event.getSerial());
         }
     }
 
-    protected abstract void handleProcessSchedule(ProcessSchedule event);
-    protected void handleProcessRunAck(ProcessRunAck event) {
+    protected abstract void handleProcessSchedule(ProcessEvent.Schedule event);
+    protected void handleProcessRunAck(ProcessEvent.RunAck event) {
         event.getProcess().notifyListenersOnUpdate();
         processEnRoute = false;
         lastRunProcess = event.getProcess();
@@ -52,7 +53,7 @@ public abstract class Scheduler extends AbstractSimEntity {
         if (processEnRoute) { return; }
         Process proc = nextProcessToSchedule();
         if (proc == null) { return; }
-        scheduleToNextClock(new ProcessDispatch(this, proc));
+        scheduleToNextClock(new ProcessEvent.Dispatch(this, proc));
         processEnRoute = true;
     }
 

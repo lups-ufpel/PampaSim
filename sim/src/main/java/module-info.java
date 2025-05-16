@@ -8,6 +8,7 @@ module org.pampasim {
     requires guru.nidi.graphviz;
     requires static lombok;
     requires org.antlr.antlr4.runtime;
+    requires io.github.classgraph;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

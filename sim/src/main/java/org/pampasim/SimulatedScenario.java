@@ -1,19 +1,10 @@
-package org.pampasim.core;
+package org.pampasim;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.core.dsl.SpecFileLexer;
-import org.pampasim.core.dsl.SpecFileParser;
-import org.pampasim.core.dsl.spec.Spec;
-import org.pampasim.core.dsl.spec.SpecVisitor;
+import org.pampasim.core.Simulation;
+import org.pampasim.dsl.spec.Spec;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.function.Function;
 
 public class SimulatedScenario {

@@ -1,4 +1,4 @@
-package org.pampasim.core.entity.Schedulers;
+package org.pampasim.entity.schedulers;
 
 import org.pampasim.core.Simulation;
 import org.pampasim.core.resources.Process;

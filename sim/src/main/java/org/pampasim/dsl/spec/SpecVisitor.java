@@ -1,8 +1,8 @@
-package org.pampasim.core.dsl.spec;
+package org.pampasim.dsl.spec;
 
 import javafx.scene.paint.Color;
-import org.pampasim.core.dsl.SpecFileBaseVisitor;
-import org.pampasim.core.dsl.SpecFileParser;
+import org.pampasim.dsl.SpecFileBaseVisitor;
+import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.core.resources.Process;
 
 import java.util.ArrayList;

@@ -1,7 +1,9 @@
-package org.pampasim.core.entity;
+package org.pampasim.entity;
 
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.*;
+import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.core.events.Event;
+import org.pampasim.events.*;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.resources.ProcessorCore;
 
@@ -20,9 +22,9 @@ public class Processor extends AbstractSimEntity {
         this.preemption = false;
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(ProcessRun.class, this);
-        simulation.getEventManager().addEventHandler(ProcessRunContinue.class, this);
-        simulation.getEventManager().addEventHandler(ProcessPreemption.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.Run.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.RunContinue.class, this);
+        simulation.getEventManager().addEventHandler(ProcessEvent.Preemption.class, this);
     }
 
     @Override
@@ -35,9 +37,9 @@ public class Processor extends AbstractSimEntity {
     @Override
     public void processEvent(Event event) {
         switch (event) {
-            case ProcessRun e -> handleProcessRun(e);
-            case ProcessRunContinue e -> handleProcessRunContinue(e);
-            case ProcessPreemption e -> handleProcessPreemption(e);
+            case ProcessEvent.Run e -> handleProcessRun(e);
+            case ProcessEvent.RunContinue e -> handleProcessRunContinue(e);
+            case ProcessEvent.Preemption e -> handleProcessPreemption(e);
             default -> throw new IllegalStateException(
                     "[Scheduler] Evento do tipo "
                     + event.getClass().getSimpleName()
@@ -46,30 +48,30 @@ public class Processor extends AbstractSimEntity {
         }
     }
 
-    private void handleProcessRun(ProcessRun event) {
+    private void handleProcessRun(ProcessEvent.Run event) {
         Process process = event.getProcess();
-        getSimulation().scheduleToNextClock(new ProcessRunAck(this, process));
+        getSimulation().scheduleToNextClock(new ProcessEvent.RunAck(this, process));
         process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
         logInfo("Início da execução do processo de identificador:" + process.getPid());
         preemption = false;
         core.execute(process);
-        getSimulation().scheduleToNextClock(new ProcessRunContinue(this, process));
+        getSimulation().scheduleToNextClock(new ProcessEvent.RunContinue(this, process));
     }
-    private void handleProcessRunContinue(ProcessRunContinue event) {
+    private void handleProcessRunContinue(ProcessEvent.RunContinue event) {
         Process process = event.getProcess();
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
-            getSimulation().scheduleToNextClock(new ProcessRunPaused(this, process));
+            getSimulation().scheduleToNextClock(new ProcessEvent.RunPaused(this, process));
             process.setSuspended();
             logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
             logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
             core.execute(process);
-            getSimulation().scheduleToNextClock(new ProcessRunContinue(this, process));
+            getSimulation().scheduleToNextClock(new ProcessEvent.RunContinue(this, process));
         }
     }
-    private void handleProcessPreemption(ProcessPreemption event) {
+    private void handleProcessPreemption(ProcessEvent.Preemption event) {
         preemption = true;
         logInfo("Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
     }
@@ -79,9 +81,9 @@ public class Processor extends AbstractSimEntity {
 
     private int getEventPriority(Event event) {
         return switch (event) {
-            case ProcessPreemption _e -> 1;   // Highest priority
-            case ProcessRunContinue _e -> 2;
-            case ProcessRun _e -> 3;       // Lowest priority
+            case ProcessEvent.Preemption _e -> 1;   // Highest priority
+            case ProcessEvent.RunContinue _e -> 2;
+            case ProcessEvent.Run _e -> 3;       // Lowest priority
             default -> Integer.MAX_VALUE;
         };
     }

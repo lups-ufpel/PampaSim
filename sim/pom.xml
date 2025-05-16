@@ -56,12 +56,50 @@
             <artifactId>core</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.pampasim</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>codegen-events</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.pampasim.tools.EventCodeGenTool</mainClass>
+                    <arguments>
+                        <argument>sim/refactor.ent</argument>
+                        <argument>org.pampasim.events</argument>
+                        <argument>sim/target/generated-sources/events</argument>
+                    </arguments>
+                    <sourceRoot>
+                        target/generated-sources/events
+                    </sourceRoot>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>

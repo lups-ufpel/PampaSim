@@ -17,26 +17,48 @@ import org.pampasim.core.dsl.errors.*;
 @Getter
 private Map<String, Entity> entities = new HashMap<>();
 @Getter
-private Set<Event> events = new HashSet<>();
+private Map<Class<?>, Set<Event>> eventGroups = new HashMap<>();
+@Getter
+private HashMap<String, Event> events = new HashMap<>();
 }
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' eventDeclsBlock {
     System.out.println("Events list:\n" + events);
 };
 eventDeclsBlock: '{' eventGroupDecl+ '}';
-eventGroupDecl: 'transmitting' associatedType=eventDataType eventDeclList;
-eventDataType: javaType | 'nothing';
-javaType: ID ('.' ID)*?;
-eventDeclList: '{' (eventsList+=eventId ';')+ '}' {
-    // FIXME: the associated type is ignored for now
-    for (var evtok : $eventsList) {
-        var evName = evtok.getText();
-        var unique = events.add(new Event(evName));
-        if (!unique) {
-            System.err.println("duplicate event \"" + evName + "\"");
+eventGroupDecl locals [Class<?> dataClass]:
+    'transmitting' associatedType=eventDataType
+    {
+        System.out.println($associatedType.start.getType());
+        System.out.println(NOTHING_KW);
+        if ($associatedType.start.getType() != NOTHING_KW) {
+            try {
+            $dataClass = Class.forName($associatedType.text);
+            } catch (ClassNotFoundException cnfe) {
+                throw new InvalidEventData($associatedType.text);
+            }
+        } else {
+            $dataClass = null;
         }
+        eventGroups.computeIfAbsent($dataClass, _k -> new HashSet<>());
+    }
+    eventDeclList;
+eventDataType: javaType | NOTHING_KW;
+javaType: ID ('.' ID)*?;
+eventDeclList: '{' (eventsList+=eventData ';')+ '}' {
+    // FIXME: the associated type is ignored for now
+    for (var evdata : $eventsList) {
+        var evName = evdata.start.getText();
+        var realtime = evdata.stop != evdata.start;
+        Event ev = new Event(evName, $eventGroupDecl::dataClass, realtime);
+        var evicted = events.put(evName, ev);
+        if (evicted != null) {
+            throw new DuplicateEvent(ev);
+        }
+        eventGroups.get($eventGroupDecl::dataClass).add(ev);
     }
 };
+eventData: eventName=ID realtimeOpt=REALTIME_KW?;
 entitySection: entity+;
 entity locals [Entity ent]: name=ID
     {
@@ -53,80 +75,44 @@ entityBlock: '{' eventHandler+ '}';
 eventHandler
     locals [ Event event ]
     : 'on' eventName=ID {
-        $event = new Event($eventName.text);
-        if (!events.contains($event)) {
-            throw new UndeclaredEvent($event);
+        $event = events.get($eventName.text);
+        if ($event == null) {
+            throw new UndeclaredEvent($eventName.text);
         }
     } mappings;
 mappings
     : 'do' handlerMap
-    | 'transition'? transitionMap
     ;
-handlerMap: '{' eventAction+ '}';
+handlerMap: eventAction;
 eventAction locals [ ArrayList<Event> chainedEvents = new ArrayList<>() ]
-    : from=stateId 'then' desc=eventHandlerDesc to=actionTransition actionResult ';'
+    : desc=eventHandlerDesc actionResult ';'
     {
         Entity ent = $entity::ent;
         Event event = $eventHandler::event;
-        String fromStateName = $from.text;
-        AssociatedState fromState = new AssociatedState(ent, fromStateName);
-        EventStatePair pair = new EventStatePair(event, fromState);
 
-        // FIXME: nextStates need to be passed along
-        var handler = new Handler(ent, pair, null, $chainedEvents, $desc.text);
-        ent.getHandlers().put(pair, handler);
+        var handler = new Handler(ent, event, $chainedEvents, $desc.text);
+        ent.getHandlers().put(event, handler);
     }
     ;
-actionTransition
-    : TRANSITION_OPERATOR actionTransitionExpr
-    | // optional, equivalent to no transition
-    ;
-actionTransitionExpr
-    : stateId         # Immediate
-    | '...' actionTransitionExpr # Eventual
-    | stateId '|' actionTransitionExpr # Or
-    | '(' actionTransitionExpr ')' # Paren
-    ;
 actionResult
-    : 'chains' eventId {
-        Event event = new Event($eventId.text);
-        if (!events.contains(event)) {
-            throw new UndeclaredEvent(event);
+    : 'chains' eventId=ID {
+        Event event = events.get($eventId.text);
+        if (event == null) {
+            throw new UndeclaredEvent($eventId.text);
         }
         $eventAction::chainedEvents.add(event);
     }
     | 'nochain'
     | // optional, equivalent to nochain
     ;
-transitionMap: '{' transition+ '}';
-transition
-    : from=statePattern TRANSITION_OPERATOR to=stateId ';'
-    {
-        Entity ent = $entity::ent;
-        Event event = $eventHandler::event;
-        String fromStateName = $from.text;
-        String toStateName = $to.text;
-        AssociatedState fromState = new AssociatedState(ent, fromStateName);
-        AssociatedState toState = new AssociatedState(ent, toStateName);
-        EventStatePair pair = new EventStatePair(event, fromState);
-        var nextStates = new ArrayList<AssociatedState>();
-        nextStates.add(toState);
-        var handler = new Handler(ent, pair, nextStates, new ArrayList<>(), "simple transition");
-        ent.getHandlers().put(pair, handler);
-    }
-    ;
-stateId: ID;
-statePattern
-    : stateId
-    | ANY // Used to match all not previously matched
-    ;
-eventId: ID;
 eventHandlerDesc: QUOTED;
 
 COMMENT: COMMENT_LEADER ~[\n]* '\n' -> skip;
 WS: [\r\n\t ]+ -> skip;
 ANY: '_';
 QUOTED: '"' .*? '"';
-TRANSITION_OPERATOR: '->';
+NOTHING_KW: 'nothing';
+CHAINS_KW: 'chains';
+REALTIME_KW: 'realtime';
 ID: [A-Za-z_][A-Za-z0-9_]*;
 fragment COMMENT_LEADER: '//';
