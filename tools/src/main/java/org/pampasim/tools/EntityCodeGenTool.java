@@ -1,4 +1,4 @@
-package org.pampasim;
+package org.pampasim.tools;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;

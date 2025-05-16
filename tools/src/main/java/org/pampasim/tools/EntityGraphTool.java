@@ -1,4 +1,4 @@
-package org.pampasim;
+package org.pampasim.tools;
 
 import guru.nidi.graphviz.attribute.Attributes;
 import guru.nidi.graphviz.attribute.Label;
@@ -49,7 +49,7 @@ public class EntityGraphTool {
         Map<Entity, Node> entityNodes = new HashMap<>();
 
         for (Entity e : parser.getEntities().values()) {
-            Node entNode = node(e.getName());
+            Node entNode = Factory.node(e.getName());
             entityNodes.put(e, entNode);
             for (Handler h : e.getHandlers().values()) {
                 System.out.println(h);
@@ -70,7 +70,7 @@ public class EntityGraphTool {
 
         System.out.println("srcs " + eventSources);
         System.out.println("dsts " + eventDestinations);
-        Graph entGraph = graph("Entity graph").directed()
+        Graph entGraph = Factory.graph("Entity graph").directed()
                 .with(entityNodes.values().stream().toList())
                 .nodeAttr().with(Attributes.attr("fontsize", 24))
                 .linkAttr().with(Attributes.attr("fontsize", 12), Attributes.attr("len", 4));
@@ -82,7 +82,7 @@ public class EntityGraphTool {
                 for (Entity dst : eventDestinations.get(event)) {
                     Node dstNode = entityNodes.get(dst); //.with(linkAttrs()));
                     entGraph = entGraph.with(
-                            srcNode.link(to(dstNode).with(Label.of(event.getName())))
+                            srcNode.link(Factory.to(dstNode).with(Label.of(event.getName())))
                     );
                     System.out.println("link " + src.getName() + " -> " + dst.getName());
                 }
