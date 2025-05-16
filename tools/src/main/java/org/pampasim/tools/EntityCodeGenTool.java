@@ -5,7 +5,6 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.pampasim.core.dsl.EntityDSLLexer;
 import org.pampasim.core.dsl.EntityDSLParser;
-import org.pampasim.core.dsl.metadata.AssociatedState;
 import org.pampasim.core.dsl.metadata.Entity;
 import org.pampasim.core.dsl.metadata.Event;
 
@@ -59,10 +58,6 @@ public class EntityCodeGenTool {
         }
         public static String generateStateElements(Entity e) {
             StringBuilder acc = new StringBuilder();
-            System.out.println("---\n" + e.allStates());
-            for (AssociatedState state : e.allStates()) {
-                acc.append(state.getStateName()).append(",\n");
-            };
             return acc.toString();
         }
         public static String generateEventRegistrations(String simulationVarName, Entity e) {

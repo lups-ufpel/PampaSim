@@ -17,20 +17,11 @@ import java.util.stream.Collectors;
 @Getter
 public class Entity {
     protected String name = null;
-    protected Map<EventStatePair, Handler> handlers = new HashMap<>();
-
-    public Set<AssociatedState> allStates() {
-        return handlers.values().stream()
-                .map(h -> h.eventStatePair().getState())
-                .collect(Collectors.toSet());
-    }
+    protected Map<Event, Handler> handlers = new HashMap<>();
 
     public Set<Event> allAcceptedEvents() {
-        return handlers
-                .keySet()
-                .stream()
-                .map(EventStatePair::getEvent)
-                .collect(Collectors.toSet());
+        return new HashSet<>(handlers
+                .keySet());
     }
 
     @Override

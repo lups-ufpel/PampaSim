@@ -45,11 +45,12 @@ eventGroupDecl locals [Class<?> dataClass]:
     eventDeclList;
 eventDataType: javaType | NOTHING_KW;
 javaType: ID ('.' ID)*?;
-eventDeclList: '{' (eventsList+=eventId ';')+ '}' {
+eventDeclList: '{' (eventsList+=eventData ';')+ '}' {
     // FIXME: the associated type is ignored for now
-    for (var evtok : $eventsList) {
-        var evName = evtok.getText();
-        Event ev = new Event(evName, $eventGroupDecl::dataClass);
+    for (var evdata : $eventsList) {
+        var evName = evdata.start.getText();
+        var realtime = evdata.stop != evdata.start;
+        Event ev = new Event(evName, $eventGroupDecl::dataClass, realtime);
         var evicted = events.put(evName, ev);
         if (evicted != null) {
             throw new DuplicateEvent(ev);
@@ -57,6 +58,7 @@ eventDeclList: '{' (eventsList+=eventId ';')+ '}' {
         eventGroups.get($eventGroupDecl::dataClass).add(ev);
     }
 };
+eventData: eventName=ID realtimeOpt=REALTIME_KW?;
 entitySection: entity+;
 entity locals [Entity ent]: name=ID
     {
@@ -75,79 +77,42 @@ eventHandler
     : 'on' eventName=ID {
         $event = events.get($eventName.text);
         if ($event == null) {
-            throw new UndeclaredEvent($event);
+            throw new UndeclaredEvent($eventName.text);
         }
     } mappings;
 mappings
     : 'do' handlerMap
-    | 'transition'? transitionMap
     ;
-handlerMap: '{' eventAction+ '}';
+handlerMap: eventAction;
 eventAction locals [ ArrayList<Event> chainedEvents = new ArrayList<>() ]
-    : from=stateId 'then' desc=eventHandlerDesc to=actionTransition actionResult ';'
+    : desc=eventHandlerDesc actionResult ';'
     {
         Entity ent = $entity::ent;
         Event event = $eventHandler::event;
-        String fromStateName = $from.text;
-        AssociatedState fromState = new AssociatedState(ent, fromStateName);
-        EventStatePair pair = new EventStatePair(event, fromState);
 
-        // FIXME: nextStates need to be passed along
-        var handler = new Handler(ent, pair, null, $chainedEvents, $desc.text);
-        ent.getHandlers().put(pair, handler);
+        var handler = new Handler(ent, event, $chainedEvents, $desc.text);
+        ent.getHandlers().put(event, handler);
     }
     ;
-actionTransition
-    : TRANSITION_OPERATOR actionTransitionExpr
-    | // optional, equivalent to no transition
-    ;
-actionTransitionExpr
-    : stateId         # Immediate
-    | '...' actionTransitionExpr # Eventual
-    | stateId '|' actionTransitionExpr # Or
-    | '(' actionTransitionExpr ')' # Paren
-    ;
 actionResult
-    : 'chains' eventId {
+    : 'chains' eventId=ID {
         Event event = events.get($eventId.text);
         if (event == null) {
-            throw new UndeclaredEvent(event);
+            throw new UndeclaredEvent($eventId.text);
         }
         $eventAction::chainedEvents.add(event);
     }
     | 'nochain'
     | // optional, equivalent to nochain
     ;
-transitionMap: '{' transition+ '}';
-transition
-    : from=statePattern TRANSITION_OPERATOR to=stateId ';'
-    {
-        Entity ent = $entity::ent;
-        Event event = $eventHandler::event;
-        String fromStateName = $from.text;
-        String toStateName = $to.text;
-        AssociatedState fromState = new AssociatedState(ent, fromStateName);
-        AssociatedState toState = new AssociatedState(ent, toStateName);
-        EventStatePair pair = new EventStatePair(event, fromState);
-        var nextStates = new ArrayList<AssociatedState>();
-        nextStates.add(toState);
-        var handler = new Handler(ent, pair, nextStates, new ArrayList<>(), "simple transition");
-        ent.getHandlers().put(pair, handler);
-    }
-    ;
-stateId: ID;
-statePattern
-    : stateId
-    | ANY // Used to match all not previously matched
-    ;
-eventId: ID;
 eventHandlerDesc: QUOTED;
 
 COMMENT: COMMENT_LEADER ~[\n]* '\n' -> skip;
 WS: [\r\n\t ]+ -> skip;
 ANY: '_';
 QUOTED: '"' .*? '"';
-TRANSITION_OPERATOR: '->';
 NOTHING_KW: 'nothing';
+CHAINS_KW: 'chains';
+REALTIME_KW: 'realtime';
 ID: [A-Za-z_][A-Za-z0-9_]*;
 fragment COMMENT_LEADER: '//';

@@ -54,7 +54,7 @@ public class EntityGraphTool {
             for (Handler h : e.getHandlers().values()) {
                 System.out.println(h);
                 { // Add to destinations
-                    Event event = h.eventStatePair().getEvent();
+                    Event event = h.event();
                     Set<Entity> dstSet = eventDestinations.get(event);
                     dstSet.add(e);
                 }

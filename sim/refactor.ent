@@ -17,25 +17,25 @@ events {
 }
 
 ProcessManager {
-  on Arrival { IDLE -> NEW; }
-  on Ready { IDLE -> READY; }
-  on RunPaused { IDLE -> ENDED; }
+  on Arrival do "create process" chains Allocate;
+  on Ready do "schedule for execution" chains Schedule;
+  on RunPaused do "schedule for execution or end process" chains Schedule; // + End;
 }
 
 Scheduler {
-  on Schedule{ IDLE -> ENQUEUE; }
-  on RunAck { IDLE -> EXEC_ACK; }
+  on Schedule do "ask memory to load process" chains Dispatch;
+  // may chain Preemption;
 }
 
 Processor {
-  on Preemption { EXEC -> CTX_SWITCH; }
-  on RunContinue { EXEC -> EXEC; }
-  on Run { IDLE -> EXEC; }
+  on Preemption do "suspend and evict current process" chains RunPaused;
+  on RunContinue do "drive process execution" chains RunContinue;
+  on Run do "start process execution" chains RunContinue;
 }
 
 Memory {
-  on Allocate { IDLE -> ALLOC; }
-  on End { IDLE -> FREE; }
-  on Dispatch { IDLE -> LOAD_PROC; }
-  on IoOperation { IDLE -> IO; }
+  on Allocate do "allocate memory" chains Ready;
+  on End do "free memory" chains Kill;
+  on Dispatch do "run process" chains Run;
+  on IoOperation do "perform expensive IO operations" chains Schedule;
 }
