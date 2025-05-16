@@ -8,11 +8,10 @@ import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
-import lombok.Setter;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.events.ProcessEvent;
 import org.pampasim.core.events.ProcessKill;
-import org.pampasim.core.entity.PampaSimEntity;
+import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.entity.ProcessManager;
 import org.pampasim.core.entity.Processor;
 import org.pampasim.core.entity.Schedulers.Scheduler;
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
 import static guru.nidi.graphviz.model.Factory.*;
 
-public abstract class SimulationBase extends PampaSimEntity implements Simulation {
+public abstract class SimulationBase extends AbstractSimEntity implements Simulation {
     protected final ArrayList<SimEntity> entityList;
     private EventSchedule eventsSchedule;
     private final List<Event> lastClockInputs = new ArrayList<>();

@@ -1,6 +1,6 @@
 package org.pampasim.core.events;
 
-import org.pampasim.core.entity.PampaSimEntity;
+import org.pampasim.core.entity.AbstractSimEntity;
 import lombok.Getter;
 import org.pampasim.core.entity.SimEntity;
 
@@ -33,7 +33,7 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
 
     public Event cloneAs(Class<? extends Event> asClass) throws IncompatibleEventDataException {
         try {
-            Constructor<? extends Event> cons = asClass.getConstructor(PampaSimEntity.class);
+            Constructor<? extends Event> cons = asClass.getConstructor(SimEntity.class);
             return cons.newInstance(getSource());
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException _e) {
             throw new IncompatibleEventDataException();

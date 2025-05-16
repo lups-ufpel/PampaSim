@@ -8,7 +8,7 @@ import org.pampasim.core.resources.ProcessorCore;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-public class Processor extends PampaSimEntity {
+public class Processor extends AbstractSimEntity {
     private final ProcessorCore core;
     private boolean preemption;
 

@@ -1,9 +1,8 @@
 package org.pampasim.core;
 
-import org.pampasim.core.entity.PampaSimEntity;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.events.*;
-import org.pampasim.core.entity.SimEntity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +29,7 @@ public abstract class EventManager {
     public abstract void setupTranslations();
     public abstract void setupFlags();
 
-    public void addEventHandler(Class<? extends Event> eventClass, PampaSimEntity handler) {
+    public void addEventHandler(Class<? extends Event> eventClass, SimEntity handler) {
         if (handlers.containsKey(eventClass)) {
             throw new IllegalArgumentException("A handler for event type " + eventClass.getSimpleName() + " already exists.");
         }

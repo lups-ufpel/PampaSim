@@ -3,7 +3,7 @@ package org.pampasim.core.entity;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 
-public class ProcessManager extends PampaSimEntity {
+public class ProcessManager extends AbstractSimEntity {
 
     public ProcessManager(Simulation simulation) {
         super(simulation);

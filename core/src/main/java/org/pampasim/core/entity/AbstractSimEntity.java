@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class PampaSimEntity implements SimEntity {
+public abstract class AbstractSimEntity implements SimEntity {
     @Getter
     protected EntityState state = EntityState.Idle;
     @Getter
@@ -23,7 +23,7 @@ public class PampaSimEntity implements SimEntity {
     protected Queue<Event> buffer;
     protected List<Event> lastRunBuffer = List.of();
 
-    public PampaSimEntity(SimEntity parent) {
+    public AbstractSimEntity(SimEntity parent) {
         if (parent != null) {
             this.simulation = parent.getSimulation();
             this.simulation.addEntity(this);
