@@ -12,25 +12,49 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import org.pampasim.core.dsl.metadata.*;
 import org.pampasim.core.dsl.errors.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import java.io.IOException;
 }
 @members {
 @Getter
 private Map<String, Entity> entities = new HashMap<>();
 @Getter
-private Map<Class<?>, Set<Event>> eventGroups = new HashMap<>();
+private Map<String, EventGroup> eventGroups = new HashMap<>();
 @Getter
 private HashMap<String, Event> events = new HashMap<>();
 }
 descriptionFile : eventsSection entitySection EOF;
-eventsSection: 'events' eventDeclsBlock {
+eventsSection: 'events' ('import' importList+=pathRule+)? eventDeclsBlock {
+    for (var importPath : $importList) {
+        CharStream stream = null;
+        System.out.println("trying to open " + importPath.getText());
+        try {
+            stream = CharStreams.fromFileName(importPath.getText());
+        } catch (IOException e) {
+            System.err.println(importPath + " not found!");
+        }
+        var lexer = new EntityDSLLexer(stream);
+        var tokenStream = new CommonTokenStream(lexer);
+        var parser = new EntityDSLParser(tokenStream);
+        parser.setBuildParseTree(true);
+        EntityDSLParser.DescriptionFileContext tree
+                = parser.descriptionFile();
+        events.putAll(parser.getEvents());
+    }
     System.out.println("Events list:\n" + events);
 };
+pathRule locals [Path path]: (acc+='..' '/' | acc+='.' '/')? acc += ID ('/' ID)* {
+    $path = $acc.stream().map(a -> Paths.get(a.getText())).reduce((l,r) -> l.resolve(r)).orElseThrow();
+};
 eventDeclsBlock: '{' eventGroupDecl+ '}';
-eventGroupDecl locals [Class<?> dataClass]:
-    'transmitting' associatedType=eventDataType
+eventGroupDecl locals [Class<?> dataClass, String prefix]:
+    prefixTok=ID 'transmitting' associatedType=eventDataType
     {
-        System.out.println($associatedType.start.getType());
-        System.out.println(NOTHING_KW);
+        $prefix = $prefixTok.text;
         if ($associatedType.start.getType() != NOTHING_KW) {
             try {
             $dataClass = Class.forName($associatedType.text);
@@ -40,7 +64,7 @@ eventGroupDecl locals [Class<?> dataClass]:
         } else {
             $dataClass = null;
         }
-        eventGroups.computeIfAbsent($dataClass, _k -> new HashSet<>());
+        eventGroups.computeIfAbsent($prefix, _k -> new EventGroup($prefix, new HashSet<>(), $dataClass));
     }
     eventDeclList;
 eventDataType: javaType | NOTHING_KW;
@@ -48,14 +72,14 @@ javaType: ID ('.' ID)*?;
 eventDeclList: '{' (eventsList+=eventData ';')+ '}' {
     // FIXME: the associated type is ignored for now
     for (var evdata : $eventsList) {
-        var evName = evdata.start.getText();
+        var evName = $eventGroupDecl::prefix + "." + evdata.start.getText();
         var realtime = evdata.stop != evdata.start;
         Event ev = new Event(evName, $eventGroupDecl::dataClass, realtime);
         var evicted = events.put(evName, ev);
         if (evicted != null) {
             throw new DuplicateEvent(ev);
         }
-        eventGroups.get($eventGroupDecl::dataClass).add(ev);
+        eventGroups.get($eventGroupDecl::prefix).events().add(ev);
     }
 };
 eventData: eventName=ID realtimeOpt=REALTIME_KW?;
@@ -114,5 +138,5 @@ QUOTED: '"' .*? '"';
 NOTHING_KW: 'nothing';
 CHAINS_KW: 'chains';
 REALTIME_KW: 'realtime';
-ID: [A-Za-z_][A-Za-z0-9_]*;
+ID: [A-Za-z_][A-Za-z0-9_.]*;
 fragment COMMENT_LEADER: '//';

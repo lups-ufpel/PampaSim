@@ -11,18 +11,18 @@ public class ProcessManager extends AbstractSimEntity {
         super(simulation);
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(ProcessEvent.Arrival.class, this);
-        simulation.getEventManager().addEventHandler(ProcessEvent.Ready.class, this);
-        simulation.getEventManager().addEventHandler(ProcessEvent.RunPaused.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Arrival.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Ready.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunPaused.class, this);
 
     }
 
     @Override
     public void processEvent(Event event) {
         switch (event) {
-            case ProcessEvent.Arrival e -> handleProcessArrival(e);
-            case ProcessEvent.Ready e -> handleProcessReady(e);
-            case ProcessEvent.RunPaused e -> handleProcessRunPaused(e);
+            case org.pampasim.events.Process.Arrival e -> handleProcessArrival(e);
+            case org.pampasim.events.Process.Ready e -> handleProcessReady(e);
+            case org.pampasim.events.Process.RunPaused e -> handleProcessRunPaused(e);
             default -> throw new IllegalStateException(
                     "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -30,21 +30,21 @@ public class ProcessManager extends AbstractSimEntity {
         }
     }
 
-    private void handleProcessArrival(ProcessEvent.Arrival event) {
-        scheduleToNextClock(new ProcessEvent.Allocate(this, event.getProcess()));
+    private void handleProcessArrival(org.pampasim.events.Process.Arrival event) {
+        scheduleToNextClock(new org.pampasim.events.Process.Allocate(this, event.getProcess()));
     }
 
-    private void handleProcessReady(ProcessEvent.Ready event) {
+    private void handleProcessReady(org.pampasim.events.Process.Ready event) {
         event.getProcess().setReady();
-        scheduleToNextClock(new ProcessEvent.Schedule(this, event.getProcess()));
+        scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
     }
 
-    private void handleProcessRunPaused(ProcessEvent.RunPaused event) {
+    private void handleProcessRunPaused(org.pampasim.events.Process.RunPaused event) {
         if (event.getProcess().isFinished()) {
             event.getProcess().setTerminated();
-            scheduleToNextClock(new ProcessEvent.End(this, event.getProcess()));
+            scheduleToNextClock(new org.pampasim.events.Process.End(this, event.getProcess()));
         } else {
-            scheduleToNextClock(new ProcessEvent.Schedule(this, event.getProcess()));
+            scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
         }
     }
 }

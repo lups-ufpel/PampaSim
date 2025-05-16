@@ -16,8 +16,8 @@ public abstract class Scheduler extends AbstractSimEntity {
         lastRunProcess = null;
 
         // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(ProcessEvent.Schedule.class, this);
-        simulation.getEventManager().addEventHandler(ProcessEvent.RunAck.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Schedule.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunAck.class, this);
     }
 
     @Override
@@ -33,14 +33,14 @@ public abstract class Scheduler extends AbstractSimEntity {
     @Override
     public void processEvent(Event event) {
         switch (event) {
-            case ProcessEvent.Schedule e -> handleProcessSchedule(e);
-            case ProcessEvent.RunAck e -> handleProcessRunAck(e);
+            case org.pampasim.events.Process.Schedule e -> handleProcessSchedule(e);
+            case org.pampasim.events.Process.RunAck e -> handleProcessRunAck(e);
             default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getClass().getSimpleName() + " não pode ser tratado, evento serial: " + event.getSerial());
         }
     }
 
-    protected abstract void handleProcessSchedule(ProcessEvent.Schedule event);
-    protected void handleProcessRunAck(ProcessEvent.RunAck event) {
+    protected abstract void handleProcessSchedule(org.pampasim.events.Process.Schedule event);
+    protected void handleProcessRunAck(org.pampasim.events.Process.RunAck event) {
         event.getProcess().notifyListenersOnUpdate();
         processEnRoute = false;
         lastRunProcess = event.getProcess();
@@ -53,7 +53,7 @@ public abstract class Scheduler extends AbstractSimEntity {
         if (processEnRoute) { return; }
         Process proc = nextProcessToSchedule();
         if (proc == null) { return; }
-        scheduleToNextClock(new ProcessEvent.Dispatch(this, proc));
+        scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
         processEnRoute = true;
     }
 

@@ -2,7 +2,7 @@ package org.pampasim.memory.entity;
 
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.memory.events.*;
+import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 
 public class PageTable extends AbstractSimEntity {
@@ -11,13 +11,18 @@ public class PageTable extends AbstractSimEntity {
 
     public PageTable(Simulation simulation) {
         super(simulation);
+
+        //TODO: Add the events which this entity handles
+        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
+        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
+        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
     }
 
     public void processEvent(Event event) {
         switch (event) {
-            case MemoryCreatePageTableEntry e -> handleMemoryCreatePageTableEntry(e);
-            case MemoryDeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);
-            case MemoryTlbNoTranslation e -> handleMemoryTlbNoTranslation(e);
+            case CreatePageTableEntry e -> handleMemoryCreatePageTableEntry(e);
+            case DeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);
+            case TlbNoTranslation e -> handleMemoryTlbNoTranslation(e);
             default -> throw new IllegalStateException(
                     "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -25,21 +30,21 @@ public class PageTable extends AbstractSimEntity {
         }
     }
 
-    private void handleMemoryCreatePageTableEntry(MemoryCreatePageTableEntry event) {
+    private void handleMemoryCreatePageTableEntry(CreatePageTableEntry event) {
         //TODO: Stub
-        scheduleToNextClock(new MemoryReserveProcessMemory(this, event.getProcess()));
+        scheduleToNextClock(new ReserveProcessMemory(this, event.getProcess()));
     }
 
-    private void handleMemoryDeletePageTableEntry(MemoryDeletePageTableEntry event) {
+    private void handleMemoryDeletePageTableEntry(DeletePageTableEntry event) {
         //TODO: Stub
-        scheduleToNextClock(new MemoryDeleteTlbEntry(this, event.getProcess()));
+        scheduleToNextClock(new DeleteTlbEntry(this, event.getProcess()));
     }
 
-    private void handleMemoryTlbNoTranslation(MemoryTlbNoTranslation event) {
+    private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {
         //TODO: can result in a MemoryPageHit or a MemoryPageFault event
         //TODO: Stub
-        scheduleToNextClock(new MemoryPageHit(this, event.getProcess()));
-        scheduleToNextClock(new MemoryPageFault(this, event.getProcess()));
+        scheduleToNextClock(new PageHit(this, event.getProcess()));
+        scheduleToNextClock(new PageFault(this, event.getProcess()));
     }
 
 }

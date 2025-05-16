@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.pampasim.core.dsl.EntityDSLLexer;
 import org.pampasim.core.dsl.EntityDSLParser;
 import org.pampasim.core.dsl.metadata.Event;
+import org.pampasim.core.dsl.metadata.EventGroup;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,13 +45,16 @@ public class EventCodeGenTool {
         System.out.println(parser.getEntities());
 
         for (var entry : parser.getEventGroups().entrySet()) {
-            var dataClass = entry.getKey();
-            System.out.println("processing event group that transmits " + dataClass);
-            writeClasses(entry.getKey(), entry.getValue());
+            var groupName = entry.getKey();
+            var dataClass = entry.getValue().dataClass();
+            System.out.println("processing event group " + groupName + " that transmits " + dataClass);
+            writeClasses(entry.getValue());
         }
     }
 
-    private static void writeClasses(Class<?> dataClass, Set<Event> events) throws IOException {
+    private static void writeClasses(EventGroup eventGroup) throws IOException {
+        var dataClass = eventGroup.dataClass();
+        var events = eventGroup.events();
         var dataMemberName = dataClass.getSimpleName().toLowerCase();
         var dataMemberGetter = "get" + dataClass.getSimpleName();
         var className = dataClass.getSimpleName() + "Event";
@@ -80,25 +84,39 @@ public class EventCodeGenTool {
                 "throw new IncompatibleEventDataException();\n" +
                 "}\n" +
                 "}\n" +
-                "public Object getData() { return " + dataMemberGetter + "(); }");
-        for (var event : events) {
-            code.append(subClass(event));
-        }
+                "public Object getData() { return " + dataMemberGetter + "();" + "}\n");
         code.append("}\n");
 
         Files.writeString(pkgPath.resolve(className + ".java"), code.toString());
+
+        for (var event : events) {
+            writeSubClass(eventGroup.prefix(), event);
+        }
     }
 
-    static String subClass(Event event) throws IOException {
+    static String subClass(String prefix, Event event) throws IOException {
         System.out.println("processing event " + event);
         var dataClassSimpleName = event.getDataClass().getSimpleName();
         var dataClassName = event.getDataClass().getName();
-        var className = event.getName();
+        var classNameParts = event.getName().split("\\.");
+        var className = classNameParts[classNameParts.length-1];
         var superClassName = event.getDataClass().getSimpleName() + "Event";
-        return "public static class " + className + " extends " + superClassName + " {\n" +
+        return  "package " + destinationPackage + "." + prefix + ";\n" +
+                "import org.pampasim.core.events.*;\n" +
+                "import org.pampasim.core.entity.SimEntity;\n" +
+                "import " + destinationPackage + ".*;\n" +
+                "public class " + className + " extends " + superClassName + " {\n" +
                 "public " + className + "(SimEntity source, " + dataClassName + " data) {\n" +
                 "super(source, data);\n" +
                 "}\n" +
                 "}\n";
+    }
+
+    static void writeSubClass(String prefix, Event event) throws IOException {
+        var groupPath = pkgPath.resolve(prefix);
+        Files.createDirectories(groupPath);
+        var classNameParts = event.getName().split("\\.");
+        var className = classNameParts[classNameParts.length-1];
+        Files.writeString(groupPath.resolve(className + ".java"), subClass(prefix, event));
     }
 }

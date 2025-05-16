@@ -78,7 +78,7 @@ public class Spec {
         // either way, that means we can't set the color here
         // colors from the spec ain't supported yet
         // which is a bummer
-        var ev = new ProcessEvent.Arrival(null, p);
+        var ev = new org.pampasim.events.Process.Arrival(null, p);
         var arrivalTime = p.getArrivalTime();
         eventSchedule.schedule(arrivalTime, ev);
         return ev;

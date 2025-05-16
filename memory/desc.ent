@@ -1,0 +1,54 @@
+events import sim/refactor.ent {
+  Memory transmitting org.pampasim.core.resources.Process {
+    Allocate;
+    AllocateFinished;
+    CreatePageTableEntry;
+    DeletePageTableEntry;
+    DeleteTlbEntry;
+    FreeProcessMemory;
+    FreeProcessMemoryFinished;
+    IoOperation;
+    IoOperationFinished;
+    PageFault;
+    PageHit;
+    ProcessReady;
+    ReserveProcessMemory;
+    ReserveProcessMemoryFinished;
+    TimeAdvance realtime;
+    TlbMiss; // are these two the same?
+    TlbNoTranslation;
+    TranslateVirtualAddress;
+  }
+}
+
+PageTable {
+  on Memory.DeletePageTableEntry do "delete page table entry" chains Memory.DeleteTlbEntry;
+  on Memory.Allocate do "allocate memory" chains Memory.AllocateFinished;
+  on Memory.TlbMiss do "tlb miss" chains Memory.PageFault; // + Memory.PageHit;
+  on Memory.TlbNoTranslation do "mem access" chains Memory.PageHit; // + Memory.PageFault;
+}
+
+PhysicalMemory {
+  on Memory.FreeProcessMemory do "free process memory";
+  on Memory.PageHit do "page hit" chains Memory.IoOperationFinished;
+  on Memory.PageFault do "page fault" chains Memory.TimeAdvance;
+  on Memory.TimeAdvance do "time advance" chains Memory.TimeAdvance;
+  on Memory.IoOperation do "io operation" chains Memory.TimeAdvance;
+}
+
+TLB {
+  on Memory.TranslateVirtualAddress do "translate virtual address" chains Memory.PageHit; // + Memory.PageFault;
+  on Memory.DeleteTlbEntry do "delete tlb entry" chains Memory.PageFault;
+  // may chain Memory.FreeProcessMemory;
+}
+
+VirtualMemory {
+  on Process.Allocate do "allocate process" chains Memory.Allocate;
+  on Process.End do "end process" chains Memory.DeletePageTableEntry;
+  on Process.Load do "load process" chains Memory.TranslateVirtualAddress;
+  on Process.IoOperation do "io operation" chains Memory.IoOperation;
+  on Memory.AllocateFinished do "allocate process finished" chains Process.Ready;
+  on Memory.FreeProcessMemoryFinished do "kill process" chains Process.Kill;
+  on Memory.IoOperationFinished do "schedule process" chains Process.Schedule;
+  on Memory.ProcessReady do "run process" chains Process.Run;
+}

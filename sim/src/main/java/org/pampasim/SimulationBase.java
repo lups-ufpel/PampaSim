@@ -74,7 +74,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     public void blackHoleEvent(Event event) {
         switch (event) {
-            case ProcessEvent processEvent:
+            case org.pampasim.events.ProcessEvent processEvent:
                         logInfo("Processo com Pid " + processEvent.getProcess().getPid() +
                                 " finalizou sua execução e foi terminado com sucesso");
                         break;
@@ -128,7 +128,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         // Necessary to create a copy to iterate over since handleEvent can add a KILL_PROCESS event
         // to the list as it's being iterated over
         currentEvents.stream()
-                .filter(event -> !(event instanceof ProcessEvent.Kill)) // shouldn't be needed
+                .filter(event -> !(event instanceof org.pampasim.events.Process.Kill)) // shouldn't be needed
                 .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
 
 
@@ -216,7 +216,9 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     @Override
     public boolean hasPendingEvents() {
-        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getSimulationClock());
+        // it really is off by one
+        logInfo(eventsSchedule.toString() + " means any > " + getRealClock().getTick() + " == " + eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
+        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
     }
 
     // TODO: This references all the entity interfaces, might need decoupling
