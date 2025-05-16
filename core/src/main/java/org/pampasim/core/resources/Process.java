@@ -13,6 +13,10 @@ import java.util.Set;
 
 @Getter
 public class Process {
+    //TODO: during each execution tick, the process can access several pages at once. This is important for the TLB
+    //Every execution tick the process will access one, none, or several of it's virtual pages, it will send out an event which
+    // will require the memory module to check the Page Table or the TLB, it can also suspend the process if a page fault
+    // ends up happening. This is important to justify the existence of a TLB in the system
     private final Set<EventListener<EventInfo>> onCreateListeners;
     private final Set<EventListener<EventInfo>> onDispatchListeners;
     private final Set<EventListener<EventInfo>> onFinishListeners;

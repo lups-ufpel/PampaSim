@@ -4,8 +4,8 @@ import org.pampasim.SimCore.events.ProcessEvent;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.SimResources.Process;
 
-public class MemoryTlbMiss extends ProcessEvent {
-    public MemoryTlbMiss(SimEntity source, Process proc) {
+public class MemoryPageHit extends ProcessEvent {
+    public MemoryPageHit(SimEntity source, Process proc) {
         super(source, proc);
     }
 }
