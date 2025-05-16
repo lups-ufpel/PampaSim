@@ -1,6 +1,6 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.resources.Process;
 
 public interface ProcessEventInfo extends EventInfo {
     Process getProcess();

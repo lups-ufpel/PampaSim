@@ -1,8 +1,8 @@
-package org.pampasim.SimEntity;
+package org.pampasim.core.entity;
 
-import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.events.*;
-import org.pampasim.Utils.GraphVisualizeable;
+import org.pampasim.core.Simulation;
+import org.pampasim.core.events.*;
+import org.pampasim.core.utils.GraphVisualizeable;
 
 public interface SimEntity extends GraphVisualizeable {
     enum EntityState { Run, Blocked, Idle };

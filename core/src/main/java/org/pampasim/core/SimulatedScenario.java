@@ -1,15 +1,15 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.SimEntity.Processor;
-import org.pampasim.dsl.SpecFileLexer;
-import org.pampasim.dsl.SpecFileParser;
-import org.pampasim.dsl.spec.Spec;
-import org.pampasim.dsl.spec.SpecVisitor;
+import org.pampasim.core.entity.Processor;
+import org.pampasim.core.dsl.SpecFileLexer;
+import org.pampasim.core.dsl.SpecFileParser;
+import org.pampasim.core.dsl.spec.Spec;
+import org.pampasim.core.dsl.spec.SpecVisitor;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

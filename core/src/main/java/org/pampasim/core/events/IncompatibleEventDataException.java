@@ -1,4 +1,4 @@
-package org.pampasim.SimCore.events;
+package org.pampasim.core.events;
 
 public class IncompatibleEventDataException extends Exception {
     @Override

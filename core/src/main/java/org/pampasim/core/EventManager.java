@@ -1,9 +1,9 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
-import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimCore.events.Event;
-import org.pampasim.SimCore.events.*;
-import org.pampasim.SimEntity.SimEntity;
+import org.pampasim.core.entity.PampaSimEntity;
+import org.pampasim.core.events.Event;
+import org.pampasim.core.events.*;
+import org.pampasim.core.entity.SimEntity;
 
 import java.util.HashMap;
 import java.util.List;

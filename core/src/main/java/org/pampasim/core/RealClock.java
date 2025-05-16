@@ -1,4 +1,4 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 import lombok.Getter;
 

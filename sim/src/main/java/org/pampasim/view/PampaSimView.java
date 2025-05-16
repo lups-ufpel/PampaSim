@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.resources.Process;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
 import org.slf4j.Logger;

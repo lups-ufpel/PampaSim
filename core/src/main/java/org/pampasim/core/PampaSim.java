@@ -1,8 +1,6 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
-import org.pampasim.SimEntity.*;
-import org.pampasim.Utils.PidAllocator;
-import java.util.*;
+import org.pampasim.core.entity.*;
 
 public class PampaSim extends SimulationBase {
 

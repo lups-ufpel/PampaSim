@@ -16,11 +16,11 @@ module org.pampasim {
     opens org.pampasim.scopes to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.view to javafx.fxml, de.saxsys.mvvmfx;
     exports org.pampasim.scopes;
-    exports org.pampasim.SimCore;
+    exports org.pampasim.core;
     exports org.pampasim.SimEntity;
-    exports org.pampasim.SimResources;
+    exports org.pampasim.core.resources;
     exports org.pampasim.viewModel;
     exports org.pampasim.Utils;
-    exports org.pampasim.SimEntity.Schedulers;
-    exports org.pampasim.SimCore.events;
+    exports org.pampasim.core.entity.Schedulers;
+    exports org.pampasim.core.events;
 }

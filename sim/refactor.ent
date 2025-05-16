@@ -1,5 +1,5 @@
 events {
-  transmitting org.pampasim.SimResources.Process {
+  transmitting org.pampasim.core.resources.Process {
     CLOCK; // Special, broadcasted one
     PROCESS_ARRIVAL;
     ALLOCATE_PROCESS;

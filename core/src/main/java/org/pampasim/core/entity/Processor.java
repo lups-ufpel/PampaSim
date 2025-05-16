@@ -1,9 +1,9 @@
-package org.pampasim.SimEntity;
+package org.pampasim.core.entity;
 
-import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.events.*;
-import org.pampasim.SimResources.Process;
-import org.pampasim.SimResources.ProcessorCore;
+import org.pampasim.core.Simulation;
+import org.pampasim.core.events.*;
+import org.pampasim.core.resources.Process;
+import org.pampasim.core.resources.ProcessorCore;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;

@@ -1,4 +1,4 @@
-package org.pampasim.Utils;
+package org.pampasim.core.utils;
 
 import java.util.LinkedList;
 import java.util.Optional;

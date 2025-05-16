@@ -1,15 +1,15 @@
-package org.pampasim.SimResources;
+package org.pampasim.core.resources;
 
 /**
  * An interface to be implemented by each class that provides
- * the basic features of virtual processor resources.Core of a Machine.
- * Each resources.Core is responsible for executing through {@link #execute(Process)},
+ * the basic features of virtual processor core.resources.Core of a Machine.
+ * Each core.resources.Core is responsible for executing through {@link #execute(Process)},
  * of one or more instructions within a process/tasks.
  *
  * <p>
  * Usage Example:
  * <pre>
- * resources.Core core = new CoreImpl();
+ * core.resources.Core core = new CoreImpl();
  * core.execute(someProcess);
  * </pre>
  *

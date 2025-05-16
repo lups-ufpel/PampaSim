@@ -1,4 +1,4 @@
-package org.pampasim.dsl.spec;
+package org.pampasim.core.dsl.spec;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -7,12 +7,12 @@ import io.github.classgraph.ScanResult;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.SimCore.EventSchedule;
-import org.pampasim.SimCore.events.*;
-import org.pampasim.SimEntity.Schedulers.FCFS;
-import org.pampasim.SimEntity.Schedulers.Scheduler;
-import org.pampasim.SimResources.Process;
-import org.pampasim.Utils.PidAllocator;
+import org.pampasim.core.EventSchedule;
+import org.pampasim.core.events.*;
+import org.pampasim.core.entity.Schedulers.FCFS;
+import org.pampasim.core.entity.Schedulers.Scheduler;
+import org.pampasim.core.resources.Process;
+import org.pampasim.core.utils.PidAllocator;
 
 import java.util.ArrayList;
 import java.util.HashMap;

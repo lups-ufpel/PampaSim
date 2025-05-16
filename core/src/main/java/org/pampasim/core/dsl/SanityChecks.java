@@ -1,9 +1,8 @@
-package org.pampasim.dsl;
+package org.pampasim.core.dsl;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.dsl.*;
 
 import java.io.IOException;
 

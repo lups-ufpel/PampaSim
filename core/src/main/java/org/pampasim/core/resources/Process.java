@@ -1,11 +1,11 @@
-package org.pampasim.SimResources;
+package org.pampasim.core.resources;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.SimCore.EventInfo;
-import org.pampasim.SimCore.EventListener;
-import org.pampasim.SimCore.ProcessEventInfo;
-import org.pampasim.Utils.PidAllocator.Pid;
+import org.pampasim.core.EventInfo;
+import org.pampasim.core.EventListener;
+import org.pampasim.core.ProcessEventInfo;
+import org.pampasim.core.utils.PidAllocator.Pid;
 
 
 import java.util.HashSet;

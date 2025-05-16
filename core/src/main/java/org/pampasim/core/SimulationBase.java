@@ -1,4 +1,4 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
@@ -9,17 +9,17 @@ import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.SimCore.events.Event;
-import org.pampasim.SimCore.events.ProcessEvent;
-import org.pampasim.SimCore.events.ProcessKill;
-import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimEntity.ProcessManager;
-import org.pampasim.SimEntity.Processor;
-import org.pampasim.SimEntity.Schedulers.Scheduler;
-import org.pampasim.SimEntity.SimEntity;
-import org.pampasim.SimResources.ProcessorCore;
-import org.pampasim.Utils.PidAllocator;
-import org.pampasim.dsl.spec.Spec;
+import org.pampasim.core.events.Event;
+import org.pampasim.core.events.ProcessEvent;
+import org.pampasim.core.events.ProcessKill;
+import org.pampasim.core.entity.PampaSimEntity;
+import org.pampasim.core.entity.ProcessManager;
+import org.pampasim.core.entity.Processor;
+import org.pampasim.core.entity.Schedulers.Scheduler;
+import org.pampasim.core.entity.SimEntity;
+import org.pampasim.core.resources.ProcessorCore;
+import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.core.dsl.spec.Spec;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

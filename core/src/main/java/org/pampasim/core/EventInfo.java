@@ -1,4 +1,4 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 public interface EventInfo {
     /**
@@ -7,7 +7,7 @@ public interface EventInfo {
     <T extends EventInfo> EventListener<T> getListener();
 
     /**
-     * Get a simcore.EventInfo instance from the given parameters.
+     * Get a core.EventInfo instance from the given parameters.
      *
      */
     static EventInfo of(final EventListener<EventInfo> listener) {

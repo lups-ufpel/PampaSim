@@ -1,9 +1,9 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
-import org.pampasim.SimEntity.SimEntity;
-import org.pampasim.SimCore.events.Event;
-import org.pampasim.Utils.PidAllocator;
-import org.pampasim.dsl.spec.Spec;
+import org.pampasim.core.entity.SimEntity;
+import org.pampasim.core.events.Event;
+import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.core.dsl.spec.Spec;
 
 public interface Simulation extends SimEntity {
     void addEntity(SimEntity entity);

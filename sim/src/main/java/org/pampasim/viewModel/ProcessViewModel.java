@@ -3,14 +3,14 @@ package org.pampasim.viewModel;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.resources.Process;
 
 public class ProcessViewModel implements ViewModel {
 
     private final StringProperty pid = new SimpleStringProperty();
     private final IntegerProperty priority = new SimpleIntegerProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
-    private final ObjectProperty<org.pampasim.SimResources.Process.State> state = new SimpleObjectProperty<>();
+    private final ObjectProperty<org.pampasim.core.resources.Process.State> state = new SimpleObjectProperty<>();
 
     public ProcessViewModel(String pid, int priority, Color color) {
         this.pid.set(pid);
@@ -38,10 +38,10 @@ public class ProcessViewModel implements ViewModel {
     public String pid() {
         return pid.get();
     }
-    public org.pampasim.SimResources.Process.State getState() {
+    public org.pampasim.core.resources.Process.State getState() {
         return state.get();
     }
-    public void setState(org.pampasim.SimResources.Process.State state) {
+    public void setState(org.pampasim.core.resources.Process.State state) {
         this.state.set(state);
     }
     public ObjectProperty<Process.State> stateProperty() {

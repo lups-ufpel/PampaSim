@@ -1,12 +1,12 @@
-package org.pampasim.SimEntity;
+package org.pampasim.core.entity;
 
 import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
-import org.pampasim.SimCore.RealClock;
-import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.events.*;
+import org.pampasim.core.RealClock;
+import org.pampasim.core.Simulation;
+import org.pampasim.core.events.*;
 import static guru.nidi.graphviz.model.Factory.*;
 
 import java.util.LinkedList;

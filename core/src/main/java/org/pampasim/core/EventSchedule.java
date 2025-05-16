@@ -1,10 +1,10 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
-import org.pampasim.SimCore.events.Event;
+import org.pampasim.core.events.Event;
 
 public class EventSchedule {
     private final Map<Integer, ArrayList<Event>> map; // events that are queued to happen at a specific clock tick (PROCESS_ARRIVAL events)

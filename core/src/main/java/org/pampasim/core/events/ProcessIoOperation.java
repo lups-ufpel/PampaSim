@@ -1,7 +1,7 @@
-package org.pampasim.SimCore.events;
+package org.pampasim.core.events;
 
-import org.pampasim.SimEntity.SimEntity;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.entity.SimEntity;
+import org.pampasim.core.resources.Process;
 
 public class ProcessIoOperation extends ProcessEvent {
     public ProcessIoOperation(SimEntity source, Process proc) {

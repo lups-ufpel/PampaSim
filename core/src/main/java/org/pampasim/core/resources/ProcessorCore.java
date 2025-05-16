@@ -1,4 +1,4 @@
-package org.pampasim.SimResources;
+package org.pampasim.core.resources;
 
 import lombok.Getter;
 import lombok.Setter;

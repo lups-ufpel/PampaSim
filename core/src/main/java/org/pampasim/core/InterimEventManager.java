@@ -1,6 +1,6 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
-import org.pampasim.SimCore.events.*;
+import org.pampasim.core.events.*;
 
 ///  Hardcoded for now
 public class InterimEventManager extends EventManager {

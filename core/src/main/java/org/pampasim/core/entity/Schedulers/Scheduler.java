@@ -1,9 +1,9 @@
-package org.pampasim.SimEntity.Schedulers;
+package org.pampasim.core.entity.Schedulers;
 
-import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.events.*;
-import org.pampasim.SimEntity.PampaSimEntity;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.Simulation;
+import org.pampasim.core.events.*;
+import org.pampasim.core.entity.PampaSimEntity;
+import org.pampasim.core.resources.Process;
 
 public abstract class Scheduler extends PampaSimEntity {
     boolean processEnRoute;

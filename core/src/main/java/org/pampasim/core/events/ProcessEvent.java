@@ -1,8 +1,8 @@
-package org.pampasim.SimCore.events;
+package org.pampasim.core.events;
 
 import lombok.Getter;
-import org.pampasim.SimEntity.SimEntity;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.entity.SimEntity;
+import org.pampasim.core.resources.Process;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

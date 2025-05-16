@@ -1,4 +1,4 @@
-package org.pampasim.SimEntity.Schedulers;
+package org.pampasim.core.entity.Schedulers;
 
 public interface RespectsQuantum {
     int getQuantum();

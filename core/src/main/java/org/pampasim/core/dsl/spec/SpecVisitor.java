@@ -1,9 +1,9 @@
-package org.pampasim.dsl.spec;
+package org.pampasim.core.dsl.spec;
 
 import javafx.scene.paint.Color;
-import org.pampasim.dsl.SpecFileBaseVisitor;
-import org.pampasim.dsl.SpecFileParser;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.dsl.SpecFileBaseVisitor;
+import org.pampasim.core.dsl.SpecFileParser;
+import org.pampasim.core.resources.Process;
 
 import java.util.ArrayList;
 import java.util.Optional;

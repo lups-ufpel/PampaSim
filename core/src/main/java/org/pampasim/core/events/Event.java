@@ -1,6 +1,6 @@
-package org.pampasim.SimCore.events;
+package org.pampasim.core.events;
 
-import org.pampasim.SimEntity.SimEntity;
+import org.pampasim.core.entity.SimEntity;
 
 public interface Event extends Comparable<Event> {
     SimEntity getSource();

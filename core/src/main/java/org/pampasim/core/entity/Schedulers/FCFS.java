@@ -1,7 +1,7 @@
-package org.pampasim.SimEntity.Schedulers;
+package org.pampasim.core.entity.Schedulers;
 
-import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimResources.Process;
+import org.pampasim.core.Simulation;
+import org.pampasim.core.resources.Process;
 
 import java.util.Comparator;
 

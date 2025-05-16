@@ -1,10 +1,10 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-import org.pampasim.SimCore.events.Event;
+import org.pampasim.core.events.Event;
 
 public class FutureQueue implements EventQueue {
 

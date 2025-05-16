@@ -1,7 +1,7 @@
-package org.pampasim.SimEntity;
+package org.pampasim.core.entity;
 
-import org.pampasim.SimCore.Simulation;
-import org.pampasim.SimCore.events.*;
+import org.pampasim.core.Simulation;
+import org.pampasim.core.events.*;
 
 public class ProcessManager extends PampaSimEntity {
 

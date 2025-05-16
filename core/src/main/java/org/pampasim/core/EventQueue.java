@@ -1,8 +1,8 @@
-package org.pampasim.SimCore;
+package org.pampasim.core;
 
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
-import org.pampasim.SimCore.events.Event;
+import org.pampasim.core.events.Event;
 
 public interface EventQueue {
     void addEvent(Event event);

@@ -1,4 +1,4 @@
-package org.pampasim.SimResources;
+package org.pampasim.core.resources;
 
 public interface ResourceManageable {
 
