@@ -1,7 +1,6 @@
 package org.pampasim.entity.schedulers;
 
 import org.pampasim.core.Simulation;
-import org.pampasim.events.ProcessEvent;
 import org.pampasim.core.resources.Process;
 
 import java.util.Comparator;
@@ -29,7 +28,7 @@ public abstract class RankingScheduler extends Scheduler {
     }
 
     @Override
-    protected void handleProcessSchedule(ProcessEvent.Schedule event) {
+    protected void handleProcessSchedule(org.pampasim.events.Process.Schedule event) {
         readyList.add(event.getProcess());
     }
 }

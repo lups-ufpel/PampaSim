@@ -96,7 +96,7 @@ public class PampaSimViewModel implements ViewModel {
         Process newProcess = new Process(priority,duration,start,
                 simulatedScenario.getSimulation().getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
                 );
-        var newEvent = new ProcessEvent.Arrival(null, newProcess);
+        var newEvent = new org.pampasim.events.Process.Arrival(null, newProcess);
         simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
         simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
         // FIXME: since we are updating the spec, we may as well make the start of the sim

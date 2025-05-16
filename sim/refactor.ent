@@ -1,5 +1,5 @@
 events {
-  transmitting org.pampasim.core.resources.Process {
+  Process transmitting org.pampasim.core.resources.Process {
     Arrival;
     Allocate;
     Ready;
@@ -17,25 +17,25 @@ events {
 }
 
 ProcessManager {
-  on Arrival do "create process" chains Allocate;
-  on Ready do "schedule for execution" chains Schedule;
-  on RunPaused do "schedule for execution or end process" chains Schedule; // + End;
+  on Process.Arrival do "create process" chains Process.Allocate;
+  on Process.Ready do "schedule for execution" chains Process.Schedule;
+  on Process.RunPaused do "schedule for execution or end process" chains Process.Schedule; // + End;
 }
 
 Scheduler {
-  on Schedule do "ask memory to load process" chains Dispatch;
-  // may chain Preemption;
+  on Process.Schedule do "ask memory to load process" chains Process.Dispatch;
+  // may chain Process.Preemption;
 }
 
 Processor {
-  on Preemption do "suspend and evict current process" chains RunPaused;
-  on RunContinue do "drive process execution" chains RunContinue;
-  on Run do "start process execution" chains RunContinue;
+  on Process.Preemption do "suspend and evict current process" chains Process.RunPaused;
+  on Process.RunContinue do "drive process execution" chains Process.RunContinue;
+  on Process.Run do "start process execution" chains Process.RunContinue;
 }
 
 Memory {
-  on Allocate do "allocate memory" chains Ready;
-  on End do "free memory" chains Kill;
-  on Dispatch do "run process" chains Run;
-  on IoOperation do "perform expensive IO operations" chains Schedule;
+  on Process.Allocate do "allocate memory" chains Process.Ready;
+  on Process.End do "free memory" chains Process.Kill;
+  on Process.Dispatch do "run process" chains Process.Run;
+  on Process.IoOperation do "perform expensive IO operations" chains Process.Schedule;
 }
