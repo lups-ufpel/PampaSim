@@ -52,7 +52,7 @@ public class EventSchedule {
         StringBuilder sb = new StringBuilder();
         sb.append("schedule [");
         if (!futureKeys.isEmpty()) {
-            for (int i = futureKeys.getFirst(); i < futureKeys.getLast(); i++) {
+            for (int i = futureKeys.getFirst(); i <= futureKeys.getLast(); i++) {
                 sb.append(i).append(": ").append(map.get(i));
                 sb.append(", ");
             }

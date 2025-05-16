@@ -216,7 +216,9 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     @Override
     public boolean hasPendingEvents() {
-        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getSimulationClock());
+        // it really is off by one
+        logInfo(eventsSchedule.toString() + " means any > " + getRealClock().getTick() + " == " + eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
+        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
     }
 
     // TODO: This references all the entity interfaces, might need decoupling
