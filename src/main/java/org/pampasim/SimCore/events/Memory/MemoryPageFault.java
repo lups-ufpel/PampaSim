@@ -4,8 +4,8 @@ import org.pampasim.SimCore.events.ProcessEvent;
 import org.pampasim.SimEntity.SimEntity;
 import org.pampasim.SimResources.Process;
 
-public class MemoryPageTableHit extends ProcessEvent {
-    public MemoryPageTableHit(SimEntity source, Process proc) {
+public class MemoryPageFault extends ProcessEvent {
+    public MemoryPageFault(SimEntity source, Process proc) {
         super(source, proc);
     }
 }
