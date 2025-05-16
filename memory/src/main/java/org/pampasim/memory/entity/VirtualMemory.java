@@ -3,17 +3,11 @@ package org.pampasim.memory.entity;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.memory.events.*;
-import org.pampasim.core.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 
 public class VirtualMemory extends AbstractSimEntity {
     public VirtualMemory(Simulation simulation) {
         super(simulation);
-
-        //TODO: Add the events which this entity handles
-        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
     }
 
     @Override

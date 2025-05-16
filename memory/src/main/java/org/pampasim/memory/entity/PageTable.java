@@ -11,11 +11,6 @@ public class PageTable extends AbstractSimEntity {
 
     public PageTable(Simulation simulation) {
         super(simulation);
-
-        //TODO: Add the events which this entity handles
-        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
     }
 
     public void processEvent(Event event) {
