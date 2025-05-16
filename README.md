@@ -43,6 +43,7 @@ Open a terminal at the project root directory and type the following commands:
 
 on Linux/macOs
 `mvn clean install`
+`cd sim`
 `mvn javafx:run`
 # 5. How to use it
 
