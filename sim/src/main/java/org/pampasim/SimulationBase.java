@@ -84,7 +84,6 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
         eventsSchedule.schedule(clock, event);
-        lastClockOutputs.add(event);
     }
 
     @Override
