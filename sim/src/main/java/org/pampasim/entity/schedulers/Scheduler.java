@@ -46,12 +46,14 @@ public abstract class Scheduler extends AbstractSimEntity {
     private void scheduleNextProcess() {
         Process proc = nextProcessToSchedule();
         if (proc == null) { return; }
-        scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
+        proc.setScheduled();
         lastRunProcess = proc;
+        scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
+
     }
 
     protected boolean lastProcessFinished() {
         var proc = lastRunProcess;
-        return proc == null || proc.getState() != Process.State.RUNNING;
+        return proc == null || !( proc.getState() == Process.State.RUNNING || proc.getState() == Process.State.SCHEDULED);
     }
 }

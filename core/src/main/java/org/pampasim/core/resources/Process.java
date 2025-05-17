@@ -137,6 +137,9 @@ public class Process {
         state = State.TERMINATED;
         notifyListenersOnFinish();
     }
+    public void setScheduled() {
+        state = State.SCHEDULED;
+    }
 
     public enum State {
         /**
@@ -152,6 +155,11 @@ public class Process {
          * The resources.Process is currently being executed by a CPU resources.Core.
          */
         RUNNING,
+
+        /**
+         * The resources.Process was Scheduled and is waiting for resources (memory, for example) so it can run on the processor
+         */
+        SCHEDULED,
 
         /**
          * The resources.Process is currently waiting for an I/O operation to be completed.
