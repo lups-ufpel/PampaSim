@@ -259,7 +259,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
             System.out.println("Possible mistake: no process manager set up by spec!");
         }
         this.pidAllocator = s.getPidAlloc();
-        this.eventsSchedule = s.getEventSchedule();
+        this.eventsSchedule = new EventSchedule(s.getEventSchedule());
     }
 
     @Override

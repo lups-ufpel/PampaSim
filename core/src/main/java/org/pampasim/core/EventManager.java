@@ -4,9 +4,8 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.events.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 public abstract class EventManager {
     protected final Map<Class<? extends Event>, SimEntity> handlers;
@@ -14,6 +13,9 @@ public abstract class EventManager {
     protected final Map<Class<? extends Event>, Boolean> takesTime;
     private static long eventSerialCounter;
     protected final Simulation simulation;
+    protected final
+        Map<Class<? extends Event>, Set<Consumer<Event>>>
+            snoopers = new HashMap<>();
 
     public EventManager(Simulation simulation) {
         handlers = new HashMap<>();
@@ -54,6 +56,16 @@ public abstract class EventManager {
             }
         } while (handler == null);
         handler.acceptEvent(event);
+
+        Event finalEvent = event;
+        snoopers.entrySet()
+                .stream()
+                .filter(e -> e.getKey().isInstance(finalEvent))
+                .forEach(e -> {
+                    for (var snooper : e.getValue()) {
+                        snooper.accept(finalEvent);
+                    }
+                });
     }
 
     protected Event translateEvent(Event event) {
@@ -88,5 +100,10 @@ public abstract class EventManager {
 
     public boolean eventTakesTime(Event ev) {
         return takesTime.getOrDefault(ev.getClass(), false);
+    }
+
+    public void addSnooper(Class<? extends Event> eventClass, Consumer<Event> callback) {
+        snoopers.compute(eventClass, (key, val)
+                -> val != null? val.add(callback) : HashSet.of(callback))
     }
 }

@@ -1,9 +1,7 @@
 package org.pampasim.core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
+
 import org.pampasim.core.events.Event;
 
 public class EventSchedule {
@@ -15,6 +13,15 @@ public class EventSchedule {
         futureKeys = new TreeSet<>();
     }
 
+    public EventSchedule(EventSchedule other) {
+        this();
+        other.entries().forEach(e -> {
+            var clock = e.getKey();
+            var events = e.getValue();
+            events.forEach(event -> this.schedule(clock, event));
+        });
+    }
+
     public void schedule(int clock, final Event event) {
         if (!map.containsKey(clock)) {
             map.put(clock, new ArrayList<>());
@@ -23,6 +30,9 @@ public class EventSchedule {
         map.get(clock).add(event);
     }
 
+    public Set<Map.Entry<Integer, ArrayList<Event>>> entries() {
+        return map.entrySet();
+    }
     public java.util.Collection<ArrayList<Event>> values() {
         return map.values();
     }
