@@ -30,6 +30,9 @@ public class Process {
     @Setter
     int burstTime; // length of the next "turn" on the processor
     int totalExecTime; // total required exec time
+    int totalSize; // total number of pages it occupies
+    @Setter
+    int virtualAddressStart; // where the start of the virtual address range is
     @Setter
     private int priority;
     private int currExecTime; // elapsed execution time
@@ -49,8 +52,9 @@ public class Process {
         onSuspendListeners = new HashSet<>();
         onResumeListeners = new HashSet<>();
         onStartRunningListeners = new HashSet<>();
+        this.totalSize = 5; //TODO: Make the user able to define how many pages the process occupies
     }
-    public String getPid() {
+    public String getPidString() {
         return pid.toString();
     }
 

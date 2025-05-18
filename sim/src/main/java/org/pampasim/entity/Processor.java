@@ -3,7 +3,6 @@ package org.pampasim.entity;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.events.Event;
-import org.pampasim.events.*;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.resources.ProcessorCore;
 
@@ -54,7 +53,7 @@ public class Processor extends AbstractSimEntity {
         //getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunAck(this, process));
         process.setRunning();
         core.setStatus(ProcessorCore.Status.BUSY);
-        logInfo("Início da execução do processo de identificador:" + process.getPid());
+        logInfo("Início da execução do processo de identificador:" + process.getPidString());
         preemption = false;
         core.execute(process);
         getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
@@ -65,16 +64,16 @@ public class Processor extends AbstractSimEntity {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunPaused(this, process));
             process.setSuspended();
-            logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
+            logInfo("Fim do turno de execução do processo de identificador:" + process.getPidString());
         } else {
-            logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
+            logInfo("Continuação da Execução do processo de identificador:" + process.getPidString());
             core.execute(process);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
         }
     }
     private void handleProcessPreemption(org.pampasim.events.Process.Preemption event) {
         preemption = true;
-        logInfo("Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
+        logInfo("Interrupção da execução de processo de identificador:" + event.getProcess().getPidString());
     }
     public boolean isFree() {
         return ProcessorCore.Status.FREE == this.core.getStatus();

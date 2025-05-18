@@ -13,7 +13,6 @@ import org.pampasim.core.EventSchedule;
 import org.pampasim.core.RealClock;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
-import org.pampasim.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
@@ -75,7 +74,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     public void blackHoleEvent(Event event) {
         switch (event) {
             case org.pampasim.events.ProcessEvent processEvent:
-                        logInfo("Processo com Pid " + processEvent.getProcess().getPid() +
+                        logInfo("Processo com Pid " + processEvent.getProcess().getPidString() +
                                 " finalizou sua execução e foi terminado com sucesso");
                         break;
             default: logInfo("black hole got event " + event); break;

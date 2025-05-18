@@ -146,8 +146,8 @@ public class PampaSimViewModel implements ViewModel {
 
     private void notifyGuiOnRunningProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
+        String pid = process.getPidString();
+        ProcessViewModel processViewModel = findProcessViewModel(process.getPidString());
         if(processViewModel != null) {
             processViewModel.setState(process.getState());
         }
@@ -155,8 +155,8 @@ public class PampaSimViewModel implements ViewModel {
 
     private void notifyGuiOnStartRunningProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
+        String pid = process.getPidString();
+        ProcessViewModel processViewModel = findProcessViewModel(process.getPidString());
         if(processViewModel != null) {
             processViewModel.setState(process.getState());
         }
@@ -164,14 +164,14 @@ public class PampaSimViewModel implements ViewModel {
 
     private void notifyGuiOnReadyProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
-        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
+        ProcessViewModel processViewModel = findProcessViewModel(process.getPidString());
         if(processViewModel != null) {
             processViewModel.setState(process.getState());
         }
     }
     private void notifyGuiOnCreatedProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
+        String pid = process.getPidString();
         int priority = process.getPriority();
         Color selectedColor = Color.web(processScope.getColorProperty().getValue());
         var spec = simulatedScenario.getSpec();
@@ -187,7 +187,7 @@ public class PampaSimViewModel implements ViewModel {
     }
     private void notifyGuiOnFinishedProcess(EventInfo eventInfo) {
         var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
+        String pid = process.getPidString();
         ProcessViewModel processViewModel = findProcessViewModel(pid);
         if(processViewModel != null) {
             processViewModel.setState(process.getState());

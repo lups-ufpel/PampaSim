@@ -27,6 +27,6 @@ public class ProcessorCore extends ResourceManageableAbstract implements Core {
     public void execute(Process process) {
         process.forwardProcessExecution();
         System.out.println("[Núcleo CPU] Executando um tick do processo: " +
-                process.getPid() + " (tempo restante): " + process.getRemainingExecutionTime());
+                process.getPidString() + " (tempo restante): " + process.getRemainingExecutionTime());
     }
 }

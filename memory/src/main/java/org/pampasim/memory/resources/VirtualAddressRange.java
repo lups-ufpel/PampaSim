@@ -1,11 +1,12 @@
 package org.pampasim.memory.resources;
 
+import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 
 import java.util.*;
 
 public class VirtualAddressRange {
-    // TODO: define a data structure for the virtual addresses
+    // Intended usage:
     // For example, if the range of pages is from page 0 to 1024
     // a process will store that it has access to pages 5, 6, 7, 8, 9 of the virtual addresses
     // those pages will be reserved for that process
@@ -25,7 +26,7 @@ public class VirtualAddressRange {
         this.pageToProcessMap = new HashMap<>();
     }
 
-    public boolean allocatePages(PidAllocator.Pid pid, int startPage, int endPage) {
+    public boolean allocatePages(Process process, int startPage, int endPage) {
         if (startPage < 0 || endPage >= totalPages || startPage > endPage) { // validating if the range requested is valid
             return false;
         }
@@ -36,7 +37,7 @@ public class VirtualAddressRange {
             }
         }
 
-        long pidValue = pid.getId();
+        long pidValue = process.getPid().getId();
         Set<Integer> pages = processPagesMap.computeIfAbsent(pidValue, k -> new HashSet<>()); // creates an entry in processPagesMap if one doesn't exist
         // this is only needed if a process tries to allocate more memory after it's creation, which doesn't happen yet in the system's current state
 
@@ -44,6 +45,8 @@ public class VirtualAddressRange {
             pages.add(page); // add to the list of pages owned by the process in processPagesMap
             pageToProcessMap.put(page, pidValue); // add to the list of pages and who owns them in pageToProcessMap
         }
+
+        process.setVirtualAddressStart(startPage);
 
         return true;
     }
@@ -101,6 +104,10 @@ public class VirtualAddressRange {
         }
 
         return OptionalInt.empty(); // No range of that size found
+    }
+
+    public boolean canAccess(PidAllocator.Pid pid, int pageNumber) { // simple check if a page belongs to a process
+        return (pid.getId() == pageToProcessMap.getOrDefault(pageNumber, null));
     }
 
 }
