@@ -1,10 +1,13 @@
 package org.pampasim.core.utils;
 
+import lombok.Getter;
+
 import java.util.LinkedList;
 import java.util.Optional;
 
 public class PidAllocator {
-    public static final class Pid {
+    public static final class Pid implements Comparable<Pid>  {
+        @Getter
         long id;
         boolean inUse;
 
@@ -23,6 +26,21 @@ public class PidAllocator {
         }
         public void setFree() {
             this.inUse = false;
+        }
+        @Override
+        public int compareTo(Pid other) {
+            return Long.compare(this.id, other.id);
+        }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Pid pid = (Pid) o;
+            return id == pid.id;
+        }
+        @Override
+        public int hashCode() {
+            return Long.hashCode(id);
         }
 
         @Override
