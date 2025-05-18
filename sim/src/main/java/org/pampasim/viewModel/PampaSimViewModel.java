@@ -23,7 +23,7 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
-import org.pampasim.sim.resources.Process;
+import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.events.External.Arrival;
 import org.pampasim.scopes.ProcessScope;

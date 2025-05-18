@@ -15,7 +15,7 @@ import org.pampasim.dsl.SpecFileLexer;
 import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.core.events.*;
 import org.pampasim.entity.schedulers.Scheduler;
-import org.pampasim.sim.resources.Process;
+import org.pampasim.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 
 import java.io.BufferedInputStream;

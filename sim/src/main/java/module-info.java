@@ -5,6 +5,7 @@ module org.pampasim {
     requires slf4j.api;
     requires java.desktop;
     requires org.pampasim.core;
+    requires org.pampasim.resources;
     requires guru.nidi.graphviz;
     requires static lombok;
     requires org.antlr.antlr4.runtime;

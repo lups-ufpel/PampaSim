@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.sim.resources.Process;
+import org.pampasim.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 
 @Getter

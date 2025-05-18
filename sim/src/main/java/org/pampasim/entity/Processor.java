@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.events.Event;
-import org.pampasim.sim.resources.Process;
-import org.pampasim.sim.resources.ProcessorCore;
+import org.pampasim.resources.Process;
+import org.pampasim.resources.ProcessorCore;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;

@@ -1,5 +1,5 @@
 events import sim/refactor.ent {
-  Memory transmitting org.pampasim.sim.resources.Process {
+  Memory transmitting org.pampasim.resources.Process {
     Allocate;
     AllocateFinished;
     DeletePageTableEntry;

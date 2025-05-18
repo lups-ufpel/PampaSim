@@ -3,7 +3,7 @@ package org.pampasim.dsl.spec;
 import javafx.scene.paint.Color;
 import org.pampasim.dsl.SpecFileBaseVisitor;
 import org.pampasim.dsl.SpecFileParser;
-import org.pampasim.sim.resources.Process;
+import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
 import java.util.Optional;

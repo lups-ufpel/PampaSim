@@ -1,7 +1,7 @@
 package org.pampasim.entity.schedulers;
 
 import org.pampasim.core.Simulation;
-import org.pampasim.sim.resources.Process;
+import org.pampasim.resources.Process;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;

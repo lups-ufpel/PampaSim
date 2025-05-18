@@ -214,12 +214,12 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
   </build>
   <modules>
     <module>core</module>
     <module>sim</module>
     <module>tools</module>
     <module>memory</module>
+    <module>sim-datamodel</module>
   </modules>
 </project>
