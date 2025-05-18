@@ -1,6 +1,8 @@
 events {
-  Process transmitting org.pampasim.core.resources.Process {
+  External transmitting org.pampasim.core.resources.Process$CreationData {
     Arrival;
+  }
+  Process transmitting org.pampasim.core.resources.Process {
     Allocate;
     Ready;
     Schedule;
@@ -18,7 +20,7 @@ events {
 }
 
 ProcessManager {
-  on Process.Arrival do "create process" chains Process.Allocate;
+  on External.Arrival do "create process" chains Process.Allocate;
   on Process.Ready do "schedule for execution" chains Process.Schedule;
   on Process.RunPaused do "schedule for execution or end process" chains Process.Schedule; // + End;
 }

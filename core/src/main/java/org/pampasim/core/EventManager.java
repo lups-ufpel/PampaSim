@@ -104,6 +104,10 @@ public abstract class EventManager {
 
     public void addSnooper(Class<? extends Event> eventClass, Consumer<Event> callback) {
         snoopers.compute(eventClass, (key, val)
-                -> val != null? val.add(callback) : HashSet.of(callback))
+                -> {
+            if (val != null) { val.add(callback); }
+            else { val = new HashSet<>(List.of(callback)); }
+            return val;
+        });
     }
 }

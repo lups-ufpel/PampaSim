@@ -3,10 +3,7 @@ package org.pampasim.view;
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,6 +14,7 @@ import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.pampasim.core.resources.Process;
+import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
 import org.slf4j.Logger;
@@ -132,13 +130,12 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
-        pampaSimViewModel.getProcesses().addListener((ListChangeListener<ProcessViewModel>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (ProcessViewModel process : change.getAddedSubList()) {
-                        addProcessToUI(process);
-                    }
-                }
+        pampaSimViewModel.getProcessesByCreationId()
+                .addListener((MapChangeListener<Long, ProcessViewModel>) change -> {
+            if (change.wasAdded()) {
+                addProcessToUI(change.getValueAdded());
+            } else if (change.wasRemoved()) {
+                //removeProcessFromUI(change.getValueRemoved());
             }
         });
 
@@ -157,29 +154,19 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         pampaSimViewModel.updateProps();
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
-        Circle circle = new Circle(30, process.getColor());
-        circle.setId(process.pid());
+        Circle circle = new Circle(30, process.getColor().getValue());
+        //circle.setId(process.getPid().toString());
         circle.setUserData(process.getPriority());
         return circle;
     }
     private void addProcessToUI(ProcessViewModel process) {
         Circle circle = createCircleForProcess(process);
-
-        // Adiciona o processo ao container correto com base no estado
-        switch (process.getState()) {
-            case NEW:
-                NewList.getChildren().add(circle);
-                break;
-            case READY:
-                ReadyList.getChildren().add(circle);
-                break;
-            case TERMINATED:
-                FinishedList.getChildren().add(circle);
-                break;
-        }
-
+        moveCircleToCorrectContainer(circle, process.getState().getValue());
         // Observa mudanças de estado do processo para mover automaticamente o círculo entre os containers
-        process.stateProperty().addListener((obs, oldState, newState) -> {
+        process.getState().addListener((obs, oldState, newState) -> {
+            if (oldState == Process.State.RUNNING) {
+                CpuContainer1.setFill(Color.TRANSPARENT);
+            }
             moveCircleToCorrectContainer(circle, newState);
         });
     }
@@ -188,7 +175,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         NewList.getChildren().remove(circle);
         ReadyList.getChildren().remove(circle);
         FinishedList.getChildren().remove(circle);
-        CpuContainer1.setFill(Color.TRANSPARENT);
         // Adiciona ao container correto com base no novo estado
         switch (newState) {
             case NEW:

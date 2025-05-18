@@ -1,5 +1,6 @@
 package org.pampasim.core.resources;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,11 +13,14 @@ import java.util.HashSet;
 @Getter
 @EqualsAndHashCode
 public class Process {
-    /**
-     * @param arrivalTick  real ticks
-     * @param durationTick real ticks
-     */
-    public record CreationData(int arrivalTick, int durationTick, int startPriority) {};
+    @Data
+    public static class CreationData {
+        private static long idCounter = 0;
+        private final long creationId = idCounter++;
+        private final int arrivalTick;
+        private final int durationTicks;
+        private final int startPriority;
+    }
     @Getter
     private final CreationData creationData;
 
@@ -39,11 +43,8 @@ public class Process {
         this.pid = pid;
         this.state = State.NEW;
         this.creationData = creationData;
-        this.burstTime = creationData.durationTick;
+        this.burstTime = creationData.durationTicks;
         this.currExecTime = 0;
-    }
-    public String getPid() {
-        return pid.toString();
     }
 
     public int getRemainingExecutionTime() {

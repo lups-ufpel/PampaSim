@@ -20,7 +20,7 @@ public class SJF extends RankingScheduler {
                 // lhs > rhs -> +return
                 // the "wrong" way around, since the highest priorities need to come first
                 //int prio = rhs.getPriority() - lhs.getPriority();
-                int SJF = lhs.getTotalExecTime() - rhs.getTotalExecTime();
+                int SJF = lhs.getCreationData().getDurationTicks() - rhs.getCreationData().getDurationTicks();
                 return SJF; //(prio == 0)? SJF : prio; // respect priority still
             }
         };

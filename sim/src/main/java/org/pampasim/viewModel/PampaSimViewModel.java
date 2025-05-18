@@ -7,13 +7,16 @@ import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.PampaSim;
 import org.pampasim.SimulatedScenario;
 import org.pampasim.core.*;
+import org.pampasim.core.events.Event;
+import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.core.utils.PidAllocator.Pid;
 import org.pampasim.dsl.spec.Spec;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
@@ -21,7 +24,7 @@ import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
-import org.pampasim.events.ProcessEvent;
+import org.pampasim.events.External.Arrival;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
@@ -43,7 +46,9 @@ public class PampaSimViewModel implements ViewModel {
     private final BooleanProperty simulationIsFresh = new SimpleBooleanProperty(true);
     private int graphNum = 0;
     @Getter
-    private final ObservableList<ProcessViewModel> processes = FXCollections.observableArrayList();
+    private final ObservableMap<Pid, ProcessViewModel> processes = FXCollections.observableHashMap();
+    @Getter
+    private final ObservableMap<Long, ProcessViewModel> processesByCreationId = FXCollections.observableHashMap();
 
     @Getter
     @InjectScope
@@ -54,35 +59,86 @@ public class PampaSimViewModel implements ViewModel {
     public SimulatedScenario simulatedScenario;
 
     public PampaSimViewModel() {
-        var templateSpec = Spec.loadSpec(Objects.requireNonNull(PampaSim.class.getResource("template.spec")));
+        var templateSpec = Spec.loadSpec(
+                Objects.requireNonNull(PampaSim.class.getResource("template.spec"))
+        );
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
+            processesByCreationId.clear();
+            processes.clear();
             var sim = new PampaSim(null);
             sim.applySpec(spec);
+
+            // TODO: loop thru the arrival events here to register them
+
+            var eventManager = sim.getEventManager();
+            eventManager.addSnooper(org.pampasim.events.ProcessCreationDataEvent.class,
+                    this::handleProcessCreationEvent);
+            eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
+                    this::handleProcessEvent);
             return sim;
         });
     }
 
     public void loadSpec(URL url) {
         var spec = Spec.loadSpec(url);
-        System.out.println("scheduler " + simulatedScenario.getSimulation().getEntity(Scheduler.class));
-        System.out.println("got " + spec);
+        System.out.println("loaded " + spec);
         if (spec == null) {
-            throw new RuntimeException("couldn't load spec file");
+            throw new RuntimeException("couldn't load spec file at " + url);
         }
 
         simulatedScenario.setSpec(spec);
         simulatedScenario.resetToSpec();
-
-        for (var events : spec.getEventSchedule().values()) {
-            for (var ev : events.stream().filter(e -> e instanceof ProcessEvent).map(e -> (ProcessEvent)e).toList()) {
-                Process p = ev.getProcess();
-                System.out.println("registering proc " + p);
-                // treat them like the create process button would
-                addProcessListeners(p);
-                p.notifyListenersOnCreate();
-            }
-        }
         updateProps();
+    }
+
+    public void handleProcessCreationEvent(Event uncastEvent) {
+        org.pampasim.events.ProcessCreationDataEvent event
+                = (org.pampasim.events.ProcessCreationDataEvent)uncastEvent;
+        Process.CreationData creationData = event.getCreationData();
+        if (event instanceof Arrival) {
+            ProcessViewModel pvm = new ProcessViewModel(creationData);
+            Color processColor = simulatedScenario.getSpec().getColorMap()
+                    .get(pvm.getCreationData().getCreationId());
+            pvm.getColor().setValue(processColor);
+            processesByCreationId.put(pvm.getCreationData().getCreationId(), pvm);
+        }
+    }
+    public void handleProcessEvent(Event uncastEvent) {
+        org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
+        Process proc = event.getProcess();
+        Pid pid = proc.getPid();
+        ProcessViewModel procViewModel = processes.get(pid);
+        switch (event) {
+            case org.pampasim.events.Process.Ready e: {
+                if (procViewModel == null) {
+                    procViewModel = processesByCreationId.values()
+                            .stream()
+                            .filter(pvm -> {
+                                var cdata = proc.getCreationData();
+                                return !pvm.getInitialized().getValue() && (cdata == pvm.getCreationData());
+                            }) // FIXME/WARN: we can't be sure the found pvm corresponds to the created process object
+                            .findFirst()
+                            .orElseThrow();
+                    procViewModel.setPid(proc.getPid());
+                    procViewModel.getInitialized().set(true);
+                    updateProcessViewModel(procViewModel, proc);
+                    processes.put(proc.getPid(), procViewModel);
+                }
+                procViewModel.getInitialized().set(true);
+                procViewModel.setState(Process.State.NEW);
+                break;
+            }
+            default:
+                if (procViewModel != null) {
+                    updateProcessViewModel(procViewModel, proc);
+                }
+                break;
+        }
+    }
+
+    public void updateProcessViewModel(ProcessViewModel pvm, Process proc) {
+        pvm.setState(proc.getState());
+        pvm.getPriority().setValue(proc.getPriority());
     }
 
     public SchedulerDialogScope getSchedulerScope() {
@@ -93,16 +149,11 @@ public class PampaSimViewModel implements ViewModel {
         var start = processScope.getStartTimeProperty().getValue();
         var duration = processScope.getDurationProperty().getValue();
         var priority = processScope.getPriorityProperty().getValue();
-        Process newProcess = new Process(priority,duration,start,
-                simulatedScenario.getSimulation().getPidAllocator().assignPid() // assigns a unique Pid within the simulation to the Process
-                );
-        var newEvent = new org.pampasim.events.Process.Arrival(null, newProcess);
-        simulatedScenario.getSimulation().scheduleToClock(start, newEvent);
-        simulatedScenario.getSpec().addProcessArrival(newProcess); // commit to spec so we may save it later
-        // FIXME: since we are updating the spec, we may as well make the start of the sim
-        // load from this built up spec, no?
-        this.addProcessListeners(newProcess);
-        newProcess.notifyListenersOnCreate();
+        var clr = processScope.getColorProperty().getValue();
+        var procCreationData = new Process.CreationData(start, duration, priority);
+        Event arrival = simulatedScenario.getSpec().addProcessArrival(procCreationData, Color.web(clr)); // commit to spec so we may save it later
+        var procViewModel = new ProcessViewModel(procCreationData);
+        processesByCreationId.put(procViewModel.getCreationData().getCreationId(), procViewModel);
         updateProps();
     }
     public void setSimulationScheduler() {
@@ -135,71 +186,8 @@ public class PampaSimViewModel implements ViewModel {
         setSimulationRunning(false);
     }
 
-    public void addProcessListeners(Process process) {
-        process.addOnCreateListener(this::notifyGuiOnCreatedProcess);
-        process.addOnDispatchListener(this::notifyGuiOnReadyProcess);
-        process.addOnStartRunningListener(this::notifyGuiOnStartRunningProcess);
-        process.addOnFinishListener(this::notifyGuiOnFinishedProcess);
-        process.addOnUpdateListener(this::notifyGuiOnRunningProcess);
-        //todo: notify on suspend and on resume.
-    }
-
-    private void notifyGuiOnRunningProcess(EventInfo eventInfo) {
-        var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
-        if(processViewModel != null) {
-            processViewModel.setState(process.getState());
-        }
-    }
-
-    private void notifyGuiOnStartRunningProcess(EventInfo eventInfo) {
-        var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
-        if(processViewModel != null) {
-            processViewModel.setState(process.getState());
-        }
-    }
-
-    private void notifyGuiOnReadyProcess(EventInfo eventInfo) {
-        var process = ((ProcessEventInfo) eventInfo).getProcess();
-        ProcessViewModel processViewModel = findProcessViewModel(process.getPid());
-        if(processViewModel != null) {
-            processViewModel.setState(process.getState());
-        }
-    }
-    private void notifyGuiOnCreatedProcess(EventInfo eventInfo) {
-        var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        int priority = process.getPriority();
-        Color selectedColor = Color.web(processScope.getColorProperty().getValue());
-        var spec = simulatedScenario.getSpec();
-        if (spec != null) {
-            Color c = spec.getColorMap().getOrDefault(process, null);
-            if (c != null) {
-                selectedColor = c;
-            }
-        }
-        ProcessViewModel processViewModel = new ProcessViewModel(pid,priority,selectedColor);
-        processViewModel.setState(process.getState());
-        processes.add(processViewModel);
-    }
-    private void notifyGuiOnFinishedProcess(EventInfo eventInfo) {
-        var process = ((ProcessEventInfo) eventInfo).getProcess();
-        String pid = process.getPid();
-        ProcessViewModel processViewModel = findProcessViewModel(pid);
-        if(processViewModel != null) {
-            processViewModel.setState(process.getState());
-        }
-    }
-    private ProcessViewModel findProcessViewModel(String pid) {
-        for (ProcessViewModel processViewModel : processes) {
-            if (processViewModel.pid().equals(pid)) {
-                return processViewModel;
-            }
-        }
-        return null;
+    private ProcessViewModel findProcessViewModel(PidAllocator.Pid pid) {
+        return processes.get(pid);
     }
     public void runSimulation() {
         Simulation sim = simulatedScenario.getSimulation();

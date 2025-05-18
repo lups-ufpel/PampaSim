@@ -41,7 +41,6 @@ public abstract class Scheduler extends AbstractSimEntity {
 
     protected abstract void handleProcessSchedule(org.pampasim.events.Process.Schedule event);
     protected void handleProcessRunAck(org.pampasim.events.Process.RunAck event) {
-        event.getProcess().notifyListenersOnUpdate();
         processEnRoute = false;
         lastRunProcess = event.getProcess();
     }
