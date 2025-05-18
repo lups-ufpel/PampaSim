@@ -51,8 +51,7 @@ public class Processor extends AbstractSimEntity {
 
     private void handleProcessDispatch(org.pampasim.events.Process.Dispatch event) {
         Process process = event.getProcess();
-        //getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunAck(this, process));
-        process.setRunning();
+        process.setState(Process.State.RUNNING);
         core.setStatus(ProcessorCore.Status.BUSY);
         logInfo("Início da execução do processo de identificador:" + process.getPid());
         preemption = false;
@@ -64,7 +63,7 @@ public class Processor extends AbstractSimEntity {
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunPaused(this, process));
-            process.setSuspended();
+            process.setState(Process.State.WAITING);
             logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
         } else {
             logInfo("Continuação da Execução do processo de identificador:" + process.getPid());

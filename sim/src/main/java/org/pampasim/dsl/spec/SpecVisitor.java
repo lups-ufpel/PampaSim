@@ -48,12 +48,12 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
         int start    = Integer.parseInt(ctx.getChild(1).getChild(2*1 - 1).getText());
         int duration = Integer.parseInt(ctx.getChild(1).getChild(2*2 - 1).getText());
         int priority = Integer.parseInt(ctx.getChild(1).getChild(2*3 - 1).getText());
-        Process p = new Process(priority, duration, start, spec.getPidAlloc().assignPid());
+        var creationData = new Process.CreationData(start, duration, priority);
+        String clr = null;
         try {
-            String clr = ctx.getChild(1).getChild(2*4 - 1).getText();
-            spec.getColorMap().put(p, Color.web(clr));
+            clr = ctx.getChild(1).getChild(2*4 - 1).getText();
         } catch (Exception ignored) {}
-        spec.addProcessArrival(p);
+        spec.addProcessArrival(creationData, Color.web(clr));
         return this.spec;
     }
 

@@ -101,4 +101,13 @@ public abstract class EventManager {
     public boolean eventTakesTime(Event ev) {
         return takesTime.getOrDefault(ev.getClass(), false);
     }
+
+    public void addSnooper(Class<? extends Event> eventClass, Consumer<Event> callback) {
+        snoopers.compute(eventClass, (key, val)
+                -> {
+            if (val != null) { val.add(callback); }
+            else { val = new HashSet<>(List.of(callback)); }
+            return val;
+        });
+    }
 }

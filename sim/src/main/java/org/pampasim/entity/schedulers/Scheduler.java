@@ -15,7 +15,6 @@ public abstract class Scheduler extends AbstractSimEntity {
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Schedule.class, this);
-        //simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunAck.class, this);
     }
 
     @Override
@@ -32,13 +31,11 @@ public abstract class Scheduler extends AbstractSimEntity {
     public void processEvent(Event event) {
         switch (event) {
             case org.pampasim.events.Process.Schedule e -> handleProcessSchedule(e);
-            //case org.pampasim.events.Process.RunAck e -> handleProcessRunAck(e);
             default -> throw new IllegalStateException("[Scheduler] Evento do tipo " + event.getClass().getSimpleName() + " não pode ser tratado, evento serial: " + event.getSerial());
         }
     }
 
     protected abstract void handleProcessSchedule(org.pampasim.events.Process.Schedule event);
-
 
     protected abstract Process nextProcessToSchedule();
 
@@ -46,7 +43,7 @@ public abstract class Scheduler extends AbstractSimEntity {
     private void scheduleNextProcess() {
         Process proc = nextProcessToSchedule();
         if (proc == null) { return; }
-        proc.setScheduled();
+        proc.setState(Process.State.SCHEDULED);
         lastRunProcess = proc;
         scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
 

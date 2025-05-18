@@ -44,7 +44,7 @@ public class Spec {
     private boolean hasProcManager;
     private PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
     private EventSchedule eventSchedule;
-    private Map<Process, Color> colorMap;
+    private Map<Long, Color> colorMap;
 
     public Spec() {
         this.schedulerInfo = null;
@@ -72,15 +72,15 @@ public class Spec {
         return spec;
     }
 
-    public Event addProcessArrival(Process p) {
+    public Event addProcessArrival(Process.CreationData creationData, Color clr) {
         // color isn't a member of the Process class
         // for separation of concerns reasons? between the UI and the Sim
         // either way, that means we can't set the color here
-        // colors from the spec ain't supported yet
-        // which is a bummer
-        var ev = new org.pampasim.events.Process.Arrival(null, p);
-        var arrivalTime = p.getArrivalTime();
-        eventSchedule.schedule(arrivalTime, ev);
+        var ev = new org.pampasim.events.External.Arrival(null, creationData);
+        eventSchedule.schedule(creationData.getArrivalTick(), ev);
+        if (clr != null) {
+            this.getColorMap().put(creationData.getCreationId(), clr);
+        }
         return ev;
     }
 
