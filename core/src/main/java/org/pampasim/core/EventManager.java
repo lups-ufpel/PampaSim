@@ -50,16 +50,6 @@ public abstract class EventManager {
         it attempts to translate it to a different event type. If there is no translation, an exception is thrown
      */
     public void handleEvent(Event event) {
-        SimEntity handler = null;
-        do {
-            if (event == null) { return; }
-            handler = handlers.get(event.getClass());
-            if (handler == null) {
-                event = translateEvent(event);
-            }
-        } while (handler == null);
-        handler.acceptEvent(event);
-
         Event finalEvent = event;
         snoopers.entrySet()
                 .stream()
@@ -69,6 +59,16 @@ public abstract class EventManager {
                         snooper.accept(finalEvent);
                     }
                 });
+
+        SimEntity handler = null;
+        do {
+            if (event == null) { return; }
+            handler = handlers.get(event.getClass());
+            if (handler == null) {
+                event = translateEvent(event);
+            }
+        } while (handler == null);
+        handler.acceptEvent(event);
     }
 
     protected Event translateEvent(Event event) {

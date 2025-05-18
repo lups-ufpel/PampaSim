@@ -3,7 +3,7 @@ package org.pampasim.viewModel;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
-import lombok.AccessLevel;
+import javafx.scene.shape.Circle;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.resources.Process;
@@ -18,6 +18,8 @@ public class ProcessViewModel implements ViewModel {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
     private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
     private final BooleanProperty initialized = new SimpleBooleanProperty(false);
+    @Setter
+    private Circle circleRepr = null;
 
     public ProcessViewModel(Process.CreationData cdata) {
         this.creationData = cdata;

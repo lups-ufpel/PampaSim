@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
@@ -158,14 +159,14 @@
                                                 <Insets left="10.0" />
                                             </padding>
                                         </HBox>
-                                        <TableView fx:id="procTable" disable="true">
+                                        <TableView fx:id="procTable">
                                             <columns>
-                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
+                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color"/>
                                                 <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
                                                 <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
                                                 <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
                                                 <TableColumn fx:id="priorityCol" prefWidth="85.0" text="PRIORIDADE" />
-                                                <TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />
+                                                <!--<TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />-->
                                                 <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO" />
                                             </columns>
                                             <columnResizePolicy>

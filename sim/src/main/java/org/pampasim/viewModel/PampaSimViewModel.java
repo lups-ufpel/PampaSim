@@ -80,8 +80,8 @@ public class PampaSimViewModel implements ViewModel {
             }
 
             var eventManager = sim.getEventManager();
-            eventManager.addSnooper(org.pampasim.events.ProcessCreationDataEvent.class,
-                    this::handleProcessCreationEvent);
+            //eventManager.addSnooper(org.pampasim.events.ProcessCreationDataEvent.class,
+            //        this::handleProcessCreationEvent);
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
             return sim;
@@ -115,8 +115,8 @@ public class PampaSimViewModel implements ViewModel {
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
-        Pid pid = proc.getPid();
-        ProcessViewModel procViewModel = processes.get(pid);
+        ProcessViewModel procViewModel = processesByCreationId.get(proc.getCreationData().getCreationId());
+        LOGGER.debug("got {}", event);
         switch (event) {
             case org.pampasim.events.Process.Ready e: {
                 if (procViewModel == null) {
@@ -130,16 +130,18 @@ public class PampaSimViewModel implements ViewModel {
                             .orElseThrow();
                     procViewModel.setPid(proc.getPid());
                     procViewModel.getInitialized().set(true);
-                    updateProcessViewModel(procViewModel, proc);
                     processes.put(proc.getPid(), procViewModel);
                 }
                 procViewModel.getInitialized().set(true);
                 procViewModel.setState(Process.State.NEW);
+                updateProcessViewModel(procViewModel, proc);
                 break;
             }
             default:
                 if (procViewModel != null) {
                     updateProcessViewModel(procViewModel, proc);
+                } else {
+                    LOGGER.warn("got event {} without corresponding ProcessViewModel", event);
                 }
                 break;
         }
@@ -159,10 +161,9 @@ public class PampaSimViewModel implements ViewModel {
         var duration = processScope.getDurationProperty().getValue();
         var priority = processScope.getPriorityProperty().getValue();
         var clr = processScope.getColorProperty().getValue();
-        var procCreationData = new Process.CreationData(start, duration, priority);
-        Event arrival = simulatedScenario.getSpec().addProcessArrival(procCreationData, Color.web(clr)); // commit to spec so we may save it later
-        var procViewModel = new ProcessViewModel(procCreationData);
-        processesByCreationId.put(procViewModel.getCreationData().getCreationId(), procViewModel);
+        var creationData = new Process.CreationData(start, duration, priority);
+        this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(clr));
+        resetSimulation();
         updateProps();
     }
     public void setSimulationScheduler() {
@@ -184,11 +185,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void resetSimulation() {
-        ChoiceDialog<String> confirmationDialog = new ChoiceDialog<>("No", "Yes", "No");
-
-        if (confirmationDialog.showAndWait().orElse("No").equals("Yes")) {
-            simulatedScenario.resetToSpec();
-        }
+        simulatedScenario.resetToSpec();
     }
 
     public void stopSimulation() {
