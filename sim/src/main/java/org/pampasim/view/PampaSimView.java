@@ -28,7 +28,10 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
@@ -54,6 +57,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button selectSchedBtn;
     @FXML
     public Button loadSpecBtn;
+    @FXML
+    public Button saveSpecBtn;
     @FXML
     public CheckBox genGraphs;
     @FXML
@@ -118,15 +123,19 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void loadSpec() {
-        try {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open specification file");
-            File file = fileChooser.showOpenDialog(null);
-            var spec = URI.create("file:"+file.getPath()).toURL();
-            pampaSimViewModel.loadSpec(spec);
-        } catch (MalformedURLException e) {
-            new Alert(Alert.AlertType.ERROR, "bad url! " + e);
-        }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open specification file");
+        File file = fileChooser.showOpenDialog(null);
+        pampaSimViewModel.loadSpec(Paths.get(file.getPath()));
+    }
+
+    @FXML
+    public void saveSpec() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open specification file");
+        File file = fileChooser.showSaveDialog(null);
+        pampaSimViewModel.saveSpec(Paths.get(file.getPath()));
+        pampaSimViewModel.updateProps();
     }
 
     private ButtonType handleSelectSchedulerResult(ButtonType buttonType) {
@@ -189,6 +198,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 .bind(pampaSimViewModel.getSimulationRunning());
         loadSpecBtn.disableProperty()
                 .bind(pampaSimViewModel.getSimulationRunning().or(pampaSimViewModel.getScenarioIsSaved().not()));
+        saveSpecBtn.disableProperty()
+                .bind(pampaSimViewModel.getScenarioIsSaved());
         pampaSimViewModel.updateProps();
 
         colorCol.setCellValueFactory(p -> p.getValue().getColor());

@@ -14,18 +14,18 @@ import org.pampasim.core.EventSchedule;
 import org.pampasim.dsl.SpecFileLexer;
 import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.core.events.*;
+import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.resources.Process;
+import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.core.utils.PidAllocator;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Stream;
 
 /// Data to set up a simulation scenario
 /// Usually comes from a spec file
@@ -54,12 +54,10 @@ public class Spec {
         this.hasProcManager = false;
     }
 
-    public static Spec loadSpec(URL url) {
+    public static Spec loadSpec(Path path) {
         Spec spec;
-        try {
-            URLConnection conn = url.openConnection();
-            BufferedInputStream bufStream = new BufferedInputStream(conn.getInputStream());
-            CharStream stream = CharStreams.fromStream(bufStream);
+        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            CharStream stream = CharStreams.fromReader(reader);
             var lexer = new SpecFileLexer(stream);
             var tokStream = new CommonTokenStream(lexer);
             var specParser = new SpecFileParser(tokStream);
@@ -69,6 +67,51 @@ public class Spec {
             throw new RuntimeException(e);
         }
         return spec;
+    }
+
+    public void saveSpec(Path path) {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
+            PrintWriter printer = new PrintWriter(writer);
+
+            for (ProcessorInfo processorInfo : processors) {
+                printer.print("processor");
+                for (var coreCapacity : processorInfo.coreCapacities) {
+                    printer.format(" core mips %d count 1", coreCapacity);
+                }
+                printer.println(";");
+            }
+
+            if (schedulerInfo != null) {
+                printer.format("scheduler %s",
+                        schedulerInfo.clazz.getCanonicalName()
+                                .replace(schedulerInfo.clazz.getPackageName(), "")
+                                .substring(1) // remove leading dot
+                );
+                if (Arrays.stream(schedulerInfo.clazz.getInterfaces()).anyMatch(i -> i == RespectsQuantum.class)) {
+                    printer.format(", quantum %d", schedulerInfo.quantum.orElse(1));
+                }
+                printer.println(";");
+            }
+            if (hasProcManager) {
+                printer.println("procmanager;");
+            }
+
+            var allEvents = eventSchedule.values().stream().map(Collection::stream).reduce(Stream::concat);
+            allEvents.orElseThrow().forEach(event -> {
+                ProcessCreationDataEvent procEvent = (ProcessCreationDataEvent) event;
+                Process.CreationData creationData = procEvent.getCreationData();
+                printer.format("proc start %d duration %d priority %d clr #%s;",
+                        creationData.getArrivalTick(),
+                        creationData.getDurationTicks(),
+                        creationData.getStartPriority(),
+                        this.getColorMap().get(creationData.getCreationId())
+                                .toString().substring(2)
+                );
+                printer.println();
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Event addProcessArrival(Process.CreationData creationData, Color clr) {

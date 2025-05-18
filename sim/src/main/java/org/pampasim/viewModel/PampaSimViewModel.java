@@ -33,6 +33,8 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -61,8 +63,9 @@ public class PampaSimViewModel implements ViewModel {
     public SimulatedScenario simulatedScenario;
 
     public PampaSimViewModel() {
-        var templateSpec = Spec.loadSpec(
+        var templateSpec = Spec.loadSpec(Paths.get(
                 Objects.requireNonNull(PampaSim.class.getResource("template.spec"))
+                        .getPath())
         );
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
             processesByCreationId.clear();
@@ -86,16 +89,24 @@ public class PampaSimViewModel implements ViewModel {
         });
     }
 
-    public void loadSpec(URL url) {
-        var spec = Spec.loadSpec(url);
+    public void loadSpec(Path path) {
+        var spec = Spec.loadSpec(path);
         LOGGER.debug("loaded {}", spec);
         if (spec == null) {
-            throw new RuntimeException("couldn't load spec file at " + url);
+            throw new RuntimeException("couldn't load spec file at " + path);
         }
 
+        LOGGER.info("loaded {}", path);
         simulatedScenario.setSpec(spec);
         simulatedScenario.resetToSpec();
         updateProps();
+    }
+
+    public void saveSpec(Path path) {
+        var spec = simulatedScenario.getSpec();
+        LOGGER.debug("saving {}", spec);
+        simulatedScenario.saveSpec(path);
+        LOGGER.info("saved to {}", path); // might've failed, report back if so FIXME
     }
 
     public void handleProcessCreationEvent(Event uncastEvent) {
@@ -157,6 +168,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void createNewProcess() {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var start = processScope.getStartTimeProperty().getValue();
         var duration = processScope.getDurationProperty().getValue();
         var priority = processScope.getPriorityProperty().getValue();
@@ -167,6 +179,7 @@ public class PampaSimViewModel implements ViewModel {
         updateProps();
     }
     public void setSimulationScheduler() {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();
         Integer schedulerQuantum = schedulerDialogScope.getQuantumProperty().getValue();
         // TODO: It would be nice to disable the quantum input
