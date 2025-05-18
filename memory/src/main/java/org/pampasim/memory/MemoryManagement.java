@@ -1,6 +1,6 @@
 package org.pampasim.memory;
 
-import org.pampasim.SimulationBase;
+import org.pampasim.core.SimulationBase;
 import org.pampasim.core.entity.SimEntity;
 
 public class MemoryManagement extends SimulationBase {

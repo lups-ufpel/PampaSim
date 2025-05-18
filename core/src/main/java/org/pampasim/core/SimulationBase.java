@@ -1,4 +1,4 @@
-package org.pampasim;
+package org.pampasim.core;
 
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
@@ -10,26 +10,14 @@ import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.core.EventManager;
-import org.pampasim.core.EventSchedule;
-import org.pampasim.core.RealClock;
-import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.entity.ProcessManager;
-import org.pampasim.entity.Processor;
-import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
-import org.pampasim.sim.resources.ProcessorCore;
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.dsl.spec.Spec;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
@@ -38,17 +26,17 @@ import static guru.nidi.graphviz.model.Factory.*;
 public abstract class SimulationBase extends AbstractSimEntity implements Simulation {
     private static final Logger LOGGER = LogManager.getLogger(SimulationBase.class);
     protected final ArrayList<SimEntity> entityList;
-    private EventSchedule eventsSchedule;
-    private final List<Event> lastClockInputs = new ArrayList<>();
-    private final List<Event> lastClockOutputs = new ArrayList<>();
+    protected EventSchedule eventsSchedule;
+    protected final List<Event> lastClockInputs = new ArrayList<>();
+    protected final List<Event> lastClockOutputs = new ArrayList<>();
     @Getter
     protected EventManager eventManager;
     @Getter
-    private int simulationClock;
+    protected int simulationClock;
     @Getter
-    private PidAllocator pidAllocator;
+    protected PidAllocator pidAllocator;
     @Getter
-    private final RealClock realClock = new RealClock();
+    protected final RealClock realClock = new RealClock();
 
     public SimulationBase(SimEntity parent) {
         super(parent);
@@ -72,17 +60,6 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     public void acceptEvent(Event evt) {
         lastClockOutputs.add(evt);
         setStateIfNotBlocked(EntityState.Run);
-    }
-
-    public void blackHoleEvent(Event event) {
-        switch (event) {
-            case org.pampasim.events.ProcessEvent processEvent:
-                        LOGGER.debug("Processo com Pid {}  finalizou sua execução e foi terminado com sucesso",
-                                processEvent.getProcess().getPid()
-                                );
-                        break;
-            default: LOGGER.debug("black hole got event {}", event); break;
-        }
     }
 
     public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
@@ -127,11 +104,8 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         LOGGER.trace("currentEvents = {}", currentEvents);
 
         LOGGER.trace(phase3);
-        // Necessary to create a copy to iterate over since handleEvent can add a KILL_PROCESS event
-        // to the list as it's being iterated over
-        currentEvents.stream()
-                .filter(event -> !(event instanceof org.pampasim.events.Process.Kill)) // shouldn't be needed
-                .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
+        currentEvents
+                .forEach(eventManager::handleEvent); // processes all events
 
 
         LOGGER.trace(phase4);
@@ -222,47 +196,6 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         LOGGER.trace("{} means any > {} == {}",
                 eventsSchedule.toString(), getRealClock().getTick(),eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
         return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
-    }
-
-    // TODO: This references all the entity interfaces, might need decoupling
-    public void applySpec(Spec s) {
-        // only apply specs to a clean sim
-        if (!isFresh()) {
-            throw new RuntimeException("Can't apply spec to already running simulation!");
-        }
-
-        Spec.SchedulerInfo schedulerInfo = s.getSchedulerInfo();
-        if (schedulerInfo != null) {
-            Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
-            if (schedulerClass != null) try {
-                Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
-                cons.newInstance(this);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
-            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Error trying to instantiate scheduler: " + e);
-            }
-        }
-        try {
-            new Processor(this,
-                    new ProcessorCore(
-                            s.getProcessors()
-                                    .getFirst() // Single processor, for now
-                                    .coreCapacities()
-                                    .getFirst() // Single core, for now
-                    )
-            );
-        } catch (NoSuchElementException e) {
-            LOGGER.warn("Possible mistake: no processor set up by spec!");
-        }
-
-        if (s.isHasProcManager()) {
-            new ProcessManager(this);
-        } else {
-            LOGGER.warn("Possible mistake: no process manager set up by spec!");
-        }
-        this.pidAllocator = s.getPidAlloc();
-        this.eventsSchedule = new EventSchedule(s.getEventSchedule());
     }
 
     @Override

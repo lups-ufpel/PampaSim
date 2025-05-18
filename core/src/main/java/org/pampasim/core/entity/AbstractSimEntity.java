@@ -6,8 +6,6 @@ import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.pampasim.core.RealClock;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
@@ -88,7 +86,7 @@ public abstract class AbstractSimEntity implements SimEntity {
         );
     }
     public void acceptEvent(Event event) {
-        LOGGER.trace("rx ", event);
+        LOGGER.trace("rx {}", event);
         this.buffer.add(event);
         if (this.getSimulation().getEventManager().eventTakesTime(event)) {
             LOGGER.trace("Blocked on {}", event);
