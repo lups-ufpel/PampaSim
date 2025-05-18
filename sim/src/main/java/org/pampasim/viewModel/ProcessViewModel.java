@@ -18,6 +18,8 @@ public class ProcessViewModel implements ViewModel {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
     private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
     private final BooleanProperty initialized = new SimpleBooleanProperty(false);
+    private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
+    private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
     @Setter
     private Circle circleRepr = null;
 

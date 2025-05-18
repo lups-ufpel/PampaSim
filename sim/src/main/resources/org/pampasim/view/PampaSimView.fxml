@@ -166,7 +166,7 @@
                                                 <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
                                                 <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
                                                 <TableColumn fx:id="priorityCol" prefWidth="85.0" text="PRIORIDADE" />
-                                                <!--<TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />-->
+                                                <TableColumn fx:id="burstCol" prefWidth="85.0" text="DURAÇÃO" />
                                                 <TableColumn fx:id="progressCol" prefWidth="85.0" text="PROGRESSO" />
                                             </columns>
                                             <columnResizePolicy>

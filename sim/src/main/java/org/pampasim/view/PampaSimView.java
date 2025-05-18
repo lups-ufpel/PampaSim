@@ -65,7 +65,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public TableColumn<ProcessViewModel, Integer> priorityCol;
     @FXML
-    public TableColumn<ProcessViewModel, String> burstCol;
+    public TableColumn<ProcessViewModel, Integer> burstCol;
     @FXML
     public TableColumn<ProcessViewModel, String> progressCol;
 
@@ -185,12 +185,26 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         pampaSimViewModel.updateProps();
 
         colorCol.setCellValueFactory(p -> p.getValue().getColor());
+        // https://stackoverflow.com/a/39415402
+        colorCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Color item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) { setText(null); setStyle(""); }
+                else {
+                    setText(item.toString());
+                    setStyle("-fx-background-color: #" + item.toString().substring(2));
+                }
+            }
+        });
         pidCol.setCellValueFactory(p -> new ReadOnlyObjectWrapper<>(p.getValue().getPid()));
         stateCol.setCellValueFactory(p -> p.getValue().getState());
         arrivalCol.setCellValueFactory(
                 p -> new ReadOnlyObjectWrapper<>(p.getValue().getCreationData().getArrivalTick())
         );
         priorityCol.setCellValueFactory(p -> p.getValue().getPriority().map(Number::intValue));
+        burstCol.setCellValueFactory(p -> p.getValue().getBurstTime().map(Number::intValue));
+        progressCol.setCellValueFactory(p -> p.getValue().getCurrExecTime().map(n -> n + "/" + p.getValue().getCreationData().getDurationTicks()));
         procTable.setItems(processList);
     }
     private Circle createCircleForProcess(ProcessViewModel process) {

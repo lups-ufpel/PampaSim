@@ -150,6 +150,8 @@ public class PampaSimViewModel implements ViewModel {
     public void updateProcessViewModel(ProcessViewModel pvm, Process proc) {
         pvm.setState(proc.getState());
         pvm.getPriority().setValue(proc.getPriority());
+        pvm.getCurrExecTime().setValue(proc.getCurrExecTime());
+        pvm.getBurstTime().setValue(proc.getBurstTime());
     }
 
     public SchedulerDialogScope getSchedulerScope() {

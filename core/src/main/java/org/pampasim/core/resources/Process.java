@@ -50,7 +50,7 @@ public class Process {
     }
 
     public int getRemainingExecutionTime() {
-        return creationData.arrivalTick - currExecTime;
+        return creationData.durationTicks - currExecTime;
     }
 
     public void forwardProcessExecution() {
