@@ -1,5 +1,7 @@
 package org.pampasim.entity;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.events.Event;
@@ -11,6 +13,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class Processor extends AbstractSimEntity {
+    private final Logger LOGGER = LogManager.getLogger(Processor.class);
     private final ProcessorCore core;
     private boolean preemption;
 
@@ -53,7 +56,7 @@ public class Processor extends AbstractSimEntity {
         Process process = event.getProcess();
         process.setState(Process.State.RUNNING);
         core.setStatus(ProcessorCore.Status.BUSY);
-        logInfo("Início da execução do processo de identificador:" + process.getPid());
+        LOGGER.debug("Início da execução do processo de identificador: {}", process.getPid());
         preemption = false;
         core.execute(process);
         getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
@@ -64,16 +67,16 @@ public class Processor extends AbstractSimEntity {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunPaused(this, process));
             process.setState(Process.State.WAITING);
-            logInfo("Fim do turno de execução do processo de identificador:" + process.getPid());
+            LOGGER.debug("Fim do turno de execução do processo de identificador: {}", process.getPid());
         } else {
-            logInfo("Continuação da Execução do processo de identificador:" + process.getPid());
+            LOGGER.debug("Continuação da Execução do processo de identificador: {}", process.getPid());
             core.execute(process);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
         }
     }
     private void handleProcessPreemption(org.pampasim.events.Process.Preemption event) {
         preemption = true;
-        logInfo("Interrupção da execução de processo de identificador:" + event.getProcess().getPid());
+        LOGGER.debug("Interrupção da execução de processo de identificador: {}", event.getProcess().getPid());
     }
     public boolean isFree() {
         return ProcessorCore.Status.FREE == this.core.getStatus();

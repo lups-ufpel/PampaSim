@@ -13,12 +13,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.resources.Process;
-import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -26,7 +25,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
+    private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
@@ -57,10 +56,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void onStartSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.startSimulation();
         if(pampaSimViewModel.isSimulationRunning()) {
-            System.out.print(" started animation");
+            LOGGER.debug("started animation");
             animation.play();
         }
-        System.out.println();
     }
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
@@ -137,6 +135,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
             } else if (change.wasRemoved()) {
                 //removeProcessFromUI(change.getValueRemoved());
             }
+            LOGGER.debug("got change {}", change);
         });
 
         genGraphs.setAllowIndeterminate(false);
@@ -155,7 +154,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
         Circle circle = new Circle(30, process.getColor().getValue());
-        //circle.setId(process.getPid().toString());
+        circle.setId(String.valueOf(process.getCreationData().getCreationId())); // very important
         circle.setUserData(process.getPriority());
         return circle;
     }

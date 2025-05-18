@@ -4,6 +4,7 @@ module org.pampasim.core {
     requires static lombok;
     requires guru.nidi.graphviz;
     requires org.antlr.antlr4.runtime;
+    requires org.apache.logging.log4j;
 
     exports org.pampasim.core.dsl;
     exports org.pampasim.core.dsl.metadata;

@@ -2,10 +2,13 @@ package org.pampasim.core.resources;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Getter
 @Setter
 public class ProcessorCore extends ResourceManageableAbstract implements Core {
+    private final Logger LOGGER = LogManager.getLogger(ProcessorCore.class);
 
     private static double defaultMips = 1000;
     private Status status;
@@ -26,7 +29,8 @@ public class ProcessorCore extends ResourceManageableAbstract implements Core {
     @Override
     public void execute(Process process) {
         process.forwardProcessExecution();
-        System.out.println("[Núcleo CPU] Executando um tick do processo: " +
-                process.getPid() + " (tempo restante): " + process.getRemainingExecutionTime());
+        LOGGER.debug("[Núcleo CPU] Executando um tick do processo: {}, tempo restante: {}",
+                process.getPid(), process.getRemainingExecutionTime()
+        );
     }
 }

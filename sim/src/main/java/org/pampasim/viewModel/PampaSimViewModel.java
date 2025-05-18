@@ -11,6 +11,8 @@ import javafx.collections.ObservableMap;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.PampaSim;
 import org.pampasim.SimulatedScenario;
 import org.pampasim.core.*;
@@ -36,6 +38,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class PampaSimViewModel implements ViewModel {
+    private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
     @Getter
@@ -68,7 +71,13 @@ public class PampaSimViewModel implements ViewModel {
             var sim = new PampaSim(null);
             sim.applySpec(spec);
 
-            // TODO: loop thru the arrival events here to register them
+            for (var entry : spec.getEventSchedule().entries()) {
+                for (var event : entry.getValue()) {
+                    if (event instanceof Arrival) {
+                        handleProcessCreationEvent(event);
+                    }
+                }
+            }
 
             var eventManager = sim.getEventManager();
             eventManager.addSnooper(org.pampasim.events.ProcessCreationDataEvent.class,
@@ -81,7 +90,7 @@ public class PampaSimViewModel implements ViewModel {
 
     public void loadSpec(URL url) {
         var spec = Spec.loadSpec(url);
-        System.out.println("loaded " + spec);
+        LOGGER.debug("loaded {}", spec);
         if (spec == null) {
             throw new RuntimeException("couldn't load spec file at " + url);
         }

@@ -8,6 +8,8 @@ import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.EventManager;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.core.RealClock;
@@ -35,6 +37,7 @@ import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
 import static guru.nidi.graphviz.model.Factory.*;
 
 public abstract class SimulationBase extends AbstractSimEntity implements Simulation {
+    private static final Logger LOGGER = LogManager.getLogger(SimulationBase.class);
     protected final ArrayList<SimEntity> entityList;
     private EventSchedule eventsSchedule;
     private final List<Event> lastClockInputs = new ArrayList<>();
@@ -75,10 +78,11 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     public void blackHoleEvent(Event event) {
         switch (event) {
             case org.pampasim.events.ProcessEvent processEvent:
-                        logInfo("Processo com Pid " + processEvent.getProcess().getPid() +
-                                " finalizou sua execução e foi terminado com sucesso");
+                        LOGGER.debug("Processo com Pid {}  finalizou sua execução e foi terminado com sucesso",
+                                processEvent.getProcess().getPid()
+                                );
                         break;
-            default: logInfo("black hole got event " + event); break;
+            default: LOGGER.debug("black hole got event " + event); break;
         }
     }
 
@@ -107,23 +111,23 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         for (SimEntity entity : entityList) {
             info.append("\n").append(entity);
         }
-        logInfo(info.toString());
-        logInfo(phase1);
+        LOGGER.trace(info.toString());
+        LOGGER.trace(phase1);
         lastClockInputs.clear();
         // Reuse memory, change var name mostly
         final List<Event> currentEvents = lastClockInputs;
         currentEvents.addAll(lastClockOutputs); // since we don't use the schedule for this no more
         lastClockOutputs.clear();
 
-        logInfo(phase2);
+        LOGGER.trace(phase2);
         if (eventsSchedule.hasEventsFor(getRealClock().getTick())) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
             // at this clock tick, add them to the list of events to be processed
             currentEvents.addAll(eventsSchedule.consume(getRealClock().getTick()));
         }
-        logInfo("currentEvents = " + currentEvents);
+        LOGGER.trace("currentEvents = {}", currentEvents);
 
-        logInfo(phase3);
+        LOGGER.trace(phase3);
         // Necessary to create a copy to iterate over since handleEvent can add a KILL_PROCESS event
         // to the list as it's being iterated over
         currentEvents.stream()
@@ -131,17 +135,17 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 .forEach(eventManager::handleEvent); // processes all events except ProcessKill events
 
 
-        logInfo(phase4);
+        LOGGER.trace(phase4);
         for (var entity : entityList) {
             entity.updateState();
         }
 
-        logInfo(phase5);
+        LOGGER.trace(phase5);
         boolean isTopLevel = parent == null;
         if (getState() == EntityState.Blocked) {
-            logInfo(phase5a);
+            LOGGER.trace(phase5a);
             if (isTopLevel) {
-                logInfo("top level block resolution");
+                LOGGER.trace("top level block resolution");
                 for (SimEntity entity : entityList) {
                     entity.clearBlock();
                     entity.run();
@@ -149,13 +153,13 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 this.clearBlock();
                 getRealClock().next();
             } else {
-                logInfo("blocked simulation");
+                LOGGER.trace("blocked simulation");
             }
         } else if (areAllEntitiesIdle() && hasPendingEvents()) {
-            logInfo(phase5c);
+            LOGGER.trace(phase5c);
             getRealClock().next();
         } else {
-            logInfo(phase5b);
+            LOGGER.trace(phase5b);
             executeRunnableEntities();
         }
 
@@ -163,7 +167,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
         simulationClock += 1;
 
-        logInfo(phase6);
+        LOGGER.trace(phase6);
         updateState();
     }
 
@@ -216,7 +220,8 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     @Override
     public boolean hasPendingEvents() {
         // it really is off by one
-        logInfo(eventsSchedule.toString() + " means any > " + getRealClock().getTick() + " == " + eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
+        LOGGER.trace("{} means any > {} == {}",
+                eventsSchedule.toString(), getRealClock().getTick(),eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
         return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
     }
 
@@ -249,13 +254,13 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                     )
             );
         } catch (NoSuchElementException e) {
-            System.out.println("Possible mistake: no processor set up by spec!");
+            LOGGER.warn("Possible mistake: no processor set up by spec!");
         }
 
         if (s.isHasProcManager()) {
             new ProcessManager(this);
         } else {
-            System.out.println("Possible mistake: no process manager set up by spec!");
+            LOGGER.warn("Possible mistake: no process manager set up by spec!");
         }
         this.pidAllocator = s.getPidAlloc();
         this.eventsSchedule = new EventSchedule(s.getEventSchedule());
