@@ -39,6 +39,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public HBox ReadyList;
     @FXML
+    public HBox WaitingList;
+    @FXML
     public HBox FinishedList;
     @FXML
     public Button runBtn;
@@ -230,8 +232,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         // Remove o círculo de todos os containers
         var nlr = NewList.getChildren().remove(circle);
         var rlr = ReadyList.getChildren().remove(circle);
+        var wlr = WaitingList.getChildren().remove(circle);
         var flr = FinishedList.getChildren().remove(circle);
-        LOGGER.debug("{} removed from new {} ready {} finished {}", circle, nlr, rlr, flr);
+        LOGGER.debug("{} removed from new {} ready {} waiting {} finished {}", circle, nlr, rlr, wlr, flr);
     }
     private void moveProcessToCorrectContainer(ProcessViewModel pvm) {
         Circle circle = pvm.getCircleRepr();
@@ -244,6 +247,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 break;
             case READY:
                 ReadyList.getChildren().add(circle);
+                break;
+            case WAITING:
+                WaitingList.getChildren().add(circle);
                 break;
             case TERMINATED:
                 FinishedList.getChildren().add(circle);
