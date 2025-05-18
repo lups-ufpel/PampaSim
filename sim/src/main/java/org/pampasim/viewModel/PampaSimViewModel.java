@@ -32,7 +32,6 @@ import org.pampasim.scopes.SchedulerDialogScope;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -56,7 +55,10 @@ public class PampaSimViewModel implements ViewModel {
 
     @Getter
     @InjectScope
-    private ProcessScope processScope;
+    private ProcessScope createProcessScope;
+    @Getter
+    @InjectScope
+    private ProcessScope editProcessScope;
     @InjectScope
     private SchedulerDialogScope schedulerDialogScope;
 
@@ -172,15 +174,36 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess() {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        var start = processScope.getStartTimeProperty().getValue();
-        var duration = processScope.getDurationProperty().getValue();
-        var priority = processScope.getPriorityProperty().getValue();
-        var clr = processScope.getColorProperty().getValue();
+        var start = createProcessScope.getStartTimeProperty().getValue();
+        var duration = createProcessScope.getDurationProperty().getValue();
+        var priority = createProcessScope.getPriorityProperty().getValue();
+        var clr = createProcessScope.getColorProperty().getValue();
         var creationData = new Process.CreationData(start, duration, priority);
         this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(clr));
         resetSimulation();
         updateProps();
     }
+
+    public void editProcess(ProcessViewModel pvm, boolean delete) {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
+        var start = editProcessScope.getStartTimeProperty().getValue();
+        var duration = editProcessScope.getDurationProperty().getValue();
+        var priority = editProcessScope.getPriorityProperty().getValue();
+        var clr = editProcessScope.getColorProperty().getValue();
+        var creationData = new Process.CreationData(start, duration, priority);
+        this.simulatedScenario.getSpec().getEventSchedule().removeFirstMatch(event -> {
+            if (event instanceof Arrival arrival) {
+                return arrival.getCreationData().getCreationId() == pvm.getCreationData().getCreationId();
+            }
+            return false;
+        });
+        if (!delete) {
+            this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(clr));
+        }
+        resetSimulation();
+        updateProps();
+    }
+
     public void setSimulationScheduler() {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 
-<DialogPane fx:id="createProcessDialogPane" prefHeight="263.0" prefWidth="306.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.CreateProcessDialogView">
+<DialogPane prefHeight="263.0" prefWidth="306.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.EditProcessDialogView">
     <content>
         <VBox spacing="10">
             <GridPane hgap="10.0" vgap="20.0">
@@ -47,6 +47,7 @@
             </GridPane>
         </VBox>
     </content>
-    <ButtonType fx:id="cancelButton" buttonData="CANCEL_CLOSE" text="Cancel" />
-    <ButtonType fx:id="okButton" buttonData="APPLY" text="OK" />
+    <ButtonType buttonData="LEFT" text="Delete"/>
+    <ButtonType buttonData="CANCEL_CLOSE" text="Cancel" />
+    <ButtonType buttonData="APPLY" text="OK" />
 </DialogPane>
