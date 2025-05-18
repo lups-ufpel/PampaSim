@@ -216,7 +216,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 }
             }
         });
-        pidCol.setCellValueFactory(p -> new ReadOnlyObjectWrapper<>(p.getValue().getPid()));
+        pidCol.setCellValueFactory(p -> p.getValue().getPidProperty());
+
         stateCol.setCellValueFactory(p -> p.getValue().getState());
         arrivalCol.setCellValueFactory(
                 p -> new ReadOnlyObjectWrapper<>(p.getValue().getCreationData().getArrivalTick())
