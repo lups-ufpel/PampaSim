@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
@@ -71,7 +72,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public TableColumn<ProcessViewModel, Integer> burstCol;
     @FXML
-    public TableColumn<ProcessViewModel, String> progressCol;
+    public TableColumn<ProcessViewModel, Double> progressCol;
 
     private Timeline animation;
     private Dialog<ButtonType> createProcessDialog;
@@ -211,7 +212,41 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         );
         priorityCol.setCellValueFactory(p -> p.getValue().getPriority().map(Number::intValue));
         burstCol.setCellValueFactory(p -> p.getValue().getBurstTime().map(Number::intValue));
-        progressCol.setCellValueFactory(p -> p.getValue().getCurrExecTime().map(n -> n + "/" + p.getValue().getCreationData().getDurationTicks()));
+
+        progressCol.setCellValueFactory(p -> p.getValue().getCurrExecTime().map(n -> // calculates the data for the cell
+                n.doubleValue() / p.getValue().getCreationData().getDurationTicks())); // in this case, calculates the % of completion for the process (in the range of 0 to 1)
+
+        progressCol.setCellFactory(column -> new TableCell<>() {
+            private final ProgressBar progressBar = new ProgressBar(); // progress bar
+            private final Label progressLabel = new Label(); // text overlay
+            private final StackPane stackPane = new StackPane(); // container to stack the text over the progress bar
+
+            {
+                // style settings
+                progressBar.setMaxWidth(Double.MAX_VALUE);
+                progressBar.setPrefHeight(20);
+                progressLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+                stackPane.getChildren().addAll(progressBar, progressLabel);
+            }
+
+            @Override
+            protected void updateItem(Double progress, boolean empty) {
+                super.updateItem(progress, empty);
+
+                if (empty || progress == null) {
+                    setGraphic(null);
+                } else {
+                    progressBar.setProgress(progress);
+                    ProcessViewModel process = getTableView().getItems().get(getIndex());
+                    int current = process.getCurrExecTime().getValue();
+                    int total = process.getCreationData().getDurationTicks();
+
+                    progressLabel.setText(current + "/" + total);
+                    setGraphic(stackPane);
+                }
+            }
+        });
+
         procTable.setItems(processList);
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
