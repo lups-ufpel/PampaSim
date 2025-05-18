@@ -12,16 +12,8 @@ public class InterimEventManager extends EventManager {
     }
 
     @Override
-    protected Event translateEvent(Event event) {
-        if (event instanceof org.pampasim.events.Process.Kill) {
-            ((SimulationBase)simulation).blackHoleEvent(event);
-            return null;
-        }
-        return super.translateEvent(event);
-    }
-
-    @Override
     public void setupHandlers() {
+        addEventHandler(org.pampasim.events.Process.Kill.class, this.simulation); // ignore Kills
     }
 
     @Override

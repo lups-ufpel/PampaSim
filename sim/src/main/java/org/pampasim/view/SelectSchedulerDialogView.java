@@ -28,7 +28,7 @@ public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialog
         schedulerChoiceBox.getItems().add("FCFS");
         schedulerChoiceBox.setValue("FCFS");
         schedulerChoiceBox.getItems().add("SJF");
-        schedulerChoiceBox.getItems().add("Round Robin");
+        schedulerChoiceBox.getItems().add("RoundRobin");
         schedulerChoiceBox.getItems().add("Priority");
         preemptionCheckBox.setSelected(false);
         bindViewModel();

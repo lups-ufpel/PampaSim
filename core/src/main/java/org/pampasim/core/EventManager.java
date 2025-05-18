@@ -1,5 +1,7 @@
 package org.pampasim.core;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.events.*;
@@ -8,6 +10,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class EventManager {
+    private final Logger LOGGER = LogManager.getLogger(EventManager.class);
     protected final Map<Class<? extends Event>, SimEntity> handlers;
     protected final Map<Class<? extends Event>, Class<? extends Event>> translations;
     protected final Map<Class<? extends Event>, Boolean> takesTime;
@@ -47,16 +50,6 @@ public abstract class EventManager {
         it attempts to translate it to a different event type. If there is no translation, an exception is thrown
      */
     public void handleEvent(Event event) {
-        SimEntity handler = null;
-        do {
-            if (event == null) { return; }
-            handler = handlers.get(event.getClass());
-            if (handler == null) {
-                event = translateEvent(event);
-            }
-        } while (handler == null);
-        handler.acceptEvent(event);
-
         Event finalEvent = event;
         snoopers.entrySet()
                 .stream()
@@ -66,6 +59,16 @@ public abstract class EventManager {
                         snooper.accept(finalEvent);
                     }
                 });
+
+        SimEntity handler = null;
+        do {
+            if (event == null) { return; }
+            handler = handlers.get(event.getClass());
+            if (handler == null) {
+                event = translateEvent(event);
+            }
+        } while (handler == null);
+        handler.acceptEvent(event);
     }
 
     protected Event translateEvent(Event event) {
@@ -75,7 +78,7 @@ public abstract class EventManager {
             var translationClass = translations.get(event.getClass());
             try {
                 var translated = event.cloneAs(translationClass);
-                System.out.println("Event translated: " + event + " to " + translated);
+                LOGGER.trace("Event translated: {} to {}", event, translated);
                 return translated;
             } catch (IncompatibleEventDataException e) {
                 throw new RuntimeException(
@@ -102,8 +105,12 @@ public abstract class EventManager {
         return takesTime.getOrDefault(ev.getClass(), false);
     }
 
- //   public void addSnooper(Class<? extends Event> eventClass, Consumer<Event> callback) {
- //       snoopers.compute(eventClass, (key, val)
- //               -> val != null? val.add(callback) : HashSet.of(callback));
- //   }
+    public void addSnooper(Class<? extends Event> eventClass, Consumer<Event> callback) {
+        snoopers.compute(eventClass, (key, val)
+                -> {
+            if (val != null) { val.add(callback); }
+            else { val = new HashSet<>(List.of(callback)); }
+            return val;
+        });
+    }
 }

@@ -1,7 +1,8 @@
 package org.pampasim;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The main entry point for PampaSim application.
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 public class Launcher {
-    private static Logger LOGGER;
+    private static final Logger LOGGER = LogManager.getLogger(Launcher.class);
 
     public static void main(String[] args) {
         configLogging(args);
@@ -25,6 +26,5 @@ public class Launcher {
         // such as enabling a special debug logging mode for debugging from args.
         // tweak some logging configuration properties to improve performance and legibility.
         // add the option for redirecting all or some log messages to a file.
-        LOGGER = LoggerFactory.getLogger(Launcher.class);
     }
 }

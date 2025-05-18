@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
@@ -149,6 +150,15 @@
                                                 <Insets left="10.0" />
                                             </padding>
                                         </HBox>
+                                        <Label text="PROCESSOS EM ESPERA" />
+                                        <HBox fx:id="WaitingList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                            <VBox.margin>
+                                                <Insets left="5.0" right="5.0" top="5.0" />
+                                            </VBox.margin>
+                                            <padding>
+                                                <Insets left="10.0" />
+                                            </padding>
+                                        </HBox>
                                         <Label text="PROCESSOS FINALIZADOS" />
                                         <HBox fx:id="FinishedList" alignment="CENTER_LEFT" minHeight="72.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                             <VBox.margin>
@@ -158,9 +168,9 @@
                                                 <Insets left="10.0" />
                                             </padding>
                                         </HBox>
-                                        <TableView fx:id="procTable" disable="true">
+                                        <TableView fx:id="procTable">
                                             <columns>
-                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
+                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color"/>
                                                 <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
                                                 <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
                                                 <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />

@@ -15,12 +15,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /// Generates all the event classes from a simulation description file
 public class EventCodeGenTool {
     public static Path destinationFolder;
     public static String destinationPackage;
     public static Path pkgPath;
+
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         String fileName = args[0];
         destinationPackage = args[1];
@@ -52,12 +54,24 @@ public class EventCodeGenTool {
         }
     }
 
+    private record GroupInfo (EventGroup eventGroup, String className, String dataType) {};
     private static void writeClasses(EventGroup eventGroup) throws IOException {
         var dataClass = eventGroup.dataClass();
         var events = eventGroup.events();
-        var dataMemberName = dataClass.getSimpleName().toLowerCase();
+        var groupInfo = new GroupInfo(eventGroup,
+                dataClass.getCanonicalName()
+                        .replace(dataClass.getPackageName(), "")
+                        .replace(".", "")
+                        + "Event",
+                dataClass
+                    .getCanonicalName() // important for nested classes
+                    .replace(destinationPackage, "")
+                );
+        String dataMemberName = ((Supplier<String>)() -> {
+            var name = dataClass.getSimpleName();
+            return name.substring(0,1).toLowerCase() + name.substring(1);
+        }).get();
         var dataMemberGetter = "get" + dataClass.getSimpleName();
-        var className = dataClass.getSimpleName() + "Event";
 
         StringBuilder code = new StringBuilder("package " + destinationPackage + ";\n" +
                 "import lombok.Getter;\n" +
@@ -66,18 +80,18 @@ public class EventCodeGenTool {
                 "import java.lang.reflect.Constructor;\n" +
                 "import java.lang.reflect.InvocationTargetException;\n" +
                 "public abstract class " +
-                className +
+                groupInfo.className +
                 " extends AbstractEvent {\n" +
                 "@Getter\n" +
-                "private final " + dataClass.getName() + " " + dataMemberName + ";\n" +
-                "public " + className + "(SimEntity source, " + dataClass.getName() +
+                "private final " + groupInfo.dataType + " " + dataMemberName + ";\n" +
+                "public " + groupInfo.className + "(SimEntity source, " + groupInfo.dataType +
                 " data) {\nsuper(source);\n" + dataMemberName + " = data;\n}\n" +
                 "@Override\n" +
                 "public org.pampasim.core.events.Event cloneAs(Class<? extends org.pampasim.core.events.Event> asClass) throws\n" +
                 "IncompatibleEventDataException {\n" +
                 "try {\n" +
                 "Constructor<? extends org.pampasim.core.events.Event> cons = asClass.getConstructor(SimEntity.class, " +
-                dataClass.getName() +
+                groupInfo.dataType +
                 ".class);\n" +
                 "return cons.newInstance(getSource(), getData());\n" +
                 "} catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException _e) {\n" +
@@ -87,36 +101,33 @@ public class EventCodeGenTool {
                 "public Object getData() { return " + dataMemberGetter + "();" + "}\n");
         code.append("}\n");
 
-        Files.writeString(pkgPath.resolve(className + ".java"), code.toString());
+        Files.writeString(pkgPath.resolve(groupInfo.className + ".java"), code.toString());
 
         for (var event : events) {
-            writeSubClass(eventGroup.prefix(), event);
+            writeSubClass(groupInfo, event);
         }
     }
 
-    static String subClass(String prefix, Event event) throws IOException {
+    static String subClass(GroupInfo groupInfo, Event event) throws IOException {
         System.out.println("processing event " + event);
-        var dataClassSimpleName = event.getDataClass().getSimpleName();
-        var dataClassName = event.getDataClass().getName();
         var classNameParts = event.getName().split("\\.");
         var className = classNameParts[classNameParts.length-1];
-        var superClassName = event.getDataClass().getSimpleName() + "Event";
-        return  "package " + destinationPackage + "." + prefix + ";\n" +
+        return  "package " + destinationPackage + "." + groupInfo.eventGroup.prefix() + ";\n" +
                 "import org.pampasim.core.events.*;\n" +
                 "import org.pampasim.core.entity.SimEntity;\n" +
                 "import " + destinationPackage + ".*;\n" +
-                "public class " + className + " extends " + superClassName + " {\n" +
-                "public " + className + "(SimEntity source, " + dataClassName + " data) {\n" +
+                "public class " + className + " extends " + groupInfo.className + " {\n" +
+                "public " + className + "(SimEntity source, " + groupInfo.dataType + " data) {\n" +
                 "super(source, data);\n" +
                 "}\n" +
                 "}\n";
     }
 
-    static void writeSubClass(String prefix, Event event) throws IOException {
-        var groupPath = pkgPath.resolve(prefix);
+    static void writeSubClass(GroupInfo groupInfo, Event event) throws IOException {
+        var groupPath = pkgPath.resolve(groupInfo.eventGroup.prefix());
         Files.createDirectories(groupPath);
         var classNameParts = event.getName().split("\\.");
         var className = classNameParts[classNameParts.length-1];
-        Files.writeString(groupPath.resolve(className + ".java"), subClass(prefix, event));
+        Files.writeString(groupPath.resolve(className + ".java"), subClass(groupInfo, event));
     }
 }

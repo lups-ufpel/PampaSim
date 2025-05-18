@@ -62,6 +62,11 @@
             <version>1.0</version>
         </dependency>
         <dependency>
+            <groupId>org.pampasim</groupId>
+            <artifactId>sim-datamodel</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
         </dependency>
@@ -71,6 +76,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -96,10 +105,6 @@
                         target/generated-sources/events
                     </sourceRoot>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>

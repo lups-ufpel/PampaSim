@@ -17,7 +17,6 @@ public interface SimEntity extends GraphVisualizeable {
     void run();
     void scheduleToNextClock(Event evt);
     void acceptEvent(Event evt);
-    void logInfo(String info);
     boolean shouldRunNextTick();
     void updateState();
     public void runUntilBlockedorIdle();

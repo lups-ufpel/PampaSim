@@ -1,4 +1,4 @@
-package org.pampasim.core.resources;
+package org.pampasim.resources;
 
 /**
  * An interface to be implemented by each class that provides

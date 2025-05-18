@@ -68,7 +68,7 @@ eventGroupDecl locals [Class<?> dataClass, String prefix]:
     }
     eventDeclList;
 eventDataType: javaType | NOTHING_KW;
-javaType: ID ('.' ID)*?;
+javaType: ID (('.'|'$') ID)*?;
 eventDeclList: '{' (eventsList+=eventData ';')+ '}' {
     // FIXME: the associated type is ignored for now
     for (var evdata : $eventsList) {

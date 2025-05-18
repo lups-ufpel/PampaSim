@@ -3,48 +3,33 @@ package org.pampasim.viewModel;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
-import org.pampasim.core.resources.Process;
+import javafx.scene.shape.Circle;
+import lombok.Getter;
+import lombok.Setter;
+import org.pampasim.resources.Process;
+import org.pampasim.core.utils.PidAllocator;
 
+@Getter
 public class ProcessViewModel implements ViewModel {
-
-    private final StringProperty pid = new SimpleStringProperty();
+    @Setter
+    private PidAllocator.Pid pid;
+    private final Process.CreationData creationData;
     private final IntegerProperty priority = new SimpleIntegerProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
-    private final ObjectProperty<org.pampasim.core.resources.Process.State> state = new SimpleObjectProperty<>();
+    private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
+    private final BooleanProperty initialized = new SimpleBooleanProperty(false);
+    private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
+    private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
+    @Setter
+    private Circle circleRepr = null;
 
-    public ProcessViewModel(String pid, int priority, Color color) {
-        this.pid.set(pid);
-        this.priority.set(priority);
-        this.color.set(color);
+    public ProcessViewModel(Process.CreationData cdata) {
+        this.creationData = cdata;
+        this.pid = null;
+        this.state.setValue(Process.State.NEW); // bodge fix for now
     }
-    public IntegerProperty priorityProperty() {
-        return priority;
-    }
-    public ObjectProperty<Color> colorObjectProperty() {
-        return color;
-    }
-    public ObjectProperty<Color> colorProperty() {
-        return color;
-    }
-    public StringProperty pidProperty() {
-        return pid;
-    }
-    public int getPriority() {
-        return priority.get();
-    }
-    public Color getColor(){
-        return color.get();
-    }
-    public String pid() {
-        return pid.get();
-    }
-    public org.pampasim.core.resources.Process.State getState() {
-        return state.get();
-    }
-    public void setState(org.pampasim.core.resources.Process.State state) {
-        this.state.set(state);
-    }
-    public ObjectProperty<Process.State> stateProperty() {
-        return state;
+
+    public void setState(Process.State newState) {
+        this.state.setValue(newState);
     }
 }

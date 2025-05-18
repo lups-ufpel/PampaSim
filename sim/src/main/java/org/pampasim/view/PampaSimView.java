@@ -3,10 +3,10 @@ package org.pampasim.view;
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ListChangeListener;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,21 +14,24 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.pampasim.core.resources.Process;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.pampasim.resources.Process;
+import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PampaSimView.class);
+    private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
@@ -37,6 +40,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public HBox NewList;
     @FXML
     public HBox ReadyList;
+    @FXML
+    public HBox WaitingList;
     @FXML
     public HBox FinishedList;
     @FXML
@@ -51,18 +56,36 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button loadSpecBtn;
     @FXML
     public CheckBox genGraphs;
+    @FXML
+    public TableView<ProcessViewModel> procTable;
+    @FXML
+    public TableColumn<ProcessViewModel, Color> colorCol;
+    @FXML
+    public TableColumn<ProcessViewModel, PidAllocator.Pid> pidCol;
+    @FXML
+    public TableColumn<ProcessViewModel, Process.State> stateCol;
+    @FXML
+    public TableColumn<ProcessViewModel, Integer> arrivalCol;
+    @FXML
+    public TableColumn<ProcessViewModel, Integer> priorityCol;
+    @FXML
+    public TableColumn<ProcessViewModel, Integer> burstCol;
+    @FXML
+    public TableColumn<ProcessViewModel, String> progressCol;
+
     private Timeline animation;
     private Dialog<ButtonType> createProcessDialog;
     private Dialog<ButtonType> selectSchedulerDialog;
 
+    private ObservableList<ProcessViewModel> processList = FXCollections.observableArrayList();
+
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.startSimulation();
-        if(pampaSimViewModel.isSimulationRunning()) {
-            System.out.print(" started animation");
+        if(pampaSimViewModel.getSimulationRunning().get()) {
+            LOGGER.debug("started animation");
             animation.play();
         }
-        System.out.println();
     }
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
@@ -96,7 +119,10 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public void loadSpec() {
         try {
-            var spec = URI.create("file:./spec.spec").toURL();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open specification file");
+            File file = fileChooser.showOpenDialog(null);
+            var spec = URI.create("file:"+file.getPath()).toURL();
             pampaSimViewModel.loadSpec(spec);
         } catch (MalformedURLException e) {
             new Alert(Alert.AlertType.ERROR, "bad url! " + e);
@@ -132,14 +158,23 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
-        pampaSimViewModel.getProcesses().addListener((ListChangeListener<ProcessViewModel>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (ProcessViewModel process : change.getAddedSubList()) {
-                        addProcessToUI(process);
-                    }
-                }
+
+        pampaSimViewModel.getProcessesByCreationId()
+                .addListener(
+                        (MapChangeListener<Long, ProcessViewModel>) change ->
+                        {
+            if (change.wasRemoved()) {
+                var val = change.getValueRemoved();
+                processList.remove(val);
+                removeProcessFromUI(change.getValueRemoved());
             }
+            if (change.wasAdded()) {
+                var val = change.getValueAdded();
+                processList.add(val);
+                addProcessToUI(val);
+            }
+
+            LOGGER.debug("got change {}", change);
         });
 
         genGraphs.setAllowIndeterminate(false);
@@ -151,51 +186,75 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         .or(pampaSimViewModel.getSimulationRunning())
         );
         resetBtn.disableProperty()
-                .bind(pampaSimViewModel.getSimulationIsFresh());
+                .bind(pampaSimViewModel.getSimulationRunning());
         loadSpecBtn.disableProperty()
-                .bind(pampaSimViewModel.getSimulationIsFresh().not());
+                .bind(pampaSimViewModel.getSimulationRunning().or(pampaSimViewModel.getScenarioIsSaved().not()));
         pampaSimViewModel.updateProps();
+
+        colorCol.setCellValueFactory(p -> p.getValue().getColor());
+        // https://stackoverflow.com/a/39415402
+        colorCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Color item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) { setText(null); setStyle(""); }
+                else {
+                    setText(item.toString());
+                    setStyle("-fx-background-color: #" + item.toString().substring(2));
+                }
+            }
+        });
+        pidCol.setCellValueFactory(p -> new ReadOnlyObjectWrapper<>(p.getValue().getPid()));
+        stateCol.setCellValueFactory(p -> p.getValue().getState());
+        arrivalCol.setCellValueFactory(
+                p -> new ReadOnlyObjectWrapper<>(p.getValue().getCreationData().getArrivalTick())
+        );
+        priorityCol.setCellValueFactory(p -> p.getValue().getPriority().map(Number::intValue));
+        burstCol.setCellValueFactory(p -> p.getValue().getBurstTime().map(Number::intValue));
+        progressCol.setCellValueFactory(p -> p.getValue().getCurrExecTime().map(n -> n + "/" + p.getValue().getCreationData().getDurationTicks()));
+        procTable.setItems(processList);
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
-        Circle circle = new Circle(30, process.getColor());
-        circle.setId(process.pid());
+        Circle circle = new Circle(30, process.getColor().getValue());
+        circle.setId("proc" + String.valueOf(process.getCreationData().getCreationId())); // very important
         circle.setUserData(process.getPriority());
+        process.setCircleRepr(circle);
         return circle;
     }
     private void addProcessToUI(ProcessViewModel process) {
-        Circle circle = createCircleForProcess(process);
-
-        // Adiciona o processo ao container correto com base no estado
-        switch (process.getState()) {
-            case NEW:
-                NewList.getChildren().add(circle);
-                break;
-            case READY:
-                ReadyList.getChildren().add(circle);
-                break;
-            case TERMINATED:
-                FinishedList.getChildren().add(circle);
-                break;
-        }
-
+        createCircleForProcess(process);
+        moveProcessToCorrectContainer(process);
         // Observa mudanças de estado do processo para mover automaticamente o círculo entre os containers
-        process.stateProperty().addListener((obs, oldState, newState) -> {
-            moveCircleToCorrectContainer(circle, newState);
+        process.getState().addListener((obs, oldState, newState) -> {
+            if (oldState == Process.State.RUNNING) {
+                CpuContainer1.setFill(Color.TRANSPARENT);
+            }
+            moveProcessToCorrectContainer(process);
         });
     }
-    private void moveCircleToCorrectContainer(Circle circle, Process.State newState) {
+    private void removeProcessFromUI(ProcessViewModel pvm) {
+        Circle circle = pvm.getCircleRepr();
         // Remove o círculo de todos os containers
-        NewList.getChildren().remove(circle);
-        ReadyList.getChildren().remove(circle);
-        FinishedList.getChildren().remove(circle);
-        CpuContainer1.setFill(Color.TRANSPARENT);
+        var nlr = NewList.getChildren().remove(circle);
+        var rlr = ReadyList.getChildren().remove(circle);
+        var wlr = WaitingList.getChildren().remove(circle);
+        var flr = FinishedList.getChildren().remove(circle);
+        LOGGER.debug("{} removed from new {} ready {} waiting {} finished {}", circle, nlr, rlr, wlr, flr);
+    }
+    private void moveProcessToCorrectContainer(ProcessViewModel pvm) {
+        Circle circle = pvm.getCircleRepr();
+        var state = pvm.getState().getValue();
+        removeProcessFromUI(pvm);
         // Adiciona ao container correto com base no novo estado
-        switch (newState) {
+        switch (state) {
             case NEW:
                 NewList.getChildren().add(circle);
                 break;
             case READY:
                 ReadyList.getChildren().add(circle);
+                break;
+            case WAITING:
+                WaitingList.getChildren().add(circle);
                 break;
             case TERMINATED:
                 FinishedList.getChildren().add(circle);

@@ -4,6 +4,8 @@ import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.RealClock;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Queue;
 
 public abstract class AbstractSimEntity implements SimEntity {
+    private final Logger LOGGER = LogManager.getLogger(AbstractSimEntity.class);
     @Getter
     protected EntityState state = EntityState.Idle;
     @Getter
@@ -32,7 +35,7 @@ public abstract class AbstractSimEntity implements SimEntity {
             this.parent = null;
             this.simulation = (Simulation)this; // this will fail if the entity is not a simulation, by design
         }
-        logInfo("PampaSim entity " + getClass().getSimpleName() + " created.");
+        LOGGER.debug("PampaSim entity {} created.", getClass().getSimpleName());
         this.buffer = new LinkedList<>();
     }
     @Override
@@ -47,7 +50,7 @@ public abstract class AbstractSimEntity implements SimEntity {
     };
     @Override
     public void scheduleToNextClock(Event event) {
-        logInfo("tx " + event);
+        LOGGER.trace("tx {}", event);
         simulation.acceptEvent(event);
     }
 
@@ -58,7 +61,7 @@ public abstract class AbstractSimEntity implements SimEntity {
 
     public void processEvent(Event event) {}
     public void run() {
-        logInfo("run");
+        LOGGER.trace("run");
         this.lastRunBuffer = buffer.stream().toList();
         managedRun();
         buffer.clear();
@@ -83,10 +86,10 @@ public abstract class AbstractSimEntity implements SimEntity {
         );
     }
     public void acceptEvent(Event event) {
-        logInfo("rx " + event);
+        LOGGER.trace("rx {}", event);
         this.buffer.add(event);
         if (this.getSimulation().getEventManager().eventTakesTime(event)) {
-            logInfo("Blocked on " + event);
+            LOGGER.trace("Blocked on {}", event);
             this.state = EntityState.Blocked;
         }
     }
@@ -94,22 +97,18 @@ public abstract class AbstractSimEntity implements SimEntity {
     protected void setStateIfNotBlocked(EntityState newState) {
         if (getState() != EntityState.Blocked) {
             if (getState() != newState) {
-                logInfo("transitioned to " + newState);
+                LOGGER.trace("transitioned to {}", newState);
             }
             this.state = newState;
         } else {
-            logInfo("transition to " + newState + " blocked");
+            LOGGER.trace("transition to {} blocked", newState);
         }
     }
 
     public void clearBlock() {
-        logInfo("block cleared");
+        LOGGER.trace("block cleared");
         this.state = EntityState.Idle;
         updateState();
-    }
-
-    public void logInfo(String info) {
-        System.out.println(this + " " + info);
     }
 
     @Override
