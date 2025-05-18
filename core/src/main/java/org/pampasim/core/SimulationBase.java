@@ -186,21 +186,12 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 .orElse(null);
     }
 
-    public boolean isFresh() {
-        return this.eventsSchedule.isEmpty() && (getSimulationClock() == 0);
-    }
-
     @Override
     public boolean hasPendingEvents() {
         // it really is off by one
         LOGGER.trace("{} means any > {} == {}",
                 eventsSchedule.toString(), getRealClock().getTick(),eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
         return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
-    }
-
-    @Override
-    public boolean isStarted() {
-        return !isFresh();
     }
 
     @Override

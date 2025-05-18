@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +24,7 @@ import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -80,7 +82,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.startSimulation();
-        if(pampaSimViewModel.isSimulationRunning()) {
+        if(pampaSimViewModel.getSimulationRunning().get()) {
             LOGGER.debug("started animation");
             animation.play();
         }
@@ -117,7 +119,10 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public void loadSpec() {
         try {
-            var spec = URI.create("file:./spec.spec").toURL();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open specification file");
+            File file = fileChooser.showOpenDialog(null);
+            var spec = URI.create("file:"+file.getPath()).toURL();
             pampaSimViewModel.loadSpec(spec);
         } catch (MalformedURLException e) {
             new Alert(Alert.AlertType.ERROR, "bad url! " + e);
@@ -181,9 +186,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         .or(pampaSimViewModel.getSimulationRunning())
         );
         resetBtn.disableProperty()
-                .bind(pampaSimViewModel.getSimulationIsFresh());
+                .bind(pampaSimViewModel.getSimulationRunning());
         loadSpecBtn.disableProperty()
-                .bind(pampaSimViewModel.getSimulationIsFresh().not());
+                .bind(pampaSimViewModel.getSimulationRunning().or(pampaSimViewModel.getScenarioIsSaved().not()));
         pampaSimViewModel.updateProps();
 
         colorCol.setCellValueFactory(p -> p.getValue().getColor());

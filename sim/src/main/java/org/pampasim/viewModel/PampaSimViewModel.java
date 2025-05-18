@@ -45,7 +45,7 @@ public class PampaSimViewModel implements ViewModel {
     @Getter
     private final BooleanProperty simulationIsValidSetup = new SimpleBooleanProperty(false);
     @Getter
-    private final BooleanProperty simulationIsFresh = new SimpleBooleanProperty(true);
+    private final BooleanProperty scenarioIsSaved = new SimpleBooleanProperty(true);
     private int graphNum = 0;
     @Getter
     private final ObservableMap<Pid, ProcessViewModel> processes = FXCollections.observableHashMap();
@@ -67,8 +67,7 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
             processesByCreationId.clear();
             processes.clear();
-            var sim = new PampaSim(null);
-            sim.applySpec(spec);
+            var sim = PampaSim.fromSpec(spec);
 
             for (var entry : spec.getEventSchedule().entries()) {
                 for (var event : entry.getValue()) {
@@ -213,9 +212,6 @@ public class PampaSimViewModel implements ViewModel {
             }
         }
     }
-    public boolean isSimulationRunning() {
-        return simulationRunning.get();
-    }
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);
     }
@@ -244,6 +240,6 @@ public class PampaSimViewModel implements ViewModel {
 
     public void updateProps() {
         simulationIsValidSetup.set(isValidSetup());
-        simulationIsFresh.set(simulatedScenario.getSimulation().isFresh());
+        scenarioIsSaved.set(simulatedScenario.isSaved());
     }
 }

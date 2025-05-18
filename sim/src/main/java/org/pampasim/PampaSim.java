@@ -44,18 +44,14 @@ public class PampaSim extends SimulationBase {
         }
     }
 
-    public void applySpec(Spec s) {
-        // only apply specs to a clean sim
-        if (!isFresh()) {
-            throw new RuntimeException("Can't apply spec to already running simulation!");
-        }
-
+    public static PampaSim fromSpec(Spec s) {
+        PampaSim sim = new PampaSim(null);
         Spec.SchedulerInfo schedulerInfo = s.getSchedulerInfo();
         if (schedulerInfo != null) {
             Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
             if (schedulerClass != null) try {
                 Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
-                cons.newInstance(this);
+                cons.newInstance(sim);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -63,7 +59,7 @@ public class PampaSim extends SimulationBase {
             }
         }
         try {
-            new Processor(this,
+            new Processor(sim,
                     new ProcessorCore(
                             s.getProcessors()
                                     .getFirst() // Single processor, for now
@@ -76,11 +72,12 @@ public class PampaSim extends SimulationBase {
         }
 
         if (s.isHasProcManager()) {
-            new ProcessManager(this);
+            new ProcessManager(sim);
         } else {
             LOGGER.warn("Possible mistake: no process manager set up by spec!");
         }
-        this.pidAllocator = s.getPidAlloc();
-        this.eventsSchedule = new EventSchedule(s.getEventSchedule());
+        sim.pidAllocator = s.getPidAlloc();
+        sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
+        return sim;
     }
 }

@@ -13,8 +13,6 @@ public interface Simulation extends SimEntity {
     PidAllocator getPidAllocator();
     int getSimulationClock();
 
-    /// returns whether the simulation is "fresh" as in loading a Spec won't override any configurations
-    boolean isFresh();
     /// returns whether the simulation has any pending / scheduled events
     boolean hasPendingEvents();
 }
