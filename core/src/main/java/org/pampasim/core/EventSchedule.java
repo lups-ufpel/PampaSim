@@ -1,6 +1,7 @@
 package org.pampasim.core;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import org.pampasim.core.events.Event;
 
@@ -28,6 +29,22 @@ public class EventSchedule {
             futureKeys.add(clock);
         }
         map.get(clock).add(event);
+    }
+
+    public Event removeFirstMatch(Predicate<Event> test) {
+        for (var entry : map.entrySet()) {
+            var array = entry.getValue();
+            for (var event : array) {
+                if (test.test(event)) {
+                    array.remove(event);
+                    if (array.isEmpty()) {
+                        futureKeys.remove(entry.getKey());
+                    }
+                    return event;
+                }
+            }
+        }
+        return null;
     }
 
     public Set<Map.Entry<Integer, ArrayList<Event>>> entries() {

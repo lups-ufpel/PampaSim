@@ -10,7 +10,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -22,17 +24,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.scopes.ProcessScope;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
@@ -81,6 +80,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     private Timeline animation;
     private Dialog<ButtonType> createProcessDialog;
+    private Dialog<ButtonType> editProcessDialog;
+    private ProcessViewModel editedProcessViewModel = null;
     private Dialog<ButtonType> selectSchedulerDialog;
 
     private ObservableList<ProcessViewModel> processList = FXCollections.observableArrayList();
@@ -119,6 +120,19 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         createProcessDialog.showAndWait();
     }
     @FXML
+    public void editProcess(MouseEvent mouseEvent) {
+        Node processCircle = (Node)mouseEvent.getSource();
+        Long creationId = (Long)processCircle.getUserData();
+        editedProcessViewModel = pampaSimViewModel.getProcessesByCreationId().get(creationId);
+        ProcessScope procScope = pampaSimViewModel.getCreateProcessScope();
+        // janky
+        //procScope.getPriorityProperty().setValue(editedProcessViewModel.getPriority().getValue());
+        //procScope.getDurationProperty().setValue(editedProcessViewModel.getCreationData().getDurationTicks());
+        //procScope.getStartTimeProperty().setValue(editedProcessViewModel.getCreationData().getArrivalTick());
+        //procScope.getColorProperty().setValue(editedProcessViewModel.getColor().getValue().toString());
+        editProcessDialog.showAndWait();
+    }
+    @FXML
     public void selectScheduler(ActionEvent actionEvent) {
         selectSchedulerDialog.showAndWait();
     }
@@ -150,19 +164,30 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     private ButtonType handleCreateProcessResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
             pampaSimViewModel.createNewProcess();
-            pampaSimViewModel.updateProps();
         }
+        return null;
+    }
 
+    private ButtonType handleEditProcessResult(ButtonType buttonType) {
+        if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
+            pampaSimViewModel.editProcess(editedProcessViewModel, false);
+        } else if (buttonType.getButtonData() == ButtonBar.ButtonData.LEFT) {
+            pampaSimViewModel.editProcess(editedProcessViewModel, true);
+        }
         return null;
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         createProcessDialog = new Dialog<>();
+        editProcessDialog = new Dialog<>();
         selectSchedulerDialog = new Dialog<>();
-        var processDialogPane = loadDialogPane(CreateProcessDialogView.class, pampaSimViewModel.getProcessScope());
+        var createProcessDialogPane = loadDialogPane(CreateProcessDialogView.class, pampaSimViewModel.getCreateProcessScope());
+        var editProcessDialogPane = loadDialogPane(EditProcessDialogView.class, pampaSimViewModel.getEditProcessScope());
+        LOGGER.debug("scope a {}\nscope b {}", pampaSimViewModel.getCreateProcessScope(), pampaSimViewModel.getEditProcessScope());
         var schedulerDialogPane = loadDialogPane(SelectSchedulerDialogView.class, pampaSimViewModel.getSchedulerScope());
-        configureDialog(createProcessDialog,"Create Process Window",processDialogPane,this::handleCreateProcessResult);
+        configureDialog(createProcessDialog,"Create Process Window",createProcessDialogPane,this::handleCreateProcessResult);
+        configureDialog(editProcessDialog,"Edit Process Window",editProcessDialogPane,this::handleEditProcessResult);
         configureDialog(selectSchedulerDialog,"Select Scheduler",schedulerDialogPane,this::handleSelectSchedulerResult);
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
@@ -264,7 +289,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     private Circle createCircleForProcess(ProcessViewModel process) {
         Circle circle = new Circle(30, process.getColor().getValue());
         circle.setId("proc" + String.valueOf(process.getCreationData().getCreationId())); // very important
-        circle.setUserData(process.getPriority());
+        circle.setUserData(process.getCreationData().getCreationId());
+        circle.setOnMouseClicked(this::editProcess);
         process.setCircleRepr(circle);
         return circle;
     }
