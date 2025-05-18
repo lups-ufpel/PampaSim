@@ -11,7 +11,6 @@ module org.pampasim.core {
     exports org.pampasim.core.dsl.errors;
     exports org.pampasim.core.entity;
     exports org.pampasim.core.events;
-    exports org.pampasim.core.resources;
     exports org.pampasim.core.utils;
     exports org.pampasim.core;
 }

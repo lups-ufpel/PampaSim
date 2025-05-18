@@ -15,13 +15,12 @@ import org.pampasim.core.EventSchedule;
 import org.pampasim.core.RealClock;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
-import org.pampasim.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
-import org.pampasim.core.resources.ProcessorCore;
+import org.pampasim.sim.resources.ProcessorCore;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.dsl.spec.Spec;
 
@@ -82,7 +81,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                                 processEvent.getProcess().getPid()
                                 );
                         break;
-            default: LOGGER.debug("black hole got event " + event); break;
+            default: LOGGER.debug("black hole got event {}", event); break;
         }
     }
 

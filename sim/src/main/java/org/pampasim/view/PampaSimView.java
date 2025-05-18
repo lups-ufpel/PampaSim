@@ -18,7 +18,7 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.core.resources.Process;
+import org.pampasim.sim.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;

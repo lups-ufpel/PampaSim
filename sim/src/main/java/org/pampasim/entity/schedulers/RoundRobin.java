@@ -3,7 +3,7 @@ package org.pampasim.entity.schedulers;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.Simulation;
-import org.pampasim.core.resources.Process;
+import org.pampasim.sim.resources.Process;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

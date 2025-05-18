@@ -1,8 +1,8 @@
 events {
-  External transmitting org.pampasim.core.resources.Process$CreationData {
+  External transmitting org.pampasim.sim.resources.Process$CreationData {
     Arrival;
   }
-  Process transmitting org.pampasim.core.resources.Process {
+  Process transmitting org.pampasim.sim.resources.Process {
     Allocate;
     Ready;
     Schedule;

@@ -1,4 +1,4 @@
-package org.pampasim.core.resources;
+package org.pampasim.sim.resources;
 
 public class ResourceManageableAbstract implements ResourceManageable {
     private long availableResource;

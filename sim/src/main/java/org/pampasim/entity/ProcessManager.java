@@ -3,8 +3,7 @@ package org.pampasim.entity;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.events.Event;
-import org.pampasim.core.resources.Process;
-import org.pampasim.events.*;
+import org.pampasim.sim.resources.Process;
 
 public class ProcessManager extends AbstractSimEntity {
 

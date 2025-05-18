@@ -2,9 +2,8 @@ package org.pampasim.entity.schedulers;
 
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
-import org.pampasim.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.core.resources.Process;
+import org.pampasim.sim.resources.Process;
 
 public abstract class Scheduler extends AbstractSimEntity {
     protected Process lastRunProcess;

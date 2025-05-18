@@ -1,16 +1,10 @@
-package org.pampasim.core.resources;
+package org.pampasim.sim.resources;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.core.EventInfo;
-import org.pampasim.core.EventListener;
-import org.pampasim.core.ProcessEventInfo;
 import org.pampasim.core.utils.PidAllocator.Pid;
-import java.util.HashSet;
 
 @Getter
 @EqualsAndHashCode
