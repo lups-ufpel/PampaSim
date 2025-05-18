@@ -230,9 +230,9 @@
                         </FontIcon>
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Salvar cenário" textFill="#ff6d00">
+                <Button fx:id="saveSpecBtn" alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#saveSpec" text="Salvar cenário" textFill="#ff6d00">
                     <tooltip>
-                        <Tooltip text="Criar processo" />
+                        <Tooltip text="Salva arquivo de descrição de cenário" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconColor="#ff6d00" iconLiteral="fth-save" iconSize="22">
