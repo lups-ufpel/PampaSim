@@ -129,9 +129,8 @@ public class Spec {
     public void setSchedulerInfo(String name, Optional<Integer> quantum) {
         try (ScanResult scanResult =
                      new ClassGraph()
-                             .verbose()
-                             //.enableClassInfo()
-                             .enableAllInfo()
+                             .enableClassInfo()
+                             //.enableAllInfo()
                              .acceptPackages("org.pampasim") // dunno if needed
                              .scan()
         ) {
