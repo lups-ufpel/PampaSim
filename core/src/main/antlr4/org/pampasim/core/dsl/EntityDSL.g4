@@ -51,35 +51,37 @@ pathRule locals [Path path]: (acc+='..' '/' | acc+='.' '/')? acc += ID ('/' ID)*
     $path = $acc.stream().map(a -> Paths.get(a.getText())).reduce((l,r) -> l.resolve(r)).orElseThrow();
 };
 eventDeclsBlock: '{' eventGroupDecl+ '}';
-eventGroupDecl locals [Class<?> dataClass, String prefix]:
+eventGroupDecl locals [EventGroup eventGroup]:
     prefixTok=ID 'transmitting' associatedType=eventDataType
     {
-        $prefix = $prefixTok.text;
+        var prefix = $prefixTok.text;
+        Class<?> dataClass;
         if ($associatedType.start.getType() != NOTHING_KW) {
             try {
-            $dataClass = Class.forName($associatedType.text);
+            dataClass = Class.forName($associatedType.text);
             } catch (ClassNotFoundException cnfe) {
                 throw new InvalidEventData($associatedType.text);
             }
         } else {
-            $dataClass = null;
+            dataClass = null;
         }
-        eventGroups.computeIfAbsent($prefix, _k -> new EventGroup($prefix, new HashSet<>(), $dataClass));
+        $eventGroup = new EventGroup(prefix, new HashSet<>(), dataClass);
+        eventGroups.computeIfAbsent(prefix, _k -> $eventGroup);
     }
     eventDeclList;
 eventDataType: javaType | NOTHING_KW;
 javaType: ID (('.'|'$') ID)*?;
 eventDeclList: '{' (eventsList+=eventData ';')+ '}' {
-    // FIXME: the associated type is ignored for now
+    EventGroup eventGroup = $eventGroupDecl::eventGroup;
     for (var evdata : $eventsList) {
-        var evName = $eventGroupDecl::prefix + "." + evdata.start.getText();
+        var evName = eventGroup.name() + "." + evdata.start.getText();
         var realtime = evdata.stop != evdata.start;
-        Event ev = new Event(evName, $eventGroupDecl::dataClass, realtime);
+        Event ev = new Event(evName, eventGroup, realtime);
         var evicted = events.put(evName, ev);
         if (evicted != null) {
             throw new DuplicateEvent(ev);
         }
-        eventGroups.get($eventGroupDecl::prefix).events().add(ev);
+        eventGroup.events().add(ev);
     }
 };
 eventData: eventName=ID realtimeOpt=REALTIME_KW?;

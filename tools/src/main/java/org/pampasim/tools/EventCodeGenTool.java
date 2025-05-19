@@ -1,6 +1,5 @@
 package org.pampasim.tools;
 
-import lombok.SneakyThrows;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -13,8 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 /// Generates all the event classes from a simulation description file
@@ -112,7 +109,7 @@ public class EventCodeGenTool {
         System.out.println("processing event " + event);
         var classNameParts = event.getName().split("\\.");
         var className = classNameParts[classNameParts.length-1];
-        return  "package " + destinationPackage + "." + groupInfo.eventGroup.prefix() + ";\n" +
+        return  "package " + destinationPackage + "." + groupInfo.eventGroup.name() + ";\n" +
                 "import org.pampasim.core.events.*;\n" +
                 "import org.pampasim.core.entity.SimEntity;\n" +
                 "import " + destinationPackage + ".*;\n" +
@@ -124,7 +121,7 @@ public class EventCodeGenTool {
     }
 
     static void writeSubClass(GroupInfo groupInfo, Event event) throws IOException {
-        var groupPath = pkgPath.resolve(groupInfo.eventGroup.prefix());
+        var groupPath = pkgPath.resolve(groupInfo.eventGroup.name());
         Files.createDirectories(groupPath);
         var classNameParts = event.getName().split("\\.");
         var className = classNameParts[classNameParts.length-1];
