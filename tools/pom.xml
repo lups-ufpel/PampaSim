@@ -37,6 +37,11 @@
       <version>1.0</version>
     </dependency>
     <dependency>
+      <groupId>org.pampasim</groupId>
+      <artifactId>sim-datamodel</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
     </dependency>
