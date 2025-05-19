@@ -1,22 +1,19 @@
 package org.pampasim.core.utils;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.util.LinkedList;
 import java.util.Optional;
 
 public class PidAllocator {
+    @Data
     public static final class Pid implements Comparable<Pid>  {
-        @Getter
-        long id;
+        final long id;
         boolean inUse;
 
         public Pid(long id, boolean inUse) {
             this.id = id;
             this.inUse = inUse;
-        }
-        boolean isInUse() {
-            return inUse;
         }
         boolean isFree() {
             return !isInUse();

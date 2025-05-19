@@ -11,7 +11,7 @@ import org.pampasim.core.utils.PidAllocator;
 
 @Getter
 public class ProcessViewModel implements ViewModel {
-    private final ObjectProperty<PidAllocator.Pid> pidProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
     private final Process.CreationData creationData;
     private final IntegerProperty priority = new SimpleIntegerProperty();
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
@@ -24,6 +24,7 @@ public class ProcessViewModel implements ViewModel {
 
     public ProcessViewModel(Process.CreationData cdata) {
         this.creationData = cdata;
+        //this.pid.setValue(null);
         this.state.setValue(Process.State.NEW); // bodge fix for now
     }
 

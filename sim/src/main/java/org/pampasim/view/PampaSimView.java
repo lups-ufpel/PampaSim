@@ -66,7 +66,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public TableColumn<ProcessViewModel, Color> colorCol;
     @FXML
-    public TableColumn<ProcessViewModel, PidAllocator.Pid> pidCol;
+    public TableColumn<ProcessViewModel, String> pidCol;
     @FXML
     public TableColumn<ProcessViewModel, Process.State> stateCol;
     @FXML
@@ -241,8 +241,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 }
             }
         });
-        pidCol.setCellValueFactory(p -> p.getValue().getPidProperty());
-
+        pidCol.setCellValueFactory(p ->
+            p.getValue().getPid().map(Object::toString).orElse("Not yet decided")
+        );
         stateCol.setCellValueFactory(p -> p.getValue().getState());
         arrivalCol.setCellValueFactory(
                 p -> new ReadOnlyObjectWrapper<>(p.getValue().getCreationData().getArrivalTick())

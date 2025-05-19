@@ -50,20 +50,19 @@ public abstract class EventManager {
         it attempts to translate it to a different event type. If there is no translation, an exception is thrown
      */
     public void handleEvent(Event event) {
-        Event finalEvent = event;
-        snoopers.entrySet()
-                .stream()
-                .filter(e -> e.getKey().isInstance(finalEvent))
-                .forEach(e -> {
-                    for (var snooper : e.getValue()) {
-                        snooper.accept(finalEvent);
-                    }
-                });
-
         SimEntity handler = null;
         do {
             if (event == null) { return; }
             handler = handlers.get(event.getClass());
+            Event finalEvent = event;
+            snoopers.entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().isInstance(finalEvent))
+                    .forEach(e -> {
+                        for (var snooper : e.getValue()) {
+                            snooper.accept(finalEvent);
+                        }
+                    });
             if (handler == null) {
                 event = translateEvent(event);
             }
