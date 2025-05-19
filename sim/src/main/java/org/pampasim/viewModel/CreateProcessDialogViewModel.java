@@ -3,12 +3,13 @@ package org.pampasim.viewModel;
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.Property;
+import org.pampasim.scopes.CreateProcessScope;
 import org.pampasim.scopes.ProcessScope;
 
 public class CreateProcessDialogViewModel implements ViewModel {
 
     @InjectScope
-    private ProcessScope processScope;
+    private CreateProcessScope processScope;
 
     public Property<Integer> getStartProperty() {
         return processScope.getStartTimeProperty();

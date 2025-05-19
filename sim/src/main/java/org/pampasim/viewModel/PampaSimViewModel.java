@@ -1,6 +1,7 @@
 package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.InjectScope;
+import de.saxsys.mvvmfx.ScopeProvider;
 import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -26,6 +27,8 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.events.External.Arrival;
+import org.pampasim.scopes.CreateProcessScope;
+import org.pampasim.scopes.EditProcessScope;
 import org.pampasim.scopes.ProcessScope;
 import org.pampasim.scopes.SchedulerDialogScope;
 
@@ -36,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
-
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter
@@ -55,10 +57,10 @@ public class PampaSimViewModel implements ViewModel {
 
     @Getter
     @InjectScope
-    private ProcessScope createProcessScope;
+    private CreateProcessScope createProcessScope;
     @Getter
     @InjectScope
-    private ProcessScope editProcessScope;
+    private EditProcessScope editProcessScope;
     @InjectScope
     private SchedulerDialogScope schedulerDialogScope;
 
