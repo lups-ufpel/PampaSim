@@ -4,10 +4,18 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.memory.resources.PageFrameController;
 
 public class PhysicalMemory extends AbstractSimEntity {
-    public PhysicalMemory(Simulation simulation) {
+
+    PageFrameController mainMemory;
+    PageFrameController swapFile;
+
+    public PhysicalMemory(Simulation simulation, int mainMemorySize, int swapFileSize) {
         super(simulation);
+
+        mainMemory = new PageFrameController(mainMemorySize);
+        swapFile = new PageFrameController(swapFileSize);
 
         //TODO: Add the events which this entity handles
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
@@ -25,7 +33,7 @@ public class PhysicalMemory extends AbstractSimEntity {
             case IoOperation e -> handleMemoryIoOperation(e);
             case DiskOperation e -> handleMemoryDiskOperation(e);
             default -> throw new IllegalStateException(
-                    "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
+                    "[PhysicalMemory] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
             );
         }

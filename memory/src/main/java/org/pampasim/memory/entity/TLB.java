@@ -21,7 +21,7 @@ public class TLB extends AbstractSimEntity {
             case DeleteTlbEntry e -> handleMemoryDeleteTlbEntry(e);
             case TranslateVirtualAddress e -> handleTranslateVirtualAddress(e);
             default -> throw new IllegalStateException(
-                    "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
+                    "[TLB] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
             );
         }

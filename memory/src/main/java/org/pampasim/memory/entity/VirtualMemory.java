@@ -5,10 +5,16 @@ import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.memory.resources.PageFrameController;
 
 public class VirtualMemory extends AbstractSimEntity {
-    public VirtualMemory(Simulation simulation) {
+
+    PageFrameController virtualAddressRange;
+
+    public VirtualMemory(Simulation simulation, int virtualAddressRangeSize) {
         super(simulation);
+
+        virtualAddressRange = new PageFrameController(virtualAddressRangeSize);
 
         //TODO: Add the events which this entity handles
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
@@ -29,7 +35,7 @@ public class VirtualMemory extends AbstractSimEntity {
             case DiskOperationFinished e -> handleMemoryDiskOperationFinished(e);
             case ProcessReady e -> handleMemoryProcessReady(e);
             default -> throw new IllegalStateException(
-                    "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
+                    "[VirtualMemory] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
             );
         }

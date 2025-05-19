@@ -4,13 +4,20 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.memory.resources.PageTableEntry;
+import org.pampasim.memory.resources.ProcessPageTable;
 
-public class PageTable extends AbstractSimEntity {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-    //TODO: Add data structures to store the page table entries for each processs
+public class PageTableManager extends AbstractSimEntity {
 
-    public PageTable(Simulation simulation) {
+    private final Map<Long, Map<Long, ProcessPageTable>> pageTableMap;
+
+    public PageTableManager(Simulation simulation) {
         super(simulation);
+        pageTableMap = new HashMap<>();
 
         //TODO: Add the events which this entity handles
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
@@ -24,7 +31,7 @@ public class PageTable extends AbstractSimEntity {
             case DeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);
             case TlbNoTranslation e -> handleMemoryTlbNoTranslation(e);
             default -> throw new IllegalStateException(
-                    "[ProcessManager] Evento do tipo " + event.getClass().getSimpleName()
+                    "[PageTableManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
             );
         }
