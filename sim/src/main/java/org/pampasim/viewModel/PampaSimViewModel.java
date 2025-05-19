@@ -136,10 +136,10 @@ public class PampaSimViewModel implements ViewModel {
                             .filter(pvm -> {
                                 var cdata = proc.getCreationData();
                                 return !pvm.getInitialized().getValue() && (cdata == pvm.getCreationData());
-                            }) // FIXME/WARN: we can't be sure the found pvm corresponds to the created process object
+                            })
                             .findFirst()
                             .orElseThrow();
-                    procViewModel.getPidProperty().setValue(proc.getPid());
+                    procViewModel.getPid().setValue(proc.getPid());
                     procViewModel.getInitialized().set(true);
                     processes.put(proc.getPid(), procViewModel);
                 }
@@ -159,8 +159,8 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void updateProcessViewModel(ProcessViewModel pvm, Process proc) {
-        if (pvm.getPidProperty().getValue() == null) {
-            pvm.getPidProperty().setValue(proc.getPid()); // FIXME: temp fix for updating the PID after process arrival event assigns it's PID
+        if (pvm.getPid().getValue() == null) {
+            pvm.getPid().setValue(proc.getPid()); // FIXME: temp fix for updating the PID after process arrival event assigns its PID
         }
         pvm.setState(proc.getState());
         pvm.getPriority().setValue(proc.getPriority());
