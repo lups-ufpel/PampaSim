@@ -26,6 +26,14 @@ private Map<String, Entity> entities = new HashMap<>();
 private Map<String, EventGroup> eventGroups = new HashMap<>();
 @Getter
 private HashMap<String, Event> events = new HashMap<>();
+
+private Event getEvent(String eventName) throws UndeclaredEvent {
+    Event event = events.get(eventName);
+    if (event == null) {
+        throw new UndeclaredEvent(eventName);
+    }
+    return event;
+}
 }
 descriptionFile : eventsSection entitySection EOF;
 eventsSection: 'events' ('import' importList+=pathRule+)? eventDeclsBlock {
@@ -52,7 +60,7 @@ pathRule locals [Path path]: (acc+='..' '/' | acc+='.' '/')? acc += ID ('/' ID)*
 };
 eventDeclsBlock: '{' eventGroupDecl+ '}';
 eventGroupDecl locals [EventGroup eventGroup]:
-    prefixTok=ID 'transmitting' associatedType=eventDataType
+    prefixTok=ID TRANSMITTING_KW associatedType=eventDataType
     {
         var prefix = $prefixTok.text;
         Class<?> dataClass;
@@ -97,39 +105,56 @@ entity locals [Entity ent]: name=ID
         entities.put($ent.getName(), $ent);
     }
     ;
-entityBlock: '{' eventHandler+ '}';
+entityBlock: '{' eventHandler* transmitsBlock? '}';
 eventHandler
     locals [ Event event ]
     : 'on' eventName=ID {
-        $event = events.get($eventName.text);
-        if ($event == null) {
-            throw new UndeclaredEvent($eventName.text);
-        }
-    } mappings;
-mappings
-    : 'do' handlerMap
+        $event = getEvent($eventName.text);
+    } 'do' action=eventAction
+    {
+       Entity ent = $entity::ent;
+       var handler = new Handler(ent, $event, $action.chainOp, $action.descText);
+       ent.getHandlers().put($event, handler);
+    };
+eventAction returns [ Handler.ChainOp chainOp, String descText ]
+    : desc=eventHandlerDesc res=actionResult ';'
+    {
+        $chainOp = $res.chainOp;
+        $descText = $desc.text;
+    }
     ;
-handlerMap: eventAction;
-eventAction locals [ ArrayList<Event> chainedEvents = new ArrayList<>() ]
-    : desc=eventHandlerDesc actionResult ';'
+actionResult returns [ Handler.ChainOp chainOp ]
+    : 'chains' expr=chainExpr
+    {
+        $chainOp = $expr.chainOp;
+    }
+    | // Optional
+    ;
+transmitsBlock
+    : TRANSMITS_KW eventIds+=ID (eventIds+=ID)* ';'
     {
         Entity ent = $entity::ent;
-        Event event = $eventHandler::event;
-
-        var handler = new Handler(ent, event, $chainedEvents, $desc.text);
-        ent.getHandlers().put(event, handler);
+        ent.getTransmitList().addAll($eventIds
+            .stream().map(tok -> getEvent(tok.getText())).toList()
+        );
     }
     ;
-actionResult
-    : 'chains' eventId=ID {
-        Event event = events.get($eventId.text);
-        if (event == null) {
-            throw new UndeclaredEvent($eventId.text);
+parenChainExpr: '(' chainExpr ')';
+chainExpr returns [ Handler.ChainOp chainOp ]: NOTHING_KW
+    | singleEvent=ID
+        { $chainOp = new Handler.SingleChain(events.get($singleEvent.text)); }
+    | productList+=ID ('*' productList+=ID)*
+        { $chainOp = new Handler.ProductChain($productList
+                .stream()
+                .map(tok -> events.get(tok))
+                .toList());
         }
-        $eventAction::chainedEvents.add(event);
-    }
-    | 'nochain'
-    | // optional, equivalent to nochain
+    | sumList+=parenChainExpr ('+' sumList+=parenChainExpr)*
+        { $chainOp = new Handler.SumChain($sumList
+            .stream()
+            .map(rule -> rule.chainExpr().chainOp)
+            .toList());
+        }
     ;
 eventHandlerDesc: QUOTED;
 
@@ -140,5 +165,7 @@ QUOTED: '"' .*? '"';
 NOTHING_KW: 'nothing';
 CHAINS_KW: 'chains';
 REALTIME_KW: 'realtime';
+TRANSMITS_KW: 'transmits';
+TRANSMITTING_KW: 'transmitting';
 ID: [A-Za-z_][A-Za-z0-9_.]*;
 fragment COMMENT_LEADER: '//';

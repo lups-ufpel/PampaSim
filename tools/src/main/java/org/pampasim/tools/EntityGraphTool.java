@@ -111,11 +111,19 @@ public class EntityGraphTool {
                     dstSet.add(e);
                 }
                 { // Add to sources
-                    for (Event event : h.chainedEvents()) {
-                        Set<Entity> srcSet = eventSources.get(event);
-                        srcSet.add(e);
+                    Handler.ChainOp chains = h.chains();
+                    if (chains != null) {
+                        for (Event event : chains.getEvents()) {
+                            Set<Entity> srcSet = eventSources.get(event);
+                            srcSet.add(e);
+                        }
                     }
                 }
+            }
+            // Add to sources
+            for (Event event : e.getTransmitList()) {
+                Set<Entity> srcSet = eventSources.get(event);
+                srcSet.add(e);
             }
         }
 

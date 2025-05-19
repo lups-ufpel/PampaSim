@@ -20,20 +20,20 @@ events import sim/refactor.ent {
 PageTable {
   on Memory.DeletePageTableEntry do "delete page table entry" chains Memory.FreeProcessMemory;
   on Memory.Allocate do "allocate memory" chains Memory.AllocateFinished;
-  on Memory.TlbNoTranslation do "check page table" chains Memory.PageHit; // + Memory.PageFault;
+  on Memory.TlbNoTranslation do "check page table" chains (Memory.PageHit) + (Memory.PageFault);
 }
 
 PhysicalMemory {
   on Memory.FreeProcessMemory do "free process memory";
   on Memory.PageHit do "page hit" chains Memory.ProcessReady;
   on Memory.PageFault do "page fault" chains Memory.DiskOperation;
-  on Memory.DiskOperation do "time advance" chains Memory.DiskOperation; // can also lead to Memory.DiskOperationFinished
+  on Memory.DiskOperation do "time advance" chains (Memory.DiskOperation) + (Memory.DiskOperationFinished);
   on Memory.IoOperation do "start disk operation" chains Memory.DiskOperation;
 }
 
 TLB {
-  on Memory.TranslateVirtualAddress do "translate virtual address" chains Memory.PageHit; // + Memory.PageFault;
-  // can also not find a translation and chain Memory.TlbNoTranslation
+  on Memory.TranslateVirtualAddress do "translate virtual address" chains (Memory.PageHit) + (Memory.PageFault);
+  transmits Memory.TlbNoTranslation;
 }
 
 VirtualMemory {
