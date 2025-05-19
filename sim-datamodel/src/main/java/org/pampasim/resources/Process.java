@@ -34,9 +34,11 @@ public class Process {
     int burstTime; // length of the next "turn" on the processor
     @Setter
     private int priority;
-    private final int totalSize; // total number of pages the process occupies
+
+    // The next fields are relevant to the memory module
+    private final Integer size; // total number of pages the process occupies
     @Setter
-    private int virtualAddressStart; // where the start of the virtual address range is
+    private Integer virtualAddressStart; // where the start of the virtual address range is
 
     public Process(Pid pid, CreationData creationData) {
         this.pid = pid;
@@ -44,7 +46,10 @@ public class Process {
         this.creationData = creationData;
         this.burstTime = creationData.durationTicks;
         this.currExecTime = 0;
-        this.totalSize = 5; //TODO: Make the user able to define how many pages the process occupies
+
+        // The next fields are relevant to the memory module
+        this.size = 5; //TODO: Make the user able to define how many pages the process occupies
+        this.virtualAddressStart = null;
     }
 
     public int getRemainingExecutionTime() {

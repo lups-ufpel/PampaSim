@@ -26,6 +26,7 @@ public class PageTableManager extends AbstractSimEntity {
     }
 
     public void processEvent(Event event) {
+        //TODO: always handle process end events before allocation events
         switch (event) {
             case Allocate e -> handleMemoryAllocate(e);
             case DeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);

@@ -1,14 +1,24 @@
 package org.pampasim.memory.entity;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
+import org.pampasim.entity.Processor;
 import org.pampasim.events.Memory.*;
-import org.pampasim.core.events.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.events.Process.Kill;
+import org.pampasim.events.Process.Ready;
+import org.pampasim.events.Process.Run;
+import org.pampasim.events.Process.Schedule;
 import org.pampasim.memory.resources.PageFrameController;
+import org.pampasim.resources.Process;
+
+import java.util.OptionalInt;
 
 public class VirtualMemory extends AbstractSimEntity {
 
+    private final Logger LOGGER = LogManager.getLogger(VirtualMemory.class);
     PageFrameController virtualAddressRange;
 
     public VirtualMemory(Simulation simulation, int virtualAddressRangeSize) {
@@ -24,10 +34,11 @@ public class VirtualMemory extends AbstractSimEntity {
 
     @Override
     public void processEvent(Event event) {
+        //TODO: always handle process end events before allocation events
         switch (event) {
             case org.pampasim.events.Process.Allocate e -> handleProcessAllocate(e);
             case org.pampasim.events.Process.End e -> handleProcessEnd(e);
-            case org.pampasim.events.Process.Dispatch e -> handleProcessDispatch(e);
+            case org.pampasim.events.Process.Load e -> handleProcessLoad(e);
             case org.pampasim.events.Process.IoOperation e -> handleProcessIoOperation(e);
 
             case AllocateFinished e -> handleMemoryAllocateFinished(e);
@@ -42,47 +53,60 @@ public class VirtualMemory extends AbstractSimEntity {
     }
 
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
-        //TODO: Stub
-        // TODO: could also result in a ProcessKill event if there aren't enough pages available in the virtual memory for the process
-        scheduleToNextClock(new Allocate(this, event.getProcess()));
-        scheduleToNextClock(new org.pampasim.events.Process.Kill(this, event.getProcess()));
+        Process process = event.getProcess();
+        OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(process.getSize());
+
+        if (startAddressOpt.isEmpty()) {
+            scheduleToNextClock(new Kill(this, event.getProcess())); // not enough free addresses to allocate for the new process
+            LOGGER.debug("Processo de ID {} : Falha na alocação, não foi encontrado uma faixa de endereços", process.getPid().toString());
+            return;
+        }
+
+        int startAddress = startAddressOpt.getAsInt();
+        int endAddress = startAddress + process.getSize() - 1;
+        virtualAddressRange.allocatePageFrames(process.getPid(), startAddress, endAddress);
+        process.setVirtualAddressStart(startAddress);
+        LOGGER.debug("Processo de ID {} : Alocado com sucesso nos endereços {} a {}", process.getPid().toString(), startAddress, endAddress);
+        scheduleToNextClock(new org.pampasim.events.Process.Allocate(this, event.getProcess()));
+
     }
 
     private void handleProcessEnd(org.pampasim.events.Process.End event) {
-        //TODO: Stub
+        Process process = event.getProcess();
+        virtualAddressRange.freeProcessPageFrame(process.getPid());
+        LOGGER.debug("Processo de ID {} : Liberada a faixa de endereços virtuais", process.getPid().toString());
         scheduleToNextClock(new DeletePageTableEntry(this, event.getProcess()));
     }
 
-    private void handleProcessDispatch(org.pampasim.events.Process.Dispatch event) {
-        //TODO: Stub
+    private void handleProcessLoad(org.pampasim.events.Process.Load event) {
+        // TODO: add a check to make sure the process isn't trying to access outside its allocated addresses
         scheduleToNextClock(new TranslateVirtualAddress(this, event.getProcess()));
     }
 
     private void handleProcessIoOperation(org.pampasim.events.Process.IoOperation event) {
-        //TODO: Stub
+        // Nothing more than a hand off required
         scheduleToNextClock(new IoOperation(this, event.getProcess()));
+        //TODO: there needs to be info about how long the operation is, maybe inside the process?
     }
 
     private void handleMemoryAllocateFinished(AllocateFinished event) {
-        //TODO: Stub
-        scheduleToNextClock(new org.pampasim.events.Process.Ready(this, event.getProcess()));
+        // Nothing more than a hand off required
+        scheduleToNextClock(new Ready(this, event.getProcess()));
     }
 
     private void handleMemoryFreeProcessMemoryFinished(FreeProcessMemoryFinished event) {
-        //TODO: Stub
-        scheduleToNextClock(new org.pampasim.events.Process.Kill(this, event.getProcess()));
+        // Nothing more than a hand off required
+        scheduleToNextClock(new Kill(this, event.getProcess()));
     }
 
     private void handleMemoryDiskOperationFinished(DiskOperationFinished event) {
-        //TODO: Stub
-        scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
+        // Nothing more than a hand off required
+        scheduleToNextClock(new Schedule(this, event.getProcess()));
     }
 
     private void handleMemoryProcessReady(ProcessReady event) {
-        //TODO: Stub
-        //TODO: could also result in a ProcessSchedule event if there was an IO operation needed
-        scheduleToNextClock(new org.pampasim.events.Process.Run(this, event.getProcess()));
-        scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
+        // Nothing more than a hand off required
+        scheduleToNextClock(new Run(this, event.getProcess()));
     }
 
 }

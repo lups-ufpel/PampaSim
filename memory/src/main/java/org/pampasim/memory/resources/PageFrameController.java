@@ -19,7 +19,7 @@ public class PageFrameController {
         this.pageFrametoProcessMap = new HashMap<>();
     }
 
-    public boolean allocatePageFrames(Process process, int startPage, int endPage) {
+    public boolean allocatePageFrames(PidAllocator.Pid pid, int startPage, int endPage) {
         if (startPage < 0 || endPage >= totalPages || startPage > endPage) { // validating if the range requested is valid
             return false;
         }
@@ -30,7 +30,7 @@ public class PageFrameController {
             }
         }
 
-        long pidValue = process.getPid().getId();
+        long pidValue = pid.getId();
         Set<Integer> pages = processtoPageFrameMap.computeIfAbsent(pidValue, k -> new HashSet<>()); // creates an entry in processtoPageFrameMap if one doesn't exist
         // this is only needed if a process tries to allocate more memory after it's creation, which doesn't happen yet in the system's current state
 
@@ -38,8 +38,6 @@ public class PageFrameController {
             pages.add(page); // add to the list of pages owned by the process in processtoPageFrameMap
             pageFrametoProcessMap.put(page, pidValue); // add to the list of pages and who owns them in pageFrametoProcessMap
         }
-
-        process.setVirtualAddressStart(startPage);
 
         return true;
     }
