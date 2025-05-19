@@ -128,7 +128,7 @@ public class PampaSimViewModel implements ViewModel {
         LOGGER.debug("got {}", event);
         switch (event) {
             case org.pampasim.events.Process.Ready e: {
-                if (procViewModel == null) {
+                if (procViewModel == null) { // FIXME: noticed that this never gets run, the process' viewmodel is already defined in handleProcessCreationEvent, so the PID never gets assigned after it's created
                     procViewModel = processesByCreationId.values()
                             .stream()
                             .filter(pvm -> {
@@ -137,7 +137,7 @@ public class PampaSimViewModel implements ViewModel {
                             }) // FIXME/WARN: we can't be sure the found pvm corresponds to the created process object
                             .findFirst()
                             .orElseThrow();
-                    procViewModel.setPid(proc.getPid());
+                    procViewModel.getPidProperty().setValue(proc.getPid());
                     procViewModel.getInitialized().set(true);
                     processes.put(proc.getPid(), procViewModel);
                 }
@@ -157,6 +157,9 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void updateProcessViewModel(ProcessViewModel pvm, Process proc) {
+        if (pvm.getPidProperty().getValue() == null) {
+            pvm.getPidProperty().setValue(proc.getPid()); // FIXME: temp fix for updating the PID after process arrival event assigns it's PID
+        }
         pvm.setState(proc.getState());
         pvm.getPriority().setValue(proc.getPriority());
         pvm.getCurrExecTime().setValue(proc.getCurrExecTime());
