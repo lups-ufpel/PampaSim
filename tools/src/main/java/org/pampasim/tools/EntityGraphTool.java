@@ -55,9 +55,10 @@ public class EntityGraphTool {
 
         Set<Set<String>> mergeables = new HashSet<>();
         for (var ent : allEntities.values()) {
-            Set<EventGroup> acceptedGroups = ent.allAcceptedEvents().stream().flatMap(event ->
-                allEventGroups.values().stream().filter(group -> group.events().contains(event))
-            ).collect(Collectors.toSet());
+            Set<EventGroup> acceptedGroups = ent.allAcceptedEvents()
+                    .stream().map(event -> allEventGroups.get(event.getGroupName()))
+                    .collect(Collectors.toSet())
+                    ;
             dataColorMap.computeIfAbsent(acceptedGroups,_key -> dataColorMap.size()+1);
 
             for (var otherEnt : allEntities.values()) {
@@ -94,9 +95,10 @@ public class EntityGraphTool {
         Map<Entity, Node> entityNodes = new HashMap<>();
 
         for (Entity e : allEntities.values()) {
-            Set<EventGroup> acceptedGroups = e.allAcceptedEvents().stream().flatMap(event ->
-                    allEventGroups.values().stream().filter(group -> group.events().contains(event))
-            ).collect(Collectors.toSet());
+            Set<EventGroup> acceptedGroups = e.allAcceptedEvents()
+                    .stream().map(event -> allEventGroups.get(event.getGroupName()))
+                    .collect(Collectors.toSet())
+                    ;
             Node entNode = node(e.getName())
                     .with(Attributes.attr("height", e.getHandlers().size()))
                     .with(Attributes.attr("color", dataColorMap.get(acceptedGroups)));
