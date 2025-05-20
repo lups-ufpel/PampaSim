@@ -162,7 +162,7 @@ public class Spec {
                             .filter(ci -> !ci.isAbstract());
 
             return schedulerClasses.stream()
-                    .map(ClassInfo::getName)
+                    .map(ClassInfo::getSimpleName)
                     .sorted()
                     .collect(Collectors.toList());
         }

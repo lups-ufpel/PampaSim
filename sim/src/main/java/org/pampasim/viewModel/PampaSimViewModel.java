@@ -4,10 +4,6 @@ import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -17,6 +13,7 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.PampaSim;
+import org.pampasim.SchedulerSelection;
 import org.pampasim.SelectSchedulerDialogService;
 import org.pampasim.SimulatedScenario;
 import org.pampasim.core.*;
@@ -205,16 +202,14 @@ public class PampaSimViewModel implements ViewModel {
         updateProps();
     }
 
-    public void setSimulationScheduler() {
+    public void setSimulationScheduler(SchedulerSelection userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        String schedulerName = "FCFS";
-        Integer schedulerQuantum = 0;
         // TODO: It would be nice to disable the quantum input
         //  if it doesn't make sense for the currently selected algorithm
         simulatedScenario.getSpec()
                 .setSchedulerInfo(
-                        schedulerName,
-                        Optional.ofNullable(schedulerQuantum));
+                        userSelection.schedulerName(),
+                        Optional.of(userSelection.quantum()));
         simulatedScenario.resetToSpec();
     }
     public void startSimulation() {
@@ -285,12 +280,6 @@ public class PampaSimViewModel implements ViewModel {
     public void openSelectSchedulerDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
         System.out.println("Schedulers found: " + schedulers);
-        selectSchedulerDialogService.showDialog(schedulers).ifPresent(
-                selection -> {
-                    System.out.println("User chose  : " + selection.schedulerName());
-                    System.out.println("Preemptive  : " + selection.preemptive());
-                    System.out.println("Quantum     : " + selection.quantum());
-                }
-        );
+        selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
     }
 }
