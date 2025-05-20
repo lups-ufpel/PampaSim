@@ -4,30 +4,18 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.memory.PageFrameController;
-import org.pampasim.resources.memory.PageTableEntry;
-
-import java.util.Map;
 
 public class PhysicalMemory extends AbstractSimEntity {
 
     PageFrameController mainMemory;
     PageFrameController swapFile;
-    int maxFramesPerProcess;
-    PageReplacementAlgorithm pageReplacementAlgorithm;
-    // map that stores which frames are present in memory
-    Map<Long, PageTableEntry> frameMap;
 
-
-
-    public PhysicalMemory(Simulation simulation, int mainMemorySize, int swapFileSize, int maxFramesPerProcess, boolean globalReplacementPolicy, PageReplacementAlgorithm pageReplacementAlgorithm) {
+    public PhysicalMemory(Simulation simulation, int mainMemorySize, int swapFileSize) {
         super(simulation);
 
         mainMemory = new PageFrameController(mainMemorySize);
         swapFile = new PageFrameController(swapFileSize);
-        this.maxFramesPerProcess = maxFramesPerProcess;
-        this.pageReplacementAlgorithm = pageReplacementAlgorithm;
 
         //TODO: Add the events which this entity handles
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
