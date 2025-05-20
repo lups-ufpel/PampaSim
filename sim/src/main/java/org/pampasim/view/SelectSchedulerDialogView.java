@@ -16,26 +16,18 @@ public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialog
 
     @InjectViewModel
     SelectSchedulerDialogViewModel viewModel;
+
     @FXML
-    ChoiceBox<String> schedulerChoiceBox;
+    ChoiceBox<String> choiceBox;
     @FXML
-    CheckBox preemptionCheckBox;
+    CheckBox checkBox;
     @FXML
-    Spinner<Integer> quantumSpinner;
+    Spinner<Integer> spinner;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        schedulerChoiceBox.getItems().add("FCFS");
-        schedulerChoiceBox.setValue("FCFS");
-        schedulerChoiceBox.getItems().add("SJF");
-        schedulerChoiceBox.getItems().add("RoundRobin");
-        schedulerChoiceBox.getItems().add("Priority");
-        preemptionCheckBox.setSelected(false);
-        bindViewModel();
-    }
-    public void bindViewModel() {
-        viewModel.getSchedulerNameProperty().bind(schedulerChoiceBox.valueProperty());
-        viewModel.getPreemptionProperty().bind(preemptionCheckBox.selectedProperty());
-        quantumSpinner.getValueFactory().valueProperty().bindBidirectional(viewModel.getQuantumProperty());
+        viewModel.schedulerNameProperty().bind(choiceBox.valueProperty());
+        viewModel.hasPreemptionProperty().bind(checkBox.selectedProperty());
+        viewModel.quantumProperty().bind(spinner.getValueFactory().valueProperty());
     }
 }

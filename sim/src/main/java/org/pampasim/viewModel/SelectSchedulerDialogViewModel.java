@@ -1,21 +1,36 @@
 package org.pampasim.viewModel;
 
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import javafx.beans.property.Property;
-import org.pampasim.scopes.SchedulerDialogScope;
+import javafx.beans.property.*;
 
 public class SelectSchedulerDialogViewModel implements ViewModel {
-    @InjectScope
-    private SchedulerDialogScope schedulerDialogScope;
 
-    public Property<String> getSchedulerNameProperty() {
-        return schedulerDialogScope.getSchedulerNameProperty();
+    private final StringProperty schedulerName = new SimpleStringProperty();
+    private final BooleanProperty hasPreemption = new SimpleBooleanProperty(false);
+    private final IntegerProperty quantum = new SimpleIntegerProperty();
+
+
+    public String getSchedulerName() {
+        return schedulerName.get();
     }
-    public Property<Boolean> getPreemptionProperty() {
-        return schedulerDialogScope.getPreemptionProperty();
+
+    public StringProperty schedulerNameProperty() {
+        return schedulerName;
     }
-    public Property<Integer> getQuantumProperty() {
-        return schedulerDialogScope.getQuantumProperty();
+
+    public boolean isHasPreemption() {
+        return hasPreemption.get();
+    }
+
+    public BooleanProperty hasPreemptionProperty() {
+        return hasPreemption;
+    }
+
+    public int getQuantum() {
+        return quantum.get();
+    }
+
+    public IntegerProperty quantumProperty() {
+        return quantum;
     }
 }

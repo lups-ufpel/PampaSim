@@ -13,6 +13,7 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.PampaSim;
+import org.pampasim.SelectSchedulerDialogService;
 import org.pampasim.SimulatedScenario;
 import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
@@ -59,8 +60,7 @@ public class PampaSimViewModel implements ViewModel {
     @Getter
     @InjectScope
     private ProcessScope editProcessScope;
-    @InjectScope
-    private SchedulerDialogScope schedulerDialogScope;
+    public final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
 
     public SimulatedScenario simulatedScenario;
 
@@ -167,11 +167,6 @@ public class PampaSimViewModel implements ViewModel {
         pvm.getCurrExecTime().setValue(proc.getCurrExecTime());
         pvm.getBurstTime().setValue(proc.getBurstTime());
     }
-
-    public SchedulerDialogScope getSchedulerScope() {
-        return schedulerDialogScope;
-    }
-
     public void createNewProcess() {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var start = createProcessScope.getStartTimeProperty().getValue();
@@ -206,8 +201,8 @@ public class PampaSimViewModel implements ViewModel {
 
     public void setSimulationScheduler() {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        String schedulerName = schedulerDialogScope.getSchedulerNameProperty().getValue();
-        Integer schedulerQuantum = schedulerDialogScope.getQuantumProperty().getValue();
+        String schedulerName = "FCFS";
+        Integer schedulerQuantum = 0;
         // TODO: It would be nice to disable the quantum input
         //  if it doesn't make sense for the currently selected algorithm
         simulatedScenario.getSpec()
@@ -280,5 +275,9 @@ public class PampaSimViewModel implements ViewModel {
     public void updateProps() {
         simulationIsValidSetup.set(isValidSetup());
         scenarioIsSaved.set(simulatedScenario.isSaved());
+    }
+    public void openSelectSchedulerDialog() {
+        Optional<Object> result;
+        result = selectSchedulerDialogService.showDialog();
     }
 }
