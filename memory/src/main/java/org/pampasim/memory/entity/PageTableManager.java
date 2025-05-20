@@ -6,22 +6,25 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.events.Process.End;
+import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessPageTable;
 import org.pampasim.resources.Process;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PageTableManager extends AbstractSimEntity {
 
     private final Logger LOGGER = LogManager.getLogger(PageTableManager.class);
-    private final Map<Long, ProcessPageTable> pageTableMap;
+    // a map of all page tables for easy access later for algorithms that need to consult all process tables (for example, page substitution algorithms with a global policy)
+    private final Map<Long, ProcessPageTable> pageTableMap; // TODO: with the frame map in the physical memory, this likely isn't needed
 
 
     public PageTableManager(Simulation simulation) {
         super(simulation);
         pageTableMap = new HashMap<>();
+        this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
 
         //TODO: Add the events which this entity handles
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
@@ -30,7 +33,6 @@ public class PageTableManager extends AbstractSimEntity {
     }
 
     public void processEvent(Event event) {
-        //TODO: always handle process end events before allocation events
         switch (event) {
             case Allocate e -> handleMemoryAllocate(e);
             case DeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);
@@ -46,6 +48,7 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ProcessPageTable pageTable = new ProcessPageTable(processMemoryInfo.getSize());
+        processMemoryInfo.setPageTableEntry(pageTable);
         pageTableMap.put(process.getPid().getId(), pageTable);
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas criada com sucesso", process.getPid().toString());
         scheduleToNextClock(new AllocateFinished(this, event.getProcess()));
@@ -53,17 +56,45 @@ public class PageTableManager extends AbstractSimEntity {
 
     private void handleMemoryDeletePageTableEntry(DeletePageTableEntry event) {
         Process process = event.getProcess();
+        process.getModuleInfo(ProcessMemoryInfo.class).setPageTableEntry(null);
         pageTableMap.remove(process.getPid().getId());
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas removida com sucesso", process.getPid().toString());
         scheduleToNextClock(new FreeProcessMemory(this, event.getProcess()));
     }
 
     private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {
-        //TODO: the process will store which of it's pages its trying to access, that info is needed for this to work
-        //TODO: can result in a MemoryPageHit or a MemoryPageFault event
-        //TODO: Stub
+        Process process = event.getProcess();
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+        ProcessPageTable pageTable = processMemoryInfo.getPageTableEntry();
+
+        for(Integer access : accessList) {
+            PageTableEntry pageTableEntry = pageTable.getEntry(access);
+
+            if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
+                // if there is at least 1 page fault, suspend process and send a PageFault event
+                process.setState(Process.State.WAITING);
+                scheduleToNextClock(new PageFault(this, event.getProcess()));
+                break;
+            }
+        }
+        // If no page faults found, all entries were present in memory
         scheduleToNextClock(new PageHit(this, event.getProcess()));
-        scheduleToNextClock(new PageFault(this, event.getProcess()));
+    }
+
+    @Override
+    public void managedRun() {
+        while (!buffer.isEmpty()) {
+            processEvent(buffer.poll()); // Order: DeletePageTableEntry -> Allocate
+        }
+    }
+
+    private int getEventPriority(Event event) {
+        return switch (event) {
+            case DeletePageTableEntry _e -> 1;   // Highest priority
+            case Allocate _e -> 2;
+            default -> Integer.MAX_VALUE;
+        };
     }
 
 }
