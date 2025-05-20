@@ -12,10 +12,7 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.PampaSim;
-import org.pampasim.SchedulerSelection;
-import org.pampasim.SelectSchedulerDialogService;
-import org.pampasim.SimulatedScenario;
+import org.pampasim.*;
 import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
@@ -34,6 +31,7 @@ import org.pampasim.scopes.SchedulerDialogScope;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -63,7 +61,8 @@ public class PampaSimViewModel implements ViewModel {
     @Getter
     @InjectScope
     private ProcessScope editProcessScope;
-    public final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
+    private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
+    private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
 
     public SimulatedScenario simulatedScenario;
 
@@ -170,14 +169,10 @@ public class PampaSimViewModel implements ViewModel {
         pvm.getCurrExecTime().setValue(proc.getCurrExecTime());
         pvm.getBurstTime().setValue(proc.getBurstTime());
     }
-    public void createNewProcess() {
+    public void createNewProcess(CreateProcessRecord userProcess) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        var start = createProcessScope.getStartTimeProperty().getValue();
-        var duration = createProcessScope.getDurationProperty().getValue();
-        var priority = createProcessScope.getPriorityProperty().getValue();
-        var clr = createProcessScope.getColorProperty().getValue();
-        var creationData = new Process.CreationData(start, duration, priority);
-        this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(clr));
+        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
+        this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(userProcess.color()));
         resetSimulation();
         updateProps();
     }
@@ -279,7 +274,9 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void openSelectSchedulerDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
-        System.out.println("Schedulers found: " + schedulers);
         selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
+    }
+    public void openCreateProcessDialog() {
+        createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
     }
 }

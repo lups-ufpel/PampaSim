@@ -116,7 +116,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void createProcess(ActionEvent actionEvent) {
-        createProcessDialog.showAndWait();
+        pampaSimViewModel.openCreateProcessDialog();
+        //createProcessDialog.showAndWait();
     }
     @FXML
     public void editProcess(MouseEvent mouseEvent) {
@@ -153,7 +154,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     private ButtonType handleCreateProcessResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-            pampaSimViewModel.createNewProcess();
+            //pampaSimViewModel.createNewProcess();
         }
         return null;
     }

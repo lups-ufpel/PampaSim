@@ -25,4 +25,21 @@ public class CreateProcessDialogViewModel implements ViewModel {
     public Property<Color> colorHexProperty() {
         return selectedColor;
     }
+    public int getProcessStart() {
+        return processStart.get();
+    }
+    public int getProcessDuration() {
+        return processDuration.get();
+    }
+    public int getProcessPriority() {
+        return processPriority.get();
+    }
+    public String convertColor() {
+
+        Color col = selectedColor.get();
+        int r = (int) Math.round(col.getRed() * 255);
+        int g = (int) Math.round(col.getGreen() * 255);
+        int b = (int) Math.round(col.getBlue() * 255);
+        return String.format("#%02x%02x%02x", r, g, b);
+    }
 }
