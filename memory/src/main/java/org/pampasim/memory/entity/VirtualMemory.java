@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
+import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.events.Process.Kill;
@@ -14,6 +15,7 @@ import org.pampasim.resources.memory.PageFrameController;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
+import java.util.ArrayList;
 import java.util.OptionalInt;
 
 public class VirtualMemory extends AbstractSimEntity {
@@ -80,14 +82,33 @@ public class VirtualMemory extends AbstractSimEntity {
     }
 
     private void handleProcessLoad(org.pampasim.events.Process.Load event) {
-        // TODO: add a check to make sure the process isn't trying to access outside its allocated addresses
-        scheduleToNextClock(new TranslateVirtualAddress(this, event.getProcess()));
+        Process process = event.getProcess();
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+
+        try {
+            accessList.forEach(pageNo -> checkForIllegalAccess(processMemoryInfo.getVirtualAddressStart() + pageNo, process.getPid()));
+        } catch (SecurityException e) {
+            LOGGER.error("Process of Pid {} attempted to access a virtual address out of it's allocated range! Interrupting Process", process.getPid());
+            process.setState(Process.State.TERMINATED);
+            scheduleToNextClock(new Kill(this, process));
+            return;
+        }
+
+        scheduleToNextClock(new TranslateVirtualAddress(this, process));
+    }
+
+    private void checkForIllegalAccess(Integer address, PidAllocator.Pid pid) {
+        if (virtualAddressRange.getPageFrameOwner(address) != pid.getId()) {
+            throw new SecurityException("Access denied");
+        }
     }
 
     private void handleProcessIoOperation(org.pampasim.events.Process.IoOperation event) {
         // Nothing more than a hand off required
+        // This event is sent when the processor receives a Run event (after its pages are already in the main memory), and then checks if there is an IO operation.
+        // If yes, forward exec and then send the IoOperation event to be handled by the memory
         scheduleToNextClock(new IoOperation(this, event.getProcess()));
-        //TODO: there needs to be info about how long the operation is, maybe inside the process?
     }
 
     private void handleMemoryAllocateFinished(AllocateFinished event) {
