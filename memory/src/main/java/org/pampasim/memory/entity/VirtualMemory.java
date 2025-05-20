@@ -7,24 +7,27 @@ import org.pampasim.core.events.*;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.events.Process.Kill;
-import org.pampasim.events.Process.Ready;
-import org.pampasim.events.Process.Run;
-import org.pampasim.events.Process.Schedule;
+import org.pampasim.events.Memory.Allocate;
+import org.pampasim.events.Memory.IoOperation;
+import org.pampasim.events.Process.*;
 import org.pampasim.resources.memory.PageFrameController;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.OptionalInt;
+import java.util.PriorityQueue;
 
 public class VirtualMemory extends AbstractSimEntity {
+    //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
 
     private final Logger LOGGER = LogManager.getLogger(VirtualMemory.class);
     PageFrameController virtualAddressRange;
 
     public VirtualMemory(Simulation simulation, int virtualAddressRangeSize) {
         super(simulation);
+        this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
 
         virtualAddressRange = new PageFrameController(virtualAddressRangeSize);
 
@@ -36,7 +39,6 @@ public class VirtualMemory extends AbstractSimEntity {
 
     @Override
     public void processEvent(Event event) {
-        //TODO: always handle process end events before allocation events
         switch (event) {
             case org.pampasim.events.Process.Allocate e -> handleProcessAllocate(e);
             case org.pampasim.events.Process.End e -> handleProcessEnd(e);
@@ -129,6 +131,21 @@ public class VirtualMemory extends AbstractSimEntity {
     private void handleMemoryProcessReady(ProcessReady event) {
         // Nothing more than a hand off required
         scheduleToNextClock(new Run(this, event.getProcess()));
+    }
+
+    @Override
+    public void managedRun() {
+        while (!buffer.isEmpty()) {
+            processEvent(buffer.poll()); // Order: process.End -> PROCESS.Allocate
+        }
+    }
+
+    private int getEventPriority(Event event) {
+        return switch (event) {
+            case End _e -> 1;   // Highest priority
+            case Allocate _e -> 2;
+            default -> Integer.MAX_VALUE;
+        };
     }
 
 }
