@@ -4,7 +4,7 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.memory.resources.PageFrameController;
+import org.pampasim.resources.memory.PageFrameController;
 
 public class PhysicalMemory extends AbstractSimEntity {
 

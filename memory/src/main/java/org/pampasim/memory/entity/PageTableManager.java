@@ -6,13 +6,12 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.memory.resources.PageTableEntry;
-import org.pampasim.memory.resources.ProcessPageTable;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
+import org.pampasim.resources.memory.ProcessPageTable;
 import org.pampasim.resources.Process;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class PageTableManager extends AbstractSimEntity {
 
@@ -45,7 +44,8 @@ public class PageTableManager extends AbstractSimEntity {
 
     private void handleMemoryAllocate(Allocate event) {
         Process process = event.getProcess();
-        ProcessPageTable pageTable = new ProcessPageTable(process.getSize());
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        ProcessPageTable pageTable = new ProcessPageTable(processMemoryInfo.getSize());
         pageTableMap.put(process.getPid().getId(), pageTable);
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas criada com sucesso", process.getPid().toString());
         scheduleToNextClock(new AllocateFinished(this, event.getProcess()));
