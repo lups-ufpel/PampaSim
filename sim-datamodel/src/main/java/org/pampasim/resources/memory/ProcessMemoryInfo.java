@@ -36,6 +36,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.currentIoOperation = 0;
     }
 
+    // Access entries must be between 0 <= Access Entry <= size-1
     public void addAccessEntry(int index, ArrayList<Integer> accessList) {
         addressAccessList.add(index, accessList);
     }
