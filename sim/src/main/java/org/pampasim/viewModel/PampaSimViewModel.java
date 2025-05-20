@@ -285,7 +285,12 @@ public class PampaSimViewModel implements ViewModel {
     public void openSelectSchedulerDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
         System.out.println("Schedulers found: " + schedulers);
-        Optional<Object> result;
-        result = selectSchedulerDialogService.showDialog();
+        selectSchedulerDialogService.showDialog(schedulers).ifPresent(
+                selection -> {
+                    System.out.println("User chose  : " + selection.schedulerName());
+                    System.out.println("Preemptive  : " + selection.preemptive());
+                    System.out.println("Quantum     : " + selection.quantum());
+                }
+        );
     }
 }

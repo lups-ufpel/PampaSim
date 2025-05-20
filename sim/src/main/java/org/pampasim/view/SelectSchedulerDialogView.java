@@ -26,8 +26,16 @@ public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialog
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        viewModel.schedulerNameProperty().bind(choiceBox.valueProperty());
-        viewModel.hasPreemptionProperty().bind(checkBox.selectedProperty());
+        // list of options
+        choiceBox.itemsProperty().bindBidirectional(viewModel.schedulerNameProperty());
+
+        // selected value
+        choiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
+
+        // pre-emptive flag
+        checkBox.selectedProperty().bindBidirectional(viewModel.preemptiveProperty());
+
+        // quantum
         viewModel.quantumProperty().bind(spinner.getValueFactory().valueProperty());
     }
 }

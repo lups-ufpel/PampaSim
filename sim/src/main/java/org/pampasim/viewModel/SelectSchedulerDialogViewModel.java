@@ -2,35 +2,47 @@ package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.util.List;
 
 public class SelectSchedulerDialogViewModel implements ViewModel {
 
-    private final StringProperty schedulerName = new SimpleStringProperty();
-    private final BooleanProperty hasPreemption = new SimpleBooleanProperty(false);
-    private final IntegerProperty quantum = new SimpleIntegerProperty();
+    private final ObjectProperty<ObservableList<String>> schedulerName = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+
+    // ─────────────── Values the user can change ─────────────
+    private final StringProperty selectedScheduler = new SimpleStringProperty();
+    private final BooleanProperty preemptive       = new SimpleBooleanProperty(false);
+    private final IntegerProperty quantum          = new SimpleIntegerProperty();
 
 
-    public String getSchedulerName() {
-        return schedulerName.get();
+    /* ========== public API ========== */
+
+    public void setSchedulerNames(List<String> names) {
+        schedulerName.get().setAll(names);
+        if(!schedulerName.get().isEmpty() && selectedScheduler.get() == null) {
+            selectedScheduler.set(schedulerName.get().getFirst());
+        }
     }
 
-    public StringProperty schedulerNameProperty() {
+    public ObjectProperty<ObservableList<String>> schedulerNameProperty () {
         return schedulerName;
     }
 
-    public boolean isHasPreemption() {
-        return hasPreemption.get();
+    public StringProperty selectedSchedulerProperty() {
+        return selectedScheduler;
     }
-
-    public BooleanProperty hasPreemptionProperty() {
-        return hasPreemption;
+    public BooleanProperty preemptiveProperty() {
+        return preemptive;
     }
-
-    public int getQuantum() {
-        return quantum.get();
-    }
-
     public IntegerProperty quantumProperty() {
         return quantum;
     }
+
+    /* Helper getters (used by the service after showAndWait()) */
+    public String  getSelectedScheduler() { return selectedScheduler.get(); }
+    public boolean isPreemptive()         { return preemptive.get();        }
+    public int     getQuantum()           { return quantum.get();           }
+
 }
