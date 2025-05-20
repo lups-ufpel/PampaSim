@@ -1,28 +1,28 @@
 package org.pampasim.viewModel;
 
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import javafx.beans.property.Property;
-import org.pampasim.scopes.ProcessScope;
+import javafx.beans.property.*;
+import javafx.scene.paint.Color;
 
 public class CreateProcessDialogViewModel implements ViewModel {
 
-    @InjectScope
-    private ProcessScope processScope;
 
-    public Property<Integer> getStartProperty() {
-        return processScope.getStartTimeProperty();
+    private final IntegerProperty processStart = new SimpleIntegerProperty();
+    private final IntegerProperty processDuration = new SimpleIntegerProperty();
+    private final IntegerProperty processPriority = new SimpleIntegerProperty();
+
+    private final ObjectProperty<javafx.scene.paint.Color> selectedColor = new SimpleObjectProperty<>(javafx.scene.paint.Color.BLUE);
+
+    public IntegerProperty processStartProperty() {
+        return processStart;
     }
-
-    public Property<Integer> getDurationProperty() {
-        return processScope.getDurationProperty();
+    public IntegerProperty processDurationProperty() {
+        return processDuration;
     }
-
-    public Property<Integer> getPriorityProperty() {
-        return processScope.getPriorityProperty();
+    public IntegerProperty processPriorityProperty() {
+        return processPriority;
     }
-
-    public Property<String> getColorProperty(){
-        return processScope.getColorProperty();
+    public Property<Color> colorHexProperty() {
+        return selectedColor;
     }
 }
