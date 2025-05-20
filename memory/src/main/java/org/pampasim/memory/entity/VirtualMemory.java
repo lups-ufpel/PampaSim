@@ -12,6 +12,7 @@ import org.pampasim.events.Process.Run;
 import org.pampasim.events.Process.Schedule;
 import org.pampasim.resources.memory.PageFrameController;
 import org.pampasim.resources.Process;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.OptionalInt;
 
@@ -53,7 +54,8 @@ public class VirtualMemory extends AbstractSimEntity {
 
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
         Process process = event.getProcess();
-        OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(process.getSize());
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(processMemoryInfo.getSize());
 
         if (startAddressOpt.isEmpty()) {
             scheduleToNextClock(new Kill(this, event.getProcess())); // not enough free addresses to allocate for the new process
@@ -62,9 +64,9 @@ public class VirtualMemory extends AbstractSimEntity {
         }
 
         int startAddress = startAddressOpt.getAsInt();
-        int endAddress = startAddress + process.getSize() - 1;
+        int endAddress = startAddress + processMemoryInfo.getSize() - 1;
         virtualAddressRange.allocatePageFrames(process.getPid(), startAddress, endAddress);
-        process.setVirtualAddressStart(startAddress);
+        processMemoryInfo.setVirtualAddressStart(startAddress);
         LOGGER.debug("Processo de ID {} : Alocado com sucesso nos endereços {} a {}", process.getPid().toString(), startAddress, endAddress);
         scheduleToNextClock(new org.pampasim.events.Process.Allocate(this, event.getProcess()));
 
