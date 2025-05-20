@@ -19,7 +19,7 @@ public class PageFrameController {
     }
 
     public boolean allocatePageFrames(PidAllocator.Pid pid, int startPage, int endPage) {
-        if (startPage < 0 || endPage >= totalPages || startPage > endPage) { // validating if the range requested is valid
+        if (startPage < 0 || endPage >= totalPages || startPage >= endPage) { // validating if the range requested is valid
             return false;
         }
 
@@ -51,6 +51,19 @@ public class PageFrameController {
         }
     }
 
+    public void freePageFrame(Integer pageFrame) {
+        Long pid = pageFrametoProcessMap.remove(pageFrame);
+        if (pid != null) {
+            Set<Integer> pages = processtoPageFrameMap.get(pid);
+            if (pages != null) {
+                pages.remove(pageFrame);
+                if (pages.isEmpty()) {
+                    processtoPageFrameMap.remove(pid);
+                }
+            }
+        }
+    }
+
     public boolean isPageFrameAllocated(int page) {
         return pageFrametoProcessMap.containsKey(page);
     }
@@ -69,6 +82,9 @@ public class PageFrameController {
 
     public int getTotalAllocatedPageFrames() {
         return pageFrametoProcessMap.size();
+    }
+    public int getTotalProcessPageFrames(PidAllocator.Pid pid) {
+        return processtoPageFrameMap.get(pid.getId()).size();
     }
 
     public OptionalInt findFirstContiguousFreeRange(int rangeSize) { // finds the first contiguous range of size "rangeSize" and returns the index where the range starts

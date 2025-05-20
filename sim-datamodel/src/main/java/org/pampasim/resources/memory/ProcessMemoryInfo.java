@@ -26,7 +26,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     @Setter
     private int currentIoOperation;
     @Setter
-    private ProcessPageTable pageTableEntry; // reference to the process' page table
+    private ProcessPageTable pageTable; // reference to the process' page table
 
 
     public ProcessMemoryInfo(Process process, Integer size) {

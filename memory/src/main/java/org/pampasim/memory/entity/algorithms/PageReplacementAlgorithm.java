@@ -16,5 +16,5 @@ public abstract class PageReplacementAlgorithm {
         this.globalReplacementPolicy = globalReplacementPolicy;
     }
 
-    public abstract List<PageTableEntry> pickPagesToSwap(int quantity);
+    public abstract List<PageTableEntry> pickPagesToSwap(int quantity, List<PageTableEntry> pageTableEntries);
 }

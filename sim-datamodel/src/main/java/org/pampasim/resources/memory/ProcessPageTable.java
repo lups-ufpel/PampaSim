@@ -1,5 +1,7 @@
 package org.pampasim.resources.memory;
 
+import java.util.ArrayList;
+
 public class ProcessPageTable {
     // page table that stores the page table entries for each process
     private final PageTableEntry[] entries;
@@ -17,6 +19,12 @@ public class ProcessPageTable {
             throw new IllegalArgumentException("Page Number out of bounds!: " + pageNumber);
         }
         return entries[pageNumber];
+    }
+
+    public PageTableEntry[] getEntries(ArrayList<Integer> list) {
+        return list.stream()
+                .map(this::getEntry)
+                .toArray(PageTableEntry[]::new);
     }
 
     // Update an entry
