@@ -22,8 +22,11 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private final Map<Integer, Integer> IoOperationSchedule;
     // current IO operation, the processor is responsible for setting this if there is an IO operation.
     // Otherwise, it is used for timing the delay of the IO operations needed to handle page faults
+    //TODO: Add a field to define which pages are modifiable vs purely executable (to justify the dirty bit)
     @Setter
     private int currentIoOperation;
+    @Setter
+    private ProcessPageTable pageTableEntry; // reference to the process' page table
 
 
     public ProcessMemoryInfo(Process process, Integer size) {
