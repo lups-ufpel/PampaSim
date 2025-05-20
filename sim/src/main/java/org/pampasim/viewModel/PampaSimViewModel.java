@@ -4,6 +4,10 @@ import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -35,8 +39,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
@@ -277,6 +283,8 @@ public class PampaSimViewModel implements ViewModel {
         scenarioIsSaved.set(simulatedScenario.isSaved());
     }
     public void openSelectSchedulerDialog() {
+        List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
+        System.out.println("Schedulers found: " + schedulers);
         Optional<Object> result;
         result = selectSchedulerDialogService.showDialog();
     }

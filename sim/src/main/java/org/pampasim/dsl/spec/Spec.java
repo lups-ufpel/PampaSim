@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /// Data to set up a simulation scenario
@@ -145,6 +146,25 @@ public class Spec {
             } catch (ClassCastException e) {
                 throw new RuntimeException("type cast error during scheduler class load: " + e);
             }
+        }
+    }
+
+    public List<String> listAvailableSchedulers() {
+        try (ScanResult scanResult = new ClassGraph()
+                .enableClassInfo()
+                .ignoreClassVisibility()
+                .acceptPackages("org.pampasim")
+                .scan()
+        ) {
+            ClassInfoList schedulerClasses =
+                    scanResult.getSubclasses(Scheduler.class.getName())
+                            .filter(ClassInfo::isStandardClass)
+                            .filter(ci -> !ci.isAbstract());
+
+            return schedulerClasses.stream()
+                    .map(ClassInfo::getName)
+                    .sorted()
+                    .collect(Collectors.toList());
         }
     }
 
