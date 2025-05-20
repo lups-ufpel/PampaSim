@@ -48,7 +48,7 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ProcessPageTable pageTable = new ProcessPageTable(processMemoryInfo.getSize());
-        processMemoryInfo.setPageTableEntry(pageTable);
+        processMemoryInfo.setPageTable(pageTable);
         pageTableMap.put(process.getPid().getId(), pageTable);
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas criada com sucesso", process.getPid().toString());
         scheduleToNextClock(new AllocateFinished(this, event.getProcess()));
@@ -56,7 +56,7 @@ public class PageTableManager extends AbstractSimEntity {
 
     private void handleMemoryDeletePageTableEntry(DeletePageTableEntry event) {
         Process process = event.getProcess();
-        process.getModuleInfo(ProcessMemoryInfo.class).setPageTableEntry(null);
+        process.getModuleInfo(ProcessMemoryInfo.class).setPageTable(null);
         pageTableMap.remove(process.getPid().getId());
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas removida com sucesso", process.getPid().toString());
         scheduleToNextClock(new FreeProcessMemory(this, event.getProcess()));
@@ -66,19 +66,25 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
-        ProcessPageTable pageTable = processMemoryInfo.getPageTableEntry();
+        ProcessPageTable pageTable = processMemoryInfo.getPageTable();
 
         for(Integer access : accessList) {
             PageTableEntry pageTableEntry = pageTable.getEntry(access);
 
             if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
                 // if there is at least 1 page fault, suspend process and send a PageFault event
+                if (pageTableEntry.getFrameAddress() != null) {
+                    LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Sem tradução)", process.getPid().toString());
+                } else {
+                    LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Bit válido 0)", process.getPid().toString());
+                }
                 process.setState(Process.State.WAITING);
                 scheduleToNextClock(new PageFault(this, event.getProcess()));
                 break;
             }
         }
         // If no page faults found, all entries were present in memory
+        LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou somente Page Hits", process.getPid().toString());
         scheduleToNextClock(new PageHit(this, event.getProcess()));
     }
 
