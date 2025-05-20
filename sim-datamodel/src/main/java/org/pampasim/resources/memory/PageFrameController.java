@@ -1,7 +1,6 @@
-package org.pampasim.memory.resources;
+package org.pampasim.resources.memory;
 
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.resources.Process;
 
 import java.util.*;
 

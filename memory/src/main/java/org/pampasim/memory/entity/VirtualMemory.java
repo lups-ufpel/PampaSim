@@ -4,14 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.entity.Processor;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.events.Process.Kill;
 import org.pampasim.events.Process.Ready;
 import org.pampasim.events.Process.Run;
 import org.pampasim.events.Process.Schedule;
-import org.pampasim.memory.resources.PageFrameController;
+import org.pampasim.resources.memory.PageFrameController;
 import org.pampasim.resources.Process;
 
 import java.util.OptionalInt;

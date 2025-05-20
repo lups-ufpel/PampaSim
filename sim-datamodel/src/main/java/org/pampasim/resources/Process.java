@@ -4,7 +4,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
+
+import java.util.ArrayList;
 
 @Getter
 @EqualsAndHashCode
@@ -36,9 +39,9 @@ public class Process {
     private int priority;
 
     // The next fields are relevant to the memory module
-    private final Integer size; // total number of pages the process occupies
-    @Setter
-    private Integer virtualAddressStart; // where the start of the virtual address range is
+
+    private final ArrayList<ProcessModuleInfo> moduleInfo;
+
 
     public Process(Pid pid, CreationData creationData) {
         this.pid = pid;
@@ -46,10 +49,7 @@ public class Process {
         this.creationData = creationData;
         this.burstTime = creationData.durationTicks;
         this.currExecTime = 0;
-
-        // The next fields are relevant to the memory module
-        this.size = 5; //TODO: Make the user able to define how many pages the process occupies
-        this.virtualAddressStart = null;
+        this.moduleInfo = new ArrayList<>();
     }
 
     public int getRemainingExecutionTime() {
@@ -103,4 +103,17 @@ public class Process {
         SIMPLE,
 
     }
+
+    public void addModuleInfo(ProcessModuleInfo moduleInfo) {
+        this.moduleInfo.add(moduleInfo);
+    }
+
+    public <T extends ProcessModuleInfo> T getModuleInfo(Class<T> moduleClass) {
+        return moduleInfo.stream()
+                .filter(moduleClass::isInstance)
+                .map(moduleClass::cast)
+                .findFirst()
+                .orElse(null);
+    }
+
 }

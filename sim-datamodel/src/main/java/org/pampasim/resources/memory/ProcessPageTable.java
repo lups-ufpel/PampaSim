@@ -1,4 +1,4 @@
-package org.pampasim.memory.resources;
+package org.pampasim.resources.memory;
 
 public class ProcessPageTable {
     // page table that stores the page table entries for each process

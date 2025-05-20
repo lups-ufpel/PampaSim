@@ -1,4 +1,4 @@
-package org.pampasim.memory.resources;
+package org.pampasim.resources.memory;
 
 import lombok.Getter;
 import lombok.Setter;
