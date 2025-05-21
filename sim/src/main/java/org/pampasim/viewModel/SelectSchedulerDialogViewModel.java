@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SelectSchedulerDialogViewModel implements ViewModel {
 
-    private final ObjectProperty<ObservableList<String>> schedulerName = new SimpleObjectProperty<>(FXCollections.observableArrayList());
+    private final ObservableList<String> schedulerName = FXCollections.observableArrayList();
 
     // ─────────────── Values the user can change ─────────────
     private final StringProperty selectedScheduler = new SimpleStringProperty();
@@ -20,13 +20,17 @@ public class SelectSchedulerDialogViewModel implements ViewModel {
     /* ========== public API ========== */
 
     public void setSchedulerNames(List<String> names) {
-        schedulerName.get().setAll(names);
-        if(!schedulerName.get().isEmpty() && selectedScheduler.get() == null) {
-            selectedScheduler.set(schedulerName.get().getFirst());
+        schedulerName.setAll(names);
+        setDefaultSelectedScheduler(names);
+    }
+
+    public void setDefaultSelectedScheduler(List<String> names) {
+        if(!names.isEmpty()) {
+            selectedScheduler.set(names.get(0));
         }
     }
 
-    public ObjectProperty<ObservableList<String>> schedulerNameProperty () {
+    public ObservableList<String> schedulerNameProperty () {
         return schedulerName;
     }
 
