@@ -124,13 +124,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         Node processCircle = (Node)mouseEvent.getSource();
         Long creationId = (Long)processCircle.getUserData();
         editedProcessViewModel = pampaSimViewModel.getProcessesByCreationId().get(creationId);
-        ProcessScope procScope = pampaSimViewModel.getCreateProcessScope();
-        // janky
-        //procScope.getPriorityProperty().setValue(editedProcessViewModel.getPriority().getValue());
-        //procScope.getDurationProperty().setValue(editedProcessViewModel.getCreationData().getDurationTicks());
-        //procScope.getStartTimeProperty().setValue(editedProcessViewModel.getCreationData().getArrivalTick());
-        //procScope.getColorProperty().setValue(editedProcessViewModel.getColor().getValue().toString());
-        editProcessDialog.showAndWait();
+        pampaSimViewModel.openEditProcessDialog(editedProcessViewModel);
     }
     @FXML
     public void onSelectScheduler(ActionEvent actionEvent) {
@@ -161,22 +155,15 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     private ButtonType handleEditProcessResult(ButtonType buttonType) {
         if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-            pampaSimViewModel.editProcess(editedProcessViewModel, false);
+            //pampaSimViewModel.editProcess(editedProcessViewModel, false);
         } else if (buttonType.getButtonData() == ButtonBar.ButtonData.LEFT) {
-            pampaSimViewModel.editProcess(editedProcessViewModel, true);
+            //pampaSimViewModel.editProcess(editedProcessViewModel, true);
         }
         return null;
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        createProcessDialog = new Dialog<>();
-        editProcessDialog = new Dialog<>();
-        var createProcessDialogPane = loadDialogPane(CreateProcessDialogView.class, pampaSimViewModel.getCreateProcessScope());
-        var editProcessDialogPane = loadDialogPane(EditProcessDialogView.class, pampaSimViewModel.getEditProcessScope());
-        LOGGER.debug("scope a {}\nscope b {}", pampaSimViewModel.getCreateProcessScope(), pampaSimViewModel.getEditProcessScope());
-        configureDialog(createProcessDialog,"Create Process Window",createProcessDialogPane,this::handleCreateProcessResult);
-        configureDialog(editProcessDialog,"Edit Process Window",editProcessDialogPane,this::handleEditProcessResult);
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();

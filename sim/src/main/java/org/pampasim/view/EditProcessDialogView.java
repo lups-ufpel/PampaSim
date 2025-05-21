@@ -2,6 +2,7 @@ package org.pampasim.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -34,19 +35,16 @@ public class EditProcessDialogView implements FxmlView<EditProcessDialogViewMode
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        bindViewValues();
+        viewModel.processStartProperty().bind(startSpinner.getValueFactory().valueProperty());
+        viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
+        viewModel.processPriorityProperty().bind(durationSpinner.getValueFactory().valueProperty());
+        colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
+        colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
     }
-
-    public void bindViewValues() {
-        viewModel.getStartProperty().bind(startSpinner.valueProperty());
-        viewModel.getDurationProperty().bind(durationSpinner.valueProperty());
-        viewModel.getPriorityProperty().bind(prioritySpinner.valueProperty());
-        viewModel.getColorProperty().setValue(colorPicker.getValue().toString());
-        colorPicker.setOnAction(this::handleColorPickerAction);
-    }
-    private void handleColorPickerAction(ActionEvent event) {
-        Color selectedColor = colorPicker.getValue();
-        StringProperty colorProperty = new SimpleStringProperty(selectedColor.toString());
-        viewModel.getColorProperty().bind(colorProperty);
+    public void setProcessData(int start, int duration, int priority, ObjectProperty<Color> color) {
+        startSpinner.getValueFactory().setValue(start);
+        durationSpinner.getValueFactory().setValue(duration);
+        prioritySpinner.getValueFactory().setValue(priority);
+        colorPicker.setValue(color.getValue());
     }
 }

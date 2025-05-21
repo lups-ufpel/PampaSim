@@ -5,6 +5,7 @@ import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
@@ -25,19 +26,15 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.events.External.Arrival;
-import org.pampasim.scopes.ProcessScope;
-import org.pampasim.scopes.SchedulerDialogScope;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
@@ -54,15 +51,9 @@ public class PampaSimViewModel implements ViewModel {
     private final ObservableMap<Pid, ProcessViewModel> processes = FXCollections.observableHashMap();
     @Getter
     private final ObservableMap<Long, ProcessViewModel> processesByCreationId = FXCollections.observableHashMap();
-
-    @Getter
-    @InjectScope
-    private ProcessScope createProcessScope;
-    @Getter
-    @InjectScope
-    private ProcessScope editProcessScope;
     private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
+    private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
 
     public SimulatedScenario simulatedScenario;
 
@@ -176,27 +167,6 @@ public class PampaSimViewModel implements ViewModel {
         resetSimulation();
         updateProps();
     }
-
-    public void editProcess(ProcessViewModel pvm, boolean delete) {
-        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        var start = editProcessScope.getStartTimeProperty().getValue();
-        var duration = editProcessScope.getDurationProperty().getValue();
-        var priority = editProcessScope.getPriorityProperty().getValue();
-        var clr = editProcessScope.getColorProperty().getValue();
-        var creationData = new Process.CreationData(start, duration, priority);
-        this.simulatedScenario.getSpec().getEventSchedule().removeFirstMatch(event -> {
-            if (event instanceof Arrival arrival) {
-                return arrival.getCreationData().getCreationId() == pvm.getCreationData().getCreationId();
-            }
-            return false;
-        });
-        if (!delete) {
-            this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(clr));
-        }
-        resetSimulation();
-        updateProps();
-    }
-
     public void setSimulationScheduler(SchedulerSelection userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         // TODO: It would be nice to disable the quantum input
@@ -278,5 +248,29 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void openCreateProcessDialog() {
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
+    }
+    public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
+        int start = editedProcessViewModel.getCreationData().getArrivalTick();
+        int duration = editedProcessViewModel.getCreationData().getDurationTicks();
+        int priority = editedProcessViewModel.getCreationData().getStartPriority();
+        ObjectProperty<Color> color = editedProcessViewModel.getColor();
+        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
+        if(result.isPresent()) {
+            EditProcessRecord editProcessRecord = result.get();
+            var processRecord = editProcessRecord.processRecord();
+            boolean delete = editProcessRecord.removable();
+            var creationData = new Process.CreationData(processRecord.start(), processRecord.duration(), processRecord.priority());
+            this.simulatedScenario.getSpec().getEventSchedule().removeFirstMatch(event -> {
+                if (event instanceof Arrival arrival) {
+                    return arrival.getCreationData().getCreationId() == editedProcessViewModel.getCreationData().getCreationId();
+                }
+                return false;
+            });
+            if (!delete) {
+                this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(processRecord.color()));
+            }
+            resetSimulation();
+            updateProps();
+        }
     }
 }
