@@ -9,17 +9,15 @@ import javafx.scene.control.DialogPane;
 import org.pampasim.view.SelectSchedulerDialogView;
 import org.pampasim.viewModel.SelectSchedulerDialogViewModel;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-public class SelectSchedulerDialogService implements DialogService<SchedulerSelection> {
+public class SelectSchedulerDialogService implements DialogService<SchedulerSelectionRecord> {
 
     List<String> availableSchedulers;
 
     @Override
-    public Optional<SchedulerSelection> showDialog(Object ... args) {
+    public Optional<SchedulerSelectionRecord> showDialog(Object ... args) {
 
 
         ViewTuple<SelectSchedulerDialogView, SelectSchedulerDialogViewModel> viewTuple =
@@ -38,7 +36,7 @@ public class SelectSchedulerDialogService implements DialogService<SchedulerSele
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
             // handle data from select scheduler.
-            SchedulerSelection userSelection = new SchedulerSelection(
+            SchedulerSelectionRecord userSelection = new SchedulerSelectionRecord(
                     viewTuple.getViewModel().getSelectedScheduler(),
                     viewTuple.getViewModel().isPreemptive(),
                     viewTuple.getViewModel().getQuantum());

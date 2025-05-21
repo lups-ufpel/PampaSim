@@ -24,7 +24,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.scopes.ProcessScope;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
 
@@ -103,17 +102,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         animation.pause();
         pampaSimViewModel.stopSimulation();
     }
-    private void configureDialog(Dialog<ButtonType> dialog, String title, DialogPane dialogPane, Callback<ButtonType,ButtonType> resultHandler) {
-        dialog.setDialogPane(dialogPane);
-        dialog.setTitle(title);
-        dialog.setResultConverter(resultHandler);
-    }
-    private DialogPane loadDialogPane(Class<? extends FxmlView<?>> viewClass, Scope scope) {
-        final ViewTuple<?, ?> viewTuple = FluentViewLoader.fxmlView(viewClass)
-                .providedScopes(scope)
-                .load();
-        return (DialogPane) viewTuple.getView();
-    }
     @FXML
     public void createProcess(ActionEvent actionEvent) {
         pampaSimViewModel.openCreateProcessDialog();
@@ -145,21 +133,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         File file = fileChooser.showSaveDialog(null);
         pampaSimViewModel.saveSpec(Paths.get(file.getPath()));
         pampaSimViewModel.updateProps();
-    }
-    private ButtonType handleCreateProcessResult(ButtonType buttonType) {
-        if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-            //pampaSimViewModel.createNewProcess();
-        }
-        return null;
-    }
-
-    private ButtonType handleEditProcessResult(ButtonType buttonType) {
-        if (buttonType.getButtonData() == ButtonBar.ButtonData.APPLY) {
-            //pampaSimViewModel.editProcess(editedProcessViewModel, false);
-        } else if (buttonType.getButtonData() == ButtonBar.ButtonData.LEFT) {
-            //pampaSimViewModel.editProcess(editedProcessViewModel, true);
-        }
-        return null;
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {

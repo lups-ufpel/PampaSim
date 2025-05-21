@@ -1,10 +1,8 @@
 package org.pampasim.viewModel;
 
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
-import org.pampasim.scopes.ProcessScope;
 
 public class EditProcessDialogViewModel implements ViewModel {
 

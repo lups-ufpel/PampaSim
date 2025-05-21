@@ -1,6 +1,5 @@
 package org.pampasim.viewModel;
 
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -167,7 +166,7 @@ public class PampaSimViewModel implements ViewModel {
         resetSimulation();
         updateProps();
     }
-    public void setSimulationScheduler(SchedulerSelection userSelection) {
+    public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         // TODO: It would be nice to disable the quantum input
         //  if it doesn't make sense for the currently selected algorithm
