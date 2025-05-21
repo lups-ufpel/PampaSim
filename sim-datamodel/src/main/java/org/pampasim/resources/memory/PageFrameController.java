@@ -76,8 +76,11 @@ public class PageFrameController {
         return processtoPageFrameMap.getOrDefault(pid.getId(), null);
     }
 
-    public Map<Integer, Long> getAllAllocatedPageFrames() {
+    public Map<Integer, Long> getAllocatedPageFrames() {
         return new HashMap<>(pageFrametoProcessMap);
+    }
+    public boolean hasFreePageFrames() {
+        return (totalPages - processtoPageFrameMap.size()) > 0;
     }
 
     public int getTotalAllocatedPageFrames() {
