@@ -4,9 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
+import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageFrameController;
@@ -27,6 +27,8 @@ public class PhysicalMemory extends AbstractSimEntity {
     boolean globalPageReplacement;
     // map that stores which frames are present in memory
     Map<Integer, PageTableEntry> frameMap;
+    //TODO: add a queue for IO and swap operations (Page faults and handle io operation events)
+    //TODO: add LOGGER debug messages for every event
 
     //TODO: more error handling
 
@@ -63,20 +65,39 @@ public class PhysicalMemory extends AbstractSimEntity {
     }
 
     private void handleMemoryDiskOperation(DiskOperation event) {
-        //TODO: can result in a MemoryTimeAdvance or a MemoryIoOperationFinished
         //TODO: Stub
+        Process process = event.getProcess();
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+
+        if (processMemoryInfo.getCurrentIoOperationTimeRemaining() <= 0) {
+            scheduleToNextClock(new DiskOperationFinished(this, event.getProcess()));
+            //LOGGER.debug("Fim do turno de execução do processo de identificador: {}", process.getPid());
+        } else {
+            //LOGGER.debug("Continuação da Execução do processo de identificador: {}", process.getPid());
+            processMemoryInfo.forwardIoOperation();
+            getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
+        }
+
         scheduleToNextClock(new DiskOperation(this, event.getProcess()));
         scheduleToNextClock(new DiskOperationFinished(this, event.getProcess()));
 
     }
 
     private void handleMemoryIoOperation(IoOperation event) {
-        //TODO: Stub
+        Process process = event.getProcess();
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        int currentIoOperationLength = processMemoryInfo.getScheduledIoOperation(process.getCurrExecTime());
+        processMemoryInfo.setCurrentIoOperationTimeRemaining(currentIoOperationLength);
+        processMemoryInfo.setCurrentIoOperationFinished(false);
         scheduleToNextClock(new DiskOperation(this, event.getProcess()));
     }
 
     private void handleMemoryFreeProcessMemory(FreeProcessMemory event) {
-        //TODO: Stub
+        //TODO: handle this event before all others
+        PidAllocator.Pid processPid = event.getProcess().getPid();
+
+        mainMemory.freeProcessPageFrame(processPid);
+        swapFile.freeProcessPageFrame(processPid);
         scheduleToNextClock(new FreeProcessMemoryFinished(this, event.getProcess()));
     }
 
@@ -95,20 +116,7 @@ public class PhysicalMemory extends AbstractSimEntity {
                 .filter(entry -> entry.getFrameAddress() == null || !entry.isValid())
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        // Get valid page pool (global or local)
-        ArrayList<PageTableEntry> validPagePool;
-        if (globalPageReplacement && mainMemory.getTotalProcessPageFrames(process.getPid()) < maxFramesPerProcess) { // if the process can still allocate more pages for itself
-            validPagePool = frameMap.values().stream()
-                    .filter(PageTableEntry::isValid)
-                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
-                    .collect(Collectors.toCollection(ArrayList::new));
-        } else {
-            // Process reached the max number of pages it's allowed to have in the main memory
-            validPagePool = processPageTable.getValidEntries().stream()
-                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
-                    .collect(Collectors.toCollection(ArrayList::new));
-        }
-
+        ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);
 
         for (PageTableEntry faultyPage : faultyPages) {
                 if (mainMemory.hasFreePageFrames()) { // means there is a free spot, no need to swap another page out
@@ -120,12 +128,15 @@ public class PhysicalMemory extends AbstractSimEntity {
                     swapIn(process, faultyPage);
                 }
         }
-        // TODO: define the length of the operation
+
+        int operationLength = processMemoryInfo.getSwappingOperationsLength();
+        processMemoryInfo.setCurrentIoOperationTimeRemaining(operationLength);
         scheduleToNextClock(new DiskOperation(this, process));
     }
 
     private void handleMemoryPageHit(PageHit event) {
-        //TODO: Stub
+        //TODO: register main memory accesses
+        //Nothing but a hand off is required
         scheduleToNextClock(new ProcessReady(this, event.getProcess()));
     }
 
@@ -160,5 +171,26 @@ public class PhysicalMemory extends AbstractSimEntity {
         } else {
             throw new OutOfMemoryError("Not enough space in the main memory to perform the swap in operation");
         }
+    }
+
+    private ArrayList<PageTableEntry> getValidPagePool(Process process, ArrayList<PageTableEntry> faultyPages) {
+        ProcessPageTable processPageTable = process.getModuleInfo(ProcessMemoryInfo.class).getPageTable();
+
+        // Get valid page pool (global or local)
+        ArrayList<PageTableEntry> validPagePool;
+
+        if (globalPageReplacement && mainMemory.getTotalProcessPageFrames(process.getPid()) < maxFramesPerProcess) { // if the process can still allocate more pages for itself
+            validPagePool = frameMap.values().stream()
+                    .filter(PageTableEntry::isValid)
+                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            // Process reached the max number of pages it's allowed to have in the main memory
+            validPagePool = processPageTable.getValidEntries().stream()
+                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        return validPagePool;
     }
 }
