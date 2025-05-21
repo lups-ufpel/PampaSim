@@ -35,6 +35,5 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
         viewModel.processPriorityProperty().bind(prioritySpinner.getValueFactory().valueProperty());
         colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
-        colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
     }
 }
