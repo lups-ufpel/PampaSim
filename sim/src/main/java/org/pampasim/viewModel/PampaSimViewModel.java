@@ -34,7 +34,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter

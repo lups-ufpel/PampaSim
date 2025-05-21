@@ -6,22 +6,30 @@ import lombok.Setter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/// Each entity instance will have their own state
-/// Enum class, which needs to be referenced here somehow.
-/// In a perfect world, that association would be encoded in the
-/// type system, but Java don't roll like that. So for now I'll
-/// try making a member be a reference to the Class instance of
-/// the appropriate Enum.
-/// [StackOverflow re: generic over Enums](https://stackoverflow.com/a/24466815)
 @Setter
 @Getter
 public class Entity {
     protected String name = null;
     protected Map<Event, Handler> handlers = new HashMap<>();
+    protected List<Event> transmitList = new ArrayList<>();
 
     public Set<Event> allAcceptedEvents() {
         return new HashSet<>(handlers
                 .keySet());
+    }
+
+    public boolean isTranslatable() {
+        return transmitList.isEmpty()
+            && handlers.values().stream()
+            // the only conditional (and therefore untranslatable) chain operation
+                .noneMatch(h -> h.chains() instanceof Handler.SumChain)
+            // check if the all the handlers are translatable
+            && handlers.entrySet().stream()
+                .allMatch(e ->
+                    e.getValue().chains().getEvents()
+                            .stream()
+                            .allMatch(outEvent -> Objects.equals(e.getKey().groupName, outEvent.groupName))
+                    );
     }
 
     @Override
