@@ -37,7 +37,7 @@ public class EditProcessDialogView implements FxmlView<EditProcessDialogViewMode
     public void initialize(URL url, ResourceBundle resourceBundle) {
         viewModel.processStartProperty().bind(startSpinner.getValueFactory().valueProperty());
         viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
-        viewModel.processPriorityProperty().bind(durationSpinner.getValueFactory().valueProperty());
+        viewModel.processPriorityProperty().bind(prioritySpinner.getValueFactory().valueProperty());
         colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
         colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
     }
