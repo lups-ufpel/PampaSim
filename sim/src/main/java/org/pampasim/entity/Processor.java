@@ -61,6 +61,7 @@ public class Processor extends AbstractSimEntity {
         getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
     }
     private void handleProcessRun(org.pampasim.events.Process.Run event) {
+        // TODO: handle IO operation schedule
         Process process = event.getProcess();
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
