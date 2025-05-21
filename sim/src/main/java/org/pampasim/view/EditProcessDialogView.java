@@ -39,7 +39,6 @@ public class EditProcessDialogView implements FxmlView<EditProcessDialogViewMode
         viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
         viewModel.processPriorityProperty().bind(prioritySpinner.getValueFactory().valueProperty());
         colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
-        colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
     }
     public void setProcessData(int start, int duration, int priority, ObjectProperty<Color> color) {
         startSpinner.getValueFactory().setValue(start);
