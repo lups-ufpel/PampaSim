@@ -1,5 +1,7 @@
 package org.pampasim.memory.entity;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
@@ -17,14 +19,16 @@ import java.util.stream.Collectors;
 
 public class PhysicalMemory extends AbstractSimEntity {
 
+    private final Logger LOGGER = LogManager.getLogger(PhysicalMemory.class);
     PageFrameController mainMemory;
     PageFrameController swapFile;
     int maxFramesPerProcess;
     PageReplacementAlgorithm pageReplacementAlgorithm;
+    boolean globalPageReplacement;
     // map that stores which frames are present in memory
-    Map<Long, PageTableEntry> frameMap;
+    Map<Integer, PageTableEntry> frameMap;
 
-
+    //TODO: more error handling
 
     public PhysicalMemory(Simulation simulation, int mainMemorySize, int swapFileSize, int maxFramesPerProcess, boolean globalReplacementPolicy, PageReplacementAlgorithm pageReplacementAlgorithm) {
         super(simulation);
@@ -34,6 +38,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         swapFile = new PageFrameController(swapFileSize);
         this.maxFramesPerProcess = maxFramesPerProcess;
         this.pageReplacementAlgorithm = pageReplacementAlgorithm;
+        this.globalPageReplacement = globalReplacementPolicy;
 
         //TODO: Add the events which this entity handles
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
@@ -75,49 +80,85 @@ public class PhysicalMemory extends AbstractSimEntity {
         scheduleToNextClock(new FreeProcessMemoryFinished(this, event.getProcess()));
     }
 
+    //TODO: Anticipated page loading (Load all pages the process is allowed to have)
+
     private void handleMemoryPageFault(PageFault event) {
-        //TODO: Stub
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
 
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
         ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
         PageTableEntry[] entries = processPageTable.getEntries(accessList);
+
+        // Get faulty pages
         ArrayList<PageTableEntry> faultyPages = Arrays.stream(entries)
                 .filter(entry -> entry.getFrameAddress() == null || !entry.isValid())
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        Set<Integer> framesInMainMemory = mainMemory.getProcessPageFrame(process.getPid());
-        Set<Integer> framesInSwapFile = swapFile.getProcessPageFrame(process.getPid());
-
-        // TODO: handle anticipated vs demand paging policy, right now it's purely by demand
-
-        for (PageTableEntry faultyPage : faultyPages) {
-            if (mainMemory.getTotalProcessPageFrames(process.getPid()) < maxFramesPerProcess) { // if the process can still allocate more pages for itself
-                OptionalInt freePage = mainMemory.findFirstContiguousFreeRange(1);
-                if (freePage.isPresent()) { // means there is a free spot, no need to swap another page out
-                    mainMemory.allocatePageFrames(process.getPid(),freePage.getAsInt(), freePage.getAsInt());
-                    if (faultyPage.getFrameAddress() != null) { // means it exists in the swapfile
-                        swapFile.freePageFrame(faultyPage.getFrameAddress()); // remove it from the swapfile after bringing it to the main memory
-                    }
-                    faultyPage.setFrameAddress(freePage.getAsInt()); // set the page table entry to the new allocated address
-                    faultyPage.setValid(true); // the page is now in the main memory
-                } else { // No free slots, must choose a page to swap out
-                    //TODO: swapping logic using PageReplacementAlgorithm
-                }
-            } else {
-                // Process reached the max number of pages its allowed to have in the main memory
-                // TODO: swapping logic using PageReplacementAlgorithm, though with only the process' pages as candidates, even if the policy is global
-            }
+        // Get valid page pool (global or local)
+        ArrayList<PageTableEntry> validPagePool;
+        if (globalPageReplacement && mainMemory.getTotalProcessPageFrames(process.getPid()) < maxFramesPerProcess) { // if the process can still allocate more pages for itself
+            validPagePool = frameMap.values().stream()
+                    .filter(PageTableEntry::isValid)
+                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            // Process reached the max number of pages it's allowed to have in the main memory
+            validPagePool = processPageTable.getValidEntries().stream()
+                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
+                    .collect(Collectors.toCollection(ArrayList::new));
         }
 
 
+        for (PageTableEntry faultyPage : faultyPages) {
+                if (mainMemory.hasFreePageFrames()) { // means there is a free spot, no need to swap another page out
+                    swapIn(process, faultyPage);
+                } else { // No free slots, must choose a page to swap out
+                    PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
 
+                    swapOut(process, pageToSwap);
+                    swapIn(process, faultyPage);
+                }
+        }
+        // TODO: define the length of the operation
         scheduleToNextClock(new DiskOperation(this, process));
     }
 
     private void handleMemoryPageHit(PageHit event) {
         //TODO: Stub
         scheduleToNextClock(new ProcessReady(this, event.getProcess()));
+    }
+
+    private void swapOut(Process process, PageTableEntry entry) {
+        if (!entry.isValid()) {
+            LOGGER.error("Page Table Entry is already swapped out!");
+            return;
+        }
+        OptionalInt swapOutAddr = swapFile.findFirstContiguousFreeRange(1);
+        if (swapOutAddr.isPresent()) {
+            mainMemory.freePageFrame(entry.getFrameAddress());
+            frameMap.remove(entry.getFrameAddress());
+            swapFile.allocatePageFrames(process.getPid(), swapOutAddr.getAsInt(), swapOutAddr.getAsInt());
+            entry.setValid(false);
+            entry.setFrameAddress(swapOutAddr.getAsInt());
+        } else {
+            throw new OutOfMemoryError("Not enough space in the swapfile to perform the swap out operation");
+        }
+    }
+
+    private void swapIn(Process process, PageTableEntry entry) {
+        if (entry.isValid()) {
+            LOGGER.error("Page Table Entry is already swapped in!");
+        }
+        OptionalInt swapInAddr = swapFile.findFirstContiguousFreeRange(1);
+        if (swapInAddr.isPresent()) {
+            swapFile.freePageFrame(entry.getFrameAddress());
+            mainMemory.allocatePageFrames(process.getPid(), swapInAddr.getAsInt(), swapInAddr.getAsInt());
+            frameMap.put(entry.getFrameAddress(), entry);
+            entry.setValid(true);
+            entry.setFrameAddress(swapInAddr.getAsInt());
+        } else {
+            throw new OutOfMemoryError("Not enough space in the main memory to perform the swap in operation");
+        }
     }
 }

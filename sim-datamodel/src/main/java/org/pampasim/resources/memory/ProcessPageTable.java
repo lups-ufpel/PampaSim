@@ -1,6 +1,8 @@
 package org.pampasim.resources.memory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ProcessPageTable {
     // page table that stores the page table entries for each process
@@ -10,7 +12,7 @@ public class ProcessPageTable {
         this.entries = new PageTableEntry[processSize];
         // Initialize all entries
         for (int i = 0; i < processSize; i++) {
-            entries[i] = new PageTableEntry();
+            entries[i] = new PageTableEntry(i);
         }
     }
 
@@ -38,6 +40,12 @@ public class ProcessPageTable {
     // Get all entries (read-only view)
     public PageTableEntry[] getAllEntries() {
         return entries.clone();  // Defensive copy to prevent external modification
+    }
+
+    public ArrayList<PageTableEntry> getValidEntries() {
+        return Arrays.stream(entries)
+                .filter(PageTableEntry::isValid)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     // Get the size of the page table
