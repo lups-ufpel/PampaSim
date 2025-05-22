@@ -31,19 +31,9 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        bindViewValues();
-    }
-
-    public void bindViewValues() {
-        viewModel.getStartProperty().bind(startSpinner.valueProperty());
-        viewModel.getDurationProperty().bind(durationSpinner.valueProperty());
-        viewModel.getPriorityProperty().bind(prioritySpinner.valueProperty());
-        viewModel.getColorProperty().setValue(colorPicker.getValue().toString());
-        colorPicker.setOnAction(this::handleColorPickerAction);
-    }
-    private void handleColorPickerAction(ActionEvent event) {
-        Color selectedColor = colorPicker.getValue();
-        StringProperty colorProperty = new SimpleStringProperty(selectedColor.toString());
-        viewModel.getColorProperty().bind(colorProperty);
+        viewModel.processStartProperty().bind(startSpinner.getValueFactory().valueProperty());
+        viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
+        viewModel.processPriorityProperty().bind(prioritySpinner.getValueFactory().valueProperty());
+        colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
     }
 }

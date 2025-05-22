@@ -1,29 +1,45 @@
 package org.pampasim.viewModel;
 
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ViewModel;
-import javafx.beans.property.Property;
-import org.pampasim.scopes.CreateProcessScope;
-import org.pampasim.scopes.ProcessScope;
+import javafx.beans.property.*;
+import javafx.scene.paint.Color;
 
 public class CreateProcessDialogViewModel implements ViewModel {
 
-    @InjectScope
-    private CreateProcessScope processScope;
 
-    public Property<Integer> getStartProperty() {
-        return processScope.getStartTimeProperty();
+    private final IntegerProperty processStart = new SimpleIntegerProperty();
+    private final IntegerProperty processDuration = new SimpleIntegerProperty();
+    private final IntegerProperty processPriority = new SimpleIntegerProperty();
+
+    private final ObjectProperty<javafx.scene.paint.Color> selectedColor = new SimpleObjectProperty<>(javafx.scene.paint.Color.BLUE);
+
+    public IntegerProperty processStartProperty() {
+        return processStart;
     }
-
-    public Property<Integer> getDurationProperty() {
-        return processScope.getDurationProperty();
+    public IntegerProperty processDurationProperty() {
+        return processDuration;
     }
-
-    public Property<Integer> getPriorityProperty() {
-        return processScope.getPriorityProperty();
+    public IntegerProperty processPriorityProperty() {
+        return processPriority;
     }
+    public Property<Color> colorHexProperty() {
+        return selectedColor;
+    }
+    public int getProcessStart() {
+        return processStart.get();
+    }
+    public int getProcessDuration() {
+        return processDuration.get();
+    }
+    public int getProcessPriority() {
+        return processPriority.get();
+    }
+    public String convertColor() {
 
-    public Property<String> getColorProperty(){
-        return processScope.getColorProperty();
+        Color col = selectedColor.get();
+        int r = (int) Math.round(col.getRed() * 255);
+        int g = (int) Math.round(col.getGreen() * 255);
+        int b = (int) Math.round(col.getBlue() * 255);
+        return String.format("#%02x%02x%02x", r, g, b);
     }
 }

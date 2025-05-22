@@ -6,10 +6,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.pampasim.scopes.CreateProcessScope;
-import org.pampasim.scopes.EditProcessScope;
-import org.pampasim.scopes.ProcessScope;
-import org.pampasim.scopes.SchedulerDialogScope;
 import org.pampasim.view.PampaSimView;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.slf4j.Logger;
@@ -27,11 +23,7 @@ public class PampaSimGUI extends Application {
     }
 
     private void initializeMainFrame() {
-        CreateProcessScope createProcessScope = new CreateProcessScope();
-        EditProcessScope editProcessScope = new EditProcessScope();
-        SchedulerDialogScope schedulerDialogScope = new SchedulerDialogScope();
-        final ViewTuple<PampaSimView, PampaSimViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class)
-                .providedScopes(createProcessScope, editProcessScope,schedulerDialogScope).load();
+        final ViewTuple<PampaSimView, PampaSimViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class).load();
         this.mainFrame = (BorderPane) viewTuple.getView();
     }
 
