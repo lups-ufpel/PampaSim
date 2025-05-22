@@ -27,7 +27,8 @@ public class PhysicalMemory extends AbstractSimEntity {
     boolean globalPageReplacement;
     // map that stores which frames are present in memory
     Map<Integer, PageTableEntry> frameMap;
-    //TODO: add a queue for IO and swap operations (Page faults and handle io operation events)
+    Queue<Event> ioEventQueue;
+
     //TODO: add LOGGER debug messages for every event
 
     //TODO: more error handling
@@ -46,6 +47,29 @@ public class PhysicalMemory extends AbstractSimEntity {
         //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
         //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
         //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
+    }
+
+    @Override
+    public void acceptEvent(Event event) {
+        switch (event) {
+            case IoOperation e -> acceptIoEventRequest(e); // these events lead into IO operations which can only be done one at a time
+            case PageFault e -> acceptIoEventRequest(e);
+            default -> super.acceptEvent(event);
+        }
+    }
+
+    @Override
+    protected void managedRun() {
+        if (buffer.stream().noneMatch(element -> element instanceof DiskOperation)) { // no disk operation currently being run
+            buffer.add(ioEventQueue.poll()); // add the next event that will lead into an IO operation into the buffer for the current simulation tick
+        }
+        super.managedRun(); // handle all events
+    }
+
+    private void acceptIoEventRequest(Event event) {
+        LOGGER.trace("rx {}", event);
+        this.ioEventQueue.add(event);
+        // the events handled here are non-blocking
     }
 
     public void processEvent(Event event) {
