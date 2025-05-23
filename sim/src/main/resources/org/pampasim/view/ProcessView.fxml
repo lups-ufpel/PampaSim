@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Circle?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.ProcessView">
+   <Circle fx:id="circle" layoutX="30.0" layoutY="30.0" onMouseClicked="#showInfo" radius="30.0" stroke="BLACK"
+           strokeType="INSIDE"/>
+</Pane>
