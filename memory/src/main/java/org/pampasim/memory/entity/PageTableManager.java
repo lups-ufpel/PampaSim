@@ -26,10 +26,9 @@ public class PageTableManager extends AbstractSimEntity {
         pageTableMap = new HashMap<>();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
 
-        //TODO: Add the events which this entity handles
-        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
+        simulation.getEventManager().addEventHandler(Allocate.class, this);
+        simulation.getEventManager().addEventHandler(DeletePageTableEntry.class, this);
+        simulation.getEventManager().addEventHandler(TlbNoTranslation.class, this);
     }
 
     public void processEvent(Event event) {

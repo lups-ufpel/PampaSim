@@ -31,10 +31,15 @@ public class VirtualMemory extends AbstractSimEntity {
 
         virtualAddressRange = new PageFrameController(virtualAddressRangeSize);
 
-        //TODO: Add the events which this entity handles
-        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Allocate.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.End.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Load.class, this);
+        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.IoOperation.class, this);
+
+        simulation.getEventManager().addEventHandler(AllocateFinished.class, this);
+        simulation.getEventManager().addEventHandler(FreeProcessMemoryFinished.class, this);
+        simulation.getEventManager().addEventHandler(DiskOperationFinished.class, this);
+        simulation.getEventManager().addEventHandler(ProcessReady.class, this);
     }
 
     @Override
