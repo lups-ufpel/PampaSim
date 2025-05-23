@@ -43,10 +43,11 @@ public class PhysicalMemory extends AbstractSimEntity {
         this.pageReplacementAlgorithm = pageReplacementAlgorithm;
         this.globalPageReplacement = globalReplacementPolicy;
 
-        //TODO: Add the events which this entity handles
-        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
+        simulation.getEventManager().addEventHandler(PageHit.class, this);
+        simulation.getEventManager().addEventHandler(PageFault.class, this);
+        simulation.getEventManager().addEventHandler(FreeProcessMemory.class, this);
+        simulation.getEventManager().addEventHandler(IoOperation.class, this);
+        simulation.getEventManager().addEventHandler(DiskOperation.class, this);
     }
 
     @Override

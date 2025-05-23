@@ -2,6 +2,10 @@ package org.pampasim.memory;
 
 import org.pampasim.core.EventManager;
 import org.pampasim.core.Simulation;
+import org.pampasim.events.Memory.*;
+import org.pampasim.events.Process.Kill;
+import org.pampasim.events.Process.Load;
+import org.pampasim.events.Process.Schedule;
 
 public class MemoryEventManager extends EventManager {
     public MemoryEventManager(Simulation s) {
@@ -10,16 +14,20 @@ public class MemoryEventManager extends EventManager {
 
     @Override
     public void setupHandlers() {
+        this.addEventHandler(ProcessReady.class, simulation);
+        this.addEventHandler(Kill.class, simulation);
+        this.addEventHandler(Load.class, simulation);
+        this.addEventHandler(Schedule.class, simulation);
     }
 
     @Override
     public void setupTranslations() {
-        //addTranslation(MemoryDeleteTlbEntry.class, MemoryFreeProcessMemory.class);
-        //addTranslation(MemoryTranslateVirtualAddress.class, MemoryTlbNoTranslation.class);
+        addTranslation(DeleteTlbEntry.class, FreeProcessMemory.class);
+        addTranslation(TranslateVirtualAddress.class, TlbNoTranslation.class);
     }
 
     @Override
     public void setupFlags() {
-        //takesTime.put(MemoryTimeAdvance.class, true);
+        takesTime.put(DiskOperation.class, true);
     }
 }

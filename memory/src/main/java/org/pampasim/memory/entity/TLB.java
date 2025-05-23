@@ -10,10 +10,8 @@ public class TLB extends AbstractSimEntity {
     public TLB (Simulation simulation) {
         super(simulation);
 
-        //TODO: Add the events which this entity handles
-        //simulation.getEventManager().addEventHandler(ProcessArrival.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessReady.class, this);
-        //simulation.getEventManager().addEventHandler(ProcessRunPaused.class, this);
+        simulation.getEventManager().addEventHandler(DeleteTlbEntry.class, this);
+        simulation.getEventManager().addEventHandler(TranslateVirtualAddress.class, this);
     }
 
     public void processEvent(Event event) {
