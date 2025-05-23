@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.*;
@@ -31,9 +32,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter
@@ -52,6 +55,9 @@ public class PampaSimViewModel implements ViewModel {
     private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
+
+    private Map<Pid,Map<Integer, Process.State>> asciiReportData = new HashMap<>();
+    private int asciiReportClock = -1;
 
     public SimulatedScenario simulatedScenario;
 
@@ -200,9 +206,64 @@ public class PampaSimViewModel implements ViewModel {
         } else {
             sim.runUntilBlockedorIdle();
         }
+
+        { // Update ascii report
+            if (asciiReportClock != sim.getRealClock().getTick()) {
+                asciiReportClock = sim.getRealClock().getTick();
+                for (ProcessViewModel pvm : processesByCreationId.values()) {
+                    Pid pid = pvm.getPid().getValue();
+                    if (pid == null) {
+                        continue;
+                    }
+                    asciiReportData.compute(pid, (k, v) -> {
+                        if (v == null) {
+                            v = new HashMap<>();
+                        }
+                        v.put(asciiReportClock, pvm.getState().getValue());
+                        return v;
+                    });
+                }
+            }
+        }
+
         if(!sim.shouldRunNextTick()) {
+            int maxRealTick = sim.getRealClock().getTick();
+            long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
+            int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
+            int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
+            final Map<Process.State, Character> stateChar = Map.of(
+                    Process.State.NEW, 'n',
+                    Process.State.READY, 'r',
+                    Process.State.RUNNING, 'R',
+                    Process.State.SCHEDULED, 'x',
+                    Process.State.WAITING, 'w',
+                    Process.State.TERMINATED, 't'
+            );
+
+            Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+            String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
+                    + "    " + " ".repeat(pidWidth) + " | "
+                    + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
+                    .reduce((l,r) -> l.concat(" ").concat(r))
+                    .orElseThrow()
+                    + "\n";
+            String asciiReportPrintout = "\n\tReport\n" + header +
+                asciiReportData
+                    .entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(procEntry -> {
+                        var stateMap = procEntry.getValue();
+                        return "pid " + procEntry.getKey() + " |"
+                                + range.get().map(stateMap::get).map(state ->
+                                String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
+                        ).reduce(String::concat).orElseThrow();
+                    }).reduce((l,r) -> l.concat("\n").concat(r))
+                    .orElse("couldn't generate report");
+            LOGGER.log(Level.INFO, asciiReportPrintout);
             stopSimulation();
         }
+
         if (genGraphs.get()) {
             try { exportSimulationGraph(); }
             catch(Exception e) {
