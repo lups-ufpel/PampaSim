@@ -26,6 +26,9 @@ public class PidAllocator {
         }
         @Override
         public int compareTo(Pid other) {
+            if (other == null) {
+                return 1;
+            }
             return Long.compare(this.id, other.id);
         }
         @Override
