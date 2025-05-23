@@ -3,10 +3,9 @@ package org.pampasim.viewModel;
 import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.paint.Color;
 import lombok.Getter;
@@ -54,6 +53,8 @@ public class PampaSimViewModel implements ViewModel {
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
 
     public SimulatedScenario simulatedScenario;
+
+    private final ListProperty<ProcessViewModel> newProcesses = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     public PampaSimViewModel() {
         var templateSpec = Spec.loadSpec(Paths.get(
@@ -110,7 +111,7 @@ public class PampaSimViewModel implements ViewModel {
             ProcessViewModel pvm = new ProcessViewModel(creationData);
             Color processColor = simulatedScenario.getSpec().getColorMap()
                     .get(pvm.getCreationData().getCreationId());
-            pvm.getColor().setValue(processColor);
+            pvm.getColorProperty().setValue(processColor);
             processesByCreationId.put(pvm.getCreationData().getCreationId(), pvm);
         }
     }
@@ -159,11 +160,9 @@ public class PampaSimViewModel implements ViewModel {
         pvm.getBurstTime().setValue(proc.getBurstTime());
     }
     public void createNewProcess(CreateProcessRecord userProcess) {
-        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
-        this.simulatedScenario.getSpec().addProcessArrival(creationData, Color.web(userProcess.color()));
-        resetSimulation();
-        updateProps();
+        ProcessViewModel processViewModel = new ProcessViewModel(creationData);
+        newProcesses.add(processViewModel);
     }
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
@@ -251,7 +250,7 @@ public class PampaSimViewModel implements ViewModel {
         int start = editedProcessViewModel.getCreationData().getArrivalTick();
         int duration = editedProcessViewModel.getCreationData().getDurationTicks();
         int priority = editedProcessViewModel.getCreationData().getStartPriority();
-        ObjectProperty<Color> color = editedProcessViewModel.getColor();
+        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
         Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
         if(result.isPresent()) {
             EditProcessRecord editProcessRecord = result.get();
@@ -270,5 +269,12 @@ public class PampaSimViewModel implements ViewModel {
             resetSimulation();
             updateProps();
         }
+    }
+    public ObservableList<ProcessViewModel> getNewProcesses() {
+        return newProcesses.get();
+    }
+
+    public ListProperty<ProcessViewModel> newProcessesProperty() {
+        return newProcesses;
     }
 }

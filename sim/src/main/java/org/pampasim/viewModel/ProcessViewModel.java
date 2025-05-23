@@ -14,7 +14,7 @@ public class ProcessViewModel implements ViewModel {
     private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
     private final Process.CreationData creationData;
     private final IntegerProperty priority = new SimpleIntegerProperty();
-    private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
+    private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
     private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
     private final BooleanProperty initialized = new SimpleBooleanProperty(false);
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);

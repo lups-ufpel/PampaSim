@@ -22,6 +22,7 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.ViewListBinder;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
@@ -137,6 +138,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        ViewListBinder.bind(NewList, pampaSimViewModel.newProcessesProperty(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class));
+
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
@@ -176,7 +179,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 .bind(pampaSimViewModel.getScenarioIsSaved());
         pampaSimViewModel.updateProps();
 
-        colorCol.setCellValueFactory(p -> p.getValue().getColor());
+        colorCol.setCellValueFactory(p -> p.getValue().getColorProperty());
         // https://stackoverflow.com/a/39415402
         colorCol.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -236,7 +239,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         procTable.setItems(processList);
     }
     private Circle createCircleForProcess(ProcessViewModel process) {
-        Circle circle = new Circle(30, process.getColor().getValue());
+        Circle circle = new Circle(30, process.getColorProperty().getValue());
         circle.setId("proc" + String.valueOf(process.getCreationData().getCreationId())); // very important
         circle.setUserData(process.getCreationData().getCreationId());
         circle.setOnMouseClicked(this::editProcess);
