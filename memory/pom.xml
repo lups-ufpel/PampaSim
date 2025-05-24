@@ -27,36 +27,9 @@
         </dependency>
         <dependency>
             <groupId>org.pampasim</groupId>
-            <artifactId>sim</artifactId>
+            <artifactId>events</artifactId>
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
-    <build><plugins><plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-            <execution>
-                <id>codegen-events</id>
-                <phase>generate-sources</phase>
-                <goals>
-                    <goal>java</goal>
-                </goals>
-            </execution>
-        </executions>
-        <configuration>
-            <mainClass>org.pampasim.tools.EventCodeGenTool</mainClass>
-            <arguments>
-                <argument>memory/desc.ent</argument>
-                <argument>org.pampasim.events</argument>
-                <argument>memory/target/generated-sources/events</argument>
-            </arguments>
-            <sourceRoot>
-                target/generated-sources/events
-            </sourceRoot>
-        </configuration>
-    </plugin></plugins></build>
-
 </project>
