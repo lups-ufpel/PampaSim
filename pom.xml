@@ -221,5 +221,6 @@
     <module>tools</module>
     <module>memory</module>
     <module>sim-datamodel</module>
+    <module>events</module>
   </modules>
 </project>
