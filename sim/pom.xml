@@ -72,6 +72,11 @@
             <version>1.0</version>
         </dependency>
         <dependency>
+            <groupId>org.pampasim</groupId>
+            <artifactId>memory</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
         </dependency>

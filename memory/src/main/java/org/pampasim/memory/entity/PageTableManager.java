@@ -6,7 +6,6 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
-import org.pampasim.events.Process.End;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessPageTable;
@@ -72,14 +71,14 @@ public class PageTableManager extends AbstractSimEntity {
 
             if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
                 // if there is at least 1 page fault, suspend process and send a PageFault event
-                if (pageTableEntry.getFrameAddress() != null) {
+                if (pageTableEntry.getFrameAddress() == null) {
                     LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Sem tradução)", process.getPid().toString());
                 } else {
                     LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Bit válido 0)", process.getPid().toString());
                 }
                 process.setState(Process.State.WAITING);
                 scheduleToNextClock(new PageFault(this, event.getProcess()));
-                break;
+                return;
             }
         }
         // If no page faults found, all entries were present in memory

@@ -4,6 +4,7 @@ import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.RealClock;
@@ -21,6 +22,9 @@ public abstract class AbstractSimEntity implements SimEntity {
     protected EntityState state = EntityState.Idle;
     @Getter
     private final Simulation simulation;
+    @Getter
+    @Setter
+    private boolean clearBlock;
     @Getter
     private final SimEntity parent;
     protected Queue<Event> buffer;

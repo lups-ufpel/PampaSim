@@ -55,22 +55,23 @@ public class Processor extends AbstractSimEntity {
         Process process = event.getProcess();
         process.setState(Process.State.RUNNING);
         core.setStatus(ProcessorCore.Status.BUSY);
-        LOGGER.debug("Início da execução do processo de identificador: {}", process.getPid());
+        LOGGER.debug("Processo recebido para execução de identificador: {}", process.getPid());
         preemption = false;
-        core.execute(process);
+        // core.execute(process);  // should only run a tick after loading the process' memory
         getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
     }
     private void handleProcessRun(org.pampasim.events.Process.Run event) {
         // TODO: handle IO operation schedule
         Process process = event.getProcess();
+
+        LOGGER.debug("Execução do processo de identificador: {}", process.getPid());
+        core.execute(process);
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunPaused(this, process));
             process.setState(Process.State.WAITING);
             LOGGER.debug("Fim do turno de execução do processo de identificador: {}", process.getPid());
         } else {
-            LOGGER.debug("Continuação da Execução do processo de identificador: {}", process.getPid());
-            core.execute(process);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
         }
     }

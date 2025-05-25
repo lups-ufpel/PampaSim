@@ -10,7 +10,6 @@
     </parent>
 
     <version>1.0</version>
-    <groupId>org.pampasim.memory</groupId>
     <artifactId>memory</artifactId>
 
     <properties>

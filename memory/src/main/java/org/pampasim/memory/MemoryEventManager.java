@@ -4,7 +4,8 @@ import org.pampasim.core.EventManager;
 import org.pampasim.core.Simulation;
 import org.pampasim.events.Memory.*;
 import org.pampasim.events.Process.Kill;
-import org.pampasim.events.Process.Load;
+import org.pampasim.events.Process.Ready;
+import org.pampasim.events.Process.Run;
 import org.pampasim.events.Process.Schedule;
 
 public class MemoryEventManager extends EventManager {
@@ -14,9 +15,9 @@ public class MemoryEventManager extends EventManager {
 
     @Override
     public void setupHandlers() {
-        this.addEventHandler(ProcessReady.class, simulation);
+            this.addEventHandler(Ready.class, simulation);
         this.addEventHandler(Kill.class, simulation);
-        this.addEventHandler(Load.class, simulation);
+        this.addEventHandler(Run.class, simulation);
         this.addEventHandler(Schedule.class, simulation);
     }
 

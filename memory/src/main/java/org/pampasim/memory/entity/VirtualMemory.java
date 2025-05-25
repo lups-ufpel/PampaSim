@@ -14,10 +14,7 @@ import org.pampasim.resources.memory.PageFrameController;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.OptionalInt;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class VirtualMemory extends AbstractSimEntity {
     //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
@@ -62,7 +59,14 @@ public class VirtualMemory extends AbstractSimEntity {
     }
 
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
+
         Process process = event.getProcess();
+
+        // FIXME: setting up the process memory info here for testing purposes
+        process.addModuleInfo(new ProcessMemoryInfo(process, 10, 2));
+        process.getModuleInfo(ProcessMemoryInfo.class).addAccessEntry(0,
+                new ArrayList<>(Arrays.asList(0, 1, 3, 4)));
+
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(processMemoryInfo.getSize());
 
@@ -77,7 +81,7 @@ public class VirtualMemory extends AbstractSimEntity {
         virtualAddressRange.allocatePageFrames(process.getPid(), startAddress, endAddress);
         processMemoryInfo.setVirtualAddressStart(startAddress);
         LOGGER.debug("Processo de ID {} : Alocado com sucesso nos endereços {} a {}", process.getPid().toString(), startAddress, endAddress);
-        scheduleToNextClock(new org.pampasim.events.Process.Allocate(this, event.getProcess()));
+        scheduleToNextClock(new Allocate(this, event.getProcess()));
 
     }
 

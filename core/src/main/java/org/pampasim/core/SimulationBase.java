@@ -8,6 +8,7 @@ import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.events.Event;
@@ -31,6 +32,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     protected final List<Event> lastClockOutputs = new ArrayList<>();
     @Getter
     protected EventManager eventManager;
+    private boolean clearBlock;
     @Getter
     protected int simulationClock;
     @Getter
@@ -45,6 +47,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         this.simulationClock = 0;
         this.pidAllocator = new PidAllocator();
         this.state = EntityState.Run;
+        this.clearBlock = false;
     }
 
     protected void setEventManager(EventManager eventManager) {
@@ -125,6 +128,12 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 }
                 this.clearBlock();
                 getRealClock().next();
+            } else if (clearBlock) { // top level simulation doesn't make use of the clear block flag
+                for (SimEntity entity : entityList) {
+                    entity.clearBlock();
+                    entity.run();
+                }
+                clearBlock = false;
             } else {
                 LOGGER.trace("blocked simulation");
             }
@@ -271,4 +280,11 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         // ...this being the even more special case as the graph root
         return this.getClass().getSimpleName();
     }
+
+    @Override
+    public void clearBlock() {
+        super.clearBlock();
+        clearBlock = true;
+    }
+
 }

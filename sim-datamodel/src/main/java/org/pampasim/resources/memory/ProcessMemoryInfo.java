@@ -19,7 +19,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     @Setter
     private boolean loopAccessList;
     // Schedule for the IO operations, the processor is responsible for looking at this map and sending out IO operation events
-    private final Map<Integer, Integer> IoOperationSchedule;
+    private final Map<Integer, Integer> ioOperationSchedule;
     // current IO operation, the processor is responsible for setting this if there is an IO operation.
     // Otherwise, it is used for timing the delay of the IO operations needed to handle page faults
     //TODO: Add a field to define which pages are modifiable vs purely executable (to justify the dirty bit)
@@ -32,10 +32,10 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private ProcessPageTable pageTable; // reference to the process' page table
 
 
-    public ProcessMemoryInfo(Process process, Integer size, int swappingOperationsLength) {
+    public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength) {
         this.process = process;
         this.size = size; //TODO: Make the user able to define how many pages the process occupies
-        this.IoOperationSchedule = new HashMap<>();
+        this.ioOperationSchedule = new HashMap<>();
         this.virtualAddressStart = null;
         this.addressAccessList = new ArrayList<>();
         this.loopAccessList = false;
@@ -83,17 +83,17 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
 
     public void scheduleIoOperation(int execTick, int ioOperationLength) {
         if (execTick >= 0 && ioOperationLength > 0 && execTick >= process.getBurstTime()) { // sanity checks to prevent future errors
-            IoOperationSchedule.put(execTick, ioOperationLength);
+            ioOperationSchedule.put(execTick, ioOperationLength);
         }
     }
 
 
     public void removeIoOperation(int execTick) {
-        IoOperationSchedule.remove(execTick);
+        ioOperationSchedule.remove(execTick);
     }
 
     public Integer getScheduledIoOperation(int execTick) {
-        return IoOperationSchedule.getOrDefault(execTick, null);
+        return ioOperationSchedule.getOrDefault(execTick, null);
     }
 
 

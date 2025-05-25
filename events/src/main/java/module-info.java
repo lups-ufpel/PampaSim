@@ -5,4 +5,5 @@ module org.pampasim.events {
     exports org.pampasim.events;
     exports org.pampasim.events.Process;
     exports org.pampasim.events.External;
+    exports org.pampasim.events.Memory;
 }

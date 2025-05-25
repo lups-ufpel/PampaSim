@@ -7,6 +7,7 @@ module org.pampasim {
     requires org.pampasim.core;
     requires org.pampasim.resources;
     requires org.pampasim.events;
+    requires org.pampasim.memory;
     requires guru.nidi.graphviz;
     requires static lombok;
     requires org.antlr.antlr4.runtime;

@@ -6,4 +6,5 @@ module org.pampasim.resources {
     requires org.apache.logging.log4j;
 
     exports org.pampasim.resources;
+    exports org.pampasim.resources.memory;
 }

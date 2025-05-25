@@ -11,6 +11,7 @@ import org.pampasim.dsl.spec.Spec;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
+import org.pampasim.memory.MemoryManagement;
 import org.pampasim.resources.ProcessorCore;
 
 import java.lang.reflect.Constructor;
@@ -78,6 +79,7 @@ public class PampaSim extends SimulationBase {
         }
         sim.pidAllocator = s.getPidAlloc();
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
+        new MemoryManagement(sim);
         return sim;
     }
 }
