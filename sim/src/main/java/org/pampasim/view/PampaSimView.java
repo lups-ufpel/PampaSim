@@ -112,7 +112,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void editProcess(MouseEvent mouseEvent) {
         Node processCircle = (Node)mouseEvent.getSource();
         Long creationId = (Long)processCircle.getUserData();
-        editedProcessViewModel = pampaSimViewModel.getProcessesByCreationId().get(creationId);
         pampaSimViewModel.openEditProcessDialog(editedProcessViewModel);
     }
     @FXML
@@ -138,30 +137,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        ViewListBinder.bind(NewList, pampaSimViewModel.newProcessesProperty(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class));
+        ViewListBinder.bind(NewList, pampaSimViewModel.getNewProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class));
 
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
-
-
-        pampaSimViewModel.getProcessesByCreationId()
-                .addListener(
-                        (MapChangeListener<Long, ProcessViewModel>) change ->
-                        {
-            if (change.wasRemoved()) {
-                var val = change.getValueRemoved();
-                processList.remove(val);
-                removeProcessFromUI(change.getValueRemoved());
-            }
-            if (change.wasAdded()) {
-                var val = change.getValueAdded();
-                processList.add(val);
-                addProcessToUI(val);
-            }
-
-            LOGGER.debug("got change {}", change);
-        });
 
         genGraphs.setAllowIndeterminate(false);
         genGraphs.setSelected(false);
@@ -195,7 +175,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         pidCol.setCellValueFactory(p ->
             p.getValue().getPid().map(Object::toString).orElse("Not yet decided")
         );
-        stateCol.setCellValueFactory(p -> p.getValue().getState());
+        stateCol.setCellValueFactory(p -> p.getValue().stateProperty());
         arrivalCol.setCellValueFactory(
                 p -> new ReadOnlyObjectWrapper<>(p.getValue().getCreationData().getArrivalTick())
         );
@@ -237,61 +217,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         });
 
         procTable.setItems(processList);
-    }
-    private Circle createCircleForProcess(ProcessViewModel process) {
-        Circle circle = new Circle(30, process.getColorProperty().getValue());
-        circle.setId("proc" + String.valueOf(process.getCreationData().getCreationId())); // very important
-        circle.setUserData(process.getCreationData().getCreationId());
-        circle.setOnMouseClicked(this::editProcess);
-        process.setCircleRepr(circle);
-        return circle;
-    }
-    private void addProcessToUI(ProcessViewModel process) {
-        createCircleForProcess(process);
-        moveProcessToCorrectContainer(process);
-        // Observa mudanças de estado do processo para mover automaticamente o círculo entre os containers
-        process.getState().addListener((obs, oldState, newState) -> {
-            if (oldState == Process.State.RUNNING) {
-                CpuContainer1.setFill(Color.TRANSPARENT);
-            }
-            moveProcessToCorrectContainer(process);
-        });
-    }
-    private void removeProcessFromUI(ProcessViewModel pvm) {
-        Circle circle = pvm.getCircleRepr();
-        // Remove o círculo de todos os containers
-        var nlr = NewList.getChildren().remove(circle);
-        var rlr = ReadyList.getChildren().remove(circle);
-        var wlr = WaitingList.getChildren().remove(circle);
-        var flr = FinishedList.getChildren().remove(circle);
-        LOGGER.debug("{} removed from new {} ready {} waiting {} finished {}", circle, nlr, rlr, wlr, flr);
-    }
-    private void moveProcessToCorrectContainer(ProcessViewModel pvm) {
-        Circle circle = pvm.getCircleRepr();
-        var state = pvm.getState().getValue();
-        removeProcessFromUI(pvm);
-        // Adiciona ao container correto com base no novo estado
-        switch (state) {
-            case NEW:
-                NewList.getChildren().add(circle);
-                break;
-            case READY:
-                ReadyList.getChildren().add(circle);
-                break;
-            case WAITING:
-                WaitingList.getChildren().add(circle);
-                break;
-            case TERMINATED:
-                FinishedList.getChildren().add(circle);
-                break;
-            case RUNNING:
-                setProcessToCpuContainer(circle);
-                break;
-        }
-    }
-    private void setProcessToCpuContainer(Circle circle) {
-        // Exibe o processo em execução na CPU
-        CpuContainer1.setFill(circle.getFill());
     }
     private void bindTimeLineProperty() {
         pampaSimViewModel.getSimulationRunning().addListener((obs, wasRunning, isRunning) -> {

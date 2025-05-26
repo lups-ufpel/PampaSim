@@ -31,4 +31,12 @@ public class ProcessViewModel implements ViewModel {
     public void setState(Process.State newState) {
         this.state.setValue(newState);
     }
+
+    public Process.State getState() {
+        return state.get();
+    }
+
+    public ObjectProperty<Process.State> stateProperty() {
+        return state;
+    }
 }

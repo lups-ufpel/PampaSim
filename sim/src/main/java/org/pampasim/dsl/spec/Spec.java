@@ -44,13 +44,11 @@ public class Spec {
     private boolean hasProcManager;
     private PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
     private EventSchedule eventSchedule;
-    private Map<Long, Color> colorMap;
 
     public Spec() {
         this.schedulerInfo = null;
         this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
-        this.colorMap = new HashMap<>();
         this.processors = new ArrayList<>();
         this.hasProcManager = false;
     }
@@ -104,10 +102,7 @@ public class Spec {
                 printer.format("proc start %d duration %d priority %d clr #%s;",
                         creationData.getArrivalTick(),
                         creationData.getDurationTicks(),
-                        creationData.getStartPriority(),
-                        this.getColorMap().get(creationData.getCreationId())
-                                .toString().substring(2)
-                );
+                        creationData.getStartPriority());
                 printer.println();
             });
         } catch (IOException e) {
@@ -115,15 +110,9 @@ public class Spec {
         }
     }
 
-    public Event addProcessArrival(Process.CreationData creationData, Color clr) {
-        // color isn't a member of the Process class
-        // for separation of concerns reasons? between the UI and the Sim
-        // either way, that means we can't set the color here
+    public Event addProcessArrival(Process.CreationData creationData) {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
         eventSchedule.schedule(creationData.getArrivalTick(), ev);
-        if (clr != null) {
-            this.getColorMap().put(creationData.getCreationId(), clr);
-        }
         return ev;
     }
 
