@@ -23,6 +23,7 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
+import org.pampasim.memory.MemoryManagement;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.events.External.Arrival;
@@ -84,6 +85,13 @@ public class PampaSimViewModel implements ViewModel {
             //        this::handleProcessCreationEvent);
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
+
+            // FIXME: There likely is a more elegant solution than this
+            MemoryManagement memoryModule = sim.getEntity(MemoryManagement.class);
+            if (memoryModule != null) {
+                memoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
+                        this::handleProcessEvent);
+            }
             return sim;
         });
     }

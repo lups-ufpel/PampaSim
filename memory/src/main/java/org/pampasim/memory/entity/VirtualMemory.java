@@ -96,6 +96,12 @@ public class VirtualMemory extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+        if (accessList == null) {
+            LOGGER.debug("Process of Pid {} doesn't access any virtual addresses for this running tick", process.getPid());
+            process.setState(Process.State.RUNNING);
+            scheduleToNextClock(new Run(this, process));
+            return;
+        }
 
         try {
             accessList.forEach(pageNo -> checkForIllegalAccess(processMemoryInfo.getVirtualAddressStart() + pageNo, process.getPid()));
@@ -134,11 +140,13 @@ public class VirtualMemory extends AbstractSimEntity {
 
     private void handleMemoryDiskOperationFinished(DiskOperationFinished event) {
         // Nothing more than a hand off required
+        event.getProcess().setState(Process.State.READY);
         scheduleToNextClock(new Schedule(this, event.getProcess()));
     }
 
     private void handleMemoryProcessReady(ProcessReady event) {
         // Nothing more than a hand off required
+        event.getProcess().setState(Process.State.RUNNING);
         scheduleToNextClock(new Run(this, event.getProcess()));
     }
 

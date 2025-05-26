@@ -53,7 +53,7 @@ public class Processor extends AbstractSimEntity {
 
     private void handleProcessDispatch(org.pampasim.events.Process.Dispatch event) {
         Process process = event.getProcess();
-        process.setState(Process.State.RUNNING);
+        //process.setState(Process.State.RUNNING);
         core.setStatus(ProcessorCore.Status.BUSY);
         LOGGER.debug("Processo recebido para execução de identificador: {}", process.getPid());
         preemption = false;
