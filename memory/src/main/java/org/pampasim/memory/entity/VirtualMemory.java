@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.entity.Processor;
+//import org.pampasim.;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.events.Process.Kill;

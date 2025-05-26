@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /// Generates all the event classes from a simulation description file
@@ -21,34 +24,55 @@ public class EventCodeGenTool {
     public static Path pkgPath;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        String fileName = args[0];
-        destinationPackage = args[1];
-        destinationFolder = Paths.get(args[2]);
+        destinationPackage = args[args.length - 2];
+        destinationFolder = Paths.get(args[args.length - 1]);
         pkgPath = destinationFolder.resolve(Paths.get(".", destinationPackage.split("\\.")));
         Files.createDirectories(pkgPath);
 
-        CharStream stream = null;
-        try {
-            stream = CharStreams.fromFileName(fileName);
-        } catch (IOException e) {
-            System.err.println(fileName + " not found!");
-            assert (false);
-        }
-        var lexer = new EntityDSLLexer(stream);
-        var tokenStream = new CommonTokenStream(lexer);
-        var parser = new EntityDSLParser(tokenStream);
-        parser.setBuildParseTree(true);
-        EntityDSLParser.DescriptionFileContext tree
-                = parser.descriptionFile();
-        System.out.println(parser.getEvents());
-        System.out.println(parser.getEntities());
+        List<EventGroup> allEventGroups = new ArrayList<>();
 
-        for (var entry : parser.getEventGroups().entrySet()) {
-            var groupName = entry.getKey();
-            var dataClass = entry.getValue().dataClass();
-            System.out.println("processing event group " + groupName + " that transmits " + dataClass);
-            writeClasses(entry.getValue());
+        for (int i = 0; i < args.length - 2; i++) {
+            var fileName = args[i];
+            CharStream stream = null;
+            try {
+                stream = CharStreams.fromFileName(fileName);
+            } catch (IOException e) {
+                System.err.println(fileName + " not found!");
+                assert (false);
+            }
+            var lexer = new EntityDSLLexer(stream);
+            var tokenStream = new CommonTokenStream(lexer);
+            var parser = new EntityDSLParser(tokenStream);
+            parser.setBuildParseTree(true);
+            EntityDSLParser.DescriptionFileContext tree
+                    = parser.descriptionFile();
+            System.out.println(parser.getEvents());
+            System.out.println(parser.getEntities());
+
+            for (var entry : parser.getEventGroups().entrySet()) {
+                var groupName = entry.getKey();
+                var dataClass = entry.getValue().dataClass();
+                System.out.println("processing event group " + groupName + " that transmits " + dataClass);
+                writeClasses(entry.getValue());
+            }
+            allEventGroups.addAll(parser.getEventGroups().values());
         }
+        writeModuleInfo(allEventGroups);
+    }
+
+    private static void writeModuleInfo(List<EventGroup> eventGroups) throws IOException {
+        String code = """
+module org.pampasim.events {
+    requires org.pampasim.core;
+    requires org.pampasim.resources;
+    requires lombok;
+    exports org.pampasim.events;
+                """;
+        for (String modName : eventGroups.stream().map(EventGroup::name).toList()) {
+            code += "\n\texports org.pampasim.events." + modName + ";";
+        }
+        code += "\n}\n";
+        Files.writeString(pkgPath.resolve("module-info.java"), code);
     }
 
     private record GroupInfo (EventGroup eventGroup, String className, String dataType) {};
