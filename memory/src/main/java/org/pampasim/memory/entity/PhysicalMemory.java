@@ -101,6 +101,11 @@ public class PhysicalMemory extends AbstractSimEntity {
 
         if (processMemoryInfo.getCurrentIoOperationTimeRemaining() <= 0) {
             LOGGER.debug("Termino de Operação de Disco do processo de identificador: {}", process.getPid());
+            switch (processMemoryInfo.getCurrentIoOperation()) {
+                case PAGE_FAULT -> treatPageFault(process);
+                case DISK_ACCESS -> treatDiskAccess(process);
+            }
+            processMemoryInfo.setCurrentIoOperation(null);
             scheduleToNextClock(new DiskOperationFinished(this, event.getProcess()));
             process.setState(Process.State.WAITING);
             occupied = false;
@@ -114,7 +119,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         int currentIoOperationLength = processMemoryInfo.getScheduledIoOperation(process.getCurrExecTime());
         processMemoryInfo.setCurrentIoOperationTimeRemaining(currentIoOperationLength);
-        processMemoryInfo.setCurrentIoOperationFinished(false);
+        processMemoryInfo.setCurrentIoOperation(ProcessMemoryInfo.IoOperationType.DISK_ACCESS);
         process.setState(Process.State.IO_RUNNING);
         scheduleToNextClock(new DiskOperation(this, event.getProcess()));
     }
@@ -133,33 +138,11 @@ public class PhysicalMemory extends AbstractSimEntity {
     private void handleMemoryPageFault(PageFault event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-
-        ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
-        ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
-        PageTableEntry[] entries = processPageTable.getEntries(accessList);
-
-        // Get faulty pages
-        ArrayList<PageTableEntry> faultyPages = Arrays.stream(entries)
-                .filter(entry -> entry.getFrameAddress() == null || !entry.isValid())
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);
-
-        for (PageTableEntry faultyPage : faultyPages) {
-            if (mainMemory.hasFreePageFrames() && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getSize()) { // means there is a free spot, no need to swap another page out
-                swapIn(process, faultyPage);
-            } else { // No free slots, must choose a page to swap out
-                PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
-                validPagePool.remove(pageToSwap); // remove the page that was picked so it isn't picked twice
-
-                swapOut(process, pageToSwap);
-                swapIn(process, faultyPage);
-            }
-        }
-
+        processMemoryInfo.setCurrentIoOperation(ProcessMemoryInfo.IoOperationType.PAGE_FAULT);
         int operationLength = processMemoryInfo.getSwappingOperationsLength();
         processMemoryInfo.setCurrentIoOperationTimeRemaining(operationLength);
         process.setState(Process.State.IO_RUNNING);
+
         scheduleToNextClock(new DiskOperation(this, process));
     }
 
@@ -169,7 +152,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         scheduleToNextClock(new ProcessReady(this, event.getProcess()));
     }
 
-    private void swapOut(Process process, PageTableEntry entry) {
+    private void swapOut(PageTableEntry entry) {
         if (!entry.isValid()) {
             LOGGER.error("Page Table Entry is already swapped out!");
             return;
@@ -178,15 +161,16 @@ public class PhysicalMemory extends AbstractSimEntity {
         if (swapOutAddr.isPresent()) {
             mainMemory.freePageFrame(entry.getFrameAddress());
             frameMap.remove(entry.getFrameAddress());
-            swapFile.allocatePageFrames(process.getPid(), swapOutAddr.getAsInt(), swapOutAddr.getAsInt());
+            swapFile.allocatePageFrames(entry.getProcess().getPid(), swapOutAddr.getAsInt(), swapOutAddr.getAsInt());
             entry.setValid(false);
             entry.setFrameAddress(swapOutAddr.getAsInt());
+            LOGGER.trace("Pagina {} do processo de identificador {} swapped out para endereço {} na swapfile",entry.getPageNumber(), entry.getProcess().getPid(), entry.getFrameAddress());
         } else {
             throw new OutOfMemoryError("Not enough space in the swapfile to perform the swap out operation");
         }
     }
 
-    private void swapIn(Process process, PageTableEntry entry) {
+    private void swapIn(PageTableEntry entry) {
         if (entry.isValid()) {
             LOGGER.error("Page Table Entry is already swapped in!");
         }
@@ -195,10 +179,12 @@ public class PhysicalMemory extends AbstractSimEntity {
             if (entry.getFrameAddress() != null) {
                 swapFile.freePageFrame(entry.getFrameAddress());
             }
-            mainMemory.allocatePageFrames(process.getPid(), swapInAddr.getAsInt(), swapInAddr.getAsInt());
+            mainMemory.allocatePageFrames(entry.getProcess().getPid(), swapInAddr.getAsInt(), swapInAddr.getAsInt());
+            entry.setFrameAddress(swapInAddr.getAsInt());
             frameMap.put(entry.getFrameAddress(), entry);
             entry.setValid(true);
-            entry.setFrameAddress(swapInAddr.getAsInt());
+            LOGGER.trace("Pagina {} do processo de identificador {} swapped in para endereço {} na memória princical",entry.getPageNumber(), entry.getProcess().getPid(), entry.getFrameAddress());
+
         } else {
             throw new OutOfMemoryError("Not enough space in the main memory to perform the swap in operation");
         }
@@ -227,5 +213,40 @@ public class PhysicalMemory extends AbstractSimEntity {
     @Override
     public boolean shouldRunNextTick() {
         return super.shouldRunNextTick() || ((!ioEventQueue.isEmpty()) && (!occupied));
+    }
+
+    private void treatPageFault(Process process) {
+        LOGGER.debug("Processando Page Fault para o processo de identificador {}", process.getPid());
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+        ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
+        PageTableEntry[] entries = processPageTable.getEntries(accessList);
+
+        // Get faulty pages
+        ArrayList<PageTableEntry> faultyPages = Arrays.stream(entries)
+                .filter(entry -> entry.getFrameAddress() == null || !entry.isValid())
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);
+
+        for (PageTableEntry faultyPage : faultyPages) {
+            if (mainMemory.hasFreePageFrames() && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getSize()) { // means there is a free spot, no need to swap another page out
+                LOGGER.trace("Ainda há frames na memória principal, realizando swap in da pagina {} do Processo de identificador {}",faultyPage.getPageNumber(), process.getPid());
+                swapIn(faultyPage);
+            } else { // No free slots, must choose a page to swap out
+                PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
+                validPagePool.remove(pageToSwap); // remove the page that was picked so it isn't picked twice
+
+                LOGGER.trace("Não há frames livres na memória principal, realizando swap out da pagina {} do Processo de identificador {}",pageToSwap.getPageNumber(), mainMemory.getPageFrameOwner(pageToSwap.getPageNumber()));
+                swapOut(pageToSwap);
+                LOGGER.trace("Depois de liberar o frame, realizando swap in da pagina {} do Processo de identificador {}",faultyPage.getPageNumber(), mainMemory.getPageFrameOwner(pageToSwap.getPageNumber()));
+                swapIn(faultyPage);
+            }
+        }
+    }
+
+    private void treatDiskAccess(Process process) {
+        LOGGER.debug("Processando acesso a disco para o processo de identificador {}", process.getPid());
+        // nothing else is required
     }
 }

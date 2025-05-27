@@ -80,7 +80,7 @@ public class PageFrameController {
         return new HashMap<>(pageFrametoProcessMap);
     }
     public boolean hasFreePageFrames() {
-        return (totalPages - processtoPageFrameMap.size()) > 0;
+        return (totalPages - pageFrametoProcessMap.size()) > 0;
     }
 
     public int getTotalAllocatedPageFrames() {

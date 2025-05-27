@@ -24,7 +24,7 @@ public class MemoryManagement extends SimulationBase {
 
         new VirtualMemory(this, 1024);
         new PageTableManager(this);
-        new PhysicalMemory(this, 512, 512, 5, true, new RandomAlgorithm());
+        new PhysicalMemory(this, 5, 1019, 5, true, new RandomAlgorithm());
     }
 
     @Override

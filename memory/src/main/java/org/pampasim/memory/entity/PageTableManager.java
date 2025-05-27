@@ -45,7 +45,7 @@ public class PageTableManager extends AbstractSimEntity {
     private void handleMemoryAllocate(Allocate event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-        ProcessPageTable pageTable = new ProcessPageTable(processMemoryInfo.getSize());
+        ProcessPageTable pageTable = new ProcessPageTable(process, processMemoryInfo.getSize());
         processMemoryInfo.setPageTable(pageTable);
         pageTableMap.put(process.getPid().getId(), pageTable);
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas criada com sucesso", process.getPid().toString());

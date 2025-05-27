@@ -1,5 +1,7 @@
 package org.pampasim.resources.memory;
 
+import org.pampasim.resources.Process;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -8,11 +10,11 @@ public class ProcessPageTable {
     // page table that stores the page table entries for each process
     private final PageTableEntry[] entries;
 
-    public ProcessPageTable(int processSize) {
+    public ProcessPageTable(Process process, int processSize) {
         this.entries = new PageTableEntry[processSize];
         // Initialize all entries
         for (int i = 0; i < processSize; i++) {
-            entries[i] = new PageTableEntry(i);
+            entries[i] = new PageTableEntry(process, i);
         }
     }
 

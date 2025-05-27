@@ -26,11 +26,22 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     @Setter
     private int currentIoOperationTimeRemaining;
     @Setter
-    private boolean currentIoOperationFinished;
+    private IoOperationType currentIoOperation;
     private final int swappingOperationsLength; //how long the swapping operations take when a page fault happens
     @Setter
     private ProcessPageTable pageTable; // reference to the process' page table
 
+    public enum IoOperationType {
+        /**
+         * The resources.Process requested an IO operation that requires a disk access
+         */
+        DISK_ACCESS,
+
+        /**
+         * The resources.Process virtual memory access resulted in a Page Fault
+         */
+        PAGE_FAULT
+    }
 
     public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength) {
         this.process = process;
@@ -39,7 +50,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.virtualAddressStart = null;
         this.addressAccessList = new ArrayList<>();
         this.loopAccessList = false;
-        this.currentIoOperationFinished = false;
+        this.currentIoOperation = null;
 
         this.currentIoOperationTimeRemaining = 0;
         this.swappingOperationsLength = swappingOperationsLength;
