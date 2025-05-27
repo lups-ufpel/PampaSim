@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
 
@@ -29,6 +31,7 @@ public class Process {
     // will require the memory module to check the Page Table or the TLB, it can also suspend the process if a page fault
     // ends up happening. This is important to justify the existence of a TLB in the system
 
+    private final Logger LOGGER = LogManager.getLogger(Process.class);
     private final Pid pid;
     @Setter
     State state;
@@ -63,6 +66,11 @@ public class Process {
 
     public boolean isFinished() {
         return getRemainingExecutionTime() <= 0;
+    }
+
+    public void setState(Process.State state) {
+        this.state = state;
+        LOGGER.debug("Process of PID {} transitioned to state {}", pid, state);
     }
 
     public enum State {

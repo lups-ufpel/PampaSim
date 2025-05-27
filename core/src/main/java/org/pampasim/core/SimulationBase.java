@@ -62,7 +62,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     @Override
     public void acceptEvent(Event evt) {
         lastClockOutputs.add(evt);
-        setStateIfNotBlocked(EntityState.Run);
+        state = EntityState.Run;
     }
 
     public void scheduleToClock(int clock, final Event event) { // used to schedule events before the simulation starts
@@ -71,19 +71,20 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     @Override
     public void run() {
+        String simulationName = "["+ this.getClass().getSimpleName()+"]";
         //  Run simulation, with steps:
-        var phase1 = "1 - clear last inputs and outputs";
-        var phase2 = "2 - gather all events for this clock from the schedule";
-        var phase3 = "3 - send the gathered events to the right handler entities (event manager)";
-        var phase4 = "4 - update idle states";
-        var phase5 = "5 - check which kind of simulation tick we should perform, based on simulation state:";
-        var phase5a = "5a - blocked tick, where all subordinate entities are either blocked or idle";
+        var phase1 = simulationName + "1 - clear last inputs and outputs";
+        var phase2 = simulationName +  "2 - gather all events for this clock from the schedule";
+        var phase3 = simulationName + "3 - send the gathered events to the right handler entities (event manager)";
+        var phase4 = simulationName + "4 - update idle states";
+        var phase5 = simulationName + "5 - check which kind of simulation tick we should perform, based on simulation state:";
+        var phase5a = simulationName + "5a - blocked tick, where all subordinate entities are either blocked or idle";
         // advances "real" time, all entities get run indiscriminately.
-        var phase5b = "5b - running tick";
+        var phase5b = simulationName + "5b - running tick";
         // advances only the simulation time, only running entities get run.
-        var phase5c = "5c - idle tick, waiting for \"real\" time events";
+        var phase5c = simulationName + "5c - idle tick, waiting for \"real\" time events";
         // advances "real" time.
-        var phase6 = "6 - compute the next state of the simulation based on the subordinate entities";
+        var phase6 = simulationName + "6 - compute the next state of the simulation based on the subordinate entities";
 
         SimEntity parent = getParent();
         StringBuilder info = new StringBuilder("running, entities: ");
@@ -104,7 +105,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
             // at this clock tick, add them to the list of events to be processed
             currentEvents.addAll(eventsSchedule.consume(getRealClock().getTick()));
         }
-        LOGGER.trace("currentEvents = {}", currentEvents);
+        LOGGER.trace("{} currentEvents = {}",simulationName , currentEvents);
 
         LOGGER.trace(phase3);
         currentEvents
@@ -121,7 +122,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         if (getState() == EntityState.Blocked) {
             LOGGER.trace(phase5a);
             if (isTopLevel) {
-                LOGGER.trace("top level block resolution");
+                LOGGER.trace("{} top level block resolution",simulationName);
                 for (SimEntity entity : entityList) {
                     entity.clearBlock();
                     entity.run();
@@ -135,7 +136,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 }
                 clearBlock = false;
             } else {
-                LOGGER.trace("blocked simulation");
+                LOGGER.trace("{} blocked simulation", simulationName);
             }
         } else if (areAllEntitiesIdle() && hasPendingEvents()) {
             LOGGER.trace(phase5c);
@@ -144,9 +145,6 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
             LOGGER.trace(phase5b);
             executeRunnableEntities();
         }
-
-
-
         simulationClock += 1;
 
         LOGGER.trace(phase6);
@@ -173,7 +171,8 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 return state == EntityState.Blocked
                         || state == EntityState.Idle;
             });
-            if (allSettled) { this.state = EntityState.Blocked; }
+            // lastClockOutputs being empty check is to ensure that the sub-simulation didn't just receive events from the parent simulation
+            if (allSettled && lastClockOutputs.isEmpty()) { this.state = EntityState.Blocked; }
             else { this.state = EntityState.Run; }
         } else {
             super.updateState();
@@ -197,8 +196,9 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     @Override
     public boolean hasPendingEvents() {
+        String simulationName = "["+ this.getClass().getSimpleName()+"]";
         // it really is off by one
-        LOGGER.trace("{} means any > {} == {}",
+        LOGGER.trace("{} {} means any > {} == {}",simulationName,
                 eventsSchedule.toString(), getRealClock().getTick(),eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
         return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
     }

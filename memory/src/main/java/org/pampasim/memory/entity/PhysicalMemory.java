@@ -28,6 +28,7 @@ public class PhysicalMemory extends AbstractSimEntity {
     // map that stores which frames are present in memory
     Map<Integer, PageTableEntry> frameMap;
     Queue<Event> ioEventQueue;
+    boolean occupied;
 
     //TODO: add LOGGER debug messages for every event
 
@@ -43,6 +44,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         this.pageReplacementAlgorithm = pageReplacementAlgorithm;
         this.globalPageReplacement = globalReplacementPolicy;
         ioEventQueue = new LinkedList<>();
+        occupied = false;
 
         simulation.getEventManager().addEventHandler(PageHit.class, this);
         simulation.getEventManager().addEventHandler(PageFault.class, this);
@@ -62,8 +64,9 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     @Override
     protected void managedRun() {
-        if (buffer.stream().noneMatch(element -> element instanceof DiskOperation) && !ioEventQueue.isEmpty()) { // no disk operation currently being run
+        if ((!occupied) && (!ioEventQueue.isEmpty())) { // no disk operation currently being run
             buffer.add(ioEventQueue.poll()); // add the next event that will lead into an IO operation into the buffer for the current simulation tick
+            occupied = true;
         }
         super.managedRun(); // handle all events
     }
@@ -99,6 +102,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         if (processMemoryInfo.getCurrentIoOperationTimeRemaining() <= 0) {
             LOGGER.debug("Termino de Operação de Disco do processo de identificador: {}", process.getPid());
             scheduleToNextClock(new DiskOperationFinished(this, event.getProcess()));
+            occupied = false;
         } else {
             scheduleToNextClock(new DiskOperation(this, process));
         }
@@ -140,15 +144,15 @@ public class PhysicalMemory extends AbstractSimEntity {
         ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);
 
         for (PageTableEntry faultyPage : faultyPages) {
-                if (mainMemory.hasFreePageFrames() && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getSize()) { // means there is a free spot, no need to swap another page out
-                    swapIn(process, faultyPage);
-                } else { // No free slots, must choose a page to swap out
-                    PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
-                    validPagePool.remove(pageToSwap); // remove the page that was picked so it isn't picked twice
+            if (mainMemory.hasFreePageFrames() && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getSize()) { // means there is a free spot, no need to swap another page out
+                swapIn(process, faultyPage);
+            } else { // No free slots, must choose a page to swap out
+                PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
+                validPagePool.remove(pageToSwap); // remove the page that was picked so it isn't picked twice
 
-                    swapOut(process, pageToSwap);
-                    swapIn(process, faultyPage);
-                }
+                swapOut(process, pageToSwap);
+                swapIn(process, faultyPage);
+            }
         }
 
         int operationLength = processMemoryInfo.getSwappingOperationsLength();
@@ -219,6 +223,6 @@ public class PhysicalMemory extends AbstractSimEntity {
     }
     @Override
     public boolean shouldRunNextTick() {
-        return super.shouldRunNextTick() || !ioEventQueue.isEmpty();
+        return super.shouldRunNextTick() || ((!ioEventQueue.isEmpty()) && (!occupied));
     }
 }

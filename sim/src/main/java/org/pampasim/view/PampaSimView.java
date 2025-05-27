@@ -137,7 +137,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(1000), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
