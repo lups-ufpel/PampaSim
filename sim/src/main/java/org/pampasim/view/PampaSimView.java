@@ -137,7 +137,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        this.animation = new Timeline(new KeyFrame(Duration.millis(1000), e -> pampaSimViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
@@ -275,7 +275,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
             case READY:
                 ReadyList.getChildren().add(circle);
                 break;
-            case WAITING:
+            case WAITING, IO_WAITING, IO_RUNNING: // FIXME: temporarily placing IO to be displayed as "WAITING"
                 WaitingList.getChildren().add(circle);
                 break;
             case TERMINATED:

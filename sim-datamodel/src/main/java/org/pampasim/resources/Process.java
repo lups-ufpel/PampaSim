@@ -94,9 +94,19 @@ public class Process {
         SCHEDULED,
 
         /**
-         * The resources.Process is currently waiting for an I/O operation to be completed.
+         * The resources.Process is waiting for its turn in the processor
          */
         WAITING,
+
+        /**
+         * The resources.Process is currently waiting for its turn to run an I/O operation
+         */
+        IO_WAITING,
+
+        /**
+         * The resources.Process is currently performing an IO operation
+         */
+        IO_RUNNING,
 
         /**
          * The resources.Process has been terminated.

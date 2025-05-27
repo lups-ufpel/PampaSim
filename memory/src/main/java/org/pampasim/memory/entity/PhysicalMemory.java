@@ -102,6 +102,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         if (processMemoryInfo.getCurrentIoOperationTimeRemaining() <= 0) {
             LOGGER.debug("Termino de Operação de Disco do processo de identificador: {}", process.getPid());
             scheduleToNextClock(new DiskOperationFinished(this, event.getProcess()));
+            process.setState(Process.State.WAITING);
             occupied = false;
         } else {
             scheduleToNextClock(new DiskOperation(this, process));
@@ -114,6 +115,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         int currentIoOperationLength = processMemoryInfo.getScheduledIoOperation(process.getCurrExecTime());
         processMemoryInfo.setCurrentIoOperationTimeRemaining(currentIoOperationLength);
         processMemoryInfo.setCurrentIoOperationFinished(false);
+        process.setState(Process.State.IO_RUNNING);
         scheduleToNextClock(new DiskOperation(this, event.getProcess()));
     }
 
@@ -157,6 +159,7 @@ public class PhysicalMemory extends AbstractSimEntity {
 
         int operationLength = processMemoryInfo.getSwappingOperationsLength();
         processMemoryInfo.setCurrentIoOperationTimeRemaining(operationLength);
+        process.setState(Process.State.IO_RUNNING);
         scheduleToNextClock(new DiskOperation(this, process));
     }
 

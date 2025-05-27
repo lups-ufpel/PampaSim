@@ -76,7 +76,7 @@ public class PageTableManager extends AbstractSimEntity {
                 } else {
                     LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Bit válido 0)", process.getPid().toString());
                 }
-                process.setState(Process.State.WAITING);
+                process.setState(Process.State.IO_WAITING);
                 scheduleToNextClock(new PageFault(this, event.getProcess()));
                 return;
             }

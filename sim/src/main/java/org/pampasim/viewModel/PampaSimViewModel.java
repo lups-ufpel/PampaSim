@@ -208,15 +208,18 @@ public class PampaSimViewModel implements ViewModel {
         return processes.get(pid);
     }
     public void runSimulation() {
+        boolean blockedTick;
         Simulation sim = simulatedScenario.getSimulation();
         if (sim.getState() == SimEntity.EntityState.Blocked) {
             sim.run();
+            blockedTick = true;
         } else {
             sim.runUntilBlockedorIdle();
+            blockedTick = false;
         }
 
         { // Update ascii report
-            if (asciiReportClock != sim.getRealClock().getTick()) {
+            if (blockedTick) {
                 asciiReportClock = sim.getRealClock().getTick();
                 for (ProcessViewModel pvm : processesByCreationId.values()) {
                     Pid pid = pvm.getPid().getValue();
@@ -245,6 +248,8 @@ public class PampaSimViewModel implements ViewModel {
                     Process.State.RUNNING, 'R',
                     Process.State.SCHEDULED, 'x',
                     Process.State.WAITING, 'w',
+                    Process.State.IO_WAITING, 'i',
+                    Process.State.IO_RUNNING, 'I',
                     Process.State.TERMINATED, 't'
             );
 
