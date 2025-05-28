@@ -63,7 +63,7 @@ public class VirtualMemory extends AbstractSimEntity {
         Process process = event.getProcess();
 
         // FIXME: setting up the process memory info here for testing purposes
-        process.addModuleInfo(new ProcessMemoryInfo(process, 10, 2));
+        process.addModuleInfo(new ProcessMemoryInfo(process, 10, 2, 5));
         process.getModuleInfo(ProcessMemoryInfo.class).addAccessEntry(0,
                 new ArrayList<>(Arrays.asList(0, 1, 3, 4)));
 

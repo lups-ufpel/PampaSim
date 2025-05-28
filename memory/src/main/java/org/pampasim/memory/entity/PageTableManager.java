@@ -19,11 +19,13 @@ public class PageTableManager extends AbstractSimEntity {
     // a map of all page tables for easy access later for algorithms that need to consult all process tables (for example, page substitution algorithms with a global policy)
     private final Map<Long, ProcessPageTable> pageTableMap; // TODO: with the frame map in the physical memory, this likely isn't needed
 
+    private final int workingSetWindow;
 
-    public PageTableManager(Simulation simulation) {
+    public PageTableManager(Simulation simulation, int workingSetWindow) {
         super(simulation);
         pageTableMap = new HashMap<>();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
+        this.workingSetWindow = workingSetWindow;
 
         simulation.getEventManager().addEventHandler(Allocate.class, this);
         simulation.getEventManager().addEventHandler(DeletePageTableEntry.class, this);
@@ -66,8 +68,14 @@ public class PageTableManager extends AbstractSimEntity {
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
         ProcessPageTable pageTable = processMemoryInfo.getPageTable();
 
+        if (processMemoryInfo.getReferenceCounter() > workingSetWindow) {
+            processMemoryInfo.computeWorkingSet(); // compute the process working set and reset all reference flags
+        }
+
         for(Integer access : accessList) {
             PageTableEntry pageTableEntry = pageTable.getEntry(access);
+            processMemoryInfo.registerReference();
+            pageTableEntry.setReferenced(true);
 
             if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
                 // if there is at least 1 page fault, suspend process and send a PageFault event

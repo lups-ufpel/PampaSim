@@ -14,15 +14,17 @@ import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessPageTable;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.min;
 
 public class PhysicalMemory extends AbstractSimEntity {
 
     private final Logger LOGGER = LogManager.getLogger(PhysicalMemory.class);
     private final PageFrameController mainMemory;
     private final PageFrameController swapFile;
-    private final int maxFramesPerProcess;
     private final PageReplacementAlgorithm pageReplacementAlgorithm;
     // map that stores which frames are present in memory
     private final Map<Integer, PageTableEntry> frameMap;
@@ -37,27 +39,30 @@ public class PhysicalMemory extends AbstractSimEntity {
     private final boolean globalPageReplacement; // local or global
     private final boolean anticipatedPageLoading; // demand or anticipated
     private final boolean variablePageAllocation; // fixed or variable
+    private final double variablePageAllocationTopThreshold;
+    private final double variablePageAllocationBottomThreshold;
 
-    // TODO: implement anticipated page loading
-    // TODO: implement variable page loading using PFF (Page Fault Frequency) algorithm, which is an extension of the working set concept.
 
     private int pageFaults;
     private int pageHits;
 
     public PhysicalMemory(Simulation simulation, int mainMemorySize,
-                          int swapFileSize, int maxFramesPerProcess,
-                          boolean globalReplacementPolicy, PageReplacementAlgorithm pageReplacementAlgorithm,
-                          boolean anticipatedPageLoading, boolean variablePageAllocation) {
+                          int swapFileSize, boolean globalReplacementPolicy,
+                          PageReplacementAlgorithm pageReplacementAlgorithm,
+                          boolean anticipatedPageLoading, boolean variablePageAllocation,
+                          double variablePageAllocationTopThreshold, double variablePageAllocationBottomThreshold) {
         super(simulation);
 
+        this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
         frameMap = new HashMap<>();
         mainMemory = new PageFrameController(mainMemorySize);
         swapFile = new PageFrameController(swapFileSize);
-        this.maxFramesPerProcess = maxFramesPerProcess;
         this.pageReplacementAlgorithm = pageReplacementAlgorithm;
         this.globalPageReplacement = globalReplacementPolicy;
         this.anticipatedPageLoading = anticipatedPageLoading;
         this.variablePageAllocation = variablePageAllocation;
+        this.variablePageAllocationTopThreshold = variablePageAllocationTopThreshold;
+        this.variablePageAllocationBottomThreshold = variablePageAllocationBottomThreshold;
         ioEventQueue = new LinkedList<>();
         occupied = false;
         pageFaults = 0;
@@ -144,7 +149,6 @@ public class PhysicalMemory extends AbstractSimEntity {
     }
 
     private void handleFreeProcessMemory(FreeProcessMemory event) {
-        //TODO: handle this event before all others
         PidAllocator.Pid processPid = event.getProcess().getPid();
 
         mainMemory.freeProcessPageFrame(processPid);
@@ -163,19 +167,49 @@ public class PhysicalMemory extends AbstractSimEntity {
         process.setState(Process.State.IO_RUNNING);
 
         pageFaults++;
+
+        if (variablePageAllocation) {
+            float pageFaultRate = getPageFaultRate();
+            if (pageFaultRate > variablePageAllocationTopThreshold) {
+                processMemoryInfo.addMaxFrames();
+                LOGGER.trace("Taxa de page fault foi abaixo da taxa máximo, adicionando um frame no máximo para o processo de identificador {}, novo máximo: {}", process.getPid(), processMemoryInfo.getMaxFrames());
+            }
+        }
         scheduleToNextClock(new DiskOperation(this, process));
     }
 
     private void handlePageHit(PageHit event) {
-        //TODO: register main memory accesses
+        Process process = event.getProcess();
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         //Nothing but a hand off is required
         pageHits++;
+
+        if (variablePageAllocation) {
+            float pageFaultRate = getPageFaultRate();
+            if (pageFaultRate < variablePageAllocationBottomThreshold) {
+                processMemoryInfo.subMaxFrames();
+                LOGGER.trace("Taxa de page fault foi abaixo da taxa mínima, removendo um frame do máximo para o processo de identificador {}, novo máximo: {}", process.getPid(), processMemoryInfo.getMaxFrames());
+
+
+                if (mainMemory.getTotalProcessPageFrames(process.getPid()) > processMemoryInfo.getMaxFrames()) {
+                    ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+                    ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
+                    PageTableEntry[] entries = processPageTable.getEntries(accessList);
+                    // since we know that the process has more pages than its max, it'll always fall in the case where the selection will be local
+                    ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, new ArrayList<>(Arrays.asList(entries)));
+                    PageTableEntry pageToRemove = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
+                    LOGGER.trace("Realizando swap out de uma página pois o processo de indentificador {} possui mais páginas na memória principal que o seu máximo permite", process.getPid());
+                    swapOut(pageToRemove);
+
+                }
+            }
+        }
         scheduleToNextClock(new ProcessReady(this, event.getProcess()));
     }
 
     private void swapOut(PageTableEntry entry) {
         if (!entry.isValid()) {
-            LOGGER.error("Page Table Entry is already swapped out!");
+            LOGGER.error("Entrada na tabela de páginas não esta na memória principal!");
             return;
         }
         OptionalInt swapOutAddr = swapFile.findFirstContiguousFreeRange(1);
@@ -187,13 +221,13 @@ public class PhysicalMemory extends AbstractSimEntity {
             entry.setFrameAddress(swapOutAddr.getAsInt());
             LOGGER.trace("Pagina {} do processo de identificador {} swapped out para endereço {} na swapfile",entry.getPageNumber(), entry.getProcess().getPid(), entry.getFrameAddress());
         } else {
-            throw new OutOfMemoryError("Not enough space in the swapfile to perform the swap out operation");
+            throw new OutOfMemoryError("Não existe espaço na swapfile suficiente para realizar a operação");
         }
     }
 
     private void swapIn(PageTableEntry entry) {
         if (entry.isValid()) {
-            LOGGER.error("Page Table Entry is already swapped in!");
+            LOGGER.error("Entrada na tabela de páginas já esta na memória principal!");
         }
         OptionalInt swapInAddr = mainMemory.findFirstContiguousFreeRange(1);
         if (swapInAddr.isPresent()) {
@@ -207,25 +241,26 @@ public class PhysicalMemory extends AbstractSimEntity {
             LOGGER.trace("Pagina {} do processo de identificador {} swapped in para endereço {} na memória princical",entry.getPageNumber(), entry.getProcess().getPid(), entry.getFrameAddress());
 
         } else {
-            throw new OutOfMemoryError("Not enough space in the main memory to perform the swap in operation");
+            throw new OutOfMemoryError("Não existe espaço na memória principal suficiente para realizar a operação");
         }
     }
 
-    private ArrayList<PageTableEntry> getValidPagePool(Process process, ArrayList<PageTableEntry> faultyPages) {
-        ProcessPageTable processPageTable = process.getModuleInfo(ProcessMemoryInfo.class).getPageTable();
+    private ArrayList<PageTableEntry> getValidPagePool(Process process, ArrayList<PageTableEntry> excludedPages) {
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
 
         // Get valid page pool (global or local)
         ArrayList<PageTableEntry> validPagePool;
 
-        if (globalPageReplacement && mainMemory.getTotalProcessPageFrames(process.getPid()) < maxFramesPerProcess) { // if the process can still allocate more pages for itself
+        if (globalPageReplacement && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getMaxFrames()) { // if the process can still allocate more pages for itself
             validPagePool = frameMap.values().stream()
                     .filter(PageTableEntry::isValid)
-                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
+                    .filter(entry -> !excludedPages.contains(entry))  // Exclude faulty pages
                     .collect(Collectors.toCollection(ArrayList::new));
         } else {
-            // Process reached the max number of pages it's allowed to have in the main memory
+            // Process reached the max number of pages it's allowed to have in the main memory and/or the replacement policy is strictly local
             validPagePool = processPageTable.getValidEntries().stream()
-                    .filter(entry -> !faultyPages.contains(entry))  // Exclude faulty pages
+                    .filter(entry -> !excludedPages.contains(entry))  // Exclude faulty pages
                     .collect(Collectors.toCollection(ArrayList::new));
         }
 
@@ -251,9 +286,10 @@ public class PhysicalMemory extends AbstractSimEntity {
         ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);
 
         for (PageTableEntry faultyPage : faultyPages) {
-            if (mainMemory.hasFreePageFrames() && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getSize()) { // means there is a free spot, no need to swap another page out
+            if (mainMemory.hasFreePageFrames() && mainMemory.getTotalProcessPageFrames(process.getPid()) < processMemoryInfo.getMaxFrames()) { // means there is a free spot, no need to swap another page out
                 LOGGER.trace("Ainda há frames na memória principal, realizando swap in da pagina {} do Processo de identificador {}",faultyPage.getPageNumber(), process.getPid());
                 swapIn(faultyPage);
+
             } else { // No free slots, must choose a page to swap out
                 PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
                 validPagePool.remove(pageToSwap); // remove the page that was picked so it isn't picked twice
@@ -264,6 +300,25 @@ public class PhysicalMemory extends AbstractSimEntity {
                 swapIn(faultyPage);
             }
         }
+
+        if (anticipatedPageLoading) {
+            int freeProcessFrames = mainMemory.getTotalProcessPageFrames(process.getPid()) - processMemoryInfo.getMaxFrames();
+            int freeMemoryFrames = mainMemory.getTotalAllocatedPageFrames() - mainMemory.getTotalPages();
+            int prePagingNumber = min(freeProcessFrames, freeMemoryFrames);
+            ArrayList<PageTableEntry> workingSet = processMemoryInfo.getWorkingSet();
+
+            int swappedInCounter = 0;
+            for (PageTableEntry workingPage : workingSet) {
+                if (swappedInCounter >= prePagingNumber) {
+                    break;
+                } else if (!workingPage.isValid()) {
+                    LOGGER.trace("Carregada antecipadamente para a memória principal a página {} do processo de identificador {}", workingPage.getPageNumber(), process.getPid());
+                    swapIn(workingPage);
+                    swappedInCounter++;
+                }
+            }
+        }
+
     }
 
     private void treatDiskAccess(Process process) {
@@ -276,5 +331,9 @@ public class PhysicalMemory extends AbstractSimEntity {
             case FreeProcessMemory _e -> 1;   // Highest priority
             default -> Integer.MAX_VALUE;
         };
+    }
+
+    public float getPageFaultRate() {
+        return ((float) pageFaults) / (pageFaults + pageHits);
     }
 }

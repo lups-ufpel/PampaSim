@@ -30,6 +30,9 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private final int swappingOperationsLength; //how long the swapping operations take when a page fault happens
     @Setter
     private ProcessPageTable pageTable; // reference to the process' page table
+    private int maxFrames; // how many frames this process can have in the main memory
+    private ArrayList<PageTableEntry> workingSet;
+    private int referenceCounter; // reference counter for computing the working set
 
     public enum IoOperationType {
         /**
@@ -43,7 +46,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         PAGE_FAULT
     }
 
-    public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength) {
+    public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength, int maxFrames) {
         this.process = process;
         this.size = size; //TODO: Make the user able to define how many pages the process occupies
         this.ioOperationSchedule = new HashMap<>();
@@ -51,6 +54,9 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.addressAccessList = new ArrayList<>();
         this.loopAccessList = false;
         this.currentIoOperation = null;
+        this.maxFrames = maxFrames;
+        this.workingSet = new ArrayList<>();
+        this.referenceCounter = 0;
 
         this.currentIoOperationTimeRemaining = 0;
         this.swappingOperationsLength = swappingOperationsLength;
@@ -105,6 +111,31 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
 
     public Integer getScheduledIoOperation(int execTick) {
         return ioOperationSchedule.getOrDefault(execTick, null);
+    }
+
+    public void addMaxFrames() {
+        maxFrames++;
+    }
+    public void subMaxFrames() {
+        if (maxFrames > 1) {
+            maxFrames--;
+        }
+    }
+
+    public void computeWorkingSet() {
+        ArrayList<PageTableEntry> referencedEntries = pageTable.getReferencedEntries();
+        workingSet.clear();
+        workingSet.addAll(referencedEntries);
+        referencedEntries.forEach(pageTableEntry -> pageTableEntry.setReferenced(false));
+        resetReferenceCounter();
+
+    }
+
+    public void registerReference() {
+        referenceCounter++;
+    }
+    public void resetReferenceCounter() {
+        referenceCounter = 0;
     }
 
 

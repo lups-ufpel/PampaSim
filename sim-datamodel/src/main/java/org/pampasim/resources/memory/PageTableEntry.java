@@ -13,7 +13,7 @@ public class PageTableEntry {
     private int pageNumber;
     private boolean valid;
     private boolean dirty;
-    private boolean referenced; // used for page replacement algorithms
+    private boolean referenced; // used for page replacement algorithm and working set
 
     PageTableEntry(Process process, int pageNumber) {
         this.process = process;

@@ -1,5 +1,6 @@
 package org.pampasim.memory;
 
+import org.pampasim.core.Simulation;
 import org.pampasim.core.SimulationBase;
 import org.pampasim.core.events.Event;
 import org.pampasim.events.Process.Allocate;
@@ -9,6 +10,7 @@ import org.pampasim.events.Process.Load;
 import org.pampasim.memory.entity.PageTableManager;
 import org.pampasim.memory.entity.PhysicalMemory;
 import org.pampasim.memory.entity.VirtualMemory;
+import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.memory.entity.algorithms.RandomAlgorithm;
 
 public class MemoryManagement extends SimulationBase {
@@ -23,11 +25,11 @@ public class MemoryManagement extends SimulationBase {
         this.setEventManager(new MemoryEventManager(this));
 
         new VirtualMemory(this, 1024);
-        new PageTableManager(this);
+        new PageTableManager(this, 5);
         new PhysicalMemory(this, 5,
-                1019, 5,
-                true, new RandomAlgorithm(),
-                false, false);
+                1019, true, new RandomAlgorithm(),
+                false, false,
+                0.8, 0.2);
     }
 
     @Override

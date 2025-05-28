@@ -49,6 +49,11 @@ public class ProcessPageTable {
                 .filter(PageTableEntry::isValid)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+    public ArrayList<PageTableEntry> getReferencedEntries() {
+        return Arrays.stream(entries)
+                .filter(PageTableEntry::isReferenced)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
 
     // Get the size of the page table
     public int size() {

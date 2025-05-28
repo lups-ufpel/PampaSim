@@ -1,5 +1,6 @@
 package org.pampasim.resources.memory;
 
+import lombok.Getter;
 import org.pampasim.core.utils.PidAllocator;
 
 import java.util.*;
@@ -10,6 +11,7 @@ public class PageFrameController {
 
     private final Map<Long, Set<Integer>> processtoPageFrameMap; // Map to store which pages/frame are allocated to which Pids
     private final Map<Integer, Long> pageFrametoProcessMap; // Map to quickly consult which page/frame a process owns
+    @Getter
     private final int totalPages; // Total number of page/frames
 
     public PageFrameController(int totalPages) {
