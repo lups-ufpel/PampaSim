@@ -20,21 +20,34 @@ import java.util.stream.Collectors;
 public class PhysicalMemory extends AbstractSimEntity {
 
     private final Logger LOGGER = LogManager.getLogger(PhysicalMemory.class);
-    PageFrameController mainMemory;
-    PageFrameController swapFile;
-    int maxFramesPerProcess;
-    PageReplacementAlgorithm pageReplacementAlgorithm;
-    boolean globalPageReplacement;
+    private final PageFrameController mainMemory;
+    private final PageFrameController swapFile;
+    private final int maxFramesPerProcess;
+    private final PageReplacementAlgorithm pageReplacementAlgorithm;
     // map that stores which frames are present in memory
-    Map<Integer, PageTableEntry> frameMap;
-    Queue<Event> ioEventQueue;
-    boolean occupied;
+    private final Map<Integer, PageTableEntry> frameMap;
+    private final Queue<Event> ioEventQueue;
+    private boolean occupied;
 
     //TODO: add LOGGER debug messages for every event
 
     //TODO: more error handling
 
-    public PhysicalMemory(Simulation simulation, int mainMemorySize, int swapFileSize, int maxFramesPerProcess, boolean globalReplacementPolicy, PageReplacementAlgorithm pageReplacementAlgorithm) {
+    // policies
+    private final boolean globalPageReplacement; // local or global
+    private final boolean anticipatedPageLoading; // demand or anticipated
+    private final boolean variablePageAllocation; // fixed or variable
+
+    // TODO: implement anticipated page loading
+    // TODO: implement variable page loading using PFF (Page Fault Frequency) algorithm, which is an extension of the working set concept.
+
+    private int pageFaults;
+    private int pageHits;
+
+    public PhysicalMemory(Simulation simulation, int mainMemorySize,
+                          int swapFileSize, int maxFramesPerProcess,
+                          boolean globalReplacementPolicy, PageReplacementAlgorithm pageReplacementAlgorithm,
+                          boolean anticipatedPageLoading, boolean variablePageAllocation) {
         super(simulation);
 
         frameMap = new HashMap<>();
@@ -43,8 +56,12 @@ public class PhysicalMemory extends AbstractSimEntity {
         this.maxFramesPerProcess = maxFramesPerProcess;
         this.pageReplacementAlgorithm = pageReplacementAlgorithm;
         this.globalPageReplacement = globalReplacementPolicy;
+        this.anticipatedPageLoading = anticipatedPageLoading;
+        this.variablePageAllocation = variablePageAllocation;
         ioEventQueue = new LinkedList<>();
         occupied = false;
+        pageFaults = 0;
+        pageHits = 0;
 
         simulation.getEventManager().addEventHandler(PageHit.class, this);
         simulation.getEventManager().addEventHandler(PageFault.class, this);
@@ -68,7 +85,9 @@ public class PhysicalMemory extends AbstractSimEntity {
             buffer.add(ioEventQueue.poll()); // add the next event that will lead into an IO operation into the buffer for the current simulation tick
             occupied = true;
         }
-        super.managedRun(); // handle all events
+        while (!buffer.isEmpty()) {
+            processEvent(buffer.poll());
+        }
     }
 
     private void acceptIoEventRequest(Event event) {
@@ -79,13 +98,13 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     public void processEvent(Event event) {
         switch (event) {
-            case PageHit e -> handleMemoryPageHit(e);
-            case PageFault e -> handleMemoryPageFault(e);
+            case PageHit e -> handlePageHit(e);
+            case PageFault e -> handlePageFault(e);
 
-            case FreeProcessMemory e -> handleMemoryFreeProcessMemory(e);
+            case FreeProcessMemory e -> handleFreeProcessMemory(e);
 
-            case IoOperation e -> handleMemoryIoOperation(e);
-            case DiskOperation e -> handleMemoryDiskOperation(e);
+            case IoOperation e -> handleIoOperation(e);
+            case DiskOperation e -> handleDiskOperation(e);
             default -> throw new IllegalStateException(
                     "[PhysicalMemory] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -93,7 +112,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         }
     }
 
-    private void handleMemoryDiskOperation(DiskOperation event) {
+    private void handleDiskOperation(DiskOperation event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         LOGGER.debug("Operação de Disco do processo de identificador: {}", process.getPid());
@@ -114,7 +133,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         }
     }
 
-    private void handleMemoryIoOperation(IoOperation event) {
+    private void handleIoOperation(IoOperation event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         int currentIoOperationLength = processMemoryInfo.getScheduledIoOperation(process.getCurrExecTime());
@@ -124,7 +143,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         scheduleToNextClock(new DiskOperation(this, event.getProcess()));
     }
 
-    private void handleMemoryFreeProcessMemory(FreeProcessMemory event) {
+    private void handleFreeProcessMemory(FreeProcessMemory event) {
         //TODO: handle this event before all others
         PidAllocator.Pid processPid = event.getProcess().getPid();
 
@@ -135,7 +154,7 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     //TODO: Anticipated page loading (Load all pages the process is allowed to have)
 
-    private void handleMemoryPageFault(PageFault event) {
+    private void handlePageFault(PageFault event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         processMemoryInfo.setCurrentIoOperation(ProcessMemoryInfo.IoOperationType.PAGE_FAULT);
@@ -143,12 +162,14 @@ public class PhysicalMemory extends AbstractSimEntity {
         processMemoryInfo.setCurrentIoOperationTimeRemaining(operationLength);
         process.setState(Process.State.IO_RUNNING);
 
+        pageFaults++;
         scheduleToNextClock(new DiskOperation(this, process));
     }
 
-    private void handleMemoryPageHit(PageHit event) {
+    private void handlePageHit(PageHit event) {
         //TODO: register main memory accesses
         //Nothing but a hand off is required
+        pageHits++;
         scheduleToNextClock(new ProcessReady(this, event.getProcess()));
     }
 
@@ -248,5 +269,12 @@ public class PhysicalMemory extends AbstractSimEntity {
     private void treatDiskAccess(Process process) {
         LOGGER.debug("Processando acesso a disco para o processo de identificador {}", process.getPid());
         // nothing else is required
+    }
+    
+    private int getEventPriority(Event event) {
+        return switch (event) {
+            case FreeProcessMemory _e -> 1;   // Highest priority
+            default -> Integer.MAX_VALUE;
+        };
     }
 }
