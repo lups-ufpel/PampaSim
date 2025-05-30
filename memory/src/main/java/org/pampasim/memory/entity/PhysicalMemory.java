@@ -43,7 +43,6 @@ public class PhysicalMemory extends AbstractSimEntity {
     private final double variablePageAllocationTopThreshold;
     private final double variablePageAllocationBottomThreshold;
 
-
     private int pageFaults;
     private int pageHits;
 

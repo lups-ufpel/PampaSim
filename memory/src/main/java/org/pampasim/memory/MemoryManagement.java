@@ -25,7 +25,7 @@ public class MemoryManagement extends SimulationBase {
         this.setEventManager(new MemoryEventManager(this));
 
         new VirtualMemory(this, 150);
-        new PageTableManager(this, 5);
+        new PageTableManager(this);
         new PhysicalMemory(this, 50,
                 100, true, new RandomAlgorithm(),
                 true, true,

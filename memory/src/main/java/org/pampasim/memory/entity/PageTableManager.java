@@ -19,13 +19,11 @@ public class PageTableManager extends AbstractSimEntity {
     // a map of all page tables for easy access later for algorithms that need to consult all process tables (for example, page substitution algorithms with a global policy)
     private final Map<Long, ProcessPageTable> pageTableMap; // TODO: with the frame map in the physical memory, this likely isn't needed
 
-    private final int workingSetWindow;
 
-    public PageTableManager(Simulation simulation, int workingSetWindow) {
+    public PageTableManager(Simulation simulation) {
         super(simulation);
         pageTableMap = new HashMap<>();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
-        this.workingSetWindow = workingSetWindow;
 
         simulation.getEventManager().addEventHandler(Allocate.class, this);
         simulation.getEventManager().addEventHandler(DeletePageTableEntry.class, this);
@@ -59,7 +57,7 @@ public class PageTableManager extends AbstractSimEntity {
         process.getModuleInfo(ProcessMemoryInfo.class).setPageTable(null);
         pageTableMap.remove(process.getPid().getId());
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas removida com sucesso", process.getPid().toString());
-        scheduleToNextClock(new FreeProcessMemory(this, event.getProcess()));
+        scheduleToNextClock(new DeleteTlbEntry(this, event.getProcess()));
     }
 
     private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {
@@ -68,15 +66,10 @@ public class PageTableManager extends AbstractSimEntity {
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
         ProcessPageTable pageTable = processMemoryInfo.getPageTable();
 
-        if (processMemoryInfo.getReferenceCounter() > workingSetWindow) {
-            processMemoryInfo.computeWorkingSet(); // compute the process working set and reset all reference flags
-            LOGGER.trace("new working set for process {} : {}", process.getPid(), processMemoryInfo.getWorkingSet());
-        }
-
         for(Integer access : accessList) {
             PageTableEntry pageTableEntry = pageTable.getEntry(access);
-            processMemoryInfo.registerReference();
             pageTableEntry.setReferenced(true);
+            processMemoryInfo.registerReference();
 
             if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
                 // if there is at least 1 page fault, suspend process and send a PageFault event

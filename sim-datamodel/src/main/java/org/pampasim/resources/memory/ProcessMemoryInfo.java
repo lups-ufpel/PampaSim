@@ -33,6 +33,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private int maxFrames; // how many frames this process can have in the main memory
     private final ArrayList<PageTableEntry> workingSet;
     private int referenceCounter; // reference counter for computing the working set
+    private int workingSetWindow;
 
     public enum IoOperationType {
         /**
@@ -46,7 +47,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         PAGE_FAULT
     }
 
-    public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength, int maxFrames) {
+    public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength, int maxFrames, int workingSetWindow) {
         this.process = process;
         this.size = size; //TODO: Make the user able to define how many pages the process occupies
         this.ioOperationSchedule = new HashMap<>();
@@ -57,6 +58,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.maxFrames = maxFrames;
         this.workingSet = new ArrayList<>();
         this.referenceCounter = 0;
+        this.workingSetWindow = workingSetWindow;
 
         this.currentIoOperationTimeRemaining = 0;
         this.swappingOperationsLength = swappingOperationsLength;
@@ -127,14 +129,14 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         workingSet.clear();
         workingSet.addAll(referencedEntries);
         referencedEntries.forEach(pageTableEntry -> pageTableEntry.setReferenced(false));
-        resetReferenceCounter();
+        referenceCounter = 0;
     }
 
     public void registerReference() {
         referenceCounter++;
-    }
-    public void resetReferenceCounter() {
-        referenceCounter = 0;
+        if (referenceCounter >= workingSetWindow) {
+            computeWorkingSet();
+        }
     }
 
 
