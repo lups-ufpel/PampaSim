@@ -31,7 +31,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     @Setter
     private ProcessPageTable pageTable; // reference to the process' page table
     private int maxFrames; // how many frames this process can have in the main memory
-    private ArrayList<PageTableEntry> workingSet;
+    private final ArrayList<PageTableEntry> workingSet;
     private int referenceCounter; // reference counter for computing the working set
 
     public enum IoOperationType {
@@ -52,7 +52,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.ioOperationSchedule = new HashMap<>();
         this.virtualAddressStart = null;
         this.addressAccessList = new ArrayList<>();
-        this.loopAccessList = false;
+        this.loopAccessList = true;
         this.currentIoOperation = null;
         this.maxFrames = maxFrames;
         this.workingSet = new ArrayList<>();
@@ -128,7 +128,6 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         workingSet.addAll(referencedEntries);
         referencedEntries.forEach(pageTableEntry -> pageTableEntry.setReferenced(false));
         resetReferenceCounter();
-
     }
 
     public void registerReference() {

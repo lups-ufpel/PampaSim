@@ -15,6 +15,8 @@ import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class VirtualMemory extends AbstractSimEntity {
     //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
@@ -64,8 +66,11 @@ public class VirtualMemory extends AbstractSimEntity {
 
         // FIXME: setting up the process memory info here for testing purposes
         process.addModuleInfo(new ProcessMemoryInfo(process, 10, 2, 5));
-        process.getModuleInfo(ProcessMemoryInfo.class).addAccessEntry(0,
-                new ArrayList<>(Arrays.asList(0, 1, 3, 4)));
+
+        ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0,4)
+                .mapToObj(i -> new ArrayList<>(List.of(i))).collect(Collectors.toCollection(ArrayList::new)); // accesses from 0 to 9
+
+        process.getModuleInfo(ProcessMemoryInfo.class).getAddressAccessList().addAll(addressAccessList);
 
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(processMemoryInfo.getSize());
@@ -97,7 +102,7 @@ public class VirtualMemory extends AbstractSimEntity {
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
         if (accessList == null) {
-            LOGGER.debug("Process of Pid {} doesn't access any virtual addresses for this running tick", process.getPid());
+            LOGGER.debug("Processo de identificador {} não acessa endereços virtuais para esse tick de execução", process.getPid());
             process.setState(Process.State.RUNNING);
             scheduleToNextClock(new Run(this, process));
             return;
@@ -106,7 +111,7 @@ public class VirtualMemory extends AbstractSimEntity {
         try {
             accessList.forEach(pageNo -> checkForIllegalAccess(processMemoryInfo.getVirtualAddressStart() + pageNo, process.getPid()));
         } catch (SecurityException e) {
-            LOGGER.error("Process of Pid {} attempted to access a virtual address out of it's allocated range! Interrupting Process", process.getPid());
+            LOGGER.error("Processo de identificador {} acessou um endereço virtual fora de sua faixa de endereços! Interrompendo processo", process.getPid());
             process.setState(Process.State.TERMINATED);
             scheduleToNextClock(new Kill(this, process));
             return;

@@ -24,12 +24,12 @@ public class MemoryManagement extends SimulationBase {
 
         this.setEventManager(new MemoryEventManager(this));
 
-        new VirtualMemory(this, 1024);
+        new VirtualMemory(this, 150);
         new PageTableManager(this, 5);
-        new PhysicalMemory(this, 5,
-                1019, true, new RandomAlgorithm(),
-                false, false,
-                0.8, 0.2);
+        new PhysicalMemory(this, 50,
+                100, true, new RandomAlgorithm(),
+                true, true,
+                0.2, 0.01);
     }
 
     @Override

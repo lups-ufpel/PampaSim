@@ -70,6 +70,7 @@ public class PageTableManager extends AbstractSimEntity {
 
         if (processMemoryInfo.getReferenceCounter() > workingSetWindow) {
             processMemoryInfo.computeWorkingSet(); // compute the process working set and reset all reference flags
+            LOGGER.trace("new working set for process {} : {}", process.getPid(), processMemoryInfo.getWorkingSet());
         }
 
         for(Integer access : accessList) {
@@ -89,6 +90,7 @@ public class PageTableManager extends AbstractSimEntity {
                 return;
             }
         }
+
         // If no page faults found, all entries were present in memory
         LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou somente Page Hits", process.getPid().toString());
         scheduleToNextClock(new PageHit(this, event.getProcess()));

@@ -17,6 +17,7 @@ import org.pampasim.resources.memory.ProcessPageTable;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.Math.min;
 
@@ -169,11 +170,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         pageFaults++;
 
         if (variablePageAllocation) {
-            float pageFaultRate = getPageFaultRate();
-            if (pageFaultRate > variablePageAllocationTopThreshold) {
-                processMemoryInfo.addMaxFrames();
-                LOGGER.trace("Taxa de page fault foi abaixo da taxa máximo, adicionando um frame no máximo para o processo de identificador {}, novo máximo: {}", process.getPid(), processMemoryInfo.getMaxFrames());
-            }
+            handleVariablePageAllocation(process);
         }
         scheduleToNextClock(new DiskOperation(this, process));
     }
@@ -185,26 +182,35 @@ public class PhysicalMemory extends AbstractSimEntity {
         pageHits++;
 
         if (variablePageAllocation) {
-            float pageFaultRate = getPageFaultRate();
-            if (pageFaultRate < variablePageAllocationBottomThreshold) {
-                processMemoryInfo.subMaxFrames();
-                LOGGER.trace("Taxa de page fault foi abaixo da taxa mínima, removendo um frame do máximo para o processo de identificador {}, novo máximo: {}", process.getPid(), processMemoryInfo.getMaxFrames());
-
-
-                if (mainMemory.getTotalProcessPageFrames(process.getPid()) > processMemoryInfo.getMaxFrames()) {
-                    ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
-                    ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
-                    PageTableEntry[] entries = processPageTable.getEntries(accessList);
-                    // since we know that the process has more pages than its max, it'll always fall in the case where the selection will be local
-                    ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, new ArrayList<>(Arrays.asList(entries)));
-                    PageTableEntry pageToRemove = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
-                    LOGGER.trace("Realizando swap out de uma página pois o processo de indentificador {} possui mais páginas na memória principal que o seu máximo permite", process.getPid());
-                    swapOut(pageToRemove);
-
-                }
-            }
+            handleVariablePageAllocation(process);
         }
         scheduleToNextClock(new ProcessReady(this, event.getProcess()));
+    }
+
+    private void handleVariablePageAllocation(Process process) {
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+
+        double pageFaultRate = getPageFaultRate();
+        if (pageFaultRate > variablePageAllocationTopThreshold) {
+            processMemoryInfo.addMaxFrames();
+            LOGGER.trace("Taxa de page fault foi acima da taxa máxima, adicionando um frame no máximo para o processo de identificador {}, novo máximo: {}", process.getPid(), processMemoryInfo.getMaxFrames());
+        } else if (pageFaultRate < variablePageAllocationBottomThreshold) {
+            processMemoryInfo.subMaxFrames();
+            LOGGER.trace("Taxa de page fault foi abaixo da taxa mínima, removendo um frame do máximo para o processo de identificador {}, novo máximo: {}", process.getPid(), processMemoryInfo.getMaxFrames());
+
+            if (mainMemory.getTotalProcessPageFrames(process.getPid()) > processMemoryInfo.getMaxFrames()) {
+                ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+                ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
+                PageTableEntry[] entries = processPageTable.getEntries(accessList);
+                // since we know that the process has more pages than its max, it'll always fall in the case where the selection will be local
+                ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, new ArrayList<>(Arrays.asList(entries)));
+                PageTableEntry pageToRemove = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
+                LOGGER.trace("Realizando swap out de uma página pois o processo de indentificador {} possui mais páginas na memória principal que o seu máximo permite", process.getPid());
+                swapOut(pageToRemove);
+
+            }
+        }
+
     }
 
     private void swapOut(PageTableEntry entry) {
@@ -301,24 +307,58 @@ public class PhysicalMemory extends AbstractSimEntity {
             }
         }
 
+
         if (anticipatedPageLoading) {
-            int freeProcessFrames = mainMemory.getTotalProcessPageFrames(process.getPid()) - processMemoryInfo.getMaxFrames();
-            int freeMemoryFrames = mainMemory.getTotalAllocatedPageFrames() - mainMemory.getTotalPages();
+            int freeProcessFrames = processMemoryInfo.getMaxFrames() - mainMemory.getTotalProcessPageFrames(process.getPid());
+            int freeMemoryFrames = mainMemory.getTotalPages() - mainMemory.getTotalAllocatedPageFrames();
             int prePagingNumber = min(freeProcessFrames, freeMemoryFrames);
-            ArrayList<PageTableEntry> workingSet = processMemoryInfo.getWorkingSet();
+            if (prePagingNumber <= 0) {
+                LOGGER.error("Não existe espaço para fazer carregamento de páginas antecipado!");
+                return;
+            }
+            ArrayList<PageTableEntry> pagesToLoad = processMemoryInfo.getWorkingSet();
+
+            if (pagesToLoad.isEmpty()) { // if there is no working set computed yet
+                ArrayList<Integer> currentAccesses = faultyPages.stream()
+                        .map(PageTableEntry::getPageNumber)
+                        .collect(Collectors.toCollection(ArrayList::new));
+
+                ArrayList<Integer> prefetchList = getPrefetchList(processMemoryInfo, currentAccesses);
+                Collections.sort(prefetchList);
+                pagesToLoad.addAll(List.of(processMemoryInfo.getPageTable().getEntries(prefetchList)));
+                LOGGER.trace("Carregamento antecipado baseado na localidade espacial do processo (Working set ainda não foi calculado)");
+            } else {
+                LOGGER.trace("Carregamento antecipado baseado no working set do processo");
+            }
 
             int swappedInCounter = 0;
-            for (PageTableEntry workingPage : workingSet) {
-                if (swappedInCounter >= prePagingNumber) {
-                    break;
-                } else if (!workingPage.isValid()) {
-                    LOGGER.trace("Carregada antecipadamente para a memória principal a página {} do processo de identificador {}", workingPage.getPageNumber(), process.getPid());
-                    swapIn(workingPage);
+            for (PageTableEntry page : pagesToLoad) {
+                if (swappedInCounter < prePagingNumber && !page.isValid()) {
+                    LOGGER.trace("Carregada antecipadamente para a memória principal a página {} do processo de identificador {}", page.getPageNumber(), process.getPid());
+                    swapIn(page);
                     swappedInCounter++;
                 }
             }
         }
+    }
 
+    private static ArrayList<Integer> getPrefetchList(ProcessMemoryInfo processMemoryInfo, ArrayList<Integer> currentAccesses) {
+        int processSize = processMemoryInfo.getSize();
+        int prefetchDistance = 2;
+
+        Set<Integer> prefetchSet = new HashSet<>();
+
+        for (int page : currentAccesses) {
+            for (int offset = 1; offset <= prefetchDistance; offset++) {
+                int nextPage = page + offset;
+                if (nextPage < processSize) {
+                    prefetchSet.add(nextPage);
+                }
+            }
+        }
+
+        ArrayList<Integer> prefetchList = new ArrayList<>(prefetchSet);
+        return prefetchList;
     }
 
     private void treatDiskAccess(Process process) {
@@ -333,7 +373,8 @@ public class PhysicalMemory extends AbstractSimEntity {
         };
     }
 
-    public float getPageFaultRate() {
-        return ((float) pageFaults) / (pageFaults + pageHits);
+    public double getPageFaultRate() {
+        LOGGER.trace("Current Page Fault Rate: {}%", (((double) pageFaults) / (pageFaults + pageHits))*100);
+        return ((double) pageFaults) / (pageFaults + pageHits);
     }
 }
