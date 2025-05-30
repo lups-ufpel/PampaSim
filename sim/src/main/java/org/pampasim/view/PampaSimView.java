@@ -5,7 +5,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,21 +15,19 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.ViewListBinder;
 import org.pampasim.resources.Process;
-import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.ProcessViewModel;
 
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
@@ -38,7 +35,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
-    public Circle CpuContainer1;
+    public HBox RunningList;
     @FXML
     public HBox NewList;
     @FXML
@@ -136,8 +133,14 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        ViewListBinder.bind(NewList, pampaSimViewModel.getNewProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class));
+        ViewListBinder.bind(
+                Map.of(
+                        Process.State.NEW, NewList,
+                        Process.State.READY, ReadyList,
+                        Process.State.RUNNING, RunningList,
+                        Process.State.TERMINATED, FinishedList),
+                pampaSimViewModel.getAllProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
+        );
 
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
         this.animation.setCycleCount(Timeline.INDEFINITE);

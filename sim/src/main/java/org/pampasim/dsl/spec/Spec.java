@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.pampasim.PampaSim;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.dsl.SpecFileLexer;
 import org.pampasim.dsl.SpecFileParser;

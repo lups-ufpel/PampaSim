@@ -19,7 +19,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
@@ -111,11 +110,11 @@
                                                 <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" />
                                             </children>
                                         </VBox>
-                                        <Circle fx:id="CpuContainer1" fill="#f8f8f2" radius="40.0" stroke="BLACK" strokeType="INSIDE">
-                                            <HBox.margin>
-                                                <Insets top="25.0" />
-                                            </HBox.margin>
-                                        </Circle>
+                              <HBox fx:id="RunningList" alignment="CENTER" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" prefHeight="60.0" prefWidth="60.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 100; -fx-border-radius: 100; -fx-border-color: BLACK;">
+                                 <HBox.margin>
+                                    <Insets bottom="10.0" top="30.0" />
+                                 </HBox.margin>
+                              </HBox>
                                         <ProgressBar fx:id="ProcessProgress" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="172.0" nodeOrientation="LEFT_TO_RIGHT" progress="0.0" HBox.hgrow="ALWAYS">
                                             <HBox.margin>
                                                 <Insets top="25.0" />
@@ -169,7 +168,7 @@
                                         </HBox>
                                         <TableView fx:id="procTable">
                                             <columns>
-                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color"/>
+                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
                                                 <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
                                                 <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
                                                 <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
@@ -219,7 +218,7 @@
                 </HBox>
                 <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
                     <tooltip>
-                        <Tooltip text="Carrega arquivo de descrição de cenário"/>
+                        <Tooltip text="Carrega arquivo de descrição de cenário" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square-fill" iconSize="22" selectionFill="BLACK">
