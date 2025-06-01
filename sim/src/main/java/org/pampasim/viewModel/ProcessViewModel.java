@@ -5,22 +5,23 @@ import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.resources.Process;
-import org.pampasim.core.utils.PidAllocator;
 
 @Getter
 public class ProcessViewModel implements ViewModel {
-    private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
-    private final Process.CreationData creationData;
-    private final IntegerProperty priority = new SimpleIntegerProperty();
+    private final long creationId;
+    private final ObjectProperty<String> pid = new SimpleObjectProperty<>();
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
     private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
+    private final ObjectProperty<Integer> arrivalTick = new SimpleObjectProperty<>(0);
+    private final ObjectProperty<Integer> burst = new SimpleObjectProperty<>(0);
+    private final ObjectProperty<Double> progress = new SimpleObjectProperty<>(0.0);
+    private final ObjectProperty<Integer> priority = new SimpleObjectProperty<>();
     private final BooleanProperty initialized = new SimpleBooleanProperty(false);
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
 
-    public ProcessViewModel(Process.CreationData cdata) {
-        this.creationData = cdata;
-        this.setState(Process.State.NEW);
+    public ProcessViewModel(long creationId) {
+        this.creationId = creationId;
     }
 
     public void setState(Process.State newState) {

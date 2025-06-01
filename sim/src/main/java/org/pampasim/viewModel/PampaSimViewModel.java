@@ -22,7 +22,6 @@ import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
-import org.pampasim.events.Process.*;
 
 import javax.swing.*;
 import java.io.File;
@@ -96,8 +95,12 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess(CreateProcessRecord userProcess) {
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
-        ProcessViewModel vm = new ProcessViewModel(creationData);
+        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
         vm.getColorProperty().set(Color.web(userProcess.color()));
+        vm.setState(Process.State.NEW);
+        vm.getArrivalTick().set(creationData.getArrivalTick());
+        vm.getBurst().set(creationData.getDurationTicks());
+        vm.getPriority().set(creationData.getStartPriority());
         allProcesses.add(vm);
         simulatedScenario.getSpec().addProcessArrival(creationData);
         simulatedScenario.resetToSpec();
@@ -138,7 +141,7 @@ public class PampaSimViewModel implements ViewModel {
             if (asciiReportClock != sim.getRealClock().getTick()) {
                 asciiReportClock = sim.getRealClock().getTick();
                 for (ProcessViewModel pvm : allProcesses) {
-                    PidAllocator.Pid pid = pvm.getPid().getValue();
+                    PidAllocator.Pid pid = null;
                     if (pid == null) {
                         continue;
                     }
@@ -201,39 +204,27 @@ public class PampaSimViewModel implements ViewModel {
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
+        long id = proc.getCreationData().getCreationId();
+        ProcessViewModel found = allProcesses.stream()
+                .filter(pvm -> pvm.getCreationId() == id)
+                .findFirst().orElse(null);
+        assert found != null;
+
+        found.getPid().set(proc.getPid().toString());
+        int current = proc.getCurrExecTime();
+        int total = found.getBurst().get();
+        found.getProgress().set((double) (current/total));
+
         switch (event) {
             case org.pampasim.events.Process.Ready e: {
-                long id = proc.getCreationData().getCreationId();
-                ProcessViewModel found = allProcesses.stream()
-                                .filter(pvm -> pvm.getCreationData().getCreationId() == id)
-                                        .findFirst().orElse(null);
-                if(found == null) {
-                    System.out.println("something wrong");
-                }
                 found.setState(Process.State.READY);
-                //readyProcesses.setPredicate(pvm -> pvm.getState() == Process.State.READY);
                 break;
             }
             case org.pampasim.events.Process.Run e: {
-                long id = proc.getCreationData().getCreationId();
-                ProcessViewModel found = allProcesses.stream()
-                        .filter(pvm -> pvm.getCreationData().getCreationId() == id)
-                        .findFirst().orElse(null);
-                if(found == null) {
-                    System.out.println("something wrong");
-                }
                 found.setState(Process.State.RUNNING);
-                //readyProcesses.setPredicate(pvm -> pvm.getState() == Process.State.READY);
                 break;
             }
             case org.pampasim.events.Process.End e: {
-                long id = proc.getCreationData().getCreationId();
-                ProcessViewModel found = allProcesses.stream()
-                        .filter(pvm -> pvm.getCreationData().getCreationId() == id)
-                        .findFirst().orElse(null);
-                if(found == null) {
-                    System.out.println("something wrong");
-                }
                 found.setState(Process.State.TERMINATED);
                 break;
             }
@@ -279,10 +270,10 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
-        int start = editedProcessViewModel.getCreationData().getArrivalTick();
-        int duration = editedProcessViewModel.getCreationData().getDurationTicks();
-        int priority = editedProcessViewModel.getCreationData().getStartPriority();
-        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
-        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
+//        int start = editedProcessViewModel.getCreationData().getArrivalTick();
+//        int duration = editedProcessViewModel.getCreationData().getDurationTicks();
+//        int priority = editedProcessViewModel.getCreationData().getStartPriority();
+//        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
+//        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
     }
 }
