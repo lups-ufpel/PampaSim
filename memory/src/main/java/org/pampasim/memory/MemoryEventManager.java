@@ -9,13 +9,14 @@ import org.pampasim.events.Process.Run;
 import org.pampasim.events.Process.Schedule;
 
 public class MemoryEventManager extends EventManager {
+
     public MemoryEventManager(Simulation s) {
         super(s);
     }
 
     @Override
     public void setupHandlers() {
-            this.addEventHandler(Ready.class, simulation);
+        this.addEventHandler(Ready.class, simulation);
         this.addEventHandler(Kill.class, simulation);
         this.addEventHandler(Run.class, simulation);
         this.addEventHandler(Schedule.class, simulation);

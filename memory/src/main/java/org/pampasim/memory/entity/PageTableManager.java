@@ -3,26 +3,27 @@ package org.pampasim.memory.entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
-import org.pampasim.core.events.*;
-import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.core.events.Event;
+import org.pampasim.events.Memory.*;
+import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessPageTable;
-import org.pampasim.resources.Process;
 
 import java.util.*;
 
 public class PageTableManager extends AbstractSimEntity {
 
     private final Logger LOGGER = LogManager.getLogger(PageTableManager.class);
+
     // a map of all page tables for easy access later for algorithms that need to consult all process tables (for example, page substitution algorithms with a global policy)
     private final Map<Long, ProcessPageTable> pageTableMap; // TODO: with the frame map in the physical memory, this likely isn't needed
 
-
     public PageTableManager(Simulation simulation) {
         super(simulation);
-        pageTableMap = new HashMap<>();
+
+        this.pageTableMap = new HashMap<>();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
 
         simulation.getEventManager().addEventHandler(Allocate.class, this);
@@ -45,19 +46,23 @@ public class PageTableManager extends AbstractSimEntity {
     private void handleMemoryAllocate(Allocate event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+
         ProcessPageTable pageTable = new ProcessPageTable(process, processMemoryInfo.getSize());
         processMemoryInfo.setPageTable(pageTable);
         pageTableMap.put(process.getPid().getId(), pageTable);
+
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas criada com sucesso", process.getPid().toString());
-        scheduleToNextClock(new AllocateFinished(this, event.getProcess()));
+        scheduleToNextClock(new AllocateFinished(this, process));
     }
 
     private void handleMemoryDeletePageTableEntry(DeletePageTableEntry event) {
         Process process = event.getProcess();
+
         process.getModuleInfo(ProcessMemoryInfo.class).setPageTable(null);
         pageTableMap.remove(process.getPid().getId());
+
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas removida com sucesso", process.getPid().toString());
-        scheduleToNextClock(new DeleteTlbEntry(this, event.getProcess()));
+        scheduleToNextClock(new DeleteTlbEntry(this, process));
     }
 
     private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {
@@ -66,7 +71,7 @@ public class PageTableManager extends AbstractSimEntity {
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
         ProcessPageTable pageTable = processMemoryInfo.getPageTable();
 
-        for(Integer access : accessList) {
+        for (Integer access : accessList) {
             PageTableEntry pageTableEntry = pageTable.getEntry(access);
             pageTableEntry.setReferenced(true);
             processMemoryInfo.registerReference();
@@ -78,15 +83,16 @@ public class PageTableManager extends AbstractSimEntity {
                 } else {
                     LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Bit válido 0)", process.getPid().toString());
                 }
+
                 process.setState(Process.State.IO_WAITING);
-                scheduleToNextClock(new PageFault(this, event.getProcess()));
+                scheduleToNextClock(new PageFault(this, process));
                 return;
             }
         }
 
         // If no page faults found, all entries were present in memory
         LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou somente Page Hits", process.getPid().toString());
-        scheduleToNextClock(new PageHit(this, event.getProcess()));
+        scheduleToNextClock(new PageHit(this, process));
     }
 
     @Override

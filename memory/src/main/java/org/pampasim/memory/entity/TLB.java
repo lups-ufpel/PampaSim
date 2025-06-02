@@ -11,31 +11,29 @@ import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class TLB extends AbstractSimEntity {
-    //TODO: TLB should clear when there is a context switch
-
-    private boolean clearOnContextSwitch;
-    private int maxEntries;
-    private Queue<Integer> lruQueue;
-    private Map<Integer, PageTableEntry> entries; // virtual page number -> page table entry
+    private final boolean clearOnContextSwitch;
+    private final int maxEntries;
+    private final Queue<Integer> lruQueue;
+    private final Map<Integer, PageTableEntry> entries; // virtual page number -> page table entry
     private final Logger LOGGER = LogManager.getLogger(TLB.class);
+
     PidAllocator.Pid currentProcess;
 
-    public TLB (Simulation simulation, boolean clearOnContextSwitch, int maxEntries) {
+    public TLB(Simulation simulation, boolean clearOnContextSwitch, int maxEntries) {
         super(simulation);
 
         this.clearOnContextSwitch = clearOnContextSwitch;
         this.maxEntries = maxEntries;
+        this.currentProcess = null;
+
+        lruQueue = new LinkedList<>();
+        entries = new HashMap<>();
+
         simulation.getEventManager().addEventHandler(DeleteTlbEntry.class, this);
         simulation.getEventManager().addEventHandler(TranslateVirtualAddress.class, this);
-        currentProcess = null;
     }
 
     public void processEvent(Event event) {
@@ -55,7 +53,7 @@ public class TLB extends AbstractSimEntity {
         int addressStart = processMemoryInfo.getVirtualAddressStart();
         int processSize = processMemoryInfo.getSize();
 
-        for(int i = addressStart; i < addressStart + processSize; i++) {
+        for (int i = addressStart; i < addressStart + processSize; i++) {
             lruQueue.remove(i);
             entries.remove(i);
         }
@@ -72,7 +70,11 @@ public class TLB extends AbstractSimEntity {
 
         if (clearOnContextSwitch && process.getPid() != currentProcess) {
             flushTLB();
-            LOGGER.trace("Troca de contexto do processo de id {} para processo de id {}, resetando TLB", currentProcess, process.getPid());
+            LOGGER.trace(
+                    "Troca de contexto do processo de id {} para processo de id {}, resetando TLB",
+                    currentProcess,
+                    process.getPid()
+            );
             currentProcess = process.getPid();
         }
 
@@ -81,7 +83,7 @@ public class TLB extends AbstractSimEntity {
                 .toList();
 
         boolean noTranslation = false;
-        for (Integer access : accesses) {;
+        for (Integer access : accesses) {
             if (!entries.containsKey(access)) {
                 noTranslation = true;
                 addEntry(access, processMemoryInfo.getPageTable().getEntry(access - virtualAddressStart));
@@ -91,41 +93,56 @@ public class TLB extends AbstractSimEntity {
         }
 
         if (noTranslation) {
-            LOGGER.trace("Um dos endereços acessados nesse tick de execução não esta presente na TLB do processo de identificador {}", process.getPid());
+            LOGGER.trace(
+                    "Um dos endereços acessados nesse tick de execução não esta presente na TLB do processo de identificador {}",
+                    process.getPid()
+            );
             scheduleToNextClock(new TlbNoTranslation(this, event.getProcess()));
-        }
+        } else {
+            for (Integer accessAddr : accesses) {
+                PageTableEntry pageTableEntry = processMemoryInfo.getPageTable()
+                        .getEntry(accessAddr - virtualAddressStart);
 
-        for(Integer accessAddr : accesses) {
-            PageTableEntry pageTableEntry = processMemoryInfo.getPageTable().getEntry(accessAddr - virtualAddressStart);
-            pageTableEntry.setReferenced(true);
-            processMemoryInfo.registerReference();
+                pageTableEntry.setReferenced(true);
+                processMemoryInfo.registerReference();
 
-            if (pageTableEntry.getFrameAddress() == null ) {
-                throw new IllegalStateException("TLB não armazena endereços sem tradução!");
+                if (pageTableEntry.getFrameAddress() == null) {
+                    throw new IllegalStateException("TLB não armazena endereços sem tradução!");
+                }
+
+                if (!pageTableEntry.isValid()) {
+                    // if there is at least 1 page fault, suspend process and send a PageFault event
+                    LOGGER.debug(
+                            "Processo de ID {} : Acesso a TLB gerou um Page Fault (Bit válido 0)",
+                            process.getPid().toString()
+                    );
+                    process.setState(Process.State.IO_WAITING);
+                    scheduleToNextClock(new PageFault(this, event.getProcess()));
+                    return;
+                }
             }
 
-            if (!pageTableEntry.isValid()) {
-                // if there is at least 1 page fault, suspend process and send a PageFault event
-                LOGGER.debug("Processo de ID {} : Acesso a TLB gerou um Page Fault (Bit válido 0)", process.getPid().toString());
-                process.setState(Process.State.IO_WAITING);
-                scheduleToNextClock(new PageFault(this, event.getProcess()));
-                return;
-            }
+            // If no page faults found, all entries were present in memory
+            LOGGER.debug(
+                    "Processo de ID {} : Acesso a TLB gerou somente Page Hits",
+                    process.getPid().toString()
+            );
+            scheduleToNextClock(new PageHit(this, event.getProcess()));
         }
-        // If no page faults found, all entries were present in memory
-        LOGGER.debug("Processo de ID {} : Acesso a TLB gerou somente Page Hits", process.getPid().toString());
-        scheduleToNextClock(new PageHit(this, event.getProcess()));
     }
 
     private void addEntry(Integer addr, PageTableEntry entry) {
         if (entries.size() >= maxEntries) {
             Integer removedEntryAddr = lruQueue.poll();
             PageTableEntry removedEntry = entries.remove(removedEntryAddr);
-            LOGGER.trace("Removida pagina {} do processo {} da TLB por falta de espaço na mesma", removedEntry.getPageNumber(), removedEntry.getProcess().getPid());
+            LOGGER.trace(
+                    "Removida pagina {} do processo {} da TLB por falta de espaço na mesma",
+                    removedEntry.getPageNumber(),
+                    removedEntry.getProcess().getPid()
+            );
         }
         entries.put(addr, entry);
         registerAccess(addr);
-
     }
 
     private void registerAccess(Integer addr) {

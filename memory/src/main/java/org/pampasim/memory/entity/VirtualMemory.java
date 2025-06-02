@@ -22,14 +22,15 @@ public class VirtualMemory extends AbstractSimEntity {
     //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
 
     private final Logger LOGGER = LogManager.getLogger(VirtualMemory.class);
-    PageFrameController virtualAddressRange;
+    private final PriorityQueue<Event> buffer;
+    private final PageFrameController virtualAddressRange;
 
     public VirtualMemory(Simulation simulation, int virtualAddressRangeSize) {
         super(simulation);
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
+        this.virtualAddressRange = new PageFrameController(virtualAddressRangeSize);
 
-        virtualAddressRange = new PageFrameController(virtualAddressRangeSize);
-
+        // Register event handlers
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Allocate.class, this);
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.End.class, this);
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Load.class, this);
@@ -53,6 +54,7 @@ public class VirtualMemory extends AbstractSimEntity {
             case FreeProcessMemoryFinished e -> handleMemoryFreeProcessMemoryFinished(e);
             case DiskOperationFinished e -> handleMemoryDiskOperationFinished(e);
             case ProcessReady e -> handleMemoryProcessReady(e);
+
             default -> throw new IllegalStateException(
                     "[VirtualMemory] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -61,39 +63,54 @@ public class VirtualMemory extends AbstractSimEntity {
     }
 
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
-
         Process process = event.getProcess();
 
         // FIXME: setting up the process memory info here for testing purposes
         process.addModuleInfo(new ProcessMemoryInfo(process, 10, 2, 5, 5));
 
-        ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0,4)
-                .mapToObj(i -> new ArrayList<>(List.of(i))).collect(Collectors.toCollection(ArrayList::new)); // accesses from 0 to 9
+        ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0, 4)
+                .mapToObj(i -> new ArrayList<>(List.of(i)))
+                .collect(Collectors.toCollection(ArrayList::new)); // accesses from 0 to 9
 
-        process.getModuleInfo(ProcessMemoryInfo.class).getAddressAccessList().addAll(addressAccessList);
+        process.getModuleInfo(ProcessMemoryInfo.class)
+                .getAddressAccessList()
+                .addAll(addressAccessList);
 
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(processMemoryInfo.getSize());
 
         if (startAddressOpt.isEmpty()) {
             scheduleToNextClock(new Kill(this, event.getProcess())); // not enough free addresses to allocate for the new process
-            LOGGER.debug("Processo de ID {} : Falha na alocação, não foi encontrado uma faixa de endereços", process.getPid().toString());
+            LOGGER.debug(
+                    "Processo de ID {} : Falha na alocação, não foi encontrado uma faixa de endereços",
+                    process.getPid().toString()
+            );
             return;
         }
 
         int startAddress = startAddressOpt.getAsInt();
         int endAddress = startAddress + processMemoryInfo.getSize() - 1;
+
         virtualAddressRange.allocatePageFrames(process.getPid(), startAddress, endAddress);
         processMemoryInfo.setVirtualAddressStart(startAddress);
-        LOGGER.debug("Processo de ID {} : Alocado com sucesso nos endereços {} a {}", process.getPid().toString(), startAddress, endAddress);
-        scheduleToNextClock(new Allocate(this, event.getProcess()));
 
+        LOGGER.debug(
+                "Processo de ID {} : Alocado com sucesso nos endereços {} a {}",
+                process.getPid().toString(),
+                startAddress,
+                endAddress
+        );
+        scheduleToNextClock(new Allocate(this, event.getProcess()));
     }
 
     private void handleProcessEnd(org.pampasim.events.Process.End event) {
         Process process = event.getProcess();
         virtualAddressRange.freeProcessPageFrame(process.getPid());
-        LOGGER.debug("Processo de ID {} : Liberada a faixa de endereços virtuais", process.getPid().toString());
+
+        LOGGER.debug(
+                "Processo de ID {} : Liberada a faixa de endereços virtuais",
+                process.getPid().toString()
+        );
         scheduleToNextClock(new DeletePageTableEntry(this, event.getProcess()));
     }
 
@@ -101,17 +118,29 @@ public class VirtualMemory extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+
         if (accessList == null) {
-            LOGGER.debug("Processo de identificador {} não acessa endereços virtuais para esse tick de execução", process.getPid());
+            LOGGER.debug(
+                    "Processo de identificador {} não acessa endereços virtuais para esse tick de execução",
+                    process.getPid()
+            );
             process.setState(Process.State.RUNNING);
             scheduleToNextClock(new Run(this, process));
             return;
         }
 
         try {
-            accessList.forEach(pageNo -> checkForIllegalAccess(processMemoryInfo.getVirtualAddressStart() + pageNo, process.getPid()));
+            accessList.forEach(pageNo ->
+                    checkForIllegalAccess(
+                            processMemoryInfo.getVirtualAddressStart() + pageNo,
+                            process.getPid()
+                    )
+            );
         } catch (SecurityException e) {
-            LOGGER.error("Processo de identificador {} acessou um endereço virtual fora de sua faixa de endereços! Interrompendo processo", process.getPid());
+            LOGGER.error(
+                    "Processo de identificador {} acessou um endereço virtual fora de sua faixa de endereços! Interrompendo processo",
+                    process.getPid()
+            );
             process.setState(Process.State.TERMINATED);
             scheduleToNextClock(new Kill(this, process));
             return;
@@ -128,8 +157,9 @@ public class VirtualMemory extends AbstractSimEntity {
 
     private void handleProcessIoOperation(org.pampasim.events.Process.IoOperation event) {
         // Nothing more than a hand off required
-        // This event is sent when the processor receives a Run event (after its pages are already in the main memory), and then checks if there is an IO operation.
-        // If yes, forward exec and then send the IoOperation event to be handled by the memory
+        // This event is sent when the processor receives a Run event (after its pages are already in the main memory),
+        // and then checks if there is an IO operation. If yes, forward exec and then send the IoOperation event
+        // to be handled by the memory
         scheduleToNextClock(new IoOperation(this, event.getProcess()));
     }
 
@@ -169,5 +199,4 @@ public class VirtualMemory extends AbstractSimEntity {
             default -> Integer.MAX_VALUE;
         };
     }
-
 }
