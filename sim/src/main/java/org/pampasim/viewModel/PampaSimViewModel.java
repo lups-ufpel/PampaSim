@@ -20,6 +20,7 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
+import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 
@@ -69,6 +70,22 @@ public class PampaSimViewModel implements ViewModel {
             var eventManager = sim.getEventManager();
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
+
+            for (var tick : spec.getEventSchedule().values()) {
+                for (var event : tick) {
+                    if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
+                        var creationData = e.getCreationData();
+                        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
+                        vm.getColorProperty().set(Color.web("#000000"));
+                        vm.setState(Process.State.NEW);
+                        vm.getArrivalTick().set(creationData.getArrivalTick());
+                        vm.getBurst().set(creationData.getDurationTicks());
+                        vm.getPriority().set(creationData.getStartPriority());
+                        allProcesses.add(vm);
+                    }
+                }
+            }
+
             return sim;
         });
     }
@@ -95,13 +112,6 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess(CreateProcessRecord userProcess) {
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
-        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
-        vm.getColorProperty().set(Color.web(userProcess.color()));
-        vm.setState(Process.State.NEW);
-        vm.getArrivalTick().set(creationData.getArrivalTick());
-        vm.getBurst().set(creationData.getDurationTicks());
-        vm.getPriority().set(creationData.getStartPriority());
-        allProcesses.add(vm);
         simulatedScenario.getSpec().addProcessArrival(creationData);
         simulatedScenario.resetToSpec();
     }
@@ -141,7 +151,7 @@ public class PampaSimViewModel implements ViewModel {
             if (asciiReportClock != sim.getRealClock().getTick()) {
                 asciiReportClock = sim.getRealClock().getTick();
                 for (ProcessViewModel pvm : allProcesses) {
-                    PidAllocator.Pid pid = null;
+                    PidAllocator.Pid pid = pvm.getPid().get();
                     if (pid == null) {
                         continue;
                     }
@@ -208,30 +218,31 @@ public class PampaSimViewModel implements ViewModel {
         ProcessViewModel found = allProcesses.stream()
                 .filter(pvm -> pvm.getCreationId() == id)
                 .findFirst().orElse(null);
-        assert found != null;
 
-        found.getPid().set(proc.getPid().toString());
-        int current = proc.getCurrExecTime();
-        int total = found.getBurst().get();
-        found.getProgress().set((double) (current/total));
+        if (found != null) {
+            found.getPid().set(proc.getPid());
+            int current = proc.getCurrExecTime();
+            int total = found.getBurst().get();
+            found.getProgress().set((double) (current / total));
 
-        switch (event) {
-            case org.pampasim.events.Process.Ready e: {
-                found.setState(Process.State.READY);
-                break;
+            switch (event) {
+                case org.pampasim.events.Process.Ready e: {
+                    found.setState(Process.State.READY);
+                    break;
+                }
+                case org.pampasim.events.Process.Run e: {
+                    found.setState(Process.State.RUNNING);
+                    break;
+                }
+                case org.pampasim.events.Process.End e: {
+                    found.setState(Process.State.TERMINATED);
+                    break;
+                }
+                default:
+                    System.out.println("handleProcessEvent caiu no default");
+                    System.out.println("proc state:" + proc.getState());
+                    break;
             }
-            case org.pampasim.events.Process.Run e: {
-                found.setState(Process.State.RUNNING);
-                break;
-            }
-            case org.pampasim.events.Process.End e: {
-                found.setState(Process.State.TERMINATED);
-                break;
-            }
-            default:
-                System.out.println("handleProcessEvent caiu no default");
-                System.out.println("proc state:" + proc.getState());
-                break;
         }
     }
     private void setSimulationRunning(boolean running) {

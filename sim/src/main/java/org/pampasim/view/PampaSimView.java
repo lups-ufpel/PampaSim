@@ -155,7 +155,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
         // Configure each TableColumn’s cellValueFactory to use the corresponding property:
         colorCol.setCellValueFactory( cellData -> cellData.getValue().getColorProperty());
-        pidCol.setCellValueFactory(cellData -> cellData.getValue().getPid());
+        pidCol.setCellValueFactory(cellData -> cellData.getValue().getPid().map(Object::toString));
         stateCol.setCellValueFactory(cellData -> cellData.getValue().stateProperty());
         arrivalCol.setCellValueFactory(cellData -> cellData.getValue().getArrivalTick());
         priorityCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());

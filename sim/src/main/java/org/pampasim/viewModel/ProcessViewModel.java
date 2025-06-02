@@ -4,12 +4,13 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.Process;
 
 @Getter
 public class ProcessViewModel implements ViewModel {
     private final long creationId;
-    private final ObjectProperty<String> pid = new SimpleObjectProperty<>();
+    private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
     private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
     private final ObjectProperty<Integer> arrivalTick = new SimpleObjectProperty<>(0);
