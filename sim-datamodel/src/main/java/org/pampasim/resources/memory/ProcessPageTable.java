@@ -3,60 +3,66 @@ package org.pampasim.resources.memory;
 import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProcessPageTable {
     // page table that stores the page table entries for each process
-    private final PageTableEntry[] entries;
+    private final ArrayList<PageTableEntry> entries;
 
     public ProcessPageTable(Process process, int processSize) {
-        this.entries = new PageTableEntry[processSize];
-        // Initialize all entries
+        this.entries = new ArrayList<>(processSize);
         for (int i = 0; i < processSize; i++) {
-            entries[i] = new PageTableEntry(process, i);
+            entries.add(new PageTableEntry(process, i));
         }
     }
 
     public PageTableEntry getEntry(int pageNumber) {
-        if (pageNumber < 0 || pageNumber >= entries.length) {
+        if (pageNumber < 0 || pageNumber >= entries.size()) {
             throw new IllegalArgumentException("Page Number out of bounds!: " + pageNumber);
         }
-        return entries[pageNumber];
+        return entries.get(pageNumber);
     }
 
-    public PageTableEntry[] getEntries(ArrayList<Integer> list) {
+    public ArrayList<PageTableEntry> getEntries(List<Integer> list) {
         return list.stream()
-                .map(this::getEntry)
-                .toArray(PageTableEntry[]::new);
+                .map(addr -> this.getEntry(Math.toIntExact(addr)))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     // Update an entry
     public void setEntry(int pageNumber, PageTableEntry pte) {
-        if (pageNumber < 0 || pageNumber >= entries.length) {
+        if (pageNumber < 0 || pageNumber >= entries.size()) {
             throw new IllegalArgumentException("Page Number out of bounds!: " + pageNumber);
         }
-        entries[pageNumber] = pte;
+        entries.set(pageNumber, pte);
     }
 
-    // Get all entries (read-only view)
-    public PageTableEntry[] getAllEntries() {
-        return entries.clone();  // Defensive copy to prevent external modification
+    // Get all entries (read-only copy)
+    public ArrayList<PageTableEntry> getAllEntries() {
+        return new ArrayList<>(entries); // Defensive copy
     }
 
     public ArrayList<PageTableEntry> getValidEntries() {
-        return Arrays.stream(entries)
+        return entries.stream()
                 .filter(PageTableEntry::isValid)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
+    public ArrayList<PageTableEntry> getInvalidEntries() {
+        return entries.stream()
+                .filter(entry -> !entry.isValid())
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     public ArrayList<PageTableEntry> getReferencedEntries() {
-        return Arrays.stream(entries)
+        return entries.stream()
                 .filter(PageTableEntry::isReferenced)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     // Get the size of the page table
     public int size() {
-        return entries.length;
+        return entries.size();
     }
 }

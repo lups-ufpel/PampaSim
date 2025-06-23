@@ -4,6 +4,7 @@ module org.pampasim.resources {
     requires static lombok;
     requires org.antlr.antlr4.runtime;
     requires org.apache.logging.log4j;
+    requires com.ibm.icu;
 
     exports org.pampasim.resources;
     exports org.pampasim.resources.memory;

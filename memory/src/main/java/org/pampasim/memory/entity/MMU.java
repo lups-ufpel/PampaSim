@@ -4,13 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.events.Memory.Allocate;
 import org.pampasim.events.Memory.IoOperation;
 import org.pampasim.events.Process.*;
-import org.pampasim.resources.memory.PageFrameController;
+import org.pampasim.memory.MemoryConfig;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
@@ -18,17 +17,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class VirtualMemory extends AbstractSimEntity {
+public class MMU extends AbstractSimEntity {
     //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
 
-    private final Logger LOGGER = LogManager.getLogger(VirtualMemory.class);
-    private final PriorityQueue<Event> buffer;
-    private final PageFrameController virtualAddressRange;
+    private final Logger LOGGER = LogManager.getLogger(MMU.class);
+    //private final PriorityQueue<Event> buffer;
+    //private final FrameController virtualAddressRange;
 
-    public VirtualMemory(Simulation simulation, int virtualAddressRangeSize) {
+    public MMU(Simulation simulation, int virtualAddressRangeSize) {
         super(simulation);
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
-        this.virtualAddressRange = new PageFrameController(virtualAddressRangeSize);
+        //this.virtualAddressRange = new FrameController(virtualAddressRangeSize);
 
         // Register event handlers
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Allocate.class, this);
@@ -56,7 +55,7 @@ public class VirtualMemory extends AbstractSimEntity {
             case ProcessReady e -> handleMemoryProcessReady(e);
 
             default -> throw new IllegalStateException(
-                    "[VirtualMemory] Evento do tipo " + event.getClass().getSimpleName()
+                    "[MMU] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
             );
         }
@@ -68,16 +67,17 @@ public class VirtualMemory extends AbstractSimEntity {
         // FIXME: setting up the process memory info here for testing purposes
         process.addModuleInfo(new ProcessMemoryInfo(process, 10, 2, 5, 5));
 
-        ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0, 4)
-                .mapToObj(i -> new ArrayList<>(List.of(i)))
+        ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0, 9)
+                .mapToObj(i -> new ArrayList<>(List.of(i * MemoryConfig.getPageSize())))
                 .collect(Collectors.toCollection(ArrayList::new)); // accesses from 0 to 9
 
         process.getModuleInfo(ProcessMemoryInfo.class)
                 .getAddressAccessList()
                 .addAll(addressAccessList);
-
+        /*
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(processMemoryInfo.getSize());
+
 
         if (startAddressOpt.isEmpty()) {
             scheduleToNextClock(new Kill(this, event.getProcess())); // not enough free addresses to allocate for the new process
@@ -88,22 +88,21 @@ public class VirtualMemory extends AbstractSimEntity {
             return;
         }
 
+
         int startAddress = startAddressOpt.getAsInt();
         int endAddress = startAddress + processMemoryInfo.getSize() - 1;
 
         virtualAddressRange.allocatePageFrames(process.getPid(), startAddress, endAddress);
         processMemoryInfo.setVirtualAddressStart(startAddress);
 
-        LOGGER.debug(
-                "Processo de ID {} : Alocado com sucesso nos endereços {} a {}",
-                process.getPid().toString(),
-                startAddress,
-                endAddress
-        );
+         */
+
+
         scheduleToNextClock(new Allocate(this, event.getProcess()));
     }
 
     private void handleProcessEnd(org.pampasim.events.Process.End event) {
+        /*
         Process process = event.getProcess();
         virtualAddressRange.freeProcessPageFrame(process.getPid());
 
@@ -111,11 +110,13 @@ public class VirtualMemory extends AbstractSimEntity {
                 "Processo de ID {} : Liberada a faixa de endereços virtuais",
                 process.getPid().toString()
         );
+         */
         scheduleToNextClock(new DeletePageTableEntry(this, event.getProcess()));
     }
 
     private void handleProcessLoad(org.pampasim.events.Process.Load event) {
         Process process = event.getProcess();
+        /*
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
 
@@ -146,14 +147,18 @@ public class VirtualMemory extends AbstractSimEntity {
             return;
         }
 
+         */
+
         scheduleToNextClock(new TranslateVirtualAddress(this, process));
     }
 
+    /*
     private void checkForIllegalAccess(Integer address, PidAllocator.Pid pid) {
         if (virtualAddressRange.getPageFrameOwner(address) != pid.getId()) {
             throw new SecurityException("Access denied");
         }
     }
+     */
 
     private void handleProcessIoOperation(org.pampasim.events.Process.IoOperation event) {
         // Nothing more than a hand off required

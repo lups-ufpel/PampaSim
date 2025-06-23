@@ -1,6 +1,6 @@
 package org.pampasim.memory;
 
-import org.pampasim.core.Simulation;
+import lombok.Getter;
 import org.pampasim.core.SimulationBase;
 import org.pampasim.core.events.Event;
 
@@ -9,14 +9,16 @@ import org.pampasim.events.Process.End;
 import org.pampasim.events.Process.IoOperation;
 import org.pampasim.events.Process.Load;
 
+import org.pampasim.memory.entity.MMU;
 import org.pampasim.memory.entity.PageTableManager;
 import org.pampasim.memory.entity.PhysicalMemory;
-import org.pampasim.memory.entity.TLB;
-import org.pampasim.memory.entity.VirtualMemory;
-import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
+//import org.pampasim.memory.entity.TLB;
 import org.pampasim.memory.entity.algorithms.RandomAlgorithm;
 
+@Getter
 public class MemoryManagement extends SimulationBase {
+
+
 
     public MemoryManagement(SimulationBase parent) {
         super(parent);
@@ -30,12 +32,20 @@ public class MemoryManagement extends SimulationBase {
         // Use specialized memory event manager
         this.setEventManager(new MemoryEventManager(this));
 
+        //values defined by user
+        int pageSize = 512; // TODO: handle KB
+        int maxPagesPerProcess = 1024;
+        int framesInRAM = 512;
+        int framesInSwap = 1024;
+
+        // TODO: make sure that all these numbers are powers of 2
+
+        MemoryConfig.initialize(pageSize, maxPagesPerProcess, framesInRAM, framesInSwap);
+
         // Initialize memory subsystems
-        new VirtualMemory(this, 150);
+        new MMU(this, 150);
         new PageTableManager(this);
         new PhysicalMemory(this,
-                50,             // number of frames in main memory
-                100,            // number of frames in swapfile
                 true,           // global page replacement policy?
                 new RandomAlgorithm(), // replacement algorithm
                 true,           // anticipated page loading?
@@ -43,7 +53,7 @@ public class MemoryManagement extends SimulationBase {
                 0.2,            // variable page allocation top page fault threshold
                 0.01);          // variable page allocation bottom page fault threshold
 
-        new TLB(this, true, 10);
+        //new TLB(this, true, 10);
     }
 
     @Override

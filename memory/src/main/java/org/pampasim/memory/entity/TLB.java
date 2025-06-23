@@ -1,3 +1,4 @@
+/*
 package org.pampasim.memory.entity;
 
 import org.apache.logging.log4j.LogManager;
@@ -154,4 +155,4 @@ public class TLB extends AbstractSimEntity {
         lruQueue.clear();
         entries.clear();
     }
-}
+}*/

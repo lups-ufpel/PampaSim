@@ -14,6 +14,8 @@ public class PageTableEntry {
     private boolean valid;
     private boolean dirty;
     private boolean referenced; // used for page replacement algorithm and working set
+    private boolean fileBacked; // if true, the page is backed in an executable or another file in disk.
+                                // if not, it needs to be stored in the swapfile
 
     PageTableEntry(Process process, int pageNumber) {
         this.process = process;
@@ -22,5 +24,6 @@ public class PageTableEntry {
         this.valid = false;
         this.dirty = false;
         this.referenced = false;
+        this.fileBacked = true;
     }
 }

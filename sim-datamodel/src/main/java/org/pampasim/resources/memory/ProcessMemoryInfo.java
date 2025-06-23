@@ -13,8 +13,8 @@ import java.util.Map;
 public class ProcessMemoryInfo extends ProcessModuleInfo {
     Process process;
     private final Integer size; // total number of pages the process occupies
-    @Setter
-    private Integer virtualAddressStart; // where the start of the virtual address range is
+    //@Setter
+    //private Integer virtualAddressStart; // where the start of the virtual address range is
     private final ArrayList<ArrayList<Integer>> addressAccessList;
     @Setter
     private boolean loopAccessList;
@@ -33,7 +33,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private int maxFrames; // how many frames this process can have in the main memory
     private final ArrayList<PageTableEntry> workingSet;
     private int referenceCounter; // reference counter for computing the working set
-    private int workingSetWindow;
+    private final int workingSetWindow;
 
     public enum IoOperationType {
         /**
@@ -51,7 +51,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.process = process;
         this.size = size; //TODO: Make the user able to define how many pages the process occupies
         this.ioOperationSchedule = new HashMap<>();
-        this.virtualAddressStart = null;
+        //this.virtualAddressStart = null;
         this.addressAccessList = new ArrayList<>();
         this.loopAccessList = true;
         this.currentIoOperation = null;
