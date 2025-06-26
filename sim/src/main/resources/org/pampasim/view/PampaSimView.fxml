@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -15,15 +16,23 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
@@ -108,7 +117,7 @@
                                                         <Font name="System Bold" size="24.0" />
                                                     </font>
                                                 </Label>
-                                                <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" />
+                                                <!-- <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" /> -->
                                             </children>
                                         </VBox>
                                         <Circle fx:id="CpuContainer1" fill="#f8f8f2" radius="40.0" stroke="BLACK" strokeType="INSIDE">
@@ -169,7 +178,7 @@
                                         </HBox>
                                         <TableView fx:id="procTable">
                                             <columns>
-                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color"/>
+                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
                                                 <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
                                                 <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
                                                 <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
@@ -188,8 +197,699 @@
                     </content>
                 </Tab>
                 <Tab text="Memória">
-
-                </Tab>
+               <content>
+                  <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+                    <items>
+                      <AnchorPane maxWidth="253.0" minHeight="0.0" minWidth="253.0" prefHeight="160.0" prefWidth="100.0" SplitPane.resizableWithParent="false">
+                           <children>
+                              <SplitPane dividerPositions="0.75" minWidth="253.0" orientation="VERTICAL" prefHeight="609.0" prefWidth="253.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <items>
+                                  <AnchorPane minHeight="452.0" minWidth="253.0" prefHeight="452.0" prefWidth="253.0" SplitPane.resizableWithParent="false">
+                                       <children>
+                                          <Label contentDisplay="CENTER" layoutX="8.0" layoutY="39.0" prefHeight="39.0" prefWidth="237.0" style="-fx-border-color: black; -fx-border-width: 2;" textAlignment="CENTER" />
+                                          <Label layoutX="68.0" layoutY="10.0" text="Endereço Virtual">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Label alignment="CENTER" layoutX="8.0" layoutY="124.0" prefHeight="39.0" prefWidth="142.0" style="-fx-border-color: black; -fx-border-width: 2;" textAlignment="CENTER" />
+                                          <Label alignment="CENTER" layoutX="165.0" layoutY="124.0" prefHeight="39.0" prefWidth="82.0" style="-fx-border-color: black; -fx-border-width: 2;" textAlignment="CENTER" />
+                                          <Label layoutX="22.0" layoutY="101.0" text="NPV">
+                                             <font>
+                                                <Font name="System Bold" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label layoutX="200.0" layoutY="100.0" text="Desl.">
+                                             <font>
+                                                <Font name="System Bold" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Line endX="-36.0" endY="-157.0" layoutX="115.0" layoutY="235.0" startX="-36.0" startY="-111.0" strokeWidth="2.0" />
+                                          <Line endX="-36.0" endY="-157.0" layoutX="221.0" layoutY="235.0" startX="-36.0" startY="-111.0" strokeWidth="2.0" />
+                                          <Line endX="-36.0" endY="-125.33334350585938" layoutX="41.0" layoutY="314.0" startX="-36.0" startY="-43.0" strokeWidth="2.0" />
+                                          <Line endX="-55.0" endY="-99.0" layoutX="61.0" layoutY="370.0" startX="-38.0" startY="-99.0" strokeWidth="2.0" />
+                                          <VBox layoutX="23.0" layoutY="215.0" prefHeight="133.0" prefWidth="207.0" style="-fx-border-color: black; -fx-border-width: 2;">
+                                             <children>
+                                                <HBox prefHeight="114.0" prefWidth="207.0">
+                                                   <children>
+                                                      <Label alignment="CENTER" prefHeight="28.0" prefWidth="203.0" text="Tabela de Paginas">
+                                                         <font>
+                                                            <Font name="System Bold" size="14.0" />
+                                                         </font>
+                                                      </Label>
+                                                   </children>
+                                                </HBox>
+                                                <GridPane gridLinesVisible="true" prefHeight="209.0" prefWidth="203.0">
+                                                  <columnConstraints>
+                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="97.0" minWidth="10.0" prefWidth="46.0" />
+                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="97.0" minWidth="10.0" prefWidth="29.0" />
+                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="167.0" minWidth="10.0" prefWidth="135.0" />
+                                                  </columnConstraints>
+                                                  <rowConstraints>
+                                                    <RowConstraints maxHeight="40.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="56.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints maxHeight="56.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="56.0" minHeight="5.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                                  </rowConstraints>
+                                                   <children>
+                                                      <Label alignment="CENTER" prefHeight="72.0" prefWidth="73.0" text="NPV" textAlignment="CENTER">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="CENTER" prefHeight="123.0" prefWidth="151.0" text="Val" GridPane.columnIndex="1">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="CENTER" prefHeight="30.0" prefWidth="134.0" text="Endereço do Frame" textAlignment="CENTER" GridPane.columnIndex="2">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="TOP_CENTER" prefHeight="107.0" prefWidth="96.0" text="..." GridPane.rowIndex="1">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="TOP_CENTER" prefHeight="104.0" prefWidth="79.0" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="TOP_CENTER" prefHeight="69.0" prefWidth="164.0" text="..." GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="TOP_CENTER" prefHeight="107.0" prefWidth="96.0" text="..." GridPane.rowIndex="3">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="TOP_CENTER" prefHeight="68.0" prefWidth="74.0" text="..." GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="TOP_CENTER" prefHeight="68.0" prefWidth="212.0" text="..." GridPane.columnIndex="2" GridPane.rowIndex="3">
+                                                         <font>
+                                                            <Font name="System Bold" size="13.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <Label alignment="CENTER" prefHeight="137.0" prefWidth="97.0" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                      <Label alignment="CENTER" prefHeight="159.0" prefWidth="129.0" text="Label" GridPane.rowIndex="2" />
+                                                      <Label alignment="CENTER" prefHeight="83.0" prefWidth="163.0" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                   </children>
+                                                </GridPane>
+                                             </children>
+                                          </VBox>
+                                          <Label layoutX="5.0" layoutY="389.0" prefHeight="39.0" prefWidth="237.0" style="-fx-border-color: black; -fx-border-width: 2;" textAlignment="CENTER" />
+                                          <Line endX="-35.414215087890625" endY="-125.33334350585938" layoutX="275.0" layoutY="314.0" startX="-35.0" startY="52.833343505859375" strokeWidth="2.0" />
+                                          <Line endX="-46.0" endY="31.833343505859375" layoutX="285.0" layoutY="335.0" startX="-93.66667175292969" startY="31.833343505859375" strokeWidth="2.0" />
+                                          <Line endX="-103.66667175292969" endY="27.333343505859375" layoutX="295.0" layoutY="341.0" startX="-103.66667175292969" startY="48.0" strokeWidth="2.0" />
+                                          <Line endX="-87.5" endY="-15.0" layoutX="205.0" layoutY="339.0" startX="-87.5" startY="51.0" strokeWidth="2.0" />
+                                          <Label layoutX="64.0" layoutY="429.0" text="Endereço Fisico">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Line endX="-85.0" endY="-123.33334350585938" layoutX="91.0" layoutY="312.0" startX="-10.0" startY="-123.33334350585938" strokeWidth="2.0" />
+                                          <Line endX="-19.0" endY="-133.33334350585938" layoutX="101.0" layoutY="322.0" startX="-19.0" startY="-159.0" strokeWidth="2.0" />
+                                          <Line endX="-51.33332824707031" endY="-123.33334350585938" layoutX="262.0" layoutY="312.0" startX="-23.414215087890625" startY="-123.33334350585938" strokeWidth="2.0" />
+                                          <Line endX="-62.33332824707031" endY="-133.33334350585938" layoutX="272.0" layoutY="322.0" startX="-62.33332824707031" startY="-159.0" strokeWidth="2.0" />
+                                       </children>
+                                    </AnchorPane>
+                                  <AnchorPane minHeight="100.0" minWidth="253.0" prefHeight="100.0" prefWidth="253.0">
+                                       <children>
+                                          <Label layoutX="67.0" layoutY="14.0" text="Page Hit / Miss">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <TextFlow layoutX="14.0" layoutY="43.0" prefHeight="93.0" prefWidth="225.0">
+                                             <children>
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Texto explicando o estado, se houve page hit, e o que ocorre num page fault" />
+                                             </children>
+                                          </TextFlow>
+                                       </children></AnchorPane>
+                                </items>
+                              </SplitPane>
+                           </children></AnchorPane>
+                        <!-- Right panel (memory visualization) -->
+                        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="609.0" prefWidth="347.0">
+                            <items>
+                                <!-- Main Memory Section -->
+                                <VBox alignment="CENTER">
+                                    <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Memória Principal" />
+                                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+                                        <content>
+                                            <TilePane hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5">
+                                                <!-- Memory Items -->
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="0" />
+                                                        <Circle fill="red" radius="14.0" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="1" />
+                                                        <Circle fill="green" radius="14.0" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="2" />
+                                                        <Circle fill="blue" radius="14.0" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="3" />
+                                                        <Circle fill="orange" radius="14.0" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="4" />
+                                                        <Circle fill="purple" radius="14.0" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="5" />
+                                                        <Circle fill="yellow" radius="14.0" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="6" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="7" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="8" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="9" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="10" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="11" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="12" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="13" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="14" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="15" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="16" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="17" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="18" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="19" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="20" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="21" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="22" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="23" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="24" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="25" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="26" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="27" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="28" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="29" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="30" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="31" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="32" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="33" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="34" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="35" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="36" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="37" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="38" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="39" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="40" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="41" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="42" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="43" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="44" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="45" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="46" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="47" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="48" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="49" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <children>
+                                                        <Label text="50" />
+                                                    </children>
+                                                </VBox>
+                                            </TilePane>
+                                        </content>
+                                    </ScrollPane>
+                                </VBox>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Swapfile" />
+                                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+                                       <content>
+                                          <TilePane hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5">
+                                             <children>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="0" />
+                                                      <Circle fill="red" radius="14.0" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="1" />
+                                                      <Circle fill="green" radius="14.0" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="2" />
+                                                      <Circle fill="blue" radius="14.0" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="3" />
+                                                      <Circle fill="orange" radius="14.0" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="4" />
+                                                      <Circle fill="purple" radius="14.0" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="5" />
+                                                      <Circle fill="yellow" radius="14.0" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="6" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="7" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="8" />
+                                                   </children>
+                                                </VBox>
+                                                <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                   <children>
+                                                      <Label text="9" />
+                                                   </children>
+                                                </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="10" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="11" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="12" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="13" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="14" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="15" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="16" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="17" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="18" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="19" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="20" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="21" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="22" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="23" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="24" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="25" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="26" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="27" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="28" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="29" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="30" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="31" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="32" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="33" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="34" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="35" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="36" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="37" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="38" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="39" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="40" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="41" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="42" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="43" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="44" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="45" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="46" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="47" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="48" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="49" />
+                                                     </children>
+                                                 </VBox>
+                                                 <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                     <children>
+                                                         <Label text="50" />
+                                                     </children>
+                                                 </VBox>
+                                             </children>
+                                          </TilePane>
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                              </VBox>
+                            </items>
+                        </SplitPane>
+                    </items>
+                  </SplitPane>
+               </content></Tab>
                 <Tab disable="true" text="Editor de código">
 
                 </Tab>
@@ -219,14 +919,14 @@
                 </HBox>
                 <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
                     <tooltip>
-                        <Tooltip text="Carrega arquivo de descrição de cenário"/>
+                        <Tooltip text="Carrega arquivo de descrição de cenário" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square-fill" iconSize="22" selectionFill="BLACK">
+                        <!--<FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square-fill" iconSize="22" selectionFill="BLACK">
                             <font>
                                 <Font size="27.0" />
                             </font>
-                        </FontIcon>
+                        </FontIcon>-->
                     </graphic>
                 </Button>
                 <Button fx:id="saveSpecBtn" alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#saveSpec" text="Salvar cenário" textFill="#ff6d00">
