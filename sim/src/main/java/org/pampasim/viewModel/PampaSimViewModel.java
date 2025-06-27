@@ -160,6 +160,12 @@ public class PampaSimViewModel implements ViewModel {
             Tab memoryTab = new Tab("Memória");
             memoryTab.setContent(content);
 
+            ObservableList<Tab> tabs = tabPane.getTabs();
+            if (tabs.size() > 1) {
+                List<Tab> tabsToRemove = new ArrayList<>(tabs.subList(1, tabs.size()));
+                tabs.removeAll(tabsToRemove);
+            }
+
             tabPane.getTabs().add(memoryTab);
         }
     }
