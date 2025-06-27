@@ -127,6 +127,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        pampaSimViewModel.setTabPane(moduleTabPane);
+
         ViewListBinder.bind(
                 Map.of(
                         Process.State.NEW, NewList,
