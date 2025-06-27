@@ -76,6 +76,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public TableColumn<ProcessViewModel, Integer> burstCol;
     @FXML
     public TableColumn<ProcessViewModel, Double> progressCol;
+    @FXML
+    public TabPane moduleTabPane;
 
     private Timeline animation;
     private Dialog<ButtonType> createProcessDialog;
@@ -117,6 +119,10 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public void onSelectScheduler(ActionEvent actionEvent) {
         pampaSimViewModel.openSelectSchedulerDialog();
+    }
+    @FXML
+    public void onSelectModule(ActionEvent actionEvent) {
+        pampaSimViewModel.openAddModuleDialog();
     }
     @FXML
     public void loadSpec() {

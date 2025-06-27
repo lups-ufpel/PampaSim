@@ -1,6 +1,8 @@
 package org.pampasim.viewModel;
 
+import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewModel;
+import de.saxsys.mvvmfx.ViewTuple;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.BooleanProperty;
@@ -8,8 +10,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import javafx.scene.Parent;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,12 +24,15 @@ import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.core.utils.PidAllocator.Pid;
+import org.pampasim.dialog.*;
 import org.pampasim.dsl.spec.Spec;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.memory.MemoryManagement;
+import org.pampasim.memory.view.MemoryTabView;
+import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.events.External.Arrival;
@@ -37,6 +46,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
@@ -54,6 +64,7 @@ public class PampaSimViewModel implements ViewModel {
     @Getter
     private final ObservableMap<Long, ProcessViewModel> processesByCreationId = FXCollections.observableHashMap();
     private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
+    private final AddModuleDialogService addModuleDialogService = new AddModuleDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
 
@@ -61,6 +72,9 @@ public class PampaSimViewModel implements ViewModel {
     private int asciiReportClock = -1;
 
     public SimulatedScenario simulatedScenario;
+
+    @Setter
+    private TabPane tabPane;
 
     public PampaSimViewModel() {
         var templateSpec = Spec.loadSpec(Paths.get(
@@ -189,6 +203,22 @@ public class PampaSimViewModel implements ViewModel {
                         Optional.of(userSelection.quantum()));
         simulatedScenario.resetToSpec();
     }
+
+    public void setSimulationModules(AddModuleRecord userSelection) throws IOException {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
+        // TODO: make the setup work with spec
+        if (userSelection.module().equals("memory")) {
+            ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader.fxmlView(MemoryTabView.class).load();
+
+            Parent content = viewTuple.getView();
+
+            Tab memoryTab = new Tab("Memória");
+            memoryTab.setContent(content);
+
+            tabPane.getTabs().add(memoryTab);
+        }
+    }
+
     public void startSimulation() {
         if (!isValidSetup()) {
             throw new RuntimeException("tried to start a simulation without the correct setup");
@@ -317,6 +347,19 @@ public class PampaSimViewModel implements ViewModel {
     public void openSelectSchedulerDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
         selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
+    }
+
+
+    public void openAddModuleDialog() {
+        List<String> modules = simulatedScenario.getSpec().listAvailableModules();
+        addModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
+            try {
+                setSimulationModules(userSelection);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
     public void openCreateProcessDialog() {
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
