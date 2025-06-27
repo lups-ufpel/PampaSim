@@ -53,7 +53,7 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
         try {
             clr = ctx.getChild(1).getChild(2*4 - 1).getText();
         } catch (Exception ignored) {}
-        spec.addProcessArrival(creationData, Color.web(clr));
+        spec.addProcessArrival(creationData);
         return this.spec;
     }
 

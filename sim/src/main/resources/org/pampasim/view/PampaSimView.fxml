@@ -5,7 +5,6 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -22,18 +21,14 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
@@ -118,14 +113,14 @@
                                                         <Font name="System Bold" size="24.0" />
                                                     </font>
                                                 </Label>
-                                                <!-- <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" /> -->
+                                                <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" />
                                             </children>
                                         </VBox>
-                                        <Circle fx:id="CpuContainer1" fill="#f8f8f2" radius="40.0" stroke="BLACK" strokeType="INSIDE">
-                                            <HBox.margin>
-                                                <Insets top="25.0" />
-                                            </HBox.margin>
-                                        </Circle>
+                              <HBox fx:id="RunningList" alignment="CENTER" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" prefHeight="60.0" prefWidth="60.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 100; -fx-border-radius: 100; -fx-border-color: BLACK;">
+                                 <HBox.margin>
+                                    <Insets bottom="10.0" top="30.0" />
+                                 </HBox.margin>
+                              </HBox>
                                         <ProgressBar fx:id="ProcessProgress" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="172.0" nodeOrientation="LEFT_TO_RIGHT" progress="0.0" HBox.hgrow="ALWAYS">
                                             <HBox.margin>
                                                 <Insets top="25.0" />
@@ -179,7 +174,7 @@
                                         </HBox>
                                         <TableView fx:id="procTable">
                                             <columns>
-                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color" />
+                                                <TableColumn fx:id="colorCol" prefWidth="75.0" text="Color"/>
                                                 <TableColumn fx:id="pidCol" prefWidth="75.0" text="PID" />
                                                 <TableColumn fx:id="stateCol" prefWidth="75.0" text="ESTADO" />
                                                 <TableColumn fx:id="arrivalCol" prefWidth="75.0" text="INGRESSO" />
@@ -272,7 +267,7 @@
                         <Tooltip text="Habilita/desabilita a exportação de SVGs que descrevem a relação das entidades da simulação e os eventos transmitidos." />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings"  iconSize="22"  />
+                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="19" />
                     </graphic>
                 </CheckBox>
             </items>
