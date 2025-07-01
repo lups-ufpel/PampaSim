@@ -20,7 +20,12 @@ import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.resources.Process;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.core.utils.PidAllocator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -159,6 +164,38 @@ public class Spec {
                     .collect(Collectors.toList());
         }
     }
+
+    public List<String> listAvailableModules() {
+        List<String> modules = new ArrayList<>();
+
+        Set<String> excludedModules = Set.of(
+                "core", "tools", "sim-datamodel", "events", "sim"
+        );
+
+        try {
+            File pomFile = new File("../pom.xml");
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(pomFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList moduleNodes = doc.getElementsByTagName("module");
+            for (int i = 0; i < moduleNodes.getLength(); i++) {
+                Node node = moduleNodes.item(i);
+                String moduleName = node.getTextContent().trim();
+                if (!moduleName.isEmpty() && !excludedModules.contains(moduleName)) {
+                    modules.add(moduleName);
+                }
+            }
+
+            Collections.sort(modules);
+            return modules;
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing pom.xml to list modules", e);
+        }
+    }
+
+
 
     @Override
     public String toString() {

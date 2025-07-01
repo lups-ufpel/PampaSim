@@ -7,14 +7,17 @@ module org.pampasim {
     requires org.pampasim.core;
     requires org.pampasim.resources;
     requires org.pampasim.events;
+    requires org.pampasim.memory;
     requires guru.nidi.graphviz;
     requires static lombok;
     requires org.antlr.antlr4.runtime;
     requires io.github.classgraph;
     requires org.apache.logging.log4j;
+    requires antlr4;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.view to javafx.fxml, de.saxsys.mvvmfx;
-    exports org.pampasim.viewModel;
+    exports org.pampasim.viewModel to de.saxsys.mvvmfx;
+    opens org.pampasim.dialog to de.saxsys.mvvmfx, javafx.controls, javafx.fxml, javafx.graphics;
 }

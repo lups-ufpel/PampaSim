@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
@@ -70,6 +71,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public TableColumn<ProcessViewModel, Integer> burstCol;
     @FXML
     public TableColumn<ProcessViewModel, Double> progressCol;
+    @FXML
+    public TabPane moduleTabPane;
 
     private Timeline animation;
     private ProcessViewModel editedProcessViewModel = null;
@@ -103,6 +106,10 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         pampaSimViewModel.openSelectSchedulerDialog();
     }
     @FXML
+    public void onSelectModule(ActionEvent actionEvent) {
+        pampaSimViewModel.openAddModuleDialog();
+    }
+    @FXML
     public void loadSpec() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open specification file");
@@ -120,7 +127,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        pampaSimViewModel.setTabPane(moduleTabPane); // FIXME: tight coupling
         ViewListBinder.bind(
                 Map.of(
                         Process.State.NEW, NewList,
@@ -160,8 +167,43 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         arrivalCol.setCellValueFactory(cellData -> cellData.getValue().getArrivalTick());
         priorityCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
         burstCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
-        progressCol.setCellValueFactory(cellData -> cellData.getValue().getProgress());
+        //progressCol.setCellValueFactory(cellData -> cellData.getValue().getProgress());
+        progressCol.setCellValueFactory(p -> {
+            return p.getValue().getProgress();
+            });
+
+        progressCol.setCellFactory(column -> new TableCell<>() {
+            private final ProgressBar progressBar = new ProgressBar(); // progress bar
+            private final Label progressLabel = new Label(); // text overlay
+            private final StackPane stackPane = new StackPane(); // container to stack the text over the progress bar
+
+            {
+                // style settings
+                progressBar.setMaxWidth(Double.MAX_VALUE);
+                progressBar.setPrefHeight(20);
+                progressLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+                stackPane.getChildren().addAll(progressBar, progressLabel);
+            }
+
+            @Override
+            protected void updateItem(Double progress, boolean empty) {
+                super.updateItem(progress, empty);
+
+                if (empty || progress == null) {
+                    setGraphic(null);
+                } else {
+                    progressBar.setProgress(progress);
+                    ProcessViewModel process = getTableView().getItems().get(getIndex());
+                    int current = process.getCurrExecTime().getValue();
+                    int total = process.getBurst().getValue();
+
+                    progressLabel.setText(current + "/" + total);
+                    setGraphic(stackPane);
+                }
+            }
+        });
     }
+
     private void bindTimeLineProperty() {
         pampaSimViewModel.getSimulationRunning().addListener((obs, wasRunning, isRunning) -> {
             stopBtn.setDisable(!isRunning);

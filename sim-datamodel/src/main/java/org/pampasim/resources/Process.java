@@ -4,7 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
+
+import java.util.ArrayList;
 
 @Getter
 @EqualsAndHashCode
@@ -26,6 +31,7 @@ public class Process {
     // will require the memory module to check the Page Table or the TLB, it can also suspend the process if a page fault
     // ends up happening. This is important to justify the existence of a TLB in the system
 
+    private final Logger LOGGER = LogManager.getLogger(Process.class);
     private final Pid pid;
     @Setter
     State state;
@@ -36,9 +42,9 @@ public class Process {
     private int priority;
 
     // The next fields are relevant to the memory module
-    private final Integer size; // total number of pages the process occupies
-    @Setter
-    private Integer virtualAddressStart; // where the start of the virtual address range is
+
+    private final ArrayList<ProcessModuleInfo> moduleInfo;
+
 
     public Process(Pid pid, CreationData creationData) {
         this.pid = pid;
@@ -46,10 +52,7 @@ public class Process {
         this.creationData = creationData;
         this.burstTime = creationData.durationTicks;
         this.currExecTime = 0;
-
-        // The next fields are relevant to the memory module
-        this.size = 5; //TODO: Make the user able to define how many pages the process occupies
-        this.virtualAddressStart = null;
+        this.moduleInfo = new ArrayList<>();
     }
 
     public int getRemainingExecutionTime() {
@@ -63,6 +66,11 @@ public class Process {
 
     public boolean isFinished() {
         return getRemainingExecutionTime() <= 0;
+    }
+
+    public void setState(Process.State state) {
+        this.state = state;
+        LOGGER.debug("Process of PID {} transitioned to state {}", pid, state);
     }
 
     public enum State {
@@ -86,9 +94,19 @@ public class Process {
         SCHEDULED,
 
         /**
-         * The resources.Process is currently waiting for an I/O operation to be completed.
+         * The resources.Process is waiting for its turn in the processor
          */
         WAITING,
+
+        /**
+         * The resources.Process is currently waiting for its turn to run an I/O operation
+         */
+        IO_WAITING,
+
+        /**
+         * The resources.Process is currently performing an IO operation
+         */
+        IO_RUNNING,
 
         /**
          * The resources.Process has been terminated.
@@ -103,4 +121,17 @@ public class Process {
         SIMPLE,
 
     }
+
+    public void addModuleInfo(ProcessModuleInfo moduleInfo) {
+        this.moduleInfo.add(moduleInfo);
+    }
+
+    public <T extends ProcessModuleInfo> T getModuleInfo(Class<T> moduleClass) {
+        return moduleInfo.stream()
+                .filter(moduleClass::isInstance)
+                .map(moduleClass::cast)
+                .findFirst()
+                .orElse(null);
+    }
+
 }

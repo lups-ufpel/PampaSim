@@ -4,6 +4,7 @@ import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.RealClock;
@@ -22,8 +23,12 @@ public abstract class AbstractSimEntity implements SimEntity {
     @Getter
     private final Simulation simulation;
     @Getter
+    @Setter
+    private boolean clearBlock;
+    @Getter
     private final SimEntity parent;
     protected Queue<Event> buffer;
+    protected Queue<Event> blockedBuffer;
     protected List<Event> lastRunBuffer = List.of();
 
     public AbstractSimEntity(SimEntity parent) {
@@ -37,6 +42,7 @@ public abstract class AbstractSimEntity implements SimEntity {
         }
         LOGGER.debug("PampaSim entity {} created.", getClass().getSimpleName());
         this.buffer = new LinkedList<>();
+        this.blockedBuffer = new LinkedList<>();
     }
     @Override
     public final boolean start() {
@@ -50,7 +56,7 @@ public abstract class AbstractSimEntity implements SimEntity {
     };
     @Override
     public void scheduleToNextClock(Event event) {
-        LOGGER.trace("tx {}", event);
+        LOGGER.trace("{} tx {}",getClass().getSimpleName(), event);
         simulation.acceptEvent(event);
     }
 
@@ -61,7 +67,7 @@ public abstract class AbstractSimEntity implements SimEntity {
 
     public void processEvent(Event event) {}
     public void run() {
-        LOGGER.trace("run");
+        LOGGER.trace("{} run", getClass().getSimpleName());
         this.lastRunBuffer = buffer.stream().toList();
         managedRun();
         buffer.clear();
@@ -81,33 +87,43 @@ public abstract class AbstractSimEntity implements SimEntity {
 
     @Override
     public void updateState() {
-        setStateIfNotBlocked(this.shouldRunNextTick()?
-                EntityState.Run : EntityState.Idle
-        );
+        if (this.shouldRunNextTick()) {
+            state = EntityState.Run;
+        } else {
+            if (blockedBuffer.isEmpty()) {
+                state = EntityState.Idle;
+            } else
+                state = EntityState.Blocked;
+        }
     }
     public void acceptEvent(Event event) {
-        LOGGER.trace("rx {}", event);
-        this.buffer.add(event);
-        if (this.getSimulation().getEventManager().eventTakesTime(event)) {
-            LOGGER.trace("Blocked on {}", event);
-            this.state = EntityState.Blocked;
+        if (!this.getSimulation().getEventManager().eventTakesTime(event)) {
+            LOGGER.trace("{} rx {}",getClass().getSimpleName(), event);
+            this.buffer.add(event);
+        } else {
+            LOGGER.trace("{} Accepted blocking event on {}",getClass().getSimpleName(), event);
+            //this.state = EntityState.Blocked;
+            this.blockedBuffer.add(event);
         }
     }
 
     protected void setStateIfNotBlocked(EntityState newState) {
         if (getState() != EntityState.Blocked) {
             if (getState() != newState) {
-                LOGGER.trace("transitioned to {}", newState);
+                LOGGER.trace(" {} transitioned to {}", getClass().getSimpleName(), newState);
             }
             this.state = newState;
         } else {
-            LOGGER.trace("transition to {} blocked", newState);
+            LOGGER.trace("{} transition to {} blocked",getClass().getSimpleName(), newState);
         }
     }
 
     public void clearBlock() {
         LOGGER.trace("block cleared");
         this.state = EntityState.Idle;
+        while (!blockedBuffer.isEmpty()) {
+            this.buffer.add(blockedBuffer.poll());
+        }
         updateState();
     }
 

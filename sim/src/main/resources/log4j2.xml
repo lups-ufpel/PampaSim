@@ -13,8 +13,8 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.pampasim" level="DEBUG"/>
-        <Root level="DEBUG">
+        <Logger name="org.pampasim" level="TRACE"/>
+        <Root level="TRACE">
             <AppenderRef ref="CONSOLE"/>
         </Root>
     </Loggers>

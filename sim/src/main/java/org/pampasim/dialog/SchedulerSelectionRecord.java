@@ -1,4 +1,4 @@
-package org.pampasim;
+package org.pampasim.dialog;
 
 public record SchedulerSelectionRecord(String schedulerName,
                                        boolean preemptive,

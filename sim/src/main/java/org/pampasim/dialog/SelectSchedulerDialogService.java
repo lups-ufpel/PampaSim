@@ -1,4 +1,4 @@
-package org.pampasim;
+package org.pampasim.dialog;
 
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
