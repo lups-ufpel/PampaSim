@@ -267,28 +267,13 @@ public class PampaSimViewModel implements ViewModel {
 
         if (found != null) {
             found.getPid().set(proc.getPid());
+            found.setState(proc.getState());
+            found.getPriority().set(proc.getPriority());
+            found.getCurrExecTime().set(proc.getCurrExecTime());
+            found.getBurstTime().set(proc.getBurstTime());
             int current = proc.getCurrExecTime();
             int total = found.getBurst().get();
             found.getProgress().set((double) (current / total));
-
-            switch (event) {
-                case org.pampasim.events.Process.Ready e: {
-                    found.setState(Process.State.READY);
-                    break;
-                }
-                case org.pampasim.events.Process.Run e: {
-                    found.setState(Process.State.RUNNING);
-                    break;
-                }
-                case org.pampasim.events.Process.End e: {
-                    found.setState(Process.State.TERMINATED);
-                    break;
-                }
-                default:
-                    System.out.println("handleProcessEvent caiu no default");
-                    System.out.println("proc state:" + proc.getState());
-                    break;
-            }
         }
     }
     private void setSimulationRunning(boolean running) {
