@@ -89,7 +89,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
-        pampaSimViewModel.resetSimulation();
+        pampaSimViewModel.syncWithSpec();
     }
     // somewhat misleading name, also called when the stop button is clicked
     @FXML
@@ -133,6 +133,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         Process.State.NEW, NewList,
                         Process.State.READY, ReadyList,
                         Process.State.RUNNING, RunningList,
+                        Process.State.IO_WAITING, WaitingList,
+                        Process.State.IO_RUNNING, RunningList,
+                        Process.State.SCHEDULED, WaitingList,
                         Process.State.TERMINATED, FinishedList),
                 pampaSimViewModel.getAllProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
         );

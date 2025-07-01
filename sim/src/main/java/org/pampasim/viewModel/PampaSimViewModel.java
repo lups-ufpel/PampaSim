@@ -121,7 +121,7 @@ public class PampaSimViewModel implements ViewModel {
 
         LOGGER.info("loaded {}", path);
         simulatedScenario.setSpec(spec);
-        simulatedScenario.resetToSpec();
+        syncWithSpec();
         updateProps();
     }
 
@@ -134,8 +134,10 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess(CreateProcessRecord userProcess) {
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
-        simulatedScenario.getSpec().addProcessArrival(creationData);
-        simulatedScenario.resetToSpec();
+        var spec = simulatedScenario.getSpec();
+        spec.addProcessArrival(creationData);
+        spec.getColorMap().put(creationData.getCreationId(), Color.web(userProcess.color()));
+        syncWithSpec();
     }
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
@@ -143,7 +145,7 @@ public class PampaSimViewModel implements ViewModel {
                 .setSchedulerInfo(
                         userSelection.schedulerName(),
                         Optional.of(userSelection.quantum()));
-        simulatedScenario.resetToSpec();
+        syncWithSpec();
         updateProps();
     }
 
@@ -169,7 +171,8 @@ public class PampaSimViewModel implements ViewModel {
         setSimulationRunning(true);
     }
 
-    public void resetSimulation() {
+    public void syncWithSpec() {
+        allProcesses.clear();
         simulatedScenario.resetToSpec();
     }
 
@@ -334,6 +337,7 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void openCreateProcessDialog() {
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
+        syncWithSpec();
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
