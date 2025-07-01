@@ -165,13 +165,24 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         procTable.setItems(pampaSimViewModel.getAllProcesses());
 
         // Configure each TableColumn’s cellValueFactory to use the corresponding property:
-        colorCol.setCellValueFactory( cellData -> cellData.getValue().getColorProperty());
+        colorCol.setCellValueFactory(cellData -> cellData.getValue().getColorProperty());
+        // https://stackoverflow.com/a/39415402
+        colorCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Color item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) { setText(null); setStyle(""); }
+                else {
+                    setText(item.toString());
+                    setStyle("-fx-background-color: #" + item.toString().substring(2));
+                }
+            }
+        });
         pidCol.setCellValueFactory(cellData -> cellData.getValue().getPid().map(Object::toString));
         stateCol.setCellValueFactory(cellData -> cellData.getValue().stateProperty());
         arrivalCol.setCellValueFactory(cellData -> cellData.getValue().getArrivalTick());
         priorityCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
         burstCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
-        //progressCol.setCellValueFactory(cellData -> cellData.getValue().getProgress());
         progressCol.setCellValueFactory(p -> {
             return p.getValue().getProgress();
             });

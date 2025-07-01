@@ -277,9 +277,9 @@ public class PampaSimViewModel implements ViewModel {
             found.getPriority().set(proc.getPriority());
             found.getCurrExecTime().set(proc.getCurrExecTime());
             found.getBurstTime().set(proc.getBurstTime());
-            int current = proc.getCurrExecTime();
-            int total = found.getBurst().get();
-            found.getProgress().set((double) (current / total));
+            double current = proc.getCurrExecTime();
+            double total = proc.getCreationData().getDurationTicks();
+            found.getProgress().set(current/total);
         }
     }
     private void setSimulationRunning(boolean running) {
