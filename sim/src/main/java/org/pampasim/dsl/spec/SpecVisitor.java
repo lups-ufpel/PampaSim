@@ -52,6 +52,8 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
         String clr = null;
         try {
             clr = ctx.getChild(1).getChild(2*4 - 1).getText();
+            var paintClr = Color.web(clr);
+            spec.getColorMap().put(creationData.getCreationId(), paintClr);
         } catch (Exception ignored) {}
         spec.addProcessArrival(creationData);
         return this.spec;

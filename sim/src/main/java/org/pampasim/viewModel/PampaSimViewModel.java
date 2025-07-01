@@ -76,7 +76,7 @@ public class PampaSimViewModel implements ViewModel {
                     if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
                         var creationData = e.getCreationData();
                         ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
-                        vm.getColorProperty().set(Color.web("#000000"));
+                        vm.getColorProperty().set(spec.getColorMap().get(creationData.getCreationId()));
                         vm.setState(Process.State.NEW);
                         vm.getArrivalTick().set(creationData.getArrivalTick());
                         vm.getBurst().set(creationData.getDurationTicks());
