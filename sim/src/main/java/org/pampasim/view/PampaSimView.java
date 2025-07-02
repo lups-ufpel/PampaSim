@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
@@ -88,7 +89,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
-        pampaSimViewModel.resetSimulation();
+        pampaSimViewModel.syncWithSpec();
     }
     // somewhat misleading name, also called when the stop button is clicked
     @FXML
@@ -126,14 +127,16 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        pampaSimViewModel.setTabPane(moduleTabPane);
+        pampaSimViewModel.setTabPane(moduleTabPane); // FIXME: tight coupling
 
         ViewListBinder.bind(
                 Map.of(
                         Process.State.NEW, NewList,
                         Process.State.READY, ReadyList,
                         Process.State.RUNNING, RunningList,
+                        Process.State.IO_WAITING, WaitingList,
+                        Process.State.IO_RUNNING, WaitingList,
+                        Process.State.SCHEDULED, WaitingList,
                         Process.State.TERMINATED, FinishedList),
                 pampaSimViewModel.getAllProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
         );
@@ -162,14 +165,60 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         procTable.setItems(pampaSimViewModel.getAllProcesses());
 
         // Configure each TableColumn’s cellValueFactory to use the corresponding property:
-        colorCol.setCellValueFactory( cellData -> cellData.getValue().getColorProperty());
-        pidCol.setCellValueFactory(cellData -> cellData.getValue().getPid());
+        colorCol.setCellValueFactory(cellData -> cellData.getValue().getColorProperty());
+        // https://stackoverflow.com/a/39415402
+        colorCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Color item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) { setText(null); setStyle(""); }
+                else {
+                    setText(item.toString());
+                    setStyle("-fx-background-color: #" + item.toString().substring(2));
+                }
+            }
+        });
+        pidCol.setCellValueFactory(cellData -> cellData.getValue().getPid().map(Object::toString));
         stateCol.setCellValueFactory(cellData -> cellData.getValue().stateProperty());
         arrivalCol.setCellValueFactory(cellData -> cellData.getValue().getArrivalTick());
         priorityCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
         burstCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
-        progressCol.setCellValueFactory(cellData -> cellData.getValue().getProgress());
+        progressCol.setCellValueFactory(p -> {
+            return p.getValue().getProgress();
+            });
+
+        progressCol.setCellFactory(column -> new TableCell<>() {
+            private final ProgressBar progressBar = new ProgressBar(); // progress bar
+            private final Label progressLabel = new Label(); // text overlay
+            private final StackPane stackPane = new StackPane(); // container to stack the text over the progress bar
+
+            {
+                // style settings
+                progressBar.setMaxWidth(Double.MAX_VALUE);
+                progressBar.setPrefHeight(20);
+                progressLabel.setStyle("-fx-text-fill: black; -fx-font-weight: bold;");
+                stackPane.getChildren().addAll(progressBar, progressLabel);
+            }
+
+            @Override
+            protected void updateItem(Double progress, boolean empty) {
+                super.updateItem(progress, empty);
+
+                if (empty || progress == null) {
+                    setGraphic(null);
+                } else {
+                    progressBar.setProgress(progress);
+                    ProcessViewModel process = getTableView().getItems().get(getIndex());
+                    int current = process.getCurrExecTime().getValue();
+                    int total = process.getBurst().getValue();
+
+                    progressLabel.setText(current + "/" + total);
+                    setGraphic(stackPane);
+                }
+            }
+        });
     }
+
     private void bindTimeLineProperty() {
         pampaSimViewModel.getSimulationRunning().addListener((obs, wasRunning, isRunning) -> {
             stopBtn.setDisable(!isRunning);

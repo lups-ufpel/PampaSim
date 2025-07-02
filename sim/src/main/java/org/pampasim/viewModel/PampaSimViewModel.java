@@ -29,12 +29,12 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
+import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
-import org.pampasim.events.External.Arrival;
 
 import javax.swing.*;
 import java.io.File;
@@ -73,9 +73,10 @@ public class PampaSimViewModel implements ViewModel {
     // Process States
     @Getter
     private final ObservableList<ProcessViewModel> allProcesses = FXCollections.observableArrayList();
-
     @Setter
     private TabPane tabPane;
+
+    private MemoryTabViewModel memoryModule = null;
 
     public PampaSimViewModel() {
         var templateSpec = Spec.loadSpec(Paths.get(
@@ -88,10 +89,25 @@ public class PampaSimViewModel implements ViewModel {
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
 
+            for (var tick : spec.getEventSchedule().values()) {
+                for (var event : tick) {
+                    if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
+                        var creationData = e.getCreationData();
+                        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
+                        vm.getColorProperty().set(spec.getColorMap().get(creationData.getCreationId()));
+                        vm.setState(Process.State.NEW);
+                        vm.getArrivalTick().set(creationData.getArrivalTick());
+                        vm.getBurst().set(creationData.getDurationTicks());
+                        vm.getPriority().set(creationData.getStartPriority());
+                        allProcesses.add(vm);
+                    }
+                }
+            }
+
             // FIXME: There likely is a more elegant solution than this
-            MemoryManagement memoryModule = sim.getEntity(MemoryManagement.class);
-            if (memoryModule != null) {
-                memoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
+            MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
+            if (simMemoryModule != null) {
+                simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
                         this::handleProcessEvent);
             }
             return sim;
@@ -107,7 +123,7 @@ public class PampaSimViewModel implements ViewModel {
 
         LOGGER.info("loaded {}", path);
         simulatedScenario.setSpec(spec);
-        simulatedScenario.resetToSpec();
+        syncWithSpec();
         updateProps();
     }
 
@@ -120,15 +136,10 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess(CreateProcessRecord userProcess) {
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
-        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
-        vm.getColorProperty().set(Color.web(userProcess.color()));
-        vm.setState(Process.State.NEW);
-        vm.getArrivalTick().set(creationData.getArrivalTick());
-        vm.getBurst().set(creationData.getDurationTicks());
-        vm.getPriority().set(creationData.getStartPriority());
-        allProcesses.add(vm);
-        simulatedScenario.getSpec().addProcessArrival(creationData);
-        simulatedScenario.resetToSpec();
+        var spec = simulatedScenario.getSpec();
+        spec.addProcessArrival(creationData);
+        spec.getColorMap().put(creationData.getCreationId(), Color.web(userProcess.color()));
+        syncWithSpec();
     }
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
@@ -136,7 +147,7 @@ public class PampaSimViewModel implements ViewModel {
                 .setSchedulerInfo(
                         userSelection.schedulerName(),
                         Optional.of(userSelection.quantum()));
-        simulatedScenario.resetToSpec();
+        syncWithSpec();
         updateProps();
     }
 
@@ -144,7 +155,13 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         // TODO: make the setup work with spec
         if (userSelection.module().equals("memory")) {
-            ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader.fxmlView(MemoryTabView.class).load();
+
+            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class));
+
+            ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
+                    .fxmlView(MemoryTabView.class)
+                    .viewModel(memoryModule)
+                    .load();
 
             Parent content = viewTuple.getView();
 
@@ -168,9 +185,10 @@ public class PampaSimViewModel implements ViewModel {
         setSimulationRunning(true);
     }
 
-    public void resetSimulation() {
+    public void syncWithSpec() {
+        allProcesses.clear();
         simulatedScenario.resetToSpec();
-    }
+        memoryModule.setMemoryManagement(simulatedScenario.getSimulation().getEntity(MemoryManagement.class));}
 
     public void stopSimulation() {
         setSimulationRunning(false);
@@ -191,7 +209,7 @@ public class PampaSimViewModel implements ViewModel {
             if (blockedTick) {
                 asciiReportClock = sim.getRealClock().getTick();
                 for (ProcessViewModel pvm : allProcesses) {
-                    PidAllocator.Pid pid = null;
+                    PidAllocator.Pid pid = pvm.getPid().get();
                     if (pid == null) {
                         continue;
                     }
@@ -260,30 +278,16 @@ public class PampaSimViewModel implements ViewModel {
         ProcessViewModel found = allProcesses.stream()
                 .filter(pvm -> pvm.getCreationId() == id)
                 .findFirst().orElse(null);
-        assert found != null;
 
-        found.getPid().set(proc.getPid().toString());
-        int current = proc.getCurrExecTime();
-        int total = found.getBurst().get();
-        found.getProgress().set((double) (current/total));
-
-        switch (event) {
-            case org.pampasim.events.Process.Ready e: {
-                found.setState(Process.State.READY);
-                break;
-            }
-            case org.pampasim.events.Process.Run e: {
-                found.setState(Process.State.RUNNING);
-                break;
-            }
-            case org.pampasim.events.Process.End e: {
-                found.setState(Process.State.TERMINATED);
-                break;
-            }
-            default:
-                System.out.println("handleProcessEvent caiu no default");
-                System.out.println("proc state:" + proc.getState());
-                break;
+        if (found != null) {
+            found.getPid().set(proc.getPid());
+            found.setState(proc.getState());
+            found.getPriority().set(proc.getPriority());
+            found.getCurrExecTime().set(proc.getCurrExecTime());
+            found.getBurstTime().set(proc.getBurstTime());
+            double current = proc.getCurrExecTime();
+            double total = proc.getCreationData().getDurationTicks();
+            found.getProgress().set(current/total);
         }
     }
     private void setSimulationRunning(boolean running) {
@@ -332,6 +336,7 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void openCreateProcessDialog() {
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
+        syncWithSpec();
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
