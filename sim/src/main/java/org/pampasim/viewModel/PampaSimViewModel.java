@@ -76,6 +76,8 @@ public class PampaSimViewModel implements ViewModel {
     @Setter
     private TabPane tabPane;
 
+    private MemoryTabViewModel memoryModule = null;
+
     public PampaSimViewModel() {
         var templateSpec = Spec.loadSpec(Paths.get(
                 Objects.requireNonNull(PampaSim.class.getResource("template.spec"))
@@ -103,9 +105,9 @@ public class PampaSimViewModel implements ViewModel {
             }
 
             // FIXME: There likely is a more elegant solution than this
-            MemoryManagement memoryModule = sim.getEntity(MemoryManagement.class);
-            if (memoryModule != null) {
-                memoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
+            MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
+            if (simMemoryModule != null) {
+                simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
                         this::handleProcessEvent);
             }
             return sim;
@@ -153,7 +155,13 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         // TODO: make the setup work with spec
         if (userSelection.module().equals("memory")) {
-            ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader.fxmlView(MemoryTabView.class).load();
+
+            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class));
+
+            ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
+                    .fxmlView(MemoryTabView.class)
+                    .viewModel(memoryModule)
+                    .load();
 
             Parent content = viewTuple.getView();
 
@@ -180,7 +188,7 @@ public class PampaSimViewModel implements ViewModel {
     public void syncWithSpec() {
         allProcesses.clear();
         simulatedScenario.resetToSpec();
-    }
+        memoryModule.setMemoryManagement(simulatedScenario.getSimulation().getEntity(MemoryManagement.class));}
 
     public void stopSimulation() {
         setSimulationRunning(false);

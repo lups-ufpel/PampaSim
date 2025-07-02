@@ -194,7 +194,7 @@
                         <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Memória Principal" />
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                             <content>
-                                <TilePane id="main_memory_tilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5">
+                                <TilePane fx:id="mainTilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5">
                                     <!-- Memory Items -->
                                     <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);">
                                         <children>
@@ -466,7 +466,7 @@
                             <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Swapfile" />
                             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                                 <content>
-                                    <TilePane id="swap_tilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5">
+                                    <TilePane fx:id="swapTilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5">
                                         <children>
                                             <VBox alignment="TOP_CENTER" prefHeight="70.0" prefWidth="50.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);">
                                                 <children>

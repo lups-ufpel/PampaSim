@@ -10,6 +10,7 @@ module org.pampasim.memory {
     requires org.apache.logging.log4j;
     requires de.saxsys.mvvmfx;
     requires javafx.fxml;
+    requires javafx.controls;
 
     exports org.pampasim.memory;
     exports org.pampasim.memory.entity;
