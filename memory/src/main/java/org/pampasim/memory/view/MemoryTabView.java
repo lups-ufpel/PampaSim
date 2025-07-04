@@ -10,6 +10,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.text.Text;
 import lombok.Setter;
@@ -43,6 +45,12 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
     public Label info_title;
     @FXML
     public Text info_text;
+    @FXML
+    public HBox ioWaitingList;
+    @FXML
+    public HBox ioRunningList;
+    @FXML
+    public ProgressBar ioOperationProgressBar;
 
     @InjectViewModel
     private MemoryTabViewModel viewModel;

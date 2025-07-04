@@ -8,7 +8,6 @@ import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -22,7 +21,6 @@ import org.pampasim.*;
 import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.core.utils.PidAllocator.Pid;
 import org.pampasim.dialog.*;
 import org.pampasim.dsl.spec.Spec;
 import org.pampasim.entity.ProcessManager;
@@ -35,6 +33,7 @@ import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
+import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import javax.swing.*;
 import java.io.File;
@@ -156,7 +155,9 @@ public class PampaSimViewModel implements ViewModel {
         // TODO: make the setup work with spec
         if (userSelection.module().equals("memory")) {
 
-            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class), simulatedScenario.getSpec().getColorMap());
+            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
+                                                    simulatedScenario.getSpec().getColorMap(),
+                                                    allProcesses);
 
             ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
                     .fxmlView(MemoryTabView.class)

@@ -18,8 +18,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.ViewListBinder;
 import org.pampasim.resources.Process;
+import org.pampasim.resources.view.ProcessView;
 import org.pampasim.viewModel.PampaSimViewModel;
-import org.pampasim.viewModel.ProcessViewModel;
+import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.io.File;
 import java.net.URL;

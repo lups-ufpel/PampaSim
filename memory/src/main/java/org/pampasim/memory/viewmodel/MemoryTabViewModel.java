@@ -17,6 +17,7 @@ import org.pampasim.memory.entity.PhysicalMemory;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
+import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -53,8 +54,10 @@ public class MemoryTabViewModel implements ViewModel {
     private final ObservableList<MemoryFrameViewModel> observableRamFrameList = FXCollections.observableArrayList();
     @Getter
     private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
+    @Getter
+    private final ObservableList<ProcessViewModel> observableProcessList;
 
-    public MemoryTabViewModel(MemoryManagement memoryManagement, Map<Long, Color> colorMap) {
+    public MemoryTabViewModel(MemoryManagement memoryManagement, Map<Long, Color> colorMap, ObservableList<ProcessViewModel> observableProcessList) {
         this.memoryManagement = memoryManagement;
         this.colorMap = colorMap;
         setupSnoopers();
@@ -66,6 +69,8 @@ public class MemoryTabViewModel implements ViewModel {
 
         createFrameList(ramFrameList, observableRamFrameList);
         createFrameList(swapFrameList, observableSwapFrameList);
+
+        this.observableProcessList = observableProcessList;
     }
 
     private void createFrameList(List<Process> frameList, ObservableList<MemoryFrameViewModel> observableList) {

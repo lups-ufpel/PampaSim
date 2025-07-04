@@ -1,4 +1,4 @@
-package org.pampasim.viewModel;
+package org.pampasim.resources.viewmodel;
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
@@ -20,6 +20,8 @@ public class ProcessViewModel implements ViewModel {
     private final BooleanProperty initialized = new SimpleBooleanProperty(false);
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
+
+    //TODO: add a list of viewmodels to store module info, just like how it's handled inside the process class itself
 
     public ProcessViewModel(long creationId) {
         this.creationId = creationId;

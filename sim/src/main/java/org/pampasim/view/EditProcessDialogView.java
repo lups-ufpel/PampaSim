@@ -3,18 +3,12 @@ package org.pampasim.view;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Spinner;
 import javafx.scene.paint.Color;
-import org.pampasim.viewModel.CreateProcessDialogViewModel;
 import org.pampasim.viewModel.EditProcessDialogViewModel;
-import org.pampasim.viewModel.ProcessViewModel;
 
 import java.net.URL;
 import java.util.ResourceBundle;

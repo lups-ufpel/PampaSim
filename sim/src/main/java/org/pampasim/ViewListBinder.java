@@ -7,10 +7,8 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Circle;
 import javafx.util.Callback;
-import org.pampasim.viewModel.ProcessViewModel;
+import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.Process;
 
 import java.util.HashMap;

@@ -1,11 +1,11 @@
-package org.pampasim.view;
+package org.pampasim.resources.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
-import org.pampasim.viewModel.ProcessViewModel;
+import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 public class ProcessView  implements FxmlView<ProcessViewModel> {
 
