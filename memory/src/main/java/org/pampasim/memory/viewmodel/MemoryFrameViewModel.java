@@ -12,7 +12,19 @@ import org.pampasim.core.utils.PidAllocator;
 
 @Getter
 public class MemoryFrameViewModel implements ViewModel {
-    private final IntegerProperty frameNum = new SimpleIntegerProperty();
+    private final int frameNum;
     private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
+
+    MemoryFrameViewModel(int frameNum) {
+        this.frameNum = frameNum;
+    }
+
+    Color getColor() {
+        return colorProperty.get();
+    }
+
+    void setColor(Color color) {
+        colorProperty.set(color);
+    }
 }

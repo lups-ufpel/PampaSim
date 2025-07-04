@@ -67,9 +67,36 @@ public final class MemoryConfig {
         return (virtualAddress >>> pageOffsetBits) & pageNumberMask;
     }
 
-    public static long extractOffsetNumber(long virtualAddress) {
+    public static int extractOffsetNumber(int virtualAddress) {
         int pageOffsetBits = getPageOffsetBits();
-        long offsetMask = (1L << pageOffsetBits) - 1;
+        int offsetMask = (1 << pageOffsetBits) - 1;
         return virtualAddress & offsetMask;
+    }
+
+    public static int combineToAddress(int pageNumber, int offset) {
+        int pageOffsetBits = getPageOffsetBits();
+        int pageNumberBits = getPageNumberBits();
+
+        // Validate inputs
+        if (offset < 0 || offset >= getPageSize()) {
+            throw new IllegalArgumentException("Offset must be between 0 and " + (getPageSize() - 1));
+        }
+
+        int maxPageNumber = (1 << pageNumberBits) - 1;
+        if (pageNumber < 0 || pageNumber > maxPageNumber) {
+            throw new IllegalArgumentException(
+                    String.format("Page number must be between 0 and %d (max for %d bits)",
+                            maxPageNumber, pageNumberBits));
+        }
+
+        // Combine by shifting page number and OR'ing with offset
+        return (pageNumber << pageOffsetBits) | offset;
+    }
+    public static int toAddress(int frameNumber) {
+        return frameNumber * getPageSize();
+    }
+
+    public static int toFrameNumber(int address) {
+        return address / getPageSize();
     }
 }

@@ -156,7 +156,7 @@ public class PampaSimViewModel implements ViewModel {
         // TODO: make the setup work with spec
         if (userSelection.module().equals("memory")) {
 
-            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class));
+            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class), simulatedScenario.getSpec().getColorMap());
 
             ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
                     .fxmlView(MemoryTabView.class)
@@ -188,13 +188,16 @@ public class PampaSimViewModel implements ViewModel {
     public void syncWithSpec() {
         allProcesses.clear();
         simulatedScenario.resetToSpec();
-        memoryModule.setMemoryManagement(simulatedScenario.getSimulation().getEntity(MemoryManagement.class));}
+        if (memoryModule != null) {
+            memoryModule.setMemoryManagement(simulatedScenario.getSimulation().getEntity(MemoryManagement.class), simulatedScenario.getSpec().getColorMap());
+        }
+    }
 
     public void stopSimulation() {
         setSimulationRunning(false);
     }
 
-    public void runSimulation() {
+    public void runSimulation(boolean fullStep) {
         boolean blockedTick;
         Simulation sim = simulatedScenario.getSimulation();
         if (sim.getState() == SimEntity.EntityState.Blocked) {
@@ -203,6 +206,10 @@ public class PampaSimViewModel implements ViewModel {
         } else {
             sim.runUntilBlockedorIdle();
             blockedTick = false;
+            if (fullStep) {
+                sim.run();
+                blockedTick = true;
+            }
         }
 
         { // Update ascii report

@@ -29,6 +29,7 @@ import java.util.ResourceBundle;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
+    public Button stepBtn;
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
@@ -141,7 +142,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 pampaSimViewModel.getAllProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
         );
 
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation()));
+        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation(false)));
         this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
 
@@ -149,6 +150,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         genGraphs.setSelected(false);
         pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
         runBtn.disableProperty().bind(
+                pampaSimViewModel
+                        .getSimulationIsValidSetup().not()
+                        .or(pampaSimViewModel.getSimulationRunning())
+        );
+        stepBtn.disableProperty().bind(
                 pampaSimViewModel
                         .getSimulationIsValidSetup().not()
                         .or(pampaSimViewModel.getSimulationRunning())
@@ -226,5 +232,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 animation.pause();
             }
         });
+    }
+    @FXML
+    public void onStepSimulation(ActionEvent actionEvent) {
+        pampaSimViewModel.runSimulation(true);
     }
 }

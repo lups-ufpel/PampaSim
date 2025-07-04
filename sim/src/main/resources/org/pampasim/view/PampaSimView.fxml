@@ -76,14 +76,6 @@
                     </graphic>
                     <text>New</text>
                 </Button>
-                <Button fx:id="resetBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onResetSimulation" text="Reset">
-                    <tooltip>
-                        <Tooltip text="Reiniciar simulação" />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon iconLiteral="fth-refresh-cw" />
-                    </graphic>
-                </Button>
                 <Button fx:id="stopBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onFinishSimulation" text="Stop">
                     <tooltip>
                         <Tooltip text="Parar simulação" />
@@ -92,6 +84,23 @@
                         <FontIcon iconLiteral="fth-stop-circle" />
                     </graphic>
                 </Button>
+                <Button fx:id="stepBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onStepSimulation" text="Step">
+                    <tooltip>
+                        <Tooltip text="Avançar simulação" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconLiteral="fth-arrow-right-circle" />
+                    </graphic>
+                </Button>
+                <Button fx:id="resetBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onResetSimulation" text="Reset">
+                    <tooltip>
+                        <Tooltip text="Reiniciar simulação" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconLiteral="fth-refresh-cw" />
+                    </graphic>
+                </Button>
+
                 <Pane VBox.vgrow="ALWAYS" />
             </items>
             <BorderPane.margin>

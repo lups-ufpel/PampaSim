@@ -12,7 +12,7 @@ import org.pampasim.core.utils.PidAllocator.Pid;
 import java.util.ArrayList;
 
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Process {
     @Data
     public static class CreationData {
@@ -23,6 +23,7 @@ public class Process {
         private final int startPriority;
     }
     @Getter
+    @EqualsAndHashCode.Include
     private final CreationData creationData;
 
     ;
@@ -32,6 +33,7 @@ public class Process {
     // ends up happening. This is important to justify the existence of a TLB in the system
 
     private final Logger LOGGER = LogManager.getLogger(Process.class);
+    @EqualsAndHashCode.Include
     private final Pid pid;
     @Setter
     State state;
