@@ -18,8 +18,12 @@ import lombok.Setter;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.viewmodel.MemoryFrameViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
+import org.pampasim.resources.Process;
+import org.pampasim.resources.ViewListBinder;
+import org.pampasim.resources.view.ProcessView;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializable {
@@ -71,6 +75,13 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
         updateFrameDisplays();
 
         setupFrameListListeners();
+
+        ViewListBinder.bind(
+                Map.of(
+                        org.pampasim.resources.Process.State.IO_WAITING, ioWaitingList,
+                        org.pampasim.resources.Process.State.IO_RUNNING, ioRunningList),
+                viewModel.getObservableProcessList(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
+        );
     }
 
     private void updateFrameDisplays() {

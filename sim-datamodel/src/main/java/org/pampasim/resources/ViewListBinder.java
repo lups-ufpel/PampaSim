@@ -1,4 +1,4 @@
-package org.pampasim;
+package org.pampasim.resources;
 
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.FxmlView;
@@ -9,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
-import org.pampasim.resources.Process;
 
 import java.util.HashMap;
 import java.util.Map;
