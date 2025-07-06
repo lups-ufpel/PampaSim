@@ -33,6 +33,9 @@ import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
+import org.pampasim.resources.ProcessModuleInfo;
+import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
+import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import javax.swing.*;
@@ -99,6 +102,9 @@ public class PampaSimViewModel implements ViewModel {
                         vm.getBurst().set(creationData.getDurationTicks());
                         vm.getPriority().set(creationData.getStartPriority());
                         allProcesses.add(vm);
+
+                        //TODO: make adding module info part of the creation data
+                        vm.addModuleInfoViewModel(new MemoryInfoViewModel());
                     }
                 }
             }
@@ -297,6 +303,7 @@ public class PampaSimViewModel implements ViewModel {
             double total = proc.getCreationData().getDurationTicks();
             found.getProgress().set(current/total);
         }
+
     }
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);

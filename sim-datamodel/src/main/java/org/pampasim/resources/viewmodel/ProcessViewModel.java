@@ -2,6 +2,8 @@ package org.pampasim.resources.viewmodel;
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.core.utils.PidAllocator;
@@ -21,7 +23,8 @@ public class ProcessViewModel implements ViewModel {
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
 
-    //TODO: add a list of viewmodels to store module info, just like how it's handled inside the process class itself
+    // Armazena informações dos módulos (ex: memória, IO, etc.)
+    private final ObservableList<ModuleInfoViewModel> moduleInfoViewModels = FXCollections.observableArrayList();
 
     public ProcessViewModel(long creationId) {
         this.creationId = creationId;
@@ -37,5 +40,17 @@ public class ProcessViewModel implements ViewModel {
 
     public ObjectProperty<Process.State> stateProperty() {
         return state;
+    }
+
+    public void addModuleInfoViewModel(ModuleInfoViewModel moduleViewModel) {
+        this.moduleInfoViewModels.add(moduleViewModel);
+    }
+
+    public <T extends ModuleInfoViewModel> T getModuleInfoViewModel(Class<T> clazz) {
+        return moduleInfoViewModels.stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -138,6 +138,4 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
             computeWorkingSet();
         }
     }
-
-
 }

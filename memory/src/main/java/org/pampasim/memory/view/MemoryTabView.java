@@ -21,6 +21,8 @@ import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.view.ProcessView;
+import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
+import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.net.URL;
 import java.util.Map;
@@ -80,8 +82,15 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
                 Map.of(
                         org.pampasim.resources.Process.State.IO_WAITING, ioWaitingList,
                         org.pampasim.resources.Process.State.IO_RUNNING, ioRunningList),
-                viewModel.getObservableProcessList(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
+                ioOperationProgressBar,
+                processViewModel -> processViewModel
+                        .getModuleInfoViewModel(MemoryInfoViewModel.class)
+                        .getIoOperationProgress(),
+                viewModel.getObservableProcessList(),
+                ViewListBinder.mvvmfxFxmlFactory(ProcessView.class),
+                Process.State.IO_RUNNING
         );
+
     }
 
     private void updateFrameDisplays() {

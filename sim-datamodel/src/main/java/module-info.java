@@ -6,7 +6,7 @@ module org.pampasim.resources {
     requires com.ibm.icu;
     requires de.saxsys.mvvmfx;
     requires javafx.fxml;
-    requires javafx.graphics;
+    requires javafx.controls;
 
     opens org.pampasim.resources.view to de.saxsys.mvvmfx, javafx.fxml;
     opens org.pampasim.resources.viewmodel to de.saxsys.mvvmfx, javafx.fxml;

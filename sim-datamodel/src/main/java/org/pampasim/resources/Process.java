@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Process {
     @Data
-    public static class CreationData {
+    public static class CreationData { // TODO: some module info needs to be part of the creation data later when a module is included
         private static long idCounter = 0;
         private final long creationId = idCounter++;
         private final int arrivalTick;
@@ -26,16 +26,13 @@ public class Process {
     @EqualsAndHashCode.Include
     private final CreationData creationData;
 
-    ;
-    //TODO: during each execution tick, the process can access several pages at once. This is important for the TLB
-    //Every execution tick the process will access one, none, or several of it's virtual pages, it will send out an event which
+    // Every execution tick the process will access one, none, or several of its virtual pages, it will send out an event which
     // will require the memory module to check the Page Table or the TLB, it can also suspend the process if a page fault
     // ends up happening. This is important to justify the existence of a TLB in the system
 
     private final Logger LOGGER = LogManager.getLogger(Process.class);
     @EqualsAndHashCode.Include
     private final Pid pid;
-    @Setter
     State state;
     private int currExecTime; // elapsed execution time
     @Setter

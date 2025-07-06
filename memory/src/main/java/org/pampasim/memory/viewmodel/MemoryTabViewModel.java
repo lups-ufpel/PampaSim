@@ -1,6 +1,7 @@
 package org.pampasim.memory.viewmodel;
 
 import de.saxsys.mvvmfx.ViewModel;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
@@ -17,6 +18,7 @@ import org.pampasim.memory.entity.PhysicalMemory;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
+import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.lang.reflect.Array;
@@ -49,6 +51,8 @@ public class MemoryTabViewModel implements ViewModel {
     private final SimpleStringProperty infoTitle = new SimpleStringProperty("Test");
     @Getter
     private final SimpleStringProperty infoText = new SimpleStringProperty("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet lacus gravida, ultricies nunc et, fermentum eros. Nunc eu est facilisis, interdum odio et, suscipit nisl. Aliquam mattis, augue id convallis mollis, metus nibh malesuada ipsum, eu cursus nisi nibh quis erat. Nullam commodo nisi ut suscipit elementum. Morbi dignissim condimentum mi eu fringilla. Nullam eu accumsan felis, nec luctus orci. Sed id nunc diam. Cras quis turpis nec elit finibus interdum ac in orci. In eget eleifend orci. Nulla sollicitudin ac tellus at ornare. Praesent ut augue at est mattis consectetur.");
+    //@Getter
+    //private final SimpleFloatProperty io
 
     @Getter
     private final ObservableList<MemoryFrameViewModel> observableRamFrameList = FXCollections.observableArrayList();
@@ -105,9 +109,10 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     public void handleProcessEvent(Event uncastEvent) {
-        switch (uncastEvent) {
-            case org.pampasim.events.Memory.TlbNoTranslation e -> {
-                Process process = e.getProcess();
+        if (uncastEvent instanceof org.pampasim.events.ProcessEvent e) {
+            Process process = e.getProcess();
+
+            if (e instanceof org.pampasim.events.Memory.TlbNoTranslation tlbEvent) {
                 ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
                 int access = processMemoryInfo.getCurrentAccessList().getFirst();
                 virtualAddress.set(Integer.toString(access));
@@ -130,15 +135,26 @@ public class MemoryTabViewModel implements ViewModel {
                     frameNumber.set("Indefinido");
                     physicalAddress.set("Indefinido");
                 }
-
             }
-            default -> {
 
+            // Update MemoryInfoViewModel
+            ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+            if (memoryInfo != null) {
+                observableProcessList.stream()
+                        .filter(vm -> vm.getPid() != null) // Skip if PID is null
+                        .filter(vm -> vm.getPid().get() != null)
+                        .filter(vm -> vm.getPid().get().equals(process.getPid())) // Safe to call .get()
+                        .flatMap(vm -> vm.getModuleInfoViewModels().stream())
+                        .filter(m -> m instanceof MemoryInfoViewModel)
+                        .map(m -> (MemoryInfoViewModel) m)
+                        .forEach(vm -> vm.updateFrom(memoryInfo));
             }
+
+
+            LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", e);
         }
 
-        LOGGER.debug("MemoryTabViewModel observed event {}", uncastEvent);
-
+        // Always update frame views regardless of event type
         List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getMainMemory().getFrameAllocationList();
         List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
@@ -147,6 +163,7 @@ public class MemoryTabViewModel implements ViewModel {
         updateFrameList(ramFrameList, observableRamFrameList);
         updateFrameList(swapFrameList, observableSwapFrameList);
     }
+
 
     public void setupSnoopers() {
         memoryManagement.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,

@@ -124,6 +124,7 @@ public class PhysicalMemory extends AbstractSimEntity {
     private void handleDiskOperation(DiskOperation event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+
         LOGGER.debug("Operação de Disco do processo de identificador: {}", process.getPid());
         processMemoryInfo.forwardIoOperation();
 
@@ -357,7 +358,7 @@ public class PhysicalMemory extends AbstractSimEntity {
             ArrayList<PageTableEntry> pagesToLoad = processMemoryInfo.getWorkingSet();
             if (pagesToLoad.isEmpty()) {
                 ArrayList<Integer> currentAccesses = faultyPages.stream()
-                        .map(entry -> (entry.getFrameAddress()) * MemoryConfig.getPageSize())
+                        .map(PageTableEntry::getPageNumber)
                         .collect(Collectors.toCollection(ArrayList::new));
 
                 ArrayList<Integer> prefetchList = getPrefetchList(processMemoryInfo, currentAccesses);
@@ -389,9 +390,8 @@ public class PhysicalMemory extends AbstractSimEntity {
         Set<Integer> prefetchSet = new HashSet<>();
 
         for (int access : currentAccesses) {
-            int page = MemoryConfig.extractPageNumber(access);
             for (int offset = 1; offset <= prefetchDistance; offset++) {
-                int nextPage = page + offset;
+                int nextPage = access + offset;
                 if (nextPage < processSize) {
                     prefetchSet.add(nextPage);
                 }

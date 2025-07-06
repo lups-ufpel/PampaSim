@@ -34,6 +34,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
+    public ProgressBar ProcessProgress;
+    @FXML
     public HBox RunningList;
     @FXML
     public HBox NewList;
@@ -138,7 +140,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         Process.State.RUNNING, RunningList,
                         Process.State.SCHEDULED, WaitingList,
                         Process.State.TERMINATED, FinishedList),
-                pampaSimViewModel.getAllProcesses(), ViewListBinder.mvvmfxFxmlFactory(ProcessView.class)
+                ProcessProgress,
+                ProcessViewModel::getProgress,
+                pampaSimViewModel.getAllProcesses(),
+                ViewListBinder.mvvmfxFxmlFactory(ProcessView.class),
+                Process.State.RUNNING
         );
 
         this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation(false)));
@@ -148,6 +154,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         genGraphs.setAllowIndeterminate(false);
         genGraphs.setSelected(false);
         pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
+
         runBtn.disableProperty().bind(
                 pampaSimViewModel
                         .getSimulationIsValidSetup().not()
