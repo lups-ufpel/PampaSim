@@ -18,6 +18,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
+<?import javafx.scene.shape.Circle?>
 <AnchorPane prefHeight="621.0" prefWidth="929.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.memory.view.MemoryTabView">
     <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <AnchorPane maxWidth="253.0" minHeight="0.0" minWidth="253.0" prefHeight="160.0" prefWidth="100.0" SplitPane.resizableWithParent="false">
@@ -136,12 +137,16 @@
                     <Polygon layoutX="191.0" layoutY="337.0" points="-4.5, 43.25, 5.0, 43.25, 0.0, 52.0" stroke="BLACK" strokeType="INSIDE" />
                 </AnchorPane>
                 <AnchorPane minHeight="100.0" minWidth="253.0" prefHeight="100.0" prefWidth="253.0">
-                    <Label fx:id="info_title" layoutX="67.0" layoutY="14.0" text="Page Hit / Miss">
+                    <Label fx:id="info_title" text="Page Hit / Miss" textAlignment="CENTER" alignment="CENTER">
                         <font>
                             <Font name="System Bold" size="15.0" />
                         </font>
+                        <AnchorPane.topAnchor>10</AnchorPane.topAnchor>
+                        <AnchorPane.leftAnchor>0</AnchorPane.leftAnchor>
+                        <AnchorPane.rightAnchor>0</AnchorPane.rightAnchor>
                     </Label>
                     <TextFlow layoutX="14.0" layoutY="43.0" prefHeight="93.0" prefWidth="225.0">
+                        <Circle fx:id="info_circle" radius="8" fill="green" />
                         <Text fx:id="info_text" strokeType="OUTSIDE" strokeWidth="0.0" text="Texto explicando o estado, se houve page hit, e o que ocorre num page fault" />
                     </TextFlow>
                 </AnchorPane>
@@ -149,7 +154,7 @@
         </AnchorPane>
         <!-- Right panel (memory visualization) -->
         <SplitPane dividerPositions="0.2, 0.7" orientation="VERTICAL" prefHeight="609.0" prefWidth="347.0">
-            <VBox alignment="TOP_CENTER" prefHeight="120.0" minHeight="120.0" maxHeight="120.0">
+            <VBox alignment="TOP_CENTER" maxHeight="120.0" minHeight="120.0" prefHeight="120.0">
                 <children>
                     <Label contentDisplay="CENTER" style="-fx-font-weight: bold; -fx-font-size: 15;" text="Operações de Disco" textAlignment="CENTER" />
                     <HBox prefHeight="100.0" spacing="5.0">
@@ -170,9 +175,7 @@
                             </VBox>
 
                             <!-- HBox ao lado que se expande dinamicamente -->
-                            <HBox fx:id="ioWaitingList" alignment="CENTER_LEFT" spacing="5.0"
-                                  HBox.hgrow="ALWAYS"
-                                  style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                            <HBox fx:id="ioWaitingList" alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);" HBox.hgrow="ALWAYS">
                                 <padding>
                                     <Insets left="10.0" />
                                 </padding>

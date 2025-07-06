@@ -1,14 +1,12 @@
 package org.pampasim.memory.viewmodel;
 
 import de.saxsys.mvvmfx.ViewModel;
-import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.events.Event;
@@ -21,8 +19,6 @@ import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -33,64 +29,57 @@ public class MemoryTabViewModel implements ViewModel {
     private Map<Long, Color> colorMap;
     private MemoryManagement memoryManagement;
 
-    @Getter
-    private final SimpleStringProperty virtualAddress = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty pageNumber = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty offset = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty pageTableNumber = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty validBit = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty frameNumber = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty physicalAddress = new SimpleStringProperty("");
-    @Getter
-    private final SimpleStringProperty infoTitle = new SimpleStringProperty("Test");
-    @Getter
-    private final SimpleStringProperty infoText = new SimpleStringProperty("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet lacus gravida, ultricies nunc et, fermentum eros. Nunc eu est facilisis, interdum odio et, suscipit nisl. Aliquam mattis, augue id convallis mollis, metus nibh malesuada ipsum, eu cursus nisi nibh quis erat. Nullam commodo nisi ut suscipit elementum. Morbi dignissim condimentum mi eu fringilla. Nullam eu accumsan felis, nec luctus orci. Sed id nunc diam. Cras quis turpis nec elit finibus interdum ac in orci. In eget eleifend orci. Nulla sollicitudin ac tellus at ornare. Praesent ut augue at est mattis consectetur.");
-    //@Getter
-    //private final SimpleFloatProperty io
+    @Getter private final SimpleStringProperty virtualAddress = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty pageNumber = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty offset = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty pageTableNumber = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty validBit = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty frameNumber = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty physicalAddress = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty infoTitle = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty infoText = new SimpleStringProperty("");
+    @Getter private final SimpleObjectProperty<Color> infoColor = new SimpleObjectProperty<>();
 
-    @Getter
-    private final ObservableList<MemoryFrameViewModel> observableRamFrameList = FXCollections.observableArrayList();
-    @Getter
-    private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
-    @Getter
-    private final ObservableList<ProcessViewModel> observableProcessList;
+    @Getter private final ObservableList<MemoryFrameViewModel> observableRamFrameList = FXCollections.observableArrayList();
+    @Getter private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
+    @Getter private final ObservableList<ProcessViewModel> observableProcessList;
 
-    public MemoryTabViewModel(MemoryManagement memoryManagement, Map<Long, Color> colorMap, ObservableList<ProcessViewModel> observableProcessList) {
+    public MemoryTabViewModel(
+            MemoryManagement memoryManagement,
+            Map<Long, Color> colorMap,
+            ObservableList<ProcessViewModel> observableProcessList) {
+
         this.memoryManagement = memoryManagement;
         this.colorMap = colorMap;
+        this.observableProcessList = observableProcessList;
+
         setupSnoopers();
 
         List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getMainMemory().getFrameAllocationList();
+
         List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getSwapFile().getFrameAllocationList();
 
         createFrameList(ramFrameList, observableRamFrameList);
         createFrameList(swapFrameList, observableSwapFrameList);
-
-        this.observableProcessList = observableProcessList;
     }
 
     private void createFrameList(List<Process> frameList, ObservableList<MemoryFrameViewModel> observableList) {
-        IntStream.range(0, frameList.size())
-                .forEach(i -> {
-                    Process process = frameList.get(i);
-                    MemoryFrameViewModel vm = new MemoryFrameViewModel(i);
-                    if (process != null) {
-                        vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK));
-                        vm.getPid().set(process.getPid());
-                    } else {
-                        vm.getPid().set(null);
-                        vm.getColorProperty().set(null);
-                    }
-                    observableList.add(vm);
-                });
+        IntStream.range(0, frameList.size()).forEach(i -> {
+            Process process = frameList.get(i);
+            MemoryFrameViewModel vm = new MemoryFrameViewModel(i);
+
+            if (process != null) {
+                vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK));
+                vm.getPid().set(process.getPid());
+            } else {
+                vm.getPid().set(null);
+                vm.getColorProperty().set(null);
+            }
+
+            observableList.add(vm);
+        });
     }
 
     private void updateFrameList(List<Process> frameList, ObservableList<MemoryFrameViewModel> observableList) {
@@ -111,9 +100,10 @@ public class MemoryTabViewModel implements ViewModel {
     public void handleProcessEvent(Event uncastEvent) {
         if (uncastEvent instanceof org.pampasim.events.ProcessEvent e) {
             Process process = e.getProcess();
+            ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
 
+            // Caso TLB não tenha tradução
             if (e instanceof org.pampasim.events.Memory.TlbNoTranslation tlbEvent) {
-                ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
                 int access = processMemoryInfo.getCurrentAccessList().getFirst();
                 virtualAddress.set(Integer.toString(access));
                 pageNumber.set(Integer.toString(MemoryConfig.extractPageNumber(access)));
@@ -124,6 +114,7 @@ public class MemoryTabViewModel implements ViewModel {
 
                 validBit.set(pageTableEntry.isValid() ? "1" : "0");
                 Integer frameAddress = pageTableEntry.getFrameAddress();
+
                 if (frameAddress != null) {
                     frameNumber.set(frameAddress.toString());
                     physicalAddress.set(Integer.toString(
@@ -137,24 +128,50 @@ public class MemoryTabViewModel implements ViewModel {
                 }
             }
 
-            // Update MemoryInfoViewModel
+            if (e instanceof org.pampasim.events.Memory.DiskOperation) {
+                boolean cpuIdle = observableProcessList.stream()
+                        .noneMatch(vm -> vm.getState() == Process.State.RUNNING);
+
+                if (cpuIdle) {
+                    virtualAddress.set("");
+                    pageNumber.set("");
+                    offset.set("");
+                    pageTableNumber.set("");
+                    validBit.set("");
+                    frameNumber.set("");
+                    physicalAddress.set("");
+                    infoTitle.set("");
+                    infoText.set("");
+                    infoColor.set(null);
+                }
+            }
+
+            if (e instanceof org.pampasim.events.Memory.PageHit) {
+                int access = processMemoryInfo.getCurrentAccessList().getFirst();
+                infoTitle.set("Page Hit");
+                infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
+                infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+            } else if (e instanceof org.pampasim.events.Memory.PageFault) {
+                int access = processMemoryInfo.getCurrentAccessList().getFirst();
+                infoTitle.set("Page Fault");
+                infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que não está presente na memória RAM, e deve ser carregado da memória secundária");
+                infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+            }
+
             ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
             if (memoryInfo != null) {
                 observableProcessList.stream()
-                        .filter(vm -> vm.getPid() != null) // Skip if PID is null
-                        .filter(vm -> vm.getPid().get() != null)
-                        .filter(vm -> vm.getPid().get().equals(process.getPid())) // Safe to call .get()
+                        .filter(vm -> vm.getPid() != null && vm.getPid().get() != null)
+                        .filter(vm -> vm.getPid().get().equals(process.getPid()))
                         .flatMap(vm -> vm.getModuleInfoViewModels().stream())
                         .filter(m -> m instanceof MemoryInfoViewModel)
                         .map(m -> (MemoryInfoViewModel) m)
                         .forEach(vm -> vm.updateFrom(memoryInfo));
             }
 
-
             LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", e);
         }
 
-        // Always update frame views regardless of event type
         List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getMainMemory().getFrameAllocationList();
         List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
@@ -164,10 +181,8 @@ public class MemoryTabViewModel implements ViewModel {
         updateFrameList(swapFrameList, observableSwapFrameList);
     }
 
-
     public void setupSnoopers() {
-        memoryManagement.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
-                this::handleProcessEvent);
+        memoryManagement.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
     }
 
     public void setMemoryManagement(MemoryManagement memoryManagement, Map<Long, Color> colorMap) {
@@ -176,4 +191,3 @@ public class MemoryTabViewModel implements ViewModel {
         setupSnoopers();
     }
 }
-
