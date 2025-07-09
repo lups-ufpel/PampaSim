@@ -24,10 +24,9 @@ public class MMU extends AbstractSimEntity {
     //private final PriorityQueue<Event> buffer;
     //private final FrameController virtualAddressRange;
 
-    public MMU(Simulation simulation, int virtualAddressRangeSize) {
+    public MMU(Simulation simulation) {
         super(simulation);
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
-        //this.virtualAddressRange = new FrameController(virtualAddressRangeSize);
 
         // Register event handlers
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Allocate.class, this);
@@ -65,7 +64,7 @@ public class MMU extends AbstractSimEntity {
         Process process = event.getProcess();
 
         // FIXME: setting up the process memory info here for testing purposes
-        process.addModuleInfo(new ProcessMemoryInfo(process, 10, 5, 5, 5));
+        process.addModuleInfo(new ProcessMemoryInfo(process, 10, MemoryConfig.getSwapOperationLength(), MemoryConfig.getMaxPagesPerProcess(), MemoryConfig.getWorkingSetWindow()));
 
         ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0, 9)
                 .mapToObj(i -> new ArrayList<>(List.of(i * MemoryConfig.getPageSize())))

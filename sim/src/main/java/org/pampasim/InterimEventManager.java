@@ -4,6 +4,8 @@ import org.pampasim.core.EventManager;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
 import org.pampasim.events.*;
+import org.pampasim.memory.MemoryManagement;
+import org.pampasim.resources.Process;
 
 ///  Hardcoded for now
 public class InterimEventManager extends EventManager {
@@ -27,5 +29,15 @@ public class InterimEventManager extends EventManager {
     @Override
     public void setupFlags() {
         takesTime.put(org.pampasim.events.Process.Run.class, true);
+    }
+
+    @Override
+    public void handleEvent(Event event) {
+        super.handleEvent(event);
+        if (event instanceof org.pampasim.events.Process.Dispatch dispatch) {
+            if (simulation.getEntity(MemoryManagement.class) == null) {
+                dispatch.getProcess().setState(Process.State.RUNNING);
+            }
+        }
     }
 }

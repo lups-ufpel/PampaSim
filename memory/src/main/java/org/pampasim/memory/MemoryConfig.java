@@ -5,24 +5,66 @@ import lombok.Setter;
 
 public final class MemoryConfig {
 
-    @Getter @Setter private static int pageSize;
-    @Getter @Setter private static int maxPagesPerProcess;
-    @Getter @Setter private static int framesInRAM;
-    @Getter @Setter private static int framesInSwap;
+    @Getter @Setter private static int pageSize                        = 0;
+    @Getter @Setter private static int maxPagesPerProcess              = 0;
+    @Getter @Setter private static int framesInRAM                     = 0;
+    @Getter @Setter private static int framesInSwap                    = 0;
+    @Getter @Setter private static int swapOperationLength             = 0;
+    @Getter @Setter private static int workingSetWindow                = 0;
+    @Getter @Setter private static String pageSubstitutionAlgorithm    = "";
+    @Getter @Setter private static boolean globalPageSubstitution      = false;
+    @Getter @Setter private static boolean anticipatedPageLoading      = false;
+    @Getter @Setter private static int prePagingRange                  = 0;
+    @Getter @Setter private static boolean variablePageAllocation      = false;
+    @Getter @Setter private static double variablePageAllocationTopThreshold    = 0;
+    @Getter @Setter private static double variablePageAllocationBottomThreshold = 0;
+    @Getter @Setter private static boolean TlbEnabled                  = false;
+    @Getter @Setter private static int TlbEntries                      = 0;
+
 
     private MemoryConfig() {
         throw new AssertionError("Cannot instantiate static configuration class");
     }
 
-    public static void initialize(int pageSize, int maxPages, int ramFrames, int swapFrames) {
+    public static void initialize(
+            int pageSize,
+            int maxPagesPerProcess,
+            int framesInRAM,
+            int framesInSwap,
+            int swapOperationLength,
+            int workingSetWindow,
+            String pageSubstitutionAlgorithm,
+            boolean globalPageSubstitution,
+            boolean anticipatedPageLoading,
+            int prePagingRange,
+            boolean variablePageAllocation,
+            double variablePageAllocationTopThreshold,
+            double variablePageAllocationBottomThreshold,
+            boolean tlbEnabled,
+            int tlbEntries
+    ) {
         validatePowerOfTwo("Page size", pageSize);
-        validatePowerOfTwo("Max pages per process", maxPages);
+        validatePowerOfTwo("Frames in RAM", framesInRAM);
+        validatePowerOfTwo("Frames in Swap", framesInSwap);
 
         setPageSize(pageSize);
-        setMaxPagesPerProcess(maxPages);
-        setFramesInRAM(ramFrames);
-        setFramesInSwap(swapFrames);
+        setMaxPagesPerProcess(maxPagesPerProcess);
+        setFramesInRAM(framesInRAM);
+        setFramesInSwap(framesInSwap);
+        setSwapOperationLength(swapOperationLength);
+        setWorkingSetWindow(workingSetWindow);
+        setPageSubstitutionAlgorithm(pageSubstitutionAlgorithm);
+        setGlobalPageSubstitution(globalPageSubstitution);
+        setAnticipatedPageLoading(anticipatedPageLoading);
+        setPrePagingRange(prePagingRange);
+        setVariablePageAllocation(variablePageAllocation);
+        setVariablePageAllocationTopThreshold(variablePageAllocationTopThreshold);
+        setVariablePageAllocationBottomThreshold(variablePageAllocationBottomThreshold);
+        setTlbEnabled(tlbEnabled);
+        setTlbEntries(tlbEntries);
     }
+
+
 
     private static void validatePowerOfTwo(String name, int value) {
         if (value <= 0 || (value & (value - 1)) != 0) {

@@ -28,7 +28,9 @@ import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.events.ProcessCreationDataEvent;
+import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
+import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
@@ -60,6 +62,10 @@ public class PampaSimViewModel implements ViewModel {
     @Getter
     private final BooleanProperty scenarioIsSaved = new SimpleBooleanProperty(true);
     private int graphNum = 0;
+
+    @Getter
+    private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
+
 
     //***** Dialog services *****//
     private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
@@ -144,7 +150,7 @@ public class PampaSimViewModel implements ViewModel {
         var spec = simulatedScenario.getSpec();
         spec.addProcessArrival(creationData);
         spec.getColorMap().put(creationData.getCreationId(), Color.web(userProcess.color()));
-        syncWithSpec();
+        // syncWithSpec(); // this is already called after this method in the only place that it is referenced
     }
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
@@ -161,9 +167,14 @@ public class PampaSimViewModel implements ViewModel {
         // TODO: make the setup work with spec
         if (userSelection.module().equals("memory")) {
 
+            reinitializeMemoryManagement();
+
             memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
                                                     simulatedScenario.getSpec().getColorMap(),
                                                     allProcesses);
+
+
+            memoryModulePresent.set(true);
 
             ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
                     .fxmlView(MemoryTabView.class)
@@ -195,8 +206,8 @@ public class PampaSimViewModel implements ViewModel {
     public void syncWithSpec() {
         allProcesses.clear();
         simulatedScenario.resetToSpec();
-        if (memoryModule != null) {
-            memoryModule.setMemoryManagement(simulatedScenario.getSimulation().getEntity(MemoryManagement.class), simulatedScenario.getSpec().getColorMap());
+        if (memoryModulePresent.get()) {
+            reinitializeMemoryManagement();
         }
     }
 
@@ -334,8 +345,33 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void openSelectSchedulerDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
-        selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
+        selectSchedulerDialogService.setMemoryModulePresent(memoryModule != null);
+        selectSchedulerDialogService.showDialog(schedulers).ifPresent(selection -> {
+            if (memoryModule != null) {
+                MemoryConfigSelectionRecord mem = selection.memoryConfig();
+                MemoryConfig.initialize(
+                        mem.pageSize(),
+                        mem.maxPagesPerProcess(),
+                        mem.framesInRAM(),
+                        mem.framesInSwap(),
+                        mem.swapOperationLength(),
+                        mem.workingSetWindow(),
+                        mem.pageSubstitutionAlgorithm(),
+                        mem.globalPageSubstitution(),
+                        mem.anticipatedPageLoading(),
+                        mem.prePagingRange(),
+                        mem.variablePageAllocation(),
+                        mem.variablePageAllocationTopThreshold(),
+                        mem.variablePageAllocationBottomThreshold(),
+                        mem.tlbEnabled(),
+                        mem.tlbEntries()
+                );
+            }
+
+            setSimulationScheduler(selection);
+        });
     }
+
 
 
     public void openAddModuleDialog() {
@@ -347,7 +383,6 @@ public class PampaSimViewModel implements ViewModel {
                 throw new RuntimeException(e);
             }
         });
-
     }
     public void openCreateProcessDialog() {
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
@@ -361,4 +396,24 @@ public class PampaSimViewModel implements ViewModel {
 //        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
 //        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
     }
+
+    private void reinitializeMemoryManagement() {
+        // Cria a entidade MemoryManagement na simulação
+        new MemoryManagement((SimulationBase) simulatedScenario.getSimulation());
+
+        // Obtém a instância da entidade recém-criada
+        MemoryManagement simMemoryModule = simulatedScenario.getSimulation().getEntity(MemoryManagement.class);
+
+        if (simMemoryModule != null) {
+            // Garante que eventos de processo da memória sejam tratados
+            simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
+        }
+
+        // Atualiza o MemoryTabViewModel, se já estiver instanciado
+        if (memoryModule != null) {
+            memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getColorMap());
+            memoryModule.refreshFrameList();
+        }
+    }
+
 }

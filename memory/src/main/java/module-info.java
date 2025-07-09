@@ -20,4 +20,5 @@ module org.pampasim.memory {
     opens org.pampasim.memory.viewmodel to de.saxsys.mvvmfx, javafx.fxml;
     exports org.pampasim.memory.view;
     exports org.pampasim.memory.viewmodel;
+    exports org.pampasim.memory.dialog;
 }

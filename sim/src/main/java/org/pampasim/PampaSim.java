@@ -79,7 +79,6 @@ public class PampaSim extends SimulationBase {
         }
         sim.pidAllocator = s.getPidAlloc();
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
-        new MemoryManagement(sim);
         return sim;
     }
 }

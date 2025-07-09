@@ -190,4 +190,18 @@ public class MemoryTabViewModel implements ViewModel {
         this.colorMap = colorMap;
         setupSnoopers();
     }
+
+    public void refreshFrameList() {
+        List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getMainMemory().getFrameAllocationList();
+
+        List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getSwapFile().getFrameAllocationList();
+
+        observableRamFrameList.clear();
+        observableSwapFrameList.clear();
+
+        createFrameList(ramFrameList, observableRamFrameList);
+        createFrameList(swapFrameList, observableSwapFrameList);
+    }
 }

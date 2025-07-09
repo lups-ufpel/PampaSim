@@ -114,25 +114,36 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
     }
 
     private void updateFrameDisplays() {
-        // Clear and populate RAM frames
-        mainTilepane.getChildren().clear();
-        viewModel.getObservableRamFrameList().forEach(vm -> {
-            Parent view = FluentViewLoader.fxmlView(MemoryFrameView.class)
-                    .viewModel(vm)
-                    .load()
-                    .getView();
-            mainTilepane.getChildren().add(view);
+        viewModel.getObservableRamFrameList().addListener((ListChangeListener<MemoryFrameViewModel>) change -> {
+            while (change.next()) {
+                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
+                    mainTilepane.getChildren().clear();
+                    viewModel.getObservableRamFrameList().forEach(vm -> {
+                        Parent view = FluentViewLoader.fxmlView(MemoryFrameView.class)
+                                .viewModel(vm)
+                                .load()
+                                .getView();
+                        mainTilepane.getChildren().add(view);
+                    });
+                }
+            }
         });
 
-        // Clear and populate Swap frames
-        swapTilepane.getChildren().clear();
-        viewModel.getObservableSwapFrameList().forEach(vm -> {
-            Parent view = FluentViewLoader.fxmlView(MemoryFrameView.class)
-                    .viewModel(vm)
-                    .load()
-                    .getView();
-            swapTilepane.getChildren().add(view);
+        viewModel.getObservableSwapFrameList().addListener((ListChangeListener<MemoryFrameViewModel>) change -> {
+            while (change.next()) {
+                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
+                    swapTilepane.getChildren().clear();
+                    viewModel.getObservableSwapFrameList().forEach(vm -> {
+                        Parent view = FluentViewLoader.fxmlView(MemoryFrameView.class)
+                                .viewModel(vm)
+                                .load()
+                                .getView();
+                        swapTilepane.getChildren().add(view);
+                    });
+                }
+            }
         });
+
     }
 
     private void setupFrameListListeners() {
