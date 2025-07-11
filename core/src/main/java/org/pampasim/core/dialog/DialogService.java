@@ -1,4 +1,4 @@
-package org.pampasim.dialog;
+package org.pampasim.core.dialog;
 
 
 import java.util.Optional;

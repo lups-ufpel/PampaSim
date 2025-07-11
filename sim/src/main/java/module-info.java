@@ -1,5 +1,4 @@
 module org.pampasim {
-    requires javafx.controls;
     requires javafx.fxml;
     requires de.saxsys.mvvmfx;
     requires slf4j.api;
@@ -14,6 +13,8 @@ module org.pampasim {
     requires io.github.classgraph;
     requires org.apache.logging.log4j;
     requires antlr4;
+    requires org.kordamp.ikonli.javafx;
+    requires javafx.controls;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

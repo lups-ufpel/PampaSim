@@ -13,4 +13,5 @@ module org.pampasim.core {
     exports org.pampasim.core.events;
     exports org.pampasim.core.utils;
     exports org.pampasim.core;
+    exports org.pampasim.core.dialog;
 }

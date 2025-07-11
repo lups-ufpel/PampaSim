@@ -2,13 +2,22 @@ package org.pampasim.memory;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class MemoryConfig {
+
+    // todo: these attributes are also defined in spec, but are stored here since multiple entities access them
 
     @Getter @Setter private static int pageSize                        = 0;
     @Getter @Setter private static int maxPagesPerProcess              = 0;
     @Getter @Setter private static int framesInRAM                     = 0;
     @Getter @Setter private static int framesInSwap                    = 0;
+
+    // todo: attributes after this shouldn't be here, they should be defined purely by spec
+
     @Getter @Setter private static int swapOperationLength             = 0;
     @Getter @Setter private static int workingSetWindow                = 0;
     @Getter @Setter private static String pageSubstitutionAlgorithm    = "";
@@ -20,6 +29,18 @@ public final class MemoryConfig {
     @Getter @Setter private static double variablePageAllocationBottomThreshold = 0;
     @Getter @Setter private static boolean TlbEnabled                  = false;
     @Getter @Setter private static int TlbEntries                      = 0;
+
+    @Getter
+    private static final List<ProcessMemoryInfo> processMemoryInfos = new ArrayList<>();
+
+    public static void addProcessMemoryInfo(ProcessMemoryInfo info) {
+        processMemoryInfos.add(info);
+    }
+
+    public static void clearProcessMemoryInfos() {
+        processMemoryInfos.clear();
+    }
+
 
 
     private MemoryConfig() {

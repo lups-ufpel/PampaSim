@@ -8,6 +8,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.paint.Color;
+import org.pampasim.core.dialog.DialogService;
+import org.pampasim.resources.dialog.CreateProcessRecord;
 import org.pampasim.view.EditProcessDialogView;
 import org.pampasim.viewModel.EditProcessDialogViewModel;
 
@@ -44,7 +46,8 @@ public class EditProcessDialogService implements DialogService<EditProcessRecord
                     viewTuple.getViewModel().getProcessStart(),
                     viewTuple.getViewModel().getProcessDuration(),
                     viewTuple.getViewModel().getProcessPriority(),
-                    viewTuple.getViewModel().convertColor());
+                    viewTuple.getViewModel().convertColor(), null);
+
             boolean removable = result.get().getButtonData() == ButtonBar.ButtonData.LEFT;
             EditProcessRecord editProcessRecord = new EditProcessRecord(
                     userInput,

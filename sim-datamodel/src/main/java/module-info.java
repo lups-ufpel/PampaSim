@@ -6,6 +6,7 @@ module org.pampasim.resources {
     requires com.ibm.icu;
     requires de.saxsys.mvvmfx;
     requires javafx.fxml;
+    requires org.kordamp.ikonli.javafx;
     requires javafx.controls;
 
     opens org.pampasim.resources.view to de.saxsys.mvvmfx, javafx.fxml;
@@ -15,4 +16,5 @@ module org.pampasim.resources {
     exports org.pampasim.resources.memory;
     exports org.pampasim.resources.viewmodel;
     exports org.pampasim.resources.view;
+    exports org.pampasim.resources.dialog;
 }

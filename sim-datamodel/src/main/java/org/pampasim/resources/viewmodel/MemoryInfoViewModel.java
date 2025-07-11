@@ -1,7 +1,6 @@
 package org.pampasim.resources.viewmodel;
 
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableValue;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.resources.memory.ProcessMemoryInfo;

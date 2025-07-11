@@ -6,10 +6,9 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
+import org.pampasim.core.dialog.DialogService;
 import org.pampasim.view.AddModuleDialogView;
-import org.pampasim.view.SelectSchedulerDialogView;
 import org.pampasim.viewModel.AddModuleDialogViewModel;
-import org.pampasim.viewModel.SelectSchedulerDialogViewModel;
 
 import java.util.List;
 import java.util.Optional;

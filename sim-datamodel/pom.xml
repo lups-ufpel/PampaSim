@@ -33,6 +33,10 @@
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
     </dependency>
+      <dependency>
+          <groupId>org.kordamp.ikonli</groupId>
+          <artifactId>ikonli-javafx</artifactId>
+      </dependency>
   </dependencies>
   <build>
   </build>

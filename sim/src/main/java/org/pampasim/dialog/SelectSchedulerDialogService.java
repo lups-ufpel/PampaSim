@@ -8,6 +8,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import lombok.Getter;
 import lombok.Setter;
+import org.pampasim.core.dialog.DialogService;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.view.SelectSchedulerDialogView;
 import org.pampasim.viewModel.SelectSchedulerDialogViewModel;

@@ -35,9 +35,9 @@ import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
-import org.pampasim.resources.ProcessModuleInfo;
+import org.pampasim.resources.dialog.CreateProcessDialogService;
+import org.pampasim.resources.dialog.CreateProcessRecord;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
-import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import javax.swing.*;
@@ -385,7 +385,9 @@ public class PampaSimViewModel implements ViewModel {
         });
     }
     public void openCreateProcessDialog() {
+        createProcessDialogService.setMemoryModulePresent(memoryModule != null);
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
+
         syncWithSpec();
     }
 
