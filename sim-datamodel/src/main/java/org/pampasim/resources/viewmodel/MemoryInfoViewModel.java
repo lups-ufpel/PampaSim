@@ -46,7 +46,7 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
 
         if (currentType == ProcessMemoryInfo.IoOperationType.PAGE_FAULT) {
             // For PAGE_FAULT, use swappingOperationsLength
-            operationLength =  memoryInfo.getSwappingOperationsLength();
+            operationLength =  memoryInfo.getMemoryConfigData().getSwappingOperationsLength();
         }
         else if (currentType == ProcessMemoryInfo.IoOperationType.DISK_ACCESS) {
             // For DISK_ACCESS, get from scheduled IO operations

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.ArrayList;
 
@@ -52,6 +53,15 @@ public class Process {
         this.burstTime = creationData.durationTicks;
         this.currExecTime = 0;
         this.moduleInfo = new ArrayList<>();
+    }
+    public Process(Pid pid, CreationData creationData,  ProcessMemoryInfo.CreationData memoryCreationData, ProcessMemoryInfo.MemoryConfigData memoryConfigData) {
+        this.pid = pid;
+        this.state = State.NEW;
+        this.creationData = creationData;
+        this.burstTime = creationData.durationTicks;
+        this.currExecTime = 0;
+        this.moduleInfo = new ArrayList<>();
+        moduleInfo.add(new ProcessMemoryInfo(this, memoryCreationData, memoryConfigData));
     }
 
     public int getRemainingExecutionTime() {

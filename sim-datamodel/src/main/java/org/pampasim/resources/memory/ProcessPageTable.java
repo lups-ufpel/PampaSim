@@ -10,10 +10,10 @@ public class ProcessPageTable {
     // page table that stores the page table entries for each process
     private final ArrayList<PageTableEntry> entries;
 
-    public ProcessPageTable(Process process, int processSize) {
+    public ProcessPageTable(Process process, int processSize, List<Boolean> fileBackedFlags) {
         this.entries = new ArrayList<>(processSize);
         for (int i = 0; i < processSize; i++) {
-            entries.add(new PageTableEntry(process, i));
+            entries.add(new PageTableEntry(process, i, fileBackedFlags.get(i)));
         }
     }
 

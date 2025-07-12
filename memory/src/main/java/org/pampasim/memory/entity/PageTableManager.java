@@ -17,9 +17,6 @@ import java.util.*;
 public class PageTableManager extends AbstractSimEntity {
 
     private final Logger LOGGER = LogManager.getLogger(PageTableManager.class);
-    int pageSize;
-    int maxPagesPerProcess;
-
     // a map of all page tables for easy access later for algorithms that need to consult all process tables (for example, page substitution algorithms with a global policy)
     private final Map<Long, ProcessPageTable> pageTableMap; // TODO: with the frame map in the physical memory, this likely isn't needed
 
@@ -50,7 +47,7 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
 
-        ProcessPageTable pageTable = new ProcessPageTable(process, processMemoryInfo.getSize());
+        ProcessPageTable pageTable = new ProcessPageTable(process, processMemoryInfo.getSize(), processMemoryInfo.getFileBackedPages());
         processMemoryInfo.setPageTable(pageTable);
         pageTableMap.put(process.getPid().getId(), pageTable);
 
@@ -72,15 +69,24 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
+        ArrayList<Boolean> modifyFlags = processMemoryInfo.getCurrentModifyPageFlags();
         ProcessPageTable pageTable = processMemoryInfo.getPageTable();
         PageTableEntry pageTableEntry;
 
-        for (int access : accessList) {
+        // Verify both lists have the same size
+        if (modifyFlags != null && accessList.size() != modifyFlags.size()) {
+            LOGGER.error("Process ID {}: Access list and modify flags size mismatch", process.getPid());
+            scheduleToNextClock(new FreeProcessMemory(this, process));
+            return;
+        }
+
+        for (int i = 0; i < accessList.size(); i++) {
+            int access = accessList.get(i);
             int pageNo = MemoryConfig.extractPageNumber(access);
             try {
                 pageTableEntry = pageTable.getEntry(pageNo);
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Processo de ID {} : Acesso ilegal! Exceção de Segmentação para o endereço {}", process.getPid(), access);
+                LOGGER.error("Process ID {}: Illegal access! Segmentation fault for address {}", process.getPid(), access);
                 scheduleToNextClock(new FreeProcessMemory(this, process));
                 return;
             }
@@ -88,12 +94,17 @@ public class PageTableManager extends AbstractSimEntity {
             pageTableEntry.setReferenced(true);
             processMemoryInfo.registerReference();
 
+            // Set dirty bit if this is a write operation
+            if (modifyFlags != null && modifyFlags.get(i)) {
+                pageTableEntry.setDirty(true);
+            }
+
             if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
                 // if there is at least 1 page fault, suspend process and send a PageFault event
                 if (pageTableEntry.getFrameAddress() == null) {
-                    LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Sem tradução)", process.getPid().toString());
+                    LOGGER.debug("Process ID {}: Page table access generated Page Fault (No translation)", process.getPid());
                 } else {
-                    LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou um Page Fault (Bit válido 0)", process.getPid().toString());
+                    LOGGER.debug("Process ID {}: Page table access generated Page Fault (Valid bit 0)", process.getPid());
                 }
 
                 process.setState(Process.State.IO_WAITING);
@@ -103,7 +114,7 @@ public class PageTableManager extends AbstractSimEntity {
         }
 
         // If no page faults found, all entries were present in memory
-        LOGGER.debug("Processo de ID {} : Acesso a tabela de páginas gerou somente Page Hits", process.getPid().toString());
+        LOGGER.debug("Process ID {}: Page table access generated only Page Hits", process.getPid());
         scheduleToNextClock(new PageHit(this, process));
     }
 

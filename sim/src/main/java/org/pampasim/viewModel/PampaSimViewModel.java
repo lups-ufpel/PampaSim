@@ -37,6 +37,8 @@ import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
 import org.pampasim.resources.dialog.CreateProcessRecord;
+import org.pampasim.resources.dialog.ProcessMemoryInfoRecord;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
@@ -150,6 +152,17 @@ public class PampaSimViewModel implements ViewModel {
         var spec = simulatedScenario.getSpec();
         spec.addProcessArrival(creationData);
         spec.getColorMap().put(creationData.getCreationId(), Color.web(userProcess.color()));
+
+        if (memoryModule != null) {
+            ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
+            var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
+                                                                        memoryInfo.fileBackedPages(),
+                                                                        memoryInfo.memoryAccesses(),
+                                                                        memoryInfo.modifiesPageFlags(),
+                                                                        memoryInfo.loopAccess(),
+                                                                        null);
+            MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
+        }
         // syncWithSpec(); // this is already called after this method in the only place that it is referenced
     }
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {

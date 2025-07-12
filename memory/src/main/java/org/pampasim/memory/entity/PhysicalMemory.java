@@ -164,7 +164,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         processMemoryInfo.setCurrentIoOperation(ProcessMemoryInfo.IoOperationType.PAGE_FAULT);
-        int operationLength = processMemoryInfo.getSwappingOperationsLength();
+        int operationLength = processMemoryInfo.getMemoryConfigData().getSwappingOperationsLength();
         processMemoryInfo.setCurrentIoOperationTimeRemaining(operationLength);
         process.setState(Process.State.IO_RUNNING);
         pageFaults++;

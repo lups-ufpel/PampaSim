@@ -1,5 +1,5 @@
 package org.pampasim.resources.memory;
-
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.resources.ProcessModuleInfo;
@@ -7,74 +7,83 @@ import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
 public class ProcessMemoryInfo extends ProcessModuleInfo {
-    Process process;
-    private final Integer size; // total number of pages the process occupies
-    //@Setter
-    //private Integer virtualAddressStart; // where the start of the virtual address range is
-    private final ArrayList<ArrayList<Integer>> addressAccessList;
-    @Setter
-    private boolean loopAccessList;
-    // Schedule for the IO operations, the processor is responsible for looking at this map and sending out IO operation events
-    private final Map<Integer, Integer> ioOperationSchedule;
-    // current IO operation, the processor is responsible for setting this if there is an IO operation.
-    // Otherwise, it is used for timing the delay of the IO operations needed to handle page faults
-    //TODO: Add a field to define which pages are modifiable vs purely executable (to justify the dirty bit)
+
+    @Data
+    public static class CreationData { // creation data unique to each process
+        private final int size;
+        private final ArrayList<Boolean> fileBackedPages;
+        private final ArrayList<Integer> addressAccessList;
+        private final ArrayList<Boolean> modifyPage;
+        private final boolean loopAccessList;
+        private final ArrayList<Integer> ioOperationSchedule;
+    }
+
+    @Data
+    public static class MemoryConfigData { // info defined for all processes during the setup
+        private final int swappingOperationsLength;
+        private final int maxFrames;
+        private final int workingSetWindow;
+    }
+
+    private final Process process;
+    private final CreationData creationData;
+    private final MemoryConfigData memoryConfigData;
+
+    // Runtime state fields
     @Setter
     private int currentIoOperationTimeRemaining;
     @Setter
     private IoOperationType currentIoOperation;
-    private final int swappingOperationsLength; //how long the swapping operations take when a page fault happens
     @Setter
-    private ProcessPageTable pageTable; // reference to the process' page table
-    private int maxFrames; // how many frames this process can have in the main memory
+    private ProcessPageTable pageTable;
+    private int maxFrames;
     private final ArrayList<PageTableEntry> workingSet;
-    private int referenceCounter; // reference counter for computing the working set
-    private final int workingSetWindow;
+    private int referenceCounter;
+    private final Map<Integer, Integer> runtimeIoOperationSchedule = new HashMap<>();
+    private final ArrayList<ArrayList<Integer>> runtimeAddressAccessList = new ArrayList<>();
+    private final ArrayList<ArrayList<Boolean>> runtimeModifyPage = new ArrayList<>();
 
     public enum IoOperationType {
-        /**
-         * The resources.Process requested an IO operation that requires a disk access
-         */
         DISK_ACCESS,
-
-        /**
-         * The resources.Process virtual memory access resulted in a Page Fault
-         */
         PAGE_FAULT
     }
 
-    public ProcessMemoryInfo(Process process, int size, int swappingOperationsLength, int maxFrames, int workingSetWindow) {
+    public ProcessMemoryInfo(Process process, CreationData creationData, MemoryConfigData memoryConfigData) {
         this.process = process;
-        this.size = size; //TODO: Make the user able to define how many pages the process occupies
-        this.ioOperationSchedule = new HashMap<>();
-        //this.virtualAddressStart = null;
-        this.addressAccessList = new ArrayList<>();
-        this.loopAccessList = true;
+        this.creationData = creationData;
+        this.memoryConfigData = memoryConfigData;
+        this.maxFrames = memoryConfigData.getMaxFrames();
         this.currentIoOperation = null;
-        this.maxFrames = maxFrames;
         this.workingSet = new ArrayList<>();
         this.referenceCounter = 0;
-        this.workingSetWindow = workingSetWindow;
-
         this.currentIoOperationTimeRemaining = 0;
-        this.swappingOperationsLength = swappingOperationsLength;
+
+        // Initialize runtime structures from creation data
+        for (Integer address : creationData.addressAccessList) {
+            this.runtimeAddressAccessList.add(new ArrayList<>(List.of(address)));
+        }
+
+        for (Boolean modifyFlag : creationData.modifyPage) {
+            this.runtimeModifyPage.add(new ArrayList<>(List.of(modifyFlag)));
+        }
     }
 
     // Access entries must be between 0 <= Access Entry <= size-1
     public void addAccessEntry(int index, ArrayList<Integer> accessList) {
-        addressAccessList.add(index, accessList);
+        runtimeAddressAccessList.add(index, accessList);
     }
 
     public void removeAccessEntry(int index) {
-        addressAccessList.remove(index);
+        runtimeAddressAccessList.remove(index);
     }
 
     public void editAccessEntry(int index, ArrayList<Integer> accessList) {
-        addressAccessList.set(index, accessList);
+        runtimeAddressAccessList.set(index, accessList);
     }
 
     public void forwardIoOperation() {
@@ -83,41 +92,47 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         }
     }
 
-    public ArrayList<Integer> getCurrentAccessList() { // based on CurrExecTime
+    public ArrayList<Integer> getCurrentAccessList() {
+        int nextAccessListIndex = getCurrentAccessListIndex();
+        return nextAccessListIndex >= 0 ? runtimeAddressAccessList.get(nextAccessListIndex) : null;
+    }
+
+    public ArrayList<Boolean> getCurrentModifyPageFlags() {
+        int nextAccessListIndex = getCurrentAccessListIndex();
+        return nextAccessListIndex >= 0 ? runtimeModifyPage.get(nextAccessListIndex) : null;
+    }
+
+    private int getCurrentAccessListIndex() {
         int nextAccessListIndex = process.getCurrExecTime();
-        int addressAccessListSize = addressAccessList.size();
+        int addressAccessListSize = runtimeAddressAccessList.size();
 
         if (addressAccessListSize == 0) {
-            return null; // No entries in the list
+            return -1;
         }
-        if (loopAccessList) {
-            nextAccessListIndex %= addressAccessListSize; // Wrap around using modulo
-        } else {
-            if (nextAccessListIndex >= addressAccessListSize) {
-                return null; // No memory access if out of bounds and looping disabled
-            }
+        if (creationData.loopAccessList) {
+            return nextAccessListIndex % addressAccessListSize;
         }
-        return addressAccessList.get(nextAccessListIndex);
+        return nextAccessListIndex < addressAccessListSize ? nextAccessListIndex : -1;
     }
 
     public void scheduleIoOperation(int execTick, int ioOperationLength) {
-        if (execTick >= 0 && ioOperationLength > 0 && execTick >= process.getBurstTime()) { // sanity checks to prevent future errors
-            ioOperationSchedule.put(execTick, ioOperationLength);
+        if (execTick >= 0 && ioOperationLength > 0 && execTick >= process.getBurstTime()) {
+            runtimeIoOperationSchedule.put(execTick, ioOperationLength);
         }
     }
 
-
     public void removeIoOperation(int execTick) {
-        ioOperationSchedule.remove(execTick);
+        runtimeIoOperationSchedule.remove(execTick);
     }
 
     public Integer getScheduledIoOperation(int execTick) {
-        return ioOperationSchedule.getOrDefault(execTick, null);
+        return runtimeIoOperationSchedule.getOrDefault(execTick, null);
     }
 
     public void addMaxFrames() {
         maxFrames++;
     }
+
     public void subMaxFrames() {
         if (maxFrames > 1) {
             maxFrames--;
@@ -134,8 +149,29 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
 
     public void registerReference() {
         referenceCounter++;
-        if (referenceCounter >= workingSetWindow) {
+        if (referenceCounter >= memoryConfigData.getWorkingSetWindow()) {
             computeWorkingSet();
         }
+    }
+
+    // Getters for creation data properties
+    public Integer getSize() {
+        return creationData.size;
+    }
+
+    public ArrayList<Boolean> getFileBackedPages() {
+        return creationData.fileBackedPages;
+    }
+
+    public ArrayList<Boolean> getModifyPage() {
+        return creationData.modifyPage;
+    }
+
+    public boolean isLoopAccessList() {
+        return creationData.loopAccessList;
+    }
+
+    public ArrayList<Integer> getIoOperationSchedule() {
+        return creationData.ioOperationSchedule;
     }
 }

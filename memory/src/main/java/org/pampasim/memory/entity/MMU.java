@@ -63,7 +63,17 @@ public class MMU extends AbstractSimEntity {
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
         Process process = event.getProcess();
 
+        ProcessMemoryInfo.CreationData creationData = MemoryConfig.getProcessMemoryConfigs().get(process.getCreationData().getCreationId());
+        ProcessMemoryInfo.MemoryConfigData memoryConfigData = new ProcessMemoryInfo.MemoryConfigData(MemoryConfig.getSwapOperationLength(),
+                                                                                                    MemoryConfig.getMaxPagesPerProcess(),
+                                                                                                    MemoryConfig.getWorkingSetWindow());
+
+        ProcessMemoryInfo processMemoryInfo = new ProcessMemoryInfo(process, creationData, memoryConfigData);
+
+        process.addModuleInfo(processMemoryInfo);
+
         // FIXME: setting up the process memory info here for testing purposes
+        /*
         process.addModuleInfo(new ProcessMemoryInfo(process, 10, MemoryConfig.getSwapOperationLength(), MemoryConfig.getMaxPagesPerProcess(), MemoryConfig.getWorkingSetWindow()));
 
         ArrayList<ArrayList<Integer>> addressAccessList = IntStream.rangeClosed(0, 9)
@@ -71,11 +81,9 @@ public class MMU extends AbstractSimEntity {
                 .collect(Collectors.toCollection(ArrayList::new)); // accesses from 0 to 9
 
         process.getModuleInfo(ProcessMemoryInfo.class)
+                .getCreationData()
                 .getAddressAccessList()
                 .addAll(addressAccessList);
-        /*
-        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-        OptionalInt startAddressOpt = virtualAddressRange.findFirstContiguousFreeRange(processMemoryInfo.getSize());
 
 
         if (startAddressOpt.isEmpty()) {

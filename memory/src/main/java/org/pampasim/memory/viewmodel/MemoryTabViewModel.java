@@ -44,6 +44,8 @@ public class MemoryTabViewModel implements ViewModel {
     @Getter private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
     @Getter private final ObservableList<ProcessViewModel> observableProcessList;
 
+    private boolean resetInfo;
+
     public MemoryTabViewModel(
             MemoryManagement memoryManagement,
             Map<Long, Color> colorMap,
@@ -132,7 +134,7 @@ public class MemoryTabViewModel implements ViewModel {
                 boolean cpuIdle = observableProcessList.stream()
                         .noneMatch(vm -> vm.getState() == Process.State.RUNNING);
 
-                if (cpuIdle) {
+                if (resetInfo && cpuIdle) {
                     virtualAddress.set("");
                     pageNumber.set("");
                     offset.set("");
@@ -143,7 +145,10 @@ public class MemoryTabViewModel implements ViewModel {
                     infoTitle.set("");
                     infoText.set("");
                     infoColor.set(null);
+                } else {
+                    resetInfo = true;
                 }
+
             }
 
             if (e instanceof org.pampasim.events.Memory.PageHit) {
@@ -151,11 +156,13 @@ public class MemoryTabViewModel implements ViewModel {
                 infoTitle.set("Page Hit");
                 infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
                 infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+                resetInfo = false;
             } else if (e instanceof org.pampasim.events.Memory.PageFault) {
                 int access = processMemoryInfo.getCurrentAccessList().getFirst();
                 infoTitle.set("Page Fault");
                 infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que não está presente na memória RAM, e deve ser carregado da memória secundária");
                 infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+                resetInfo = false;
             }
 
             ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);

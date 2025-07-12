@@ -5,13 +5,24 @@ import lombok.Setter;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class MemoryConfig {
 
     // todo: these attributes are also defined in spec, but are stored here since multiple entities access them
 
-    @Getter @Setter private static int pageSize                        = 0;
+    // pageSize is now stored in bytes, but input is given in kilobytes
+    @Getter
+    private static int pageSize = 0;
+
+    public static void setPageSize(int sizeInKb) {
+        int sizeInBytes = sizeInKb * 1024;
+        validatePowerOfTwo("Page size", sizeInBytes);
+        pageSize = sizeInBytes;
+    }
+
     @Getter @Setter private static int maxPagesPerProcess              = 0;
     @Getter @Setter private static int framesInRAM                     = 0;
     @Getter @Setter private static int framesInSwap                    = 0;
@@ -30,6 +41,8 @@ public final class MemoryConfig {
     @Getter @Setter private static boolean TlbEnabled                  = false;
     @Getter @Setter private static int TlbEntries                      = 0;
 
+    @Getter private static final Map<Long, ProcessMemoryInfo.CreationData> processMemoryConfigs = new HashMap<Long, ProcessMemoryInfo.CreationData>();
+
     @Getter
     private static final List<ProcessMemoryInfo> processMemoryInfos = new ArrayList<>();
 
@@ -41,14 +54,12 @@ public final class MemoryConfig {
         processMemoryInfos.clear();
     }
 
-
-
     private MemoryConfig() {
         throw new AssertionError("Cannot instantiate static configuration class");
     }
 
     public static void initialize(
-            int pageSize,
+            int pageSize, // in KB
             int maxPagesPerProcess,
             int framesInRAM,
             int framesInSwap,
@@ -64,11 +75,11 @@ public final class MemoryConfig {
             boolean tlbEnabled,
             int tlbEntries
     ) {
-        validatePowerOfTwo("Page size", pageSize);
+        validatePowerOfTwo("Page size", pageSize * 1024);
         validatePowerOfTwo("Frames in RAM", framesInRAM);
         validatePowerOfTwo("Frames in Swap", framesInSwap);
 
-        setPageSize(pageSize);
+        setPageSize(pageSize); // accepts pageSize in KB
         setMaxPagesPerProcess(maxPagesPerProcess);
         setFramesInRAM(framesInRAM);
         setFramesInSwap(framesInSwap);
@@ -84,8 +95,6 @@ public final class MemoryConfig {
         setTlbEnabled(tlbEnabled);
         setTlbEntries(tlbEntries);
     }
-
-
 
     private static void validatePowerOfTwo(String name, int value) {
         if (value <= 0 || (value & (value - 1)) != 0) {
@@ -155,6 +164,7 @@ public final class MemoryConfig {
         // Combine by shifting page number and OR'ing with offset
         return (pageNumber << pageOffsetBits) | offset;
     }
+
     public static int toAddress(int frameNumber) {
         return frameNumber * getPageSize();
     }

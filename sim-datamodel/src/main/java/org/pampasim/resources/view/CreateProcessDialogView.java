@@ -58,6 +58,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //TODO: handle more invalid inputs
         viewModel.processStartProperty().bind(startSpinner.getValueFactory().valueProperty());
         viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
         viewModel.processPriorityProperty().bind(prioritySpinner.getValueFactory().valueProperty());
@@ -72,26 +73,21 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         Button okButtonNode = (Button) dialogPane.lookupButton(okButton);
         okButtonNode.setOnAction(event -> {
             if (viewModel.isMemoryModulePresent()) {
-                // Clear existing accesses
                 viewModel.getMemoryInfo().clearAccesses();
 
-                // Parse and store file-backed pages
                 viewModel.getMemoryInfo().parseAndSetFileBackedPages(fileBackedPagesField.getText());
-
-                // Store all memory accesses
                 for (MemoryAccessEntry entry : accessEntries) {
                     try {
                         int address = Integer.parseInt(entry.addressField.getText());
                         boolean modifies = entry.modifiesCheck.isSelected();
                         viewModel.getMemoryInfo().addAccess(address, modifies);
                     } catch (NumberFormatException e) {
+                        //FIXME: not working properly
                         // Handle invalid input
-                        showAlert("Invalid Input", "Please enter valid numbers for memory addresses");
+                        showAlert("Acesso Inválido", "Acesso " + entry + "é inválido, informe um endereço válido");
                         return; // Prevent dialog from closing
                     }
                 }
-
-                // Store loop setting
                 viewModel.getMemoryInfo().setLoopAccessList(loopAccessCheckBox.isSelected());
             }
         });
