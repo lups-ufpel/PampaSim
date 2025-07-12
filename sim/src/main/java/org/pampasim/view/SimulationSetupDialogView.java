@@ -2,20 +2,20 @@ package org.pampasim.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.VBox;
-import org.pampasim.viewModel.SelectSchedulerDialogViewModel;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialogViewModel>, Initializable {
+public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewModel.SimulationSetupDialogView>, Initializable {
     @InjectViewModel
-    SelectSchedulerDialogViewModel viewModel;
+    org.pampasim.viewModel.SimulationSetupDialogView viewModel;
     
     @FXML
     ChoiceBox<String> schedulerChoiceBox;
@@ -62,19 +62,39 @@ public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialog
         schedulerChoiceBox.setItems(viewModel.schedulerNameProperty());
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
         preemptionCheckBox.selectedProperty().bindBidirectional(viewModel.preemptiveProperty());
+        quantumSpinner.getValueFactory().setValue(viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
 
         memorySectionVBox.visibleProperty().bind(viewModel.memoryModulePresentProperty());
         memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
 
         // Memory section
+        pageSizeSpinner.getValueFactory().setValue(viewModel.getPageSize());
+        maxPagesSpinner.getValueFactory().setValue(viewModel.getMaxPagesPerProcess());
+        ramFramesSpinner.getValueFactory().setValue(viewModel.getFramesInRAM());
+        swapFramesSpinner.getValueFactory().setValue(viewModel.getFramesInSwap());
+        workingSetWindowSpinner.getValueFactory().setValue(viewModel.getWorkingSetWindow());
+        loadedPagesCountSpinner.getValueFactory().setValue(viewModel.getPrePagingRange());
+        topThresholdSpinner.getValueFactory().setValue(viewModel.getVariablePageAllocationTopThreshold());
+        bottomThresholdSpinner.getValueFactory().setValue(viewModel.getVariablePageAllocationBottomThreshold());
+        tlbEntriesSpinner.getValueFactory().setValue(viewModel.getTlbEntries());
+
         viewModel.pageSizeProperty().bind(pageSizeSpinner.getValueFactory().valueProperty());
         viewModel.maxPagesPerProcessProperty().bind(maxPagesSpinner.getValueFactory().valueProperty());
         viewModel.framesInRAMProperty().bind(ramFramesSpinner.getValueFactory().valueProperty());
         viewModel.framesInSwapProperty().bind(swapFramesSpinner.getValueFactory().valueProperty());
         viewModel.workingSetWindowProperty().bind(workingSetWindowSpinner.getValueFactory().valueProperty());
+        viewModel.prePagingRangeProperty().bind(loadedPagesCountSpinner.getValueFactory().valueProperty());
+        viewModel.variablePageAllocationTopThresholdProperty().bind(topThresholdSpinner.getValueFactory().valueProperty());
+        viewModel.variablePageAllocationBottomThresholdProperty().bind(bottomThresholdSpinner.getValueFactory().valueProperty());
+        viewModel.tlbEntriesProperty().bind(tlbEntriesSpinner.getValueFactory().valueProperty());
 
+        pageReplacementAlgorithmChoiceBox.setItems(viewModel.pageSubstitutionAlgorithmNameProperty());
         pageReplacementAlgorithmChoiceBox.valueProperty().bindBidirectional(viewModel.pageSubstitutionAlgorithmProperty());
+
+        replacementPolicyChoiceBox.setItems(FXCollections.observableArrayList("Local", "Global"));
+        pageLoadingPolicyChoiceBox.setItems(FXCollections.observableArrayList("Demanda", "Antecipada"));
+        pageAllocationPolicyChoiceBox.setItems(FXCollections.observableArrayList("Fixa", "Variável"));
 
         replacementPolicyChoiceBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             viewModel.globalPageSubstitutionProperty().set("Global".equals(newVal));
@@ -90,20 +110,29 @@ public class SelectSchedulerDialogView implements FxmlView<SelectSchedulerDialog
             pageLoadingPolicyChoiceBox.setValue(newVal ? "Antecipada" : "Demanda");
         });
 
-        viewModel.prePagingRangeProperty().bind(loadedPagesCountSpinner.getValueFactory().valueProperty());
-
         pageAllocationPolicyChoiceBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             viewModel.variablePageAllocationProperty().set("Variável".equals(newVal));
+            boolean enableThresholds = "Variável".equals(newVal);
+            topThresholdSpinner.setDisable(!enableThresholds);
+            bottomThresholdSpinner.setDisable(!enableThresholds);
         });
         viewModel.variablePageAllocationProperty().addListener((obs, oldVal, newVal) -> {
             pageAllocationPolicyChoiceBox.setValue(newVal ? "Variável" : "Fixa");
         });
 
-        viewModel.variablePageAllocationTopThresholdProperty().bind(topThresholdSpinner.getValueFactory().valueProperty());
-        viewModel.variablePageAllocationBottomThresholdProperty().bind(bottomThresholdSpinner.getValueFactory().valueProperty());
-
+        tlbExistsCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            tlbEntriesSpinner.setDisable(!newVal);
+        });
         tlbExistsCheckBox.selectedProperty().bindBidirectional(viewModel.tlbEnabledProperty());
-        viewModel.tlbEntriesProperty().bind(tlbEntriesSpinner.getValueFactory().valueProperty());
+
+        replacementPolicyChoiceBox.setValue(viewModel.globalPageSubstitutionProperty().get() ? "Global" : "Local");
+        pageLoadingPolicyChoiceBox.setValue(viewModel.anticipatedPageLoadingProperty().get() ? "Antecipada" : "Demanda");
+        pageAllocationPolicyChoiceBox.setValue(viewModel.variablePageAllocationProperty().get() ? "Variável" : "Fixa");
+
+        tlbEntriesSpinner.setDisable(!tlbExistsCheckBox.isSelected());
+        boolean enableThresholds = pageAllocationPolicyChoiceBox.getValue().equals("Variável");
+        topThresholdSpinner.setDisable(!enableThresholds);
+        bottomThresholdSpinner.setDisable(!enableThresholds);
     }
 
 }

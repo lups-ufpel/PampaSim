@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
-import org.pampasim.view.SelectSchedulerDialogView;
-import org.pampasim.viewModel.SelectSchedulerDialogViewModel;
+import org.pampasim.viewModel.SimulationSetupDialogView;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +25,8 @@ public class SelectSchedulerDialogService implements DialogService<SchedulerSele
     @Override
     public Optional<SchedulerSelectionRecord> showDialog(Object... args) {
 
-        ViewTuple<SelectSchedulerDialogView, SelectSchedulerDialogViewModel> viewTuple =
-                FluentViewLoader.fxmlView(SelectSchedulerDialogView.class).load();
+        ViewTuple<org.pampasim.view.SimulationSetupDialogView, SimulationSetupDialogView> viewTuple =
+                FluentViewLoader.fxmlView(org.pampasim.view.SimulationSetupDialogView.class).load();
 
         viewTuple.getViewModel().setMemoryModulePresent(memoryModulePresent);
 
@@ -38,6 +37,11 @@ public class SelectSchedulerDialogService implements DialogService<SchedulerSele
         if (args.length > 0 && args[0] instanceof List<?> rawList) {
             List<String> schedulerNames = (List<String>) rawList;
             viewTuple.getViewModel().setSchedulerNames(schedulerNames);
+        }
+
+        if (args.length > 1 && args[1] instanceof List<?> rawList) {
+            List<String> pageReplacementAlgorithmNames = (List<String>) rawList;
+            viewTuple.getViewModel().setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
         }
 
         Optional<ButtonType> result = dialog.showAndWait();

@@ -14,7 +14,7 @@ import org.pampasim.memory.entity.PageTableManager;
 import org.pampasim.memory.entity.PhysicalMemory;
 //import org.pampasim.memory.entity.TLB;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
-import org.pampasim.memory.entity.algorithms.RandomAlgorithm;
+import org.pampasim.memory.entity.algorithms.Random;
 
 @Getter
 public class MemoryManagement extends SimulationBase {
@@ -100,7 +100,7 @@ public class MemoryManagement extends SimulationBase {
 
     private PageReplacementAlgorithm getReplacementAlgorithm(String algorithmName) {
         return switch (algorithmName.toUpperCase()) {
-            case "RANDOM" -> new RandomAlgorithm();
+            case "RANDOM" -> new Random();
             case "" -> null;
             default -> throw new IllegalArgumentException("Unknown replacement algorithm: " + algorithmName);
         };

@@ -7,10 +7,11 @@ import javafx.collections.ObservableList;
 
 import java.util.List;
 
-public class SelectSchedulerDialogViewModel implements ViewModel {
+public class SimulationSetupDialogView implements ViewModel {
 
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
     private final ObservableList<String> schedulerName = FXCollections.observableArrayList();
+    private final ObservableList<String> pageSubstitutionAlgorithmName = FXCollections.observableArrayList();
 
     // ─────────────── Values the user can change ─────────────
 
@@ -20,14 +21,14 @@ public class SelectSchedulerDialogViewModel implements ViewModel {
     private final IntegerProperty quantum          = new SimpleIntegerProperty(2);
 
         // ─────────────── Memory Parameters ─────────────
-    private final IntegerProperty pageSize                       = new SimpleIntegerProperty(512);    // KB
-    private final IntegerProperty maxPagesPerProcess             = new SimpleIntegerProperty(1024);
-    private final IntegerProperty framesInRAM                    = new SimpleIntegerProperty(256);
-    private final IntegerProperty framesInSwap                   = new SimpleIntegerProperty(1024);
+    private final IntegerProperty pageSize                       = new SimpleIntegerProperty(1);    // KB
+    private final IntegerProperty maxPagesPerProcess             = new SimpleIntegerProperty(10);
+    private final IntegerProperty framesInRAM                    = new SimpleIntegerProperty(64);
+    private final IntegerProperty framesInSwap                   = new SimpleIntegerProperty(128);
     private final IntegerProperty swapOperationLength            = new SimpleIntegerProperty(3);
     private final IntegerProperty workingSetWindow               = new SimpleIntegerProperty(10);
 
-    private final StringProperty pageSubstitutionAlgorithm       = new SimpleStringProperty("Random");
+    private final StringProperty pageSubstitutionAlgorithm       = new SimpleStringProperty();
     private final BooleanProperty globalPageSubstitution         = new SimpleBooleanProperty(true);
     private final BooleanProperty anticipatedPageLoading         = new SimpleBooleanProperty(true);
     private final IntegerProperty prePagingRange                 = new SimpleIntegerProperty(5);
@@ -47,6 +48,18 @@ public class SelectSchedulerDialogViewModel implements ViewModel {
         setDefaultSelectedScheduler(names);
     }
 
+    public void setPageSubstitutionAlgorithmNames(List<String> algorithmNames) {
+        pageSubstitutionAlgorithmName.setAll(algorithmNames);
+        setDefaultPageSubstitutionAlgorithmName(algorithmNames);
+
+    }
+
+    public void setDefaultPageSubstitutionAlgorithmName(List<String> algorithmNames) {
+        if(!algorithmNames.isEmpty()) {
+            pageSubstitutionAlgorithm.set(algorithmNames.getFirst());
+        }
+    }
+
     public void setDefaultSelectedScheduler(List<String> names) {
         if(!names.isEmpty()) {
             selectedScheduler.set(names.getFirst());
@@ -55,6 +68,10 @@ public class SelectSchedulerDialogViewModel implements ViewModel {
 
     public ObservableList<String> schedulerNameProperty () {
         return schedulerName;
+    }
+
+    public ObservableList<String> pageSubstitutionAlgorithmNameProperty () {
+        return pageSubstitutionAlgorithmName;
     }
 
     public StringProperty selectedSchedulerProperty() {

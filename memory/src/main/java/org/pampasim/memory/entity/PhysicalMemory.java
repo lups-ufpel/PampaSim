@@ -355,19 +355,15 @@ public class PhysicalMemory extends AbstractSimEntity {
                 return;
             }
 
-            ArrayList<PageTableEntry> pagesToLoad = processMemoryInfo.getWorkingSet();
-            if (pagesToLoad.isEmpty()) {
-                ArrayList<Integer> currentAccesses = faultyPages.stream()
-                        .map(PageTableEntry::getPageNumber)
-                        .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<PageTableEntry> pagesToLoad = new ArrayList<>();
+            ArrayList<Integer> currentAccesses = faultyPages.stream()
+                    .map(PageTableEntry::getPageNumber)
+                    .collect(Collectors.toCollection(ArrayList::new));
 
-                ArrayList<Integer> prefetchList = getPrefetchList(processMemoryInfo, currentAccesses);
-                Collections.sort(prefetchList);
-                pagesToLoad.addAll(processMemoryInfo.getPageTable().getEntries(prefetchList));
-                LOGGER.trace("Carregamento antecipado baseado na localidade espacial do processo (Working set ainda não foi calculado)");
-            } else {
-                LOGGER.trace("Carregamento antecipado baseado no working set do processo");
-            }
+            ArrayList<Integer> prefetchList = getPrefetchList(processMemoryInfo, currentAccesses);
+            Collections.sort(prefetchList);
+            pagesToLoad.addAll(processMemoryInfo.getPageTable().getEntries(prefetchList));
+            LOGGER.trace("Carregamento antecipado baseado na localidade espacial do processo");
 
             int swappedInCounter = 0;
             for (PageTableEntry page : pagesToLoad) {
@@ -386,7 +382,7 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     private static ArrayList<Integer> getPrefetchList(ProcessMemoryInfo processMemoryInfo, ArrayList<Integer> currentAccesses) {
         int processSize = processMemoryInfo.getSize();
-        int prefetchDistance = 2;
+        int prefetchDistance = MemoryConfig.getPrePagingRange();
         Set<Integer> prefetchSet = new HashSet<>();
 
         for (int access : currentAccesses) {

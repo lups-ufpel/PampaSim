@@ -17,6 +17,7 @@ import org.pampasim.dsl.SpecFileParser;
 import org.pampasim.core.events.*;
 import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
+import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.core.utils.PidAllocator;
@@ -164,6 +165,25 @@ public class Spec {
                     .collect(Collectors.toList());
         }
     }
+
+    public List<String> listAvailablePageSubstitutionAlgorithms() {
+        try (ScanResult scanResult = new ClassGraph()
+                .enableClassInfo()
+                .ignoreClassVisibility()
+                .acceptPackages("org.pampasim.memory")
+                .scan()
+        ) {
+            ClassInfoList implClasses = scanResult
+                    .getClassInfo(PageReplacementAlgorithm.class.getName())
+                    .getClassesImplementing();
+
+            return implClasses.stream()
+                    .map(ClassInfo::getSimpleName)
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
+    }
+
 
     public List<String> listAvailableModules() {
         List<String> modules = new ArrayList<>();

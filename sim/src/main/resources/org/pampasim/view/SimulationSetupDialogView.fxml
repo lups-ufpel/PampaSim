@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SelectSchedulerDialogView">
+<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationSetupDialogView">
     <content>
         <VBox alignment="CENTER" minWidth="367.0" prefHeight="150" prefWidth="516.0" spacing="10" style="-fx-padding: 10;">
             <children>
@@ -81,23 +81,23 @@
                         <children>
                             <!-- pageSize -->
                             <Label text="Tamanho da Página (KB)" />
-                            <Spinner fx:id="pageSizeSpinner" editable="true" initialValue="4" max="8192" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" />
+                            <Spinner fx:id="pageSizeSpinner" editable="true" max="8192" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" />
 
                             <!-- maxPagesPerProcess -->
                             <Label text="Máx. Páginas por Processo" GridPane.rowIndex="1" />
-                            <Spinner fx:id="maxPagesSpinner" editable="true" initialValue="16" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            <Spinner fx:id="maxPagesSpinner" editable="true" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                             <!-- ramFrames -->
                             <Label text="Número de Quadros na RAM" GridPane.rowIndex="2" />
-                            <Spinner fx:id="ramFramesSpinner" editable="true" initialValue="64" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            <Spinner fx:id="ramFramesSpinner" editable="true" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                             <!-- swapFrames -->
                             <Label text="Número de Quadros no Swap" GridPane.rowIndex="3" />
-                            <Spinner fx:id="swapFramesSpinner" editable="true" initialValue="128" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                            <Spinner fx:id="swapFramesSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                             <!-- workingSetWindow -->
                             <Label text="Tamanho da Janela do Working Set" GridPane.rowIndex="4" />
-                            <Spinner fx:id="workingSetWindowSpinner" editable="true" initialValue="5" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                            <Spinner fx:id="workingSetWindowSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
                             <!-- Algoritmo de Substituição -->
                             <Label text="Algoritmo de Substituição de Paginas" GridPane.rowIndex="5" />
@@ -105,48 +105,30 @@
 
                             <!-- Política de Substituição de Páginas -->
                             <Label text="Política de Substituição de Páginas" GridPane.rowIndex="6" />
-                            <ChoiceBox fx:id="replacementPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="6">
-                                <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Global" />
-                                        <String fx:value="Local" />
-                                    </FXCollections>
-                                </items>
-                            </ChoiceBox>
+                            <ChoiceBox fx:id="replacementPolicyChoiceBox" maxWidth="1.7976931348623157E308"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="6"/>
 
                             <!-- Política de Busca de Páginas -->
                             <Label text="Política de Busca de Páginas" GridPane.rowIndex="7" />
-                            <ChoiceBox fx:id="pageLoadingPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="7">
-                                <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Antecipada" />
-                                        <String fx:value="Demanda" />
-                                    </FXCollections>
-                                </items>
-                            </ChoiceBox>
+                            <ChoiceBox fx:id="pageLoadingPolicyChoiceBox" maxWidth="1.7976931348623157E308"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
                             <!-- loadedPagesCount -->
                             <Label text="Número de Páginas Carregadas" GridPane.rowIndex="8" />
-                            <Spinner fx:id="loadedPagesCountSpinner" editable="true" initialValue="128" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                            <Spinner fx:id="loadedPagesCountSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="8" />
 
                             <!-- Política de Alocação de Páginas -->
                             <Label text="Política de Alocação de Páginas" GridPane.rowIndex="9" />
-                            <ChoiceBox fx:id="pageAllocationPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="9">
-                                <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Variável" />
-                                        <String fx:value="Fixa" />
-                                    </FXCollections>
-                                </items>
-                            </ChoiceBox>
+                            <ChoiceBox fx:id="pageAllocationPolicyChoiceBox" maxWidth="1.7976931348623157E308"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="9"/>
 
                             <!-- variablePageAllocationTopThreshold -->
                             <Label text="     Threshold Superior" GridPane.rowIndex="10" />
-                            <Spinner fx:id="topThresholdSpinner" disable="true" editable="true" initialValue="0.75" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                            <Spinner fx:id="topThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
 
                             <!-- variablePageAllocationBottomThreshold -->
                             <Label text="     Threshold Inferior" GridPane.rowIndex="11" />
-                            <Spinner fx:id="bottomThresholdSpinner" disable="true" editable="true" initialValue="0.25" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                            <Spinner fx:id="bottomThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="11" />
 
                             <!-- TLBexists -->
                             <Label text="TLB Habilitada" GridPane.rowIndex="12" />
@@ -154,7 +136,7 @@
 
                             <!-- numberOfTLBEntries -->
                             <Label text="   Número de Entradas na TLB" GridPane.rowIndex="13" />
-                            <Spinner fx:id="tlbEntriesSpinner" disable="true" initialValue="8" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                            <Spinner fx:id="tlbEntriesSpinner" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" />
                         </children>
                     </GridPane>
                 </VBox>

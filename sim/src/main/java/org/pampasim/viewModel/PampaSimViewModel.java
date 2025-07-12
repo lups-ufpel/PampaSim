@@ -358,9 +358,11 @@ public class PampaSimViewModel implements ViewModel {
     }
     public void openSelectSchedulerDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
+
         selectSchedulerDialogService.setMemoryModulePresent(memoryModule != null);
-        selectSchedulerDialogService.showDialog(schedulers).ifPresent(selection -> {
-            if (memoryModule != null) {
+        if (memoryModule != null) {
+            List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
+            selectSchedulerDialogService.showDialog(schedulers, pageReplacementAlgorithms).ifPresent(selection -> {
                 MemoryConfigSelectionRecord mem = selection.memoryConfig();
                 MemoryConfig.initialize(
                         mem.pageSize(),
@@ -379,13 +381,13 @@ public class PampaSimViewModel implements ViewModel {
                         mem.tlbEnabled(),
                         mem.tlbEntries()
                 );
-            }
+                setSimulationScheduler(selection);
+            });
+        } else {
+            selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
+        }
 
-            setSimulationScheduler(selection);
-        });
     }
-
-
 
     public void openAddModuleDialog() {
         List<String> modules = simulatedScenario.getSpec().listAvailableModules();
