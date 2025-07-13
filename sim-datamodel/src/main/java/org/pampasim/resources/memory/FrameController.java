@@ -1,94 +1,98 @@
 package org.pampasim.resources.memory;
 
 import lombok.Getter;
-import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.Process;
 
 import java.util.*;
 
 public class FrameController {
-    private final Map<Process, Set<Integer>> processtoFrameMap; // Map to store which pages/frame are allocated to which Processes
-    private final Map<Integer, Process> frametoProcessMap; // Map to quickly consult which page/frame a process owns
+    private final Map<Process, Set<Integer>> processtoFrameMap; // Optional: still useful for grouped access
+    private final Map<Integer, PageTableEntry> frameToPageTableEntryMap; // Frame → PageTableEntry
     @Getter
-    private final int totalPages; // Total number of page/frames
-    private final List<Process> frameAllocationList;
+    private final int totalPages;
+    private final List<PageTableEntry> frameAllocationList;
 
     public FrameController(int totalPages) {
         this.totalPages = totalPages;
         this.processtoFrameMap = new HashMap<>();
-        this.frametoProcessMap = new HashMap<>();
+        this.frameToPageTableEntryMap = new HashMap<>();
         this.frameAllocationList = new ArrayList<>(Collections.nCopies(totalPages, null));
     }
 
-    public boolean allocateFrames(Process process, int startPage, int endPage) {
-        if (startPage < 0 || endPage >= totalPages || startPage > endPage) {
-            return false;
+    public void allocateFrames(PageTableEntry entry, int frameAddress) {
+        if (frameAddress < 0 || frameAddress >= totalPages) {
+            throw new IllegalArgumentException("Frame address out of bounds: " + frameAddress);
         }
 
-        // Check if any page in the range is already allocated
-        for (int page = startPage; page <= endPage; page++) {
-            if (frameAllocationList.get(page) != null) {
-                return false;
-            }
+        if (frameAllocationList.get(frameAddress) != null) {
+            throw new IllegalStateException("Frame already allocated: " + frameAddress);
         }
 
-        Set<Integer> pages = processtoFrameMap.computeIfAbsent(process, k -> new HashSet<>());
+        frameToPageTableEntryMap.put(frameAddress, entry);
+        frameAllocationList.set(frameAddress, entry);
 
-        for (int page = startPage; page <= endPage; page++) {
-            pages.add(page);
-            frametoProcessMap.put(page, process);
-            frameAllocationList.set(page, process); // Mark as allocated
-        }
+        Process process = entry.getProcess();
+        processtoFrameMap
+                .computeIfAbsent(process, k -> new HashSet<>())
+                .add(frameAddress);
 
-        return true;
+        entry.setValid(true); // Mark the page as valid
     }
+
 
     public void freeProcessFrames(Process process) {
-        Set<Integer> pages = processtoFrameMap.remove(process);
-        if (pages != null) {
-            for (int page : pages) {
-                frametoProcessMap.remove(page);
-                frameAllocationList.set(page, null); // Mark as free
+        Set<Integer> frames = processtoFrameMap.remove(process);
+        if (frames != null) {
+            for (int frame : frames) {
+                PageTableEntry entry = frameToPageTableEntryMap.remove(frame);
+                if (entry != null) {
+                    entry.setValid(false);
+                }
+                frameAllocationList.set(frame, null);
             }
         }
     }
 
-    public void freeFrame(Integer pageFrame) {
-        Process process = frametoProcessMap.remove(pageFrame);
-        if (process != null) {
-            Set<Integer> pages = processtoFrameMap.get(process);
-            if (pages != null) {
-                pages.remove(pageFrame);
-                if (pages.isEmpty()) {
+    public void freeFrame(Integer frame) {
+        PageTableEntry entry = frameToPageTableEntryMap.remove(frame);
+        if (entry != null) {
+            Process process = entry.getProcess();
+            Set<Integer> frames = processtoFrameMap.get(process);
+            if (frames != null) {
+                frames.remove(frame);
+                if (frames.isEmpty()) {
                     processtoFrameMap.remove(process);
                 }
             }
-            frameAllocationList.set(pageFrame, null); // Mark as free
+            entry.setValid(false);
         }
+        frameAllocationList.set(frame, null);
     }
 
-    public boolean isFrameAllocated(int page) {
-        return frametoProcessMap.containsKey(page);
+    public boolean isFrameAllocated(int frame) {
+        return frameToPageTableEntryMap.containsKey(frame);
     }
 
-    public Process getFrameOwner(int page) {
-        return frametoProcessMap.get(page);
+    public Process getFrameOwner(int frame) {
+        PageTableEntry entry = frameToPageTableEntryMap.get(frame);
+        return entry != null ? entry.getProcess() : null;
+    }
+
+    public Integer getPageNumber(int frame) {
+        PageTableEntry entry = frameToPageTableEntryMap.get(frame);
+        return entry != null ? entry.getPageNumber() : null;
     }
 
     public Set<Integer> getProcessFrames(Process process) {
         return processtoFrameMap.getOrDefault(process, Collections.emptySet());
     }
 
-    public Map<Integer, Process> getAllocatedFrames() {
-        return new HashMap<>(frametoProcessMap);
-    }
-
     public boolean hasFreeFrames() {
-        return (totalPages - frametoProcessMap.size()) > 0;
+        return (totalPages - frameToPageTableEntryMap.size()) > 0;
     }
 
     public int getTotalAllocatedFrames() {
-        return frametoProcessMap.size();
+        return frameToPageTableEntryMap.size();
     }
 
     public int getTotalProcessFrames(Process process) {
@@ -102,16 +106,16 @@ public class FrameController {
         }
 
         int consecutiveFree = 0;
-        int startPage = -1;
+        int start = -1;
 
-        for (int page = 0; page < totalPages; page++) {
-            if (frameAllocationList.get(page) == null) {
+        for (int frame = 0; frame < totalPages; frame++) {
+            if (frameAllocationList.get(frame) == null) {
                 if (consecutiveFree == 0) {
-                    startPage = page;
+                    start = frame;
                 }
                 consecutiveFree++;
                 if (consecutiveFree == rangeSize) {
-                    return OptionalInt.of(startPage);
+                    return OptionalInt.of(start);
                 }
             } else {
                 consecutiveFree = 0;
@@ -121,13 +125,15 @@ public class FrameController {
         return OptionalInt.empty();
     }
 
-    public boolean canAccess(Process process, int pageNumber) {
-        Process owner = frametoProcessMap.get(pageNumber);
-        return owner != null && owner.equals(process);
+    public boolean canAccess(Process process, int frame) {
+        PageTableEntry entry = frameToPageTableEntryMap.get(frame);
+        return entry != null && entry.getProcess().equals(process);
     }
 
     public List<Process> getFrameAllocationList() {
-        return Collections.unmodifiableList(frameAllocationList);
+        return frameAllocationList.stream()
+                .map(entry -> entry != null ? entry.getProcess() : null)
+                .toList();
     }
 
     public boolean isFrameFree(int frame) {
@@ -135,6 +141,12 @@ public class FrameController {
     }
 
     public Process getFrameOwnerProcess(int frame) {
-        return frameAllocationList.get(frame);
+        PageTableEntry entry = frameAllocationList.get(frame);
+        return entry != null ? entry.getProcess() : null;
     }
+
+    public List<PageTableEntry> getRawFrameAllocationList() {
+        return Collections.unmodifiableList(frameAllocationList);
+    }
+
 }

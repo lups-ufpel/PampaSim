@@ -57,46 +57,66 @@ public class MemoryTabViewModel implements ViewModel {
 
         setupSnoopers();
 
-        List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
-                .getMainMemory().getFrameAllocationList();
+        List<PageTableEntry> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getMainMemory().getRawFrameAllocationList();
 
-        List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
-                .getSwapFile().getFrameAllocationList();
+        List<PageTableEntry> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getSwapFile().getRawFrameAllocationList();
+
 
         createFrameList(ramFrameList, observableRamFrameList);
         createFrameList(swapFrameList, observableSwapFrameList);
     }
 
-    private void createFrameList(List<Process> frameList, ObservableList<MemoryFrameViewModel> observableList) {
+    private void createFrameList(List<PageTableEntry> frameList, ObservableList<MemoryFrameViewModel> observableList) {
         IntStream.range(0, frameList.size()).forEach(i -> {
-            Process process = frameList.get(i);
+            PageTableEntry entry = frameList.get(i);
             MemoryFrameViewModel vm = new MemoryFrameViewModel(i);
 
-            if (process != null) {
+            if (entry != null) {
+                Process process = entry.getProcess();
                 vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK));
                 vm.getPid().set(process.getPid());
+                vm.getPageNumber().set(entry.getPageNumber());
             } else {
                 vm.getPid().set(null);
                 vm.getColorProperty().set(null);
+                vm.getPageNumber().set(-1);
             }
 
             observableList.add(vm);
         });
     }
 
-    private void updateFrameList(List<Process> frameList, ObservableList<MemoryFrameViewModel> observableList) {
+
+    private void updateFrameList(List<PageTableEntry> frameList, ObservableList<MemoryFrameViewModel> observableList) {
         for (int i = 0; i < frameList.size(); i++) {
-            Process process = frameList.get(i);
+            PageTableEntry entry = frameList.get(i);
             MemoryFrameViewModel vm = observableList.get(i);
 
-            if (process != null) {
+            if (entry != null) {
+                Process process = entry.getProcess();
                 vm.getPid().set(process.getPid());
                 vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+                vm.getPageNumber().set(entry.getPageNumber());
             } else {
                 vm.getPid().set(null);
                 vm.getColorProperty().set(null);
+                vm.getPageNumber().set(-1);
             }
         }
+    }
+
+
+    private PageTableEntry findPageTableEntryForFrame(Process process, int frameIndex) {
+        ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        if (memoryInfo == null) return null;
+
+        return memoryInfo.getPageTable().getAllEntries().stream()
+                .filter(PageTableEntry::isValid)
+                .filter(entry -> entry.getFrameAddress() != null && entry.getFrameAddress() == frameIndex)
+                .findFirst()
+                .orElse(null);
     }
 
     public void handleProcessEvent(Event uncastEvent) {
@@ -179,10 +199,11 @@ public class MemoryTabViewModel implements ViewModel {
             LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", e);
         }
 
-        List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
-                .getMainMemory().getFrameAllocationList();
-        List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
-                .getSwapFile().getFrameAllocationList();
+        List<PageTableEntry> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getMainMemory().getRawFrameAllocationList();
+
+        List<PageTableEntry> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getSwapFile().getRawFrameAllocationList();
 
         updateFrameList(ramFrameList, observableRamFrameList);
         updateFrameList(swapFrameList, observableSwapFrameList);
@@ -199,11 +220,11 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     public void refreshFrameList() {
-        List<Process> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
-                .getMainMemory().getFrameAllocationList();
+        List<PageTableEntry> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getMainMemory().getRawFrameAllocationList();
 
-        List<Process> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
-                .getSwapFile().getFrameAllocationList();
+        List<PageTableEntry> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
+                .getSwapFile().getRawFrameAllocationList();
 
         observableRamFrameList.clear();
         observableSwapFrameList.clear();

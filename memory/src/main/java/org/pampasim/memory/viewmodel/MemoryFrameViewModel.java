@@ -15,6 +15,7 @@ public class MemoryFrameViewModel implements ViewModel {
     private final int frameNum;
     private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
+    private final IntegerProperty pageNumber = new SimpleIntegerProperty(-1); // -1 means unused
 
     MemoryFrameViewModel(int frameNum) {
         this.frameNum = frameNum;

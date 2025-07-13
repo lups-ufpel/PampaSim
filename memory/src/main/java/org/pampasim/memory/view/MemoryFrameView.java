@@ -16,20 +16,27 @@ public class MemoryFrameView implements FxmlView<MemoryFrameViewModel> {
     public Label frameNum;
     @FXML
     public Circle circle;
+    @FXML
+    public Label pageNumberLabel;
 
     public void initialize() {
-        // Bind circle color
         circle.fillProperty().bind(viewModel.getColorProperty());
-
-        // Set frame number (static text)
         frameNum.setText(Integer.toString(viewModel.getFrameNum()));
 
-        // Hide circle if color is null
-        circle.visibleProperty().bind(
-                Bindings.isNotNull(viewModel.getColorProperty())
+        // Bind page number as text only if it's valid
+        pageNumberLabel.textProperty().bind(
+                Bindings.when(viewModel.getPageNumber().greaterThanOrEqualTo(0))
+                        .then(viewModel.getPageNumber().asString())
+                        .otherwise("")
         );
-        circle.managedProperty().bind(
-                Bindings.isNotNull(viewModel.getColorProperty())
-        );
+
+        // Show/hide circle depending on color
+        circle.visibleProperty().bind(Bindings.isNotNull(viewModel.getColorProperty()));
+        circle.managedProperty().bind(Bindings.isNotNull(viewModel.getColorProperty()));
+
+        // Match pageNumberLabel visibility to circle
+        pageNumberLabel.visibleProperty().bind(circle.visibleProperty());
+        pageNumberLabel.managedProperty().bind(circle.managedProperty());
     }
+
 }

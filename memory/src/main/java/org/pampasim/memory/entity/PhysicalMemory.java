@@ -234,7 +234,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         if (swapOutAddr.isPresent()) {
             mainMemory.freeFrame(entry.getFrameAddress());
             frameMap.remove(entry.getFrameAddress());
-            swapFile.allocateFrames(entry.getProcess(), swapOutAddr.getAsInt(), swapOutAddr.getAsInt());
+            swapFile.allocateFrames(entry, swapOutAddr.getAsInt());
             entry.setValid(false);
             entry.setFrameAddress(swapOutAddr.getAsInt());
 
@@ -260,7 +260,7 @@ public class PhysicalMemory extends AbstractSimEntity {
             if (entry.getFrameAddress() != null) {
                 swapFile.freeFrame(entry.getFrameAddress());
             }
-            mainMemory.allocateFrames(entry.getProcess(), swapInAddr.getAsInt(), swapInAddr.getAsInt());
+            mainMemory.allocateFrames(entry, swapInAddr.getAsInt());
             entry.setFrameAddress(swapInAddr.getAsInt());
             frameMap.put(entry.getFrameAddress(), entry);
             entry.setValid(true);

@@ -90,6 +90,11 @@ public class ProcessMemoryInfoViewModel implements ViewModel {
             newPages.add(false);
         }
 
+        if ("".equals(val)) {
+            setFileBackedPages(newPages);
+            return;
+        }
+
         String[] tokens = val.split(",");
         for (String token : tokens) {
             token = token.trim();
