@@ -145,25 +145,25 @@ public final class MemoryConfig {
         return virtualAddress & offsetMask;
     }
 
-    public static int combineToAddress(int pageNumber, int offset) {
+    public static int combineToPhysicalAddress(int frameNumber, int offset, boolean isRamAccess) {
         int pageOffsetBits = getPageOffsetBits();
-        int pageNumberBits = getPageNumberBits();
+        int frameCount = isRamAccess ? getFramesInRAM() : getFramesInSwap();
 
         // Validate inputs
         if (offset < 0 || offset >= getPageSize()) {
             throw new IllegalArgumentException("Offset must be between 0 and " + (getPageSize() - 1));
         }
 
-        int maxPageNumber = (1 << pageNumberBits) - 1;
-        if (pageNumber < 0 || pageNumber > maxPageNumber) {
+        if (frameNumber < 0 || frameNumber >= frameCount) {
             throw new IllegalArgumentException(
-                    String.format("Page number must be between 0 and %d (max for %d bits)",
-                            maxPageNumber, pageNumberBits));
+                    String.format("Frame number must be between 0 and %d (%s access)",
+                            frameCount - 1, isRamAccess ? "RAM" : "Swap"));
         }
 
-        // Combine by shifting page number and OR'ing with offset
-        return (pageNumber << pageOffsetBits) | offset;
+        return (frameNumber << pageOffsetBits) | offset;
     }
+
+
 
     public static int toAddress(int frameNumber) {
         return frameNumber * getPageSize();

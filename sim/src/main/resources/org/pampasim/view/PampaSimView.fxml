@@ -5,7 +5,6 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -16,18 +15,11 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
@@ -109,7 +101,7 @@
         </ToolBar>
     </left>
     <center>
-        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" fx:id="moduleTabPane">
+        <TabPane fx:id="moduleTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <tabs>
                 <Tab text="Processador">
                     <content>
@@ -247,38 +239,46 @@
                         <Tooltip text="Salva arquivo de descrição de cenário" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#ff6d00" iconLiteral="fth-save" iconSize="22">
+                        <FontIcon iconColor="#ff6d00" iconLiteral="fth-save" iconSize="22" text="">
                             <font>
                                 <Font size="27.0" />
                             </font>
                         </FontIcon>
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações" textFill="#0000007f">
+                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações">
                     <tooltip>
                         <Tooltip text="Configurações" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings"  iconSize="22"  />
+                        <FontIcon iconLiteral="fth-settings" iconSize="22" />
                     </graphic>
                <font>
                   <Font size="12.0" />
                </font>
                 </Button>
-            <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" text="Adicionar Modulo" textFill="#27a800fc" wrapText="true" onAction="#onSelectModule">
-               <tooltip>
-                  <Tooltip text="Configurações" />
-               </tooltip>
-               <graphic>
-                  <FontIcon iconColor="#27a8007d" iconLiteral="bi-folder-plus" iconSize="22"/>
-               </graphic>
-            </Button>
+                <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSelectModule" text="Adicionar Modulo" textFill="#27a800fc" wrapText="true">
+                   <tooltip>
+                      <Tooltip text="Adiciona módulos a simulação" />
+                   </tooltip>
+                   <graphic>
+                      <FontIcon iconColor="#27a600a6" iconLiteral="bi-folder-plus" iconSize="22" text="" />
+                   </graphic>
+                </Button>
+                <Button alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSelectStatistics" text="Estatísticas" textFill="#a81cff" wrapText="true">
+                    <tooltip>
+                        <Tooltip text="Abrir a aba de estatíticas da simulação" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#a81cff" iconLiteral="bi-graph-up" iconSize="22" text="" />
+                    </graphic>
+                </Button>
                 <CheckBox fx:id="genGraphs" alignment="CENTER" contentDisplay="TOP" disable="false" graphicTextGap="5.0" mnemonicParsing="false" text="Exportar gráficos" textFill="#0000007f">
                     <tooltip>
                         <Tooltip text="Habilita/desabilita a exportação de SVGs que descrevem a relação das entidades da simulação e os eventos transmitidos." />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings"  iconSize="22"  />
+                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="22" />
                     </graphic>
                 </CheckBox>
             </items>

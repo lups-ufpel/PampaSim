@@ -139,10 +139,12 @@ public class MemoryTabViewModel implements ViewModel {
 
                 if (frameAddress != null) {
                     frameNumber.set(frameAddress.toString());
+
                     physicalAddress.set(Integer.toString(
-                            MemoryConfig.combineToAddress(
+                            MemoryConfig.combineToPhysicalAddress(
                                     frameAddress,
-                                    MemoryConfig.extractOffsetNumber(access)
+                                    MemoryConfig.extractOffsetNumber(access),
+                                    pageTableEntry.isValid()
                             )));
                 } else {
                     frameNumber.set("Indefinido");

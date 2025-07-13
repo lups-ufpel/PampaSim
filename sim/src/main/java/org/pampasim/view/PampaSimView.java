@@ -243,4 +243,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void onStepSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.runSimulation(true);
     }
+
+    public void onSelectStatistics(ActionEvent actionEvent) {
+    }
 }
