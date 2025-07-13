@@ -94,7 +94,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
 
     public ArrayList<Integer> getCurrentAccessList() {
         int nextAccessListIndex = getCurrentAccessListIndex();
-        return nextAccessListIndex >= 0 ? runtimeAddressAccessList.get(nextAccessListIndex) : null;
+        return nextAccessListIndex >= 0 ? runtimeAddressAccessList.get(nextAccessListIndex) : new ArrayList<>(List.of(0));
     }
 
     public ArrayList<Boolean> getCurrentModifyPageFlags() {

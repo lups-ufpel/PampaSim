@@ -8,15 +8,24 @@ import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.pampasim.*;
 import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
@@ -177,15 +186,15 @@ public class PampaSimViewModel implements ViewModel {
 
     public void setSimulationModules(AddModuleRecord userSelection) throws IOException {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        // TODO: make the setup work with spec
-        if (userSelection.module().equals("memory")) {
 
+        if (userSelection.module().equals("memory")) {
             reinitializeMemoryManagement();
 
-            memoryModule = new MemoryTabViewModel(simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
-                                                    simulatedScenario.getSpec().getColorMap(),
-                                                    allProcesses);
-
+            memoryModule = new MemoryTabViewModel(
+                    simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
+                    simulatedScenario.getSpec().getColorMap(),
+                    allProcesses
+            );
 
             memoryModulePresent.set(true);
 
@@ -196,8 +205,43 @@ public class PampaSimViewModel implements ViewModel {
 
             Parent content = viewTuple.getView();
 
-            Tab memoryTab = new Tab("Memória");
+            FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
+            icon.setIconSize(14);
+
+            // Create the memory tab with a pop-out button in the header
+            Tab memoryTab = new Tab();
+            HBox header = new HBox(5);
+            header.setAlignment(Pos.CENTER_LEFT); // center vertically
+            Label title = new Label("Memória");
+            Button popOutBtn = new Button();
+            popOutBtn.setGraphic(icon);
+            popOutBtn.setFocusTraversable(false);
+
+            popOutBtn.setOnAction(e -> {
+                if (memoryTab.getContent() == null) return;
+
+                Parent poppedContent = (Parent) memoryTab.getContent();
+                memoryTab.setContent(null);
+
+                Stage popOutStage = new Stage();
+                popOutStage.setTitle("Memória");
+
+                BorderPane layout = new BorderPane(poppedContent);
+                Scene popOutScene = new Scene(layout, 800, 600);
+                popOutStage.setScene(popOutScene);
+                popOutStage.initOwner(tabPane.getScene().getWindow());
+
+                popOutStage.setOnCloseRequest(event -> {
+                    memoryTab.setContent(poppedContent);
+                });
+
+                popOutStage.show();
+            });
+
+            header.getChildren().addAll(title, popOutBtn);
+            memoryTab.setGraphic(header);
             memoryTab.setContent(content);
+            memoryTab.setClosable(false);
 
             ObservableList<Tab> tabs = tabPane.getTabs();
             if (tabs.size() > 1) {
@@ -208,6 +252,8 @@ public class PampaSimViewModel implements ViewModel {
             tabPane.getTabs().add(memoryTab);
         }
     }
+
+
 
     public void startSimulation() {
         if (!isValidSetup()) {

@@ -15,6 +15,7 @@ module org.pampasim {
     requires antlr4;
     requires org.kordamp.ikonli.javafx;
     requires javafx.controls;
+    requires org.kordamp.ikonli.bootstrapicons;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
