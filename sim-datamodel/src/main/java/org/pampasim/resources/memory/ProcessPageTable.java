@@ -1,11 +1,13 @@
 package org.pampasim.resources.memory;
 
+import lombok.Getter;
 import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class ProcessPageTable {
     // page table that stores the page table entries for each process
     private final ArrayList<PageTableEntry> entries;

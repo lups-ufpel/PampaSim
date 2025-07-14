@@ -18,13 +18,15 @@ public class PageTableManager extends AbstractSimEntity {
 
     private final Logger LOGGER = LogManager.getLogger(PageTableManager.class);
     // a map of all page tables for easy access later for algorithms that need to consult all process tables (for example, page substitution algorithms with a global policy)
-    private final Map<Long, ProcessPageTable> pageTableMap; // TODO: with the frame map in the physical memory, this likely isn't needed
-
-    public PageTableManager(Simulation simulation) {
+    private final Map<Process, ProcessPageTable> pageTableMap;
+    private final int referencedBitReset;
+    private int referenceCounter = 0;
+    public PageTableManager(Simulation simulation, int referencedBitReset) {
         super(simulation);
 
         this.pageTableMap = new HashMap<>();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
+        this.referencedBitReset = referencedBitReset;
 
         simulation.getEventManager().addEventHandler(Allocate.class, this);
         simulation.getEventManager().addEventHandler(DeletePageTableEntry.class, this);
@@ -49,7 +51,7 @@ public class PageTableManager extends AbstractSimEntity {
 
         ProcessPageTable pageTable = new ProcessPageTable(process, processMemoryInfo.getSize(), processMemoryInfo.getFileBackedPages());
         processMemoryInfo.setPageTable(pageTable);
-        pageTableMap.put(process.getPid().getId(), pageTable);
+        pageTableMap.put(process, pageTable);
 
         LOGGER.debug("Processo de ID {} : Entradas na tabela da páginas criada com sucesso", process.getPid().toString());
         scheduleToNextClock(new AllocateFinished(this, process));
@@ -59,7 +61,7 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
 
         process.getModuleInfo(ProcessMemoryInfo.class).setPageTable(null);
-        pageTableMap.remove(process.getPid().getId());
+        pageTableMap.remove(process);
 
         LOGGER.debug("Processo de ID {} : Entrada na tabela da páginas removida com sucesso", process.getPid().toString());
         scheduleToNextClock(new DeleteTlbEntry(this, process));
@@ -115,6 +117,11 @@ public class PageTableManager extends AbstractSimEntity {
 
         // If no page faults found, all entries were present in memory
         LOGGER.debug("Process ID {}: Page table access generated only Page Hits", process.getPid());
+        if (referenceCounter >= referencedBitReset) {
+            resetReferencedBits();
+        }
+
+        referenceCounter++;
         scheduleToNextClock(new PageHit(this, process));
     }
 
@@ -132,5 +139,15 @@ public class PageTableManager extends AbstractSimEntity {
             default -> Integer.MAX_VALUE;
         };
     }
+
+    private void resetReferencedBits() {
+        referenceCounter = 0;
+        for (ProcessPageTable pageTable : pageTableMap.values()) {
+            for (PageTableEntry entry : pageTable.getEntries()) {
+                entry.setReferenced(false);
+            }
+        }
+    }
+
 
 }

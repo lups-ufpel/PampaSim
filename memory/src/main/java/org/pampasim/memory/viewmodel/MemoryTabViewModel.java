@@ -78,10 +78,12 @@ public class MemoryTabViewModel implements ViewModel {
                 vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK));
                 vm.getPid().set(process.getPid());
                 vm.getPageNumber().set(entry.getPageNumber());
+                vm.getReferenced().set(entry.isReferenced());
             } else {
                 vm.getPid().set(null);
                 vm.getColorProperty().set(null);
                 vm.getPageNumber().set(-1);
+                vm.getReferenced().set(false);
             }
 
             observableList.add(vm);
@@ -99,10 +101,12 @@ public class MemoryTabViewModel implements ViewModel {
                 vm.getPid().set(process.getPid());
                 vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
                 vm.getPageNumber().set(entry.getPageNumber());
+                vm.getReferenced().set(entry.isReferenced());
             } else {
                 vm.getPid().set(null);
                 vm.getColorProperty().set(null);
                 vm.getPageNumber().set(-1);
+                vm.getReferenced().set(false);
             }
         }
     }

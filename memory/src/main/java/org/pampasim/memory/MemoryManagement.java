@@ -74,7 +74,7 @@ public class MemoryManagement extends SimulationBase {
 
 // Initialize memory subsystems
         new MMU(this);
-        new PageTableManager(this);
+        new PageTableManager(this, 5); // TODO: add a field for the user to define referencedReset;
         new PhysicalMemory(
                 this,
                 MemoryConfig.isGlobalPageSubstitution(),
