@@ -168,6 +168,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         processMemoryInfo.setCurrentIoOperationTimeRemaining(operationLength);
         process.setState(Process.State.IO_RUNNING);
         pageFaults++;
+        processMemoryInfo.registerPageFault();
 
         if (variablePageAllocation) {
             handleVariablePageAllocation(process);
@@ -178,6 +179,7 @@ public class PhysicalMemory extends AbstractSimEntity {
     private void handlePageHit(PageHit event) {
         Process process = event.getProcess();
         pageHits++;
+        process.getModuleInfo(ProcessMemoryInfo.class).registerPageHit();
 
         if (variablePageAllocation) {
             handleVariablePageAllocation(process);
@@ -187,19 +189,19 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     private void handleVariablePageAllocation(Process process) {
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-        double pageFaultRate = getPageFaultRate();
+        double pageFaultRate = processMemoryInfo.getPageFaultRate();
 
         if (pageFaultRate > variablePageAllocationTopThreshold) {
             processMemoryInfo.addMaxFrames();
             LOGGER.trace(
-                    "Taxa de page fault foi acima da taxa máxima, adicionando um frame no máximo para o processo de identificador {}, novo máximo: {}",
+                    "Taxa de page fault do processo foi acima da taxa máxima, adicionando um frame no máximo para o processo de identificador {}, novo máximo: {}",
                     process.getPid(),
                     processMemoryInfo.getMaxFrames()
             );
         } else if (pageFaultRate < variablePageAllocationBottomThreshold) {
             processMemoryInfo.subMaxFrames();
             LOGGER.trace(
-                    "Taxa de page fault foi abaixo da taxa mínima, removendo um frame do máximo para o processo de identificador {}, novo máximo: {}",
+                    "Taxa de page fault do processo foi abaixo da taxa mínima, removendo um frame do máximo para o processo de identificador {}, novo máximo: {}",
                     process.getPid(),
                     processMemoryInfo.getMaxFrames()
             );

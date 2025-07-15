@@ -94,7 +94,6 @@ public class PageTableManager extends AbstractSimEntity {
             }
 
             pageTableEntry.setReferenced(true);
-            processMemoryInfo.registerReference();
 
             // Set dirty bit if this is a write operation
             if (modifyFlags != null && modifyFlags.get(i)) {
@@ -122,6 +121,7 @@ public class PageTableManager extends AbstractSimEntity {
         }
 
         referenceCounter++;
+        processMemoryInfo.registerReference(); //register reference only for page hits to compute the working set, otherwise there are problems with double-counting
         scheduleToNextClock(new PageHit(this, process));
     }
 

@@ -1,5 +1,6 @@
 package org.pampasim.resources.viewmodel;
 
+import com.ibm.icu.impl.StringSegment;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -29,6 +30,7 @@ public class ProcessViewModel implements ViewModel {
     public ProcessViewModel(long creationId) {
         this.creationId = creationId;
     }
+
 
     public void setState(Process.State newState) {
         this.state.set(newState);

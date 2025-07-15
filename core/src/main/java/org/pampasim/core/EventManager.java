@@ -112,4 +112,21 @@ public abstract class EventManager {
             return val;
         });
     }
+
+    public void removeAllEntriesForEntity(SimEntity entity) {
+        handlers.entrySet().removeIf(entry -> entry.getValue() == entity);
+
+        snoopers.values().forEach(callbacks ->
+                callbacks.removeIf(consumer -> {
+                    try {
+                        var method = consumer.getClass().getDeclaredMethod("accept", Event.class);
+                        return method.getDeclaringClass().isAssignableFrom(entity.getClass());
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+        );
+    }
+
+
 }

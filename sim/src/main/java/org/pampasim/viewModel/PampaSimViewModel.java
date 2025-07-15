@@ -107,6 +107,10 @@ public class PampaSimViewModel implements ViewModel {
             var eventManager = sim.getEventManager();
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
+            if (memoryModulePresent.get()) {
+                reinitializeMemoryManagement(sim);
+            }
+            MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
 
             for (var tick : spec.getEventSchedule().values()) {
                 for (var event : tick) {
@@ -121,13 +125,16 @@ public class PampaSimViewModel implements ViewModel {
                         allProcesses.add(vm);
 
                         //TODO: make adding module info part of the creation data
-                        vm.addModuleInfoViewModel(new MemoryInfoViewModel());
+                        if (simMemoryModule != null) {
+                            vm.addModuleInfoViewModel(new MemoryInfoViewModel(MemoryConfig.getProcessMemoryConfigs().get(creationData.getCreationId()),
+                                                                              MemoryConfig.getWorkingSetWindow(),
+                                                                              MemoryConfig.getMaxPagesPerProcess()));
+                        }
                     }
                 }
             }
 
             // FIXME: There likely is a more elegant solution than this
-            MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
             if (simMemoryModule != null) {
                 simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
                         this::handleProcessEvent);
@@ -188,7 +195,7 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
 
         if (userSelection.module().equals("memory")) {
-            reinitializeMemoryManagement();
+            reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation());
 
             memoryModule = new MemoryTabViewModel(
                     simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
@@ -213,30 +220,7 @@ public class PampaSimViewModel implements ViewModel {
             HBox header = new HBox(5);
             header.setAlignment(Pos.CENTER_LEFT); // center vertically
             Label title = new Label("Memória");
-            Button popOutBtn = new Button();
-            popOutBtn.setGraphic(icon);
-            popOutBtn.setFocusTraversable(false);
-
-            popOutBtn.setOnAction(e -> {
-                if (memoryTab.getContent() == null) return;
-
-                Parent poppedContent = (Parent) memoryTab.getContent();
-                memoryTab.setContent(null);
-
-                Stage popOutStage = new Stage();
-                popOutStage.setTitle("Memória");
-
-                BorderPane layout = new BorderPane(poppedContent);
-                Scene popOutScene = new Scene(layout, 800, 600);
-                popOutStage.setScene(popOutScene);
-                popOutStage.initOwner(tabPane.getScene().getWindow());
-
-                popOutStage.setOnCloseRequest(event -> {
-                    memoryTab.setContent(poppedContent);
-                });
-
-                popOutStage.show();
-            });
+            Button popOutBtn = getPopoutButton(icon, memoryTab);
 
             header.getChildren().addAll(title, popOutBtn);
             memoryTab.setGraphic(header);
@@ -253,6 +237,33 @@ public class PampaSimViewModel implements ViewModel {
         }
     }
 
+    private Button getPopoutButton(FontIcon icon, Tab memoryTab) {
+        Button popOutBtn = new Button();
+        popOutBtn.setGraphic(icon);
+        popOutBtn.setFocusTraversable(false);
+
+        popOutBtn.setOnAction(e -> {
+            if (memoryTab.getContent() == null) return;
+
+            Parent poppedContent = (Parent) memoryTab.getContent();
+            memoryTab.setContent(null);
+
+            Stage popOutStage = new Stage();
+            popOutStage.setTitle("Memória");
+
+            BorderPane layout = new BorderPane(poppedContent);
+            Scene popOutScene = new Scene(layout, 800, 600);
+            popOutStage.setScene(popOutScene);
+            popOutStage.initOwner(tabPane.getScene().getWindow());
+
+            popOutStage.setOnCloseRequest(event -> {
+                memoryTab.setContent(poppedContent);
+            });
+
+            popOutStage.show();
+        });
+        return popOutBtn;
+    }
 
 
     public void startSimulation() {
@@ -265,9 +276,6 @@ public class PampaSimViewModel implements ViewModel {
     public void syncWithSpec() {
         allProcesses.clear();
         simulatedScenario.resetToSpec();
-        if (memoryModulePresent.get()) {
-            reinitializeMemoryManagement();
-        }
     }
 
     public void stopSimulation() {
@@ -460,19 +468,18 @@ public class PampaSimViewModel implements ViewModel {
 //        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
     }
 
-    private void reinitializeMemoryManagement() {
-        // Cria a entidade MemoryManagement na simulação
-        new MemoryManagement((SimulationBase) simulatedScenario.getSimulation());
+    private void reinitializeMemoryManagement(SimulationBase simulationBase) {
 
-        // Obtém a instância da entidade recém-criada
-        MemoryManagement simMemoryModule = simulatedScenario.getSimulation().getEntity(MemoryManagement.class);
+        simulationBase.removeModule(MemoryManagement.class);
+
+        new MemoryManagement(simulationBase);
+
+        MemoryManagement simMemoryModule = simulationBase.getEntity(MemoryManagement.class);
 
         if (simMemoryModule != null) {
-            // Garante que eventos de processo da memória sejam tratados
             simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
         }
 
-        // Atualiza o MemoryTabViewModel, se já estiver instanciado
         if (memoryModule != null) {
             memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getColorMap());
             memoryModule.refreshFrameList();

@@ -44,6 +44,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private int maxFrames;
     private final ArrayList<PageTableEntry> workingSet;
     private int referenceCounter;
+    private int pageHits;
+    private int pageFaults;
     private final Map<Integer, Integer> runtimeIoOperationSchedule = new HashMap<>();
     private final ArrayList<ArrayList<Integer>> runtimeAddressAccessList = new ArrayList<>();
     private final ArrayList<ArrayList<Boolean>> runtimeModifyPage = new ArrayList<>();
@@ -62,6 +64,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.workingSet = new ArrayList<>();
         this.referenceCounter = 0;
         this.currentIoOperationTimeRemaining = 0;
+        this.pageHits = 0;
+        this.pageFaults = 0;
 
         // Initialize runtime structures from creation data
         for (Integer address : creationData.addressAccessList) {
@@ -71,19 +75,6 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         for (Boolean modifyFlag : creationData.modifyPage) {
             this.runtimeModifyPage.add(new ArrayList<>(List.of(modifyFlag)));
         }
-    }
-
-    // Access entries must be between 0 <= Access Entry <= size-1
-    public void addAccessEntry(int index, ArrayList<Integer> accessList) {
-        runtimeAddressAccessList.add(index, accessList);
-    }
-
-    public void removeAccessEntry(int index) {
-        runtimeAddressAccessList.remove(index);
-    }
-
-    public void editAccessEntry(int index, ArrayList<Integer> accessList) {
-        runtimeAddressAccessList.set(index, accessList);
     }
 
     public void forwardIoOperation() {
@@ -174,4 +165,21 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     public ArrayList<Integer> getIoOperationSchedule() {
         return creationData.ioOperationSchedule;
     }
+
+    public void registerPageHit() {
+        pageHits++;
+    }
+
+    public void registerPageFault() {
+        pageFaults++;
+    }
+
+    public double getPageFaultRate() {
+        int totalAccesses = pageHits + pageFaults;
+        if (totalAccesses == 0) {
+            return 0.0;
+        }
+        return (double) pageFaults / totalAccesses;
+    }
+
 }

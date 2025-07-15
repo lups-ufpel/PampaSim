@@ -287,4 +287,12 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         clearBlock = true;
     }
 
+    public <T extends SimEntity> void removeModule(Class<T> entityClass) {
+        T entity = getEntity(entityClass);
+        if (entity != null) {
+            entityList.remove(entity);
+            eventManager.removeAllEntriesForEntity(entity);
+        }
+    }
+
 }

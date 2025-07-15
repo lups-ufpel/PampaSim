@@ -142,7 +142,7 @@ public class MemoryTabViewModel implements ViewModel {
                 Integer frameAddress = pageTableEntry.getFrameAddress();
 
                 if (frameAddress != null) {
-                    frameNumber.set(frameAddress.toString());
+                    frameNumber.set(Integer.toString(frameAddress * MemoryConfig.getPageSize()));
 
                     physicalAddress.set(Integer.toString(
                             MemoryConfig.combineToPhysicalAddress(
