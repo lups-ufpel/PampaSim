@@ -8,6 +8,8 @@ import lombok.Getter;
 public class CreateProcessDialogViewModel implements ViewModel {
 
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
+    @Getter
+    private final IntegerProperty pageSize = new SimpleIntegerProperty(0);
 
     private final IntegerProperty processStart = new SimpleIntegerProperty();
     private final IntegerProperty processDuration = new SimpleIntegerProperty();
@@ -64,6 +66,10 @@ public class CreateProcessDialogViewModel implements ViewModel {
 
     public void setMemoryModulePresent(boolean present) {
         memoryModulePresent.set(present);
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize.set(pageSize);
     }
 
 }

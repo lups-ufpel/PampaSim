@@ -46,6 +46,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public HBox FinishedList;
     @FXML
+    public Button addProcessBtn;
+    @FXML
     public Button runBtn;
     @FXML
     public Button resetBtn;
@@ -155,6 +157,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         genGraphs.setSelected(false);
         pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
 
+        addProcessBtn.disableProperty().bind(
+                pampaSimViewModel
+                        .getSimulationIsValidSetup().not()
+                        .or(pampaSimViewModel.getSimulationRunning())
+        );
         runBtn.disableProperty().bind(
                 pampaSimViewModel
                         .getSimulationIsValidSetup().not()

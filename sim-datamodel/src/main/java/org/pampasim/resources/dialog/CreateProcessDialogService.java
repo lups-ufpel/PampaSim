@@ -22,6 +22,7 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
 
 
     private boolean memoryModulePresent = false;
+    private int memoryPageSize = 0;
 
     @Override
     public Optional<CreateProcessRecord> showDialog(Object ... args) {
@@ -29,8 +30,10 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
                 FluentViewLoader.fxmlView(CreateProcessDialogView.class).load();
 
         viewTuple.getViewModel().setMemoryModulePresent(memoryModulePresent);
+        viewTuple.getViewModel().setPageSize(memoryPageSize);
 
-        
+        viewTuple.getCodeBehind().updateValidAddressRange();
+
 
         Dialog<ButtonType> dialog = new Dialog<>();
         DialogPane dialogPane = (DialogPane) viewTuple.getView();

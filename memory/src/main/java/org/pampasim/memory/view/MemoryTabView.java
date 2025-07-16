@@ -17,7 +17,6 @@ import javafx.scene.paint.Color;
 import org.pampasim.memory.viewmodel.MemoryFrameViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
-import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.view.ProcessView;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ViewListBinder;
@@ -35,7 +34,7 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
     @FXML public Label label_offset;
     @FXML public Label label_page_table_number;
     @FXML public Label label_valid_bit;
-    @FXML public Label label_frame_number;
+    @FXML public Label label_frame_addr;
     @FXML public Label label_physical_addr;
     @FXML public Label info_title;
     @FXML public Text info_text;
@@ -55,7 +54,7 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
         label_offset.textProperty().bind(viewModel.getOffset());
         label_page_table_number.textProperty().bind(viewModel.getPageTableNumber());
         label_valid_bit.textProperty().bind(viewModel.getValidBit());
-        label_frame_number.textProperty().bind(viewModel.getFrameNumber());
+        label_frame_addr.textProperty().bind(viewModel.getFrameAddress());
         label_physical_addr.textProperty().bind(viewModel.getPhysicalAddress());
         info_title.textProperty().bind(viewModel.getInfoTitle());
         info_text.textProperty().bind(viewModel.getInfoText());

@@ -44,6 +44,12 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     public TextField fileBackedPagesField;
     @FXML
     public ButtonType okButton;
+    @FXML
+    private Label validAddressRangeLabel;
+    @FXML
+    private Button randomizeAccessesButton;
+
+
 
     @FXML
     private DialogPane dialogPane;
@@ -109,6 +115,22 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                         processSizeSpinner.getValueFactory().valueProperty());
             }
         });
+
+        viewModel.memoryModulePresentProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                viewModel.getMemoryInfo().processSizeProperty().bind(processSizeSpinner.getValueFactory().valueProperty());
+                updateValidAddressRange();
+            }
+        });
+
+        viewModel.getMemoryInfo().processSizeProperty().addListener((obs, oldVal, newVal) -> updateValidAddressRange());
+        viewModel.memoryModulePresentProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                viewModel.getMemoryInfo().processSizeProperty().bind(processSizeSpinner.getValueFactory().valueProperty());
+                updateValidAddressRange();
+            }
+        });
+        randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
     }
 
     private void tryAddMemoryAccess() {
@@ -146,7 +168,6 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         accessEntries.add(entry);
 
         removeButton.setOnAction(e -> {
-            int index = memoryAccessesContainer.getChildren().indexOf(accessEntry);
             memoryAccessesContainer.getChildren().remove(accessEntry);
             accessEntries.remove(entry);
             updateAccessIndices();
@@ -179,4 +200,25 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    public void updateValidAddressRange() {
+        int pageSize = viewModel.getPageSize().get();
+        int processPages = viewModel.getMemoryInfo().processSizeProperty().get();
+        int maxAddress = (processPages * pageSize) - 1;
+        validAddressRangeLabel.setText("Endereços válidos do processo: 0 - " + maxAddress);
+    }
+
+    private void generateRandomAccesses() {
+        int pageSize = viewModel.getPageSize().get();
+        int processPages = processSizeSpinner.getValue();
+        int maxAddress = processPages * pageSize;
+
+        for (MemoryAccessEntry entry : accessEntries) {
+            int randomAddress = (int) (Math.random() * maxAddress);
+            boolean modifies = Math.random() < 0.5;
+            entry.addressField.setText(String.valueOf(randomAddress));
+            entry.modifiesCheck.setSelected(modifies);
+        }
+    }
+
 }

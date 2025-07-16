@@ -34,7 +34,7 @@ public class MemoryTabViewModel implements ViewModel {
     @Getter private final SimpleStringProperty offset = new SimpleStringProperty("");
     @Getter private final SimpleStringProperty pageTableNumber = new SimpleStringProperty("");
     @Getter private final SimpleStringProperty validBit = new SimpleStringProperty("");
-    @Getter private final SimpleStringProperty frameNumber = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty frameAddress = new SimpleStringProperty("");
     @Getter private final SimpleStringProperty physicalAddress = new SimpleStringProperty("");
     @Getter private final SimpleStringProperty infoTitle = new SimpleStringProperty("");
     @Getter private final SimpleStringProperty infoText = new SimpleStringProperty("");
@@ -118,7 +118,7 @@ public class MemoryTabViewModel implements ViewModel {
 
         return memoryInfo.getPageTable().getAllEntries().stream()
                 .filter(PageTableEntry::isValid)
-                .filter(entry -> entry.getFrameAddress() != null && entry.getFrameAddress() == frameIndex)
+                .filter(entry -> entry.getFrameNumber() != null && entry.getFrameNumber() == frameIndex)
                 .findFirst()
                 .orElse(null);
     }
@@ -140,18 +140,19 @@ public class MemoryTabViewModel implements ViewModel {
 
                 validBit.set(pageTableEntry.isValid() ? "1" : "0");
                 Integer frameAddress = pageTableEntry.getFrameAddress();
+                Integer frameNumber = pageTableEntry.getFrameNumber();
 
                 if (frameAddress != null) {
-                    frameNumber.set(Integer.toString(frameAddress * MemoryConfig.getPageSize()));
+                    this.frameAddress.set(Integer.toString(frameAddress));
 
                     physicalAddress.set(Integer.toString(
                             MemoryConfig.combineToPhysicalAddress(
-                                    frameAddress,
+                                    frameNumber,
                                     MemoryConfig.extractOffsetNumber(access),
                                     pageTableEntry.isValid()
                             )));
                 } else {
-                    frameNumber.set("Indefinido");
+                    this.frameAddress.set("Indefinido");
                     physicalAddress.set("Indefinido");
                 }
             }
@@ -166,7 +167,7 @@ public class MemoryTabViewModel implements ViewModel {
                     offset.set("");
                     pageTableNumber.set("");
                     validBit.set("");
-                    frameNumber.set("");
+                    frameAddress.set("");
                     physicalAddress.set("");
                     infoTitle.set("");
                     infoText.set("");

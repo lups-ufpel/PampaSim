@@ -3,12 +3,19 @@ package org.pampasim.resources.view;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
+import org.pampasim.resources.memory.PageTableEntry;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
+import org.pampasim.resources.viewmodel.PageTableEntryViewModel;
+import org.pampasim.resources.viewmodel.PageTableViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
+
+import java.util.function.Function;
 
 public class PCBView implements FxmlView<ProcessViewModel> {
     @InjectViewModel
@@ -37,6 +44,18 @@ public class PCBView implements FxmlView<ProcessViewModel> {
 
     @FXML public Label workingSetListLabel;
     @FXML public Label accessListLabel;
+
+    @FXML private Label noPageTableLabel;
+    @FXML private TableView<PageTableEntryViewModel> pageTableView;
+
+    @FXML private TableColumn<PageTableEntryViewModel, Integer> pageNumberColumn;
+    @FXML private TableColumn<PageTableEntryViewModel, Boolean> validColumn;
+    @FXML private TableColumn<PageTableEntryViewModel, Boolean> dirtyColumn;
+    @FXML private TableColumn<PageTableEntryViewModel, Boolean> referencedColumn;
+    @FXML private TableColumn<PageTableEntryViewModel, Boolean> fileBackedColumn;
+    @FXML private TableColumn<PageTableEntryViewModel, String> frameAddressColumn;
+
+
 
     public void initialize() {
         // Process info
@@ -82,7 +101,55 @@ public class PCBView implements FxmlView<ProcessViewModel> {
             accessListLabel.textProperty().bind(memoryInfo.getTotalAccessList().asString().map(list ->
                     list.replaceAll("[\\[\\]]", "")
             ));
+
+            // page table
+
+            memoryInfo.getPageTableViewModel().addListener((obs, oldVal, newVal) -> {
+                boolean hasTable = newVal != null;
+
+                pageTableView.setVisible(hasTable);
+                pageTableView.setManaged(hasTable);
+                noPageTableLabel.setVisible(!hasTable);
+                noPageTableLabel.setManaged(!hasTable);
+
+                if (hasTable) {
+                    updatePageTableUI(newVal);
+                } else {
+                    pageTableView.setItems(null);
+                }
+            });
+
+            PageTableViewModel pageTable = memoryInfo.getPageTableViewModel().get();
+            boolean hasTable = pageTable != null;
+
+            pageTableView.setVisible(hasTable);
+            pageTableView.setManaged(hasTable);
+            noPageTableLabel.setVisible(!hasTable);
+            noPageTableLabel.setManaged(!hasTable);
+
+            if (hasTable) {
+                updatePageTableUI(pageTable);
+            }
+
         }
+    }
+
+    private void updatePageTableUI(PageTableViewModel pageTable) {
+        pageTableView.setItems(pageTable.getEntries());
+
+        pageNumberColumn.setCellValueFactory(cell -> cell.getValue().pageNumberProperty().asObject());
+        frameAddressColumn.setCellValueFactory(cell -> Bindings.createStringBinding(
+                () -> {
+                    Integer address = cell.getValue().frameAddressProperty().get();
+                    return address != null ? address.toString() : "Indefinido";
+                },
+                cell.getValue().frameAddressProperty()
+        ));
+
+        setupBooleanColumn(validColumn, PageTableEntryViewModel::validProperty);
+        setupBooleanColumn(dirtyColumn, PageTableEntryViewModel::dirtyProperty);
+        setupBooleanColumn(referencedColumn, PageTableEntryViewModel::referencedProperty);
+        setupBooleanColumn(fileBackedColumn, PageTableEntryViewModel::fileBackedProperty);
     }
 
     private String toHex(Color color) {
@@ -97,6 +164,25 @@ public class PCBView implements FxmlView<ProcessViewModel> {
         return luminance < 0.5 ? "white" : "black";
     }
 
+    private void setupBooleanColumn(TableColumn<PageTableEntryViewModel, Boolean> column,
+                                    Function<PageTableEntryViewModel, ObservableValue<Boolean>> prop) {
+        column.setCellValueFactory(cell -> prop.apply(cell.getValue()));
 
+        column.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Boolean value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setStyle(""); // fallback
+                } else {
+                    setText(value.toString());
+                    String background = value ? "#c8f7c5" : "#f7c5c5"; // light green / light red
+                    setStyle("-fx-background-color: " + background + ";"
+                            + " -fx-border-color: -fx-table-cell-border-color;");
+                }
+            }
+        });
+    }
 
 }

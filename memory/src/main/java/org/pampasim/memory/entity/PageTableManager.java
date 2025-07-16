@@ -100,9 +100,9 @@ public class PageTableManager extends AbstractSimEntity {
                 pageTableEntry.setDirty(true);
             }
 
-            if (pageTableEntry.getFrameAddress() == null || !pageTableEntry.isValid()) {
+            if (pageTableEntry.getFrameNumber() == null || !pageTableEntry.isValid()) {
                 // if there is at least 1 page fault, suspend process and send a PageFault event
-                if (pageTableEntry.getFrameAddress() == null) {
+                if (pageTableEntry.getFrameNumber() == null) {
                     LOGGER.debug("Process ID {}: Page table access generated Page Fault (No translation)", process.getPid());
                 } else {
                     LOGGER.debug("Process ID {}: Page table access generated Page Fault (Valid bit 0)", process.getPid());

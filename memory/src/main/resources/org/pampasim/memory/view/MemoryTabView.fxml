@@ -114,7 +114,7 @@
                             </Label>
                             <Label fx:id="label_valid_bit" alignment="CENTER" prefHeight="137.0" prefWidth="97.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                             <Label fx:id="label_page_table_number" alignment="CENTER" prefHeight="159.0" prefWidth="129.0" GridPane.rowIndex="2" />
-                            <Label fx:id="label_frame_number" alignment="CENTER" prefHeight="83.0" prefWidth="163.0" style="-fx-border-color: black; -fx-border-width: 2;" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                            <Label fx:id="label_frame_addr" alignment="CENTER" prefHeight="83.0" prefWidth="163.0" style="-fx-border-color: black; -fx-border-width: 2;" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         </GridPane>
                     </VBox>
                     <Label fx:id="label_physical_addr" alignment="CENTER" contentDisplay="CENTER" layoutX="5.0" layoutY="389.0" prefHeight="39.0" prefWidth="237.0" style="-fx-border-color: black; -fx-border-width: 2;" textAlignment="CENTER" />

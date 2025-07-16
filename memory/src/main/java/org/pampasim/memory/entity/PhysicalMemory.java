@@ -5,7 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
-import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.memory.MemoryConfig;
@@ -232,19 +231,34 @@ public class PhysicalMemory extends AbstractSimEntity {
             return;
         }
 
+        entry.setDirty(false); // saving to secondary memory, so the dirty bit flips to unmodified
+
+        if (entry.isFileBacked()) {
+            mainMemory.freeFrame(entry.getFrameNumber());
+            frameMap.remove(entry.getFrameNumber());
+            entry.setValid(false);
+            entry.setFrameNumber(null,MemoryConfig.getPageSize());
+            LOGGER.trace(
+                    "Pagina {} do processo de identificador {} swapped out para o sistema de arquivos (file-backed)",
+                    entry.getPageNumber(),
+                    entry.getProcess().getPid()
+            );
+            return;
+        }
+
         OptionalInt swapOutAddr = swapFile.findFirstContiguousFreeRange(1);
         if (swapOutAddr.isPresent()) {
-            mainMemory.freeFrame(entry.getFrameAddress());
-            frameMap.remove(entry.getFrameAddress());
+            mainMemory.freeFrame(entry.getFrameNumber());
+            frameMap.remove(entry.getFrameNumber());
             swapFile.allocateFrames(entry, swapOutAddr.getAsInt());
             entry.setValid(false);
-            entry.setFrameAddress(swapOutAddr.getAsInt());
+            entry.setFrameNumber(swapOutAddr.getAsInt(), MemoryConfig.getPageSize());
 
             LOGGER.trace(
                     "Pagina {} do processo de identificador {} swapped out para endereço {} na swapfile",
                     entry.getPageNumber(),
                     entry.getProcess().getPid(),
-                    entry.getFrameAddress()
+                    entry.getFrameNumber()
             );
         } else {
             throw new OutOfMemoryError("Não existe espaço na swapfile suficiente para realizar a operação");
@@ -259,19 +273,19 @@ public class PhysicalMemory extends AbstractSimEntity {
 
         OptionalInt swapInAddr = mainMemory.findFirstContiguousFreeRange(1);
         if (swapInAddr.isPresent()) {
-            if (entry.getFrameAddress() != null) {
-                swapFile.freeFrame(entry.getFrameAddress());
+            if (entry.getFrameNumber() != null) {
+                swapFile.freeFrame(entry.getFrameNumber());
             }
             mainMemory.allocateFrames(entry, swapInAddr.getAsInt());
-            entry.setFrameAddress(swapInAddr.getAsInt());
-            frameMap.put(entry.getFrameAddress(), entry);
+            entry.setFrameNumber(swapInAddr.getAsInt(), MemoryConfig.getPageSize());
+            frameMap.put(entry.getFrameNumber(), entry);
             entry.setValid(true);
 
             LOGGER.trace(
                     "Pagina {} do processo de identificador {} swapped in para endereço {} na memória princical",
                     entry.getPageNumber(),
                     entry.getProcess().getPid(),
-                    entry.getFrameAddress()
+                    entry.getFrameNumber()
             );
         } else {
             throw new OutOfMemoryError("Não existe espaço na memória principal suficiente para realizar a operação");
@@ -311,7 +325,7 @@ public class PhysicalMemory extends AbstractSimEntity {
 
         // Get faulty pages
         ArrayList<PageTableEntry> faultyPages = entries.stream()
-                .filter(entry -> entry.getFrameAddress() == null || !entry.isValid())
+                .filter(entry -> entry.getFrameNumber() == null || !entry.isValid())
                 .collect(Collectors.toCollection(ArrayList::new));
 
         ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);

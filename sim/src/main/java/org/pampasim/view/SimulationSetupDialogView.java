@@ -105,6 +105,8 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
 
         pageLoadingPolicyChoiceBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             viewModel.anticipatedPageLoadingProperty().set("Antecipada".equals(newVal));
+            boolean enablePrePagingRange = pageLoadingPolicyChoiceBox.getValue().equals("Antecipada");
+            loadedPagesCountSpinner.setDisable(!enablePrePagingRange);
         });
         viewModel.anticipatedPageLoadingProperty().addListener((obs, oldVal, newVal) -> {
             pageLoadingPolicyChoiceBox.setValue(newVal ? "Antecipada" : "Demanda");
@@ -133,6 +135,9 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
         boolean enableThresholds = pageAllocationPolicyChoiceBox.getValue().equals("Variável");
         topThresholdSpinner.setDisable(!enableThresholds);
         bottomThresholdSpinner.setDisable(!enableThresholds);
+
+        boolean enablePrePagingRange = pageLoadingPolicyChoiceBox.getValue().equals("Antecipada");
+        loadedPagesCountSpinner.setDisable(!enablePrePagingRange);
     }
 
 }

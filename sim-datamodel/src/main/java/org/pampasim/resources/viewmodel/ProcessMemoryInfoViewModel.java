@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class ProcessMemoryInfoViewModel implements ViewModel {
 
-    private final IntegerProperty processSize = new SimpleIntegerProperty();
+    private final IntegerProperty processSize = new SimpleIntegerProperty(1);
     private final ListProperty<Boolean> fileBackedPages = new SimpleListProperty<>(
             FXCollections.observableArrayList(new ArrayList<>())
     );

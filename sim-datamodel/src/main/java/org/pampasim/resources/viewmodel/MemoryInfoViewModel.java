@@ -7,6 +7,10 @@ import lombok.Setter;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessMemoryInfo.IoOperationType;
 import org.pampasim.resources.memory.PageTableEntry;
+import javafx.collections.ObservableList;
+import org.pampasim.resources.memory.ProcessPageTable;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,11 +27,14 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
     private final ListProperty<Integer> accessList = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ListProperty<Integer> totalAccessList = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-
     private final IntegerProperty totalIoOperationLength = new SimpleIntegerProperty(0);
     private final IntegerProperty remainingIoOperationTime = new SimpleIntegerProperty(0);
     private final ObjectProperty<IoOperationType> currentIoOperationType = new SimpleObjectProperty<>(null);
     private final ObjectProperty<Double> ioOperationProgress = new SimpleObjectProperty<>(0.0);
+
+    private final ObjectProperty<PageTableViewModel> pageTableViewModel = new SimpleObjectProperty<>();
+
+
     public MemoryInfoViewModel(ProcessMemoryInfo.CreationData creationData, int workingSetWindow, int maxPagesRam) {
         if (creationData == null) return;
 
@@ -89,5 +96,18 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
         ioOperationProgress.set(operationLength > 0
                 ? (operationLength - remainingIoOperationTime.get()) / (double) operationLength
                 : 0.0);
+
+        setPageTable(memoryInfo.getPageTable());
+
+
     }
+
+    public void setPageTable(ProcessPageTable pageTable) {
+        if (pageTable != null) {
+            this.pageTableViewModel.set(new PageTableViewModel(pageTable));
+        } else {
+            this.pageTableViewModel.set(null);
+        }
+    }
+
 }
