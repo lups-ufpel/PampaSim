@@ -19,8 +19,6 @@ import org.pampasim.memory.entity.algorithms.Random;
 @Getter
 public class MemoryManagement extends SimulationBase {
 
-
-
     public MemoryManagement(SimulationBase parent) {
         super(parent);
 
@@ -32,47 +30,8 @@ public class MemoryManagement extends SimulationBase {
 
         // Use specialized memory event manager
         this.setEventManager(new MemoryEventManager(this));
-        /*
-        //values defined by user
-        int pageSize = 512;
-        int maxPagesPerProcess = 1024;
-        int framesInRAM = 256;
-        int framesInSwap = 1024;
-        int swapOperationLength = 3;
-        int workingSetWindow = 10;
-        String pageSubstitutionAlgorithm = "Random";
-        boolean globalPageSubstitution = true;
-        boolean anticipatedPageLoading = true;
-        int prePagingRange = 5;
-        boolean variablePageAllocation = false;
-        double topThreshold = 0.75;
-        double bottomThreshold = 0.25;
-        boolean tlbEnabled = false;
-        int tlbEntries = 16;
 
-        // TODO: make sure that all these numbers are powers of 2
-
-        MemoryConfig.initialize(
-                pageSize,                   // Page size in KB
-                maxPagesPerProcess,         // Max pages per process
-                framesInRAM,                // Number of frames in RAM
-                framesInSwap,               // Number of frames in swap
-                swapOperationLength,        // How long the swapping operations are
-                workingSetWindow,           // Working set window size
-                pageSubstitutionAlgorithm,  // Algorithm name: "Random", "FIFO", "LRU", etc.
-                globalPageSubstitution,     // Global vs Local replacement policy
-                anticipatedPageLoading,     // True = Pre-paging, False = Demand paging
-                prePagingRange,             // Number of pages to load in advance (if pre-paging is used)
-                variablePageAllocation,     // Whether page allocation per process is dynamic
-                topThreshold,               // Top fault rate threshold for variable allocation
-                bottomThreshold,            // Bottom fault rate threshold for variable allocation
-                tlbEnabled,                 // Whether TLB is enabled
-                tlbEntries                  // Number of entries in the TLB (if TLB is enabled)
-        );
-
-         */
-
-// Initialize memory subsystems
+        // Initialize memory subsystems
         new MMU(this);
         new PageTableManager(this, 5); // TODO: add a field for the user to define referencedReset;
         new PhysicalMemory(
@@ -104,5 +63,9 @@ public class MemoryManagement extends SimulationBase {
             case "" -> null;
             default -> throw new IllegalArgumentException("Unknown replacement algorithm: " + algorithmName);
         };
+    }
+
+    public void incrementWaitingTimes() {
+        // nothing is needed here, since the IO queue isn't as complex as the scheduler queue, and processes can't be interrupted on their way to performing the operation
     }
 }

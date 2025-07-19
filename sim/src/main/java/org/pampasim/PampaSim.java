@@ -40,6 +40,7 @@ public class PampaSim extends SimulationBase {
                 LOGGER.debug("Processo com Pid {}  finalizou sua execução e foi terminado com sucesso",
                         processEvent.getProcess().getPid()
                 );
+                processEvent.getProcess().setEndTime(realClock.getTick());
                 break;
             default: LOGGER.debug("black hole got event {}", event); break;
         }
@@ -80,5 +81,10 @@ public class PampaSim extends SimulationBase {
         sim.pidAllocator = s.getPidAlloc();
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
         return sim;
+    }
+
+    @Override
+    public void incrementWaitingTimes() {
+        this.getEntity(Scheduler.class).incrementWaitingTimes();
     }
 }

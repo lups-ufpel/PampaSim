@@ -129,6 +129,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 }
                 this.clearBlock();
                 getRealClock().next();
+                incrementWaitingTimes();
             } else if (clearBlock) { // top level simulation doesn't make use of the clear block flag
                 for (SimEntity entity : entityList) {
                     entity.clearBlock();
@@ -141,6 +142,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         } else if (areAllEntitiesIdle() && hasPendingEvents()) {
             LOGGER.trace(phase5c);
             getRealClock().next();
+            incrementWaitingTimes();
         } else {
             LOGGER.trace(phase5b);
             executeRunnableEntities();
@@ -295,4 +297,5 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         }
     }
 
+    protected abstract void incrementWaitingTimes();
 }

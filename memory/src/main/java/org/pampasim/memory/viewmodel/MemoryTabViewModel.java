@@ -19,8 +19,11 @@ import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class MemoryTabViewModel implements ViewModel {
@@ -124,94 +127,136 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     public void handleProcessEvent(Event uncastEvent) {
-        if (uncastEvent instanceof org.pampasim.events.ProcessEvent e) {
-            Process process = e.getProcess();
-            ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent) uncastEvent;
 
-            // Caso TLB não tenha tradução
-            if (e instanceof org.pampasim.events.Memory.TlbNoTranslation tlbEvent) {
-                int access = processMemoryInfo.getCurrentAccessList().getFirst();
-                virtualAddress.set(Integer.toString(access));
-                pageNumber.set(Integer.toString(MemoryConfig.extractPageNumber(access)));
-                offset.set(Integer.toString(MemoryConfig.extractOffsetNumber(access)));
-                pageTableNumber.set(Integer.toString(MemoryConfig.extractPageNumber(access)));
-
-                PageTableEntry pageTableEntry = processMemoryInfo.getPageTable().getEntry(MemoryConfig.extractPageNumber(access));
-
-                validBit.set(pageTableEntry.isValid() ? "1" : "0");
-                Integer frameAddress = pageTableEntry.getFrameAddress();
-                Integer frameNumber = pageTableEntry.getFrameNumber();
-
-                if (frameAddress != null) {
-                    this.frameAddress.set(Integer.toString(frameAddress));
-
-                    physicalAddress.set(Integer.toString(
-                            MemoryConfig.combineToPhysicalAddress(
-                                    frameNumber,
-                                    MemoryConfig.extractOffsetNumber(access),
-                                    pageTableEntry.isValid()
-                            )));
-                } else {
-                    this.frameAddress.set("Indefinido");
-                    physicalAddress.set("Indefinido");
-                }
-            }
-
-            if (e instanceof org.pampasim.events.Memory.DiskOperation) {
-                boolean cpuIdle = observableProcessList.stream()
-                        .noneMatch(vm -> vm.getState() == Process.State.RUNNING);
-
-                if (resetInfo && cpuIdle) {
-                    virtualAddress.set("");
-                    pageNumber.set("");
-                    offset.set("");
-                    pageTableNumber.set("");
-                    validBit.set("");
-                    frameAddress.set("");
-                    physicalAddress.set("");
-                    infoTitle.set("");
-                    infoText.set("");
-                    infoColor.set(null);
-                } else {
-                    resetInfo = true;
-                }
-
-            }
-
-            if (e instanceof org.pampasim.events.Memory.PageHit) {
-                int access = processMemoryInfo.getCurrentAccessList().getFirst();
-                infoTitle.set("Page Hit");
-                infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
-                infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
-                resetInfo = false;
-            } else if (e instanceof org.pampasim.events.Memory.PageFault) {
-                int access = processMemoryInfo.getCurrentAccessList().getFirst();
-                infoTitle.set("Page Fault");
-                infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que não está presente na memória RAM, e deve ser carregado da memória secundária");
-                infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
-                resetInfo = false;
-            }
-
-            ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-            if (memoryInfo != null) {
-                observableProcessList.stream()
-                        .filter(vm -> vm.getPid() != null && vm.getPid().get() != null)
-                        .filter(vm -> vm.getPid().get().equals(process.getPid()))
-                        .flatMap(vm -> vm.getModuleInfoViewModels().stream())
-                        .filter(m -> m instanceof MemoryInfoViewModel)
-                        .map(m -> (MemoryInfoViewModel) m)
-                        .forEach(vm -> vm.updateFrom(memoryInfo));
-            }
-
-            LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", e);
+        // Early return for allocation events, since they don't require any handling and would cause issues with the abscence of memory info classes which haven't been created yet
+        if (event instanceof org.pampasim.events.Process.Allocate ||
+            event instanceof org.pampasim.events.Memory.Allocate) {
+            return;
         }
 
+        Process process = event.getProcess();
+        ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        if (memoryInfo == null) {
+            throw new IllegalStateException("Process MemoryInfo not found");
+        }
+
+        // Update MemoryInfoViewModel for all matching processes
+        observableProcessList.stream()
+                .filter(vm -> vm.getPid() != null && vm.getPid().get() != null)
+                .filter(vm -> vm.getPid().get().equals(process.getPid()))
+                .flatMap(vm -> vm.getModuleInfoViewModels().stream())
+                .filter(m -> m instanceof MemoryInfoViewModel)
+                .map(m -> (MemoryInfoViewModel) m)
+                .forEach(vm -> vm.updateFrom(memoryInfo));
+
+        LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", event);
+
+        // Switch-case for event type handling
+        switch (event) {
+            case org.pampasim.events.Memory.TlbNoTranslation tlbEvent -> handleTlbNoTranslation(memoryInfo, process);
+            case org.pampasim.events.Memory.DiskOperation diskOp -> handleDiskOperation(process, memoryInfo);
+            case org.pampasim.events.Memory.PageHit pageHit -> handlePageHit(process, memoryInfo);
+            case org.pampasim.events.Memory.PageFault pageFault -> handlePageFault(process, memoryInfo);
+            default -> {} // Ignore other events
+        }
+
+        // Update frame lists (common for all events except Allocate)
+        updateFrameLists();
+    }
+
+    private void handleTlbNoTranslation(ProcessMemoryInfo memoryInfo, Process process) {
+        int access = memoryInfo.getCurrentAccessList().getFirst();
+        virtualAddress.set(Integer.toString(access));
+        pageNumber.set(Integer.toString(MemoryConfig.extractPageNumber(access)));
+        offset.set(Integer.toString(MemoryConfig.extractOffsetNumber(access)));
+        pageTableNumber.set(Integer.toString(MemoryConfig.extractPageNumber(access)));
+
+        PageTableEntry pageTableEntry = memoryInfo.getPageTable().getEntry(MemoryConfig.extractPageNumber(access));
+        validBit.set(pageTableEntry.isValid() ? "1" : "0");
+        Integer frameAddress = pageTableEntry.getFrameAddress();
+        Integer frameNumber = pageTableEntry.getFrameNumber();
+
+        if (frameAddress != null) {
+            this.frameAddress.set(Integer.toString(frameAddress));
+            physicalAddress.set(Integer.toString(
+                    MemoryConfig.combineToPhysicalAddress(
+                            frameNumber,
+                            MemoryConfig.extractOffsetNumber(access),
+                            pageTableEntry.isValid()
+                    )));
+        } else {
+            this.frameAddress.set("Indefinido");
+            physicalAddress.set("Indefinido");
+        }
+    }
+
+    private void handleDiskOperation(Process process, ProcessMemoryInfo memoryInfo) {
+        boolean cpuIdle = observableProcessList.stream()
+                .noneMatch(vm -> vm.getState() == Process.State.RUNNING);
+
+        if (resetInfo && cpuIdle) {
+            clearAddressInfo();
+        } else {
+            resetInfo = true;
+        }
+
+        // Update I/O waiting times for queued processes
+        updateIoWaitingTimes();
+    }
+
+    private void updateIoWaitingTimes() {
+        ArrayList<Process> processIoQueue = memoryManagement.getEntity(PhysicalMemory.class)
+                .getIoEventQueue()
+                .stream()
+                .map(ioEvent -> ((org.pampasim.events.ProcessEvent) ioEvent).getProcess())
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        for (Process queuedProc : processIoQueue) {
+            long queuedId = queuedProc.getCreationData().getCreationId();
+            observableProcessList.stream()
+                    .filter(pvm -> pvm.getCreationId() == queuedId)
+                    .findFirst()
+                    .ifPresent(pvm -> pvm.getModuleInfoViewModel(MemoryInfoViewModel.class)
+                            .getIoWaitingTime()
+                            .set(queuedProc.getModuleInfo(ProcessMemoryInfo.class).getIoWaitingTime()));
+        }
+    }
+
+    private void handlePageHit(Process process, ProcessMemoryInfo memoryInfo) {
+        int access = memoryInfo.getCurrentAccessList().getFirst();
+        infoTitle.set("Page Hit");
+        infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
+        infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+        resetInfo = false;
+    }
+
+    private void handlePageFault(Process process, ProcessMemoryInfo memoryInfo) {
+        int access = memoryInfo.getCurrentAccessList().getFirst();
+        infoTitle.set("Page Fault");
+        infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que não está presente na memória RAM, e deve ser carregado da memória secundária");
+        infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+        resetInfo = false;
+    }
+
+    private void clearAddressInfo() {
+        virtualAddress.set("");
+        pageNumber.set("");
+        offset.set("");
+        pageTableNumber.set("");
+        validBit.set("");
+        frameAddress.set("");
+        physicalAddress.set("");
+        infoTitle.set("");
+        infoText.set("");
+        infoColor.set(null);
+    }
+
+    private void updateFrameLists() {
         List<PageTableEntry> ramFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getMainMemory().getRawFrameAllocationList();
-
         List<PageTableEntry> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getSwapFile().getRawFrameAllocationList();
-
         updateFrameList(ramFrameList, observableRamFrameList);
         updateFrameList(swapFrameList, observableSwapFrameList);
     }

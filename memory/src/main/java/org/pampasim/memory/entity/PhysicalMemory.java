@@ -7,6 +7,7 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.events.ProcessEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
@@ -28,6 +29,7 @@ public class PhysicalMemory extends AbstractSimEntity {
     private final FrameController swapFile;
     private final PageReplacementAlgorithm pageReplacementAlgorithm;
     private final Map<Integer, PageTableEntry> frameMap; // map that stores which frames are present in memory
+    @Getter
     private final Queue<Event> ioEventQueue;
     private boolean occupied;
 
@@ -126,6 +128,7 @@ public class PhysicalMemory extends AbstractSimEntity {
 
         LOGGER.debug("Operação de Disco do processo de identificador: {}", process.getPid());
         processMemoryInfo.forwardIoOperation();
+        incrementIoWaitingTimes();
 
         if (processMemoryInfo.getCurrentIoOperationTimeRemaining() <= 0) {
             LOGGER.debug("Termino de Operação de Disco do processo de identificador: {}", process.getPid());
@@ -428,5 +431,9 @@ public class PhysicalMemory extends AbstractSimEntity {
     public double getPageFaultRate() {
         LOGGER.trace("Current Page Fault Rate: {}%", (((double) pageFaults) / (pageFaults + pageHits))*100);
         return ((double) pageFaults) / (pageFaults + pageHits);
+    }
+
+    public void incrementIoWaitingTimes() {
+        ioEventQueue.forEach(ioEvent -> {((ProcessEvent) ioEvent).getProcess().getModuleInfo(ProcessMemoryInfo.class).incrementIoWaitingTime();});
     }
 }

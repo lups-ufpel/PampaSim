@@ -382,6 +382,20 @@ public class PampaSimViewModel implements ViewModel {
             found.getProgress().set(current/total);
         }
 
+        if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
+            Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation()
+                    .getEntity(Scheduler.class)
+                    .getProcessQueue();
+
+            for (Process queuedProc : processQueue) {
+                long queuedId = queuedProc.getCreationData().getCreationId();
+                allProcesses.stream()
+                        .filter(pvm -> pvm.getCreationId() == queuedId)
+                        .findFirst()
+                        .ifPresent(pvm -> pvm.getReadyWaitingTime().set(queuedProc.getWaitTime()));
+            }
+        }
+
     }
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);

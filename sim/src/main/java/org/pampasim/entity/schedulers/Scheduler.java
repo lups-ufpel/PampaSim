@@ -1,5 +1,6 @@
 package org.pampasim.entity.schedulers;
 
+import lombok.Getter;
 import org.antlr.v4.Tool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,9 +9,13 @@ import org.pampasim.core.events.Event;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.resources.Process;
 
+import java.util.Collection;
+
 public abstract class Scheduler extends AbstractSimEntity {
     private final Logger LOGGER = LogManager.getLogger(Scheduler.class);
     protected Process lastRunProcess;
+    @Getter
+    protected Collection<Process> processQueue;
 
     public Scheduler(Simulation simulation) {
         super(simulation);
@@ -56,5 +61,9 @@ public abstract class Scheduler extends AbstractSimEntity {
     protected boolean lastProcessFinished() {
         var proc = lastRunProcess;
         return proc == null || !( proc.getState() == Process.State.RUNNING || proc.getState() == Process.State.SCHEDULED);
+    }
+
+    public void incrementWaitingTimes() {
+        processQueue.forEach(Process::forwardWaitingTime);
     }
 }

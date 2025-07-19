@@ -21,6 +21,7 @@ public class ProcessViewModel implements ViewModel {
     private final ObjectProperty<Double> progress = new SimpleObjectProperty<>(0.0);
     private final ObjectProperty<Integer> priority = new SimpleObjectProperty<>();
     private final BooleanProperty initialized = new SimpleBooleanProperty(false);
+    private final IntegerProperty readyWaitingTime = new SimpleIntegerProperty(0);
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
 

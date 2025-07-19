@@ -18,6 +18,7 @@ import org.pampasim.resources.viewmodel.ProcessViewModel;
 import java.util.function.Function;
 
 public class PCBView implements FxmlView<ProcessViewModel> {
+
     @InjectViewModel
     private ProcessViewModel viewModel;
 
@@ -28,6 +29,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
     @FXML private Label stateLabel;
     @FXML private Label arrivalTickLabel;
     @FXML private Label priorityLabel;
+    @FXML private Label readyWaitingTime;
     @FXML private Label currExecTimeLabel;
     @FXML private Label burstLabel;
 
@@ -37,6 +39,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
 
     @FXML public Label memorySizeLabel;
     @FXML public Label maxPagesRamLabel;
+    @FXML public Label ioWaitingTime;
     @FXML public Label pageHitsLabel;
     @FXML public Label pageFaultsLabel;
     @FXML public Label pageFaultRateLabel;
@@ -44,6 +47,8 @@ public class PCBView implements FxmlView<ProcessViewModel> {
 
     @FXML public Label workingSetListLabel;
     @FXML public Label accessListLabel;
+
+    @FXML public Tab pageTableTab;
 
     @FXML private Label noPageTableLabel;
     @FXML private TableView<PageTableEntryViewModel> pageTableView;
@@ -69,8 +74,8 @@ public class PCBView implements FxmlView<ProcessViewModel> {
         stateLabel.textProperty().bind(viewModel.stateProperty().asString());
         arrivalTickLabel.textProperty().bind(viewModel.getArrivalTick().asString());
         priorityLabel.textProperty().bind(viewModel.getPriority().asString());
+        readyWaitingTime.textProperty().bind(viewModel.getReadyWaitingTime().asString());
         currExecTimeLabel.textProperty().bind(viewModel.getCurrExecTime().asString());
-
         burstLabel.textProperty().bind(viewModel.getBurst().asString());
 
 
@@ -80,9 +85,16 @@ public class PCBView implements FxmlView<ProcessViewModel> {
         processMemoryInfoTitledPane.visibleProperty().set(memoryInfo != null);
         processMemoryInfoTitledPane.managedProperty().set(memoryInfo != null);
 
-        if (memoryInfo != null) {
+        if (memoryInfo == null) {
+            // Remove the page table tab if memoryInfo is null
+            TabPane tabPane = pageTableTab.getTabPane();
+            if (tabPane != null) {
+                tabPane.getTabs().remove(pageTableTab);
+            }
+        } else {
             memorySizeLabel.textProperty().bind(memoryInfo.getProcessSize().asString());
             maxPagesRamLabel.textProperty().bind(memoryInfo.getMaxPagesRam().asString());
+            ioWaitingTime.textProperty().bind(memoryInfo.getIoWaitingTime().asString());
             pageHitsLabel.textProperty().bind(memoryInfo.getPageHits().asString());
             pageFaultsLabel.textProperty().bind(memoryInfo.getPageFaults().asString());
             pageFaultRateLabel.textProperty().bind(
@@ -103,6 +115,8 @@ public class PCBView implements FxmlView<ProcessViewModel> {
             ));
 
             // page table
+
+            //here, set tab to visible
 
             memoryInfo.getPageTableViewModel().addListener((obs, oldVal, newVal) -> {
                 boolean hasTable = newVal != null;

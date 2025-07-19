@@ -18,6 +18,7 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
 
     private final IntegerProperty processSize = new SimpleIntegerProperty();
     private final IntegerProperty maxPagesRam = new SimpleIntegerProperty();
+    private final IntegerProperty ioWaitingTime = new SimpleIntegerProperty();
     private final IntegerProperty pageHits = new SimpleIntegerProperty();
     private final IntegerProperty pageFaults = new SimpleIntegerProperty();
     private final DoubleProperty pageFaultRate = new SimpleDoubleProperty();
@@ -61,6 +62,7 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
     public void updateFrom(ProcessMemoryInfo memoryInfo) {
         processSize.set(memoryInfo.getSize());
         maxPagesRam.set(memoryInfo.getMaxFrames());
+        ioWaitingTime.set(memoryInfo.getIoWaitingTime());
         pageHits.set(memoryInfo.getPageHits());
         pageFaults.set(memoryInfo.getPageFaults());
 

@@ -49,6 +49,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private final Map<Integer, Integer> runtimeIoOperationSchedule = new HashMap<>();
     private final ArrayList<ArrayList<Integer>> runtimeAddressAccessList = new ArrayList<>();
     private final ArrayList<ArrayList<Boolean>> runtimeModifyPage = new ArrayList<>();
+    private int ioWaitingTime;
 
     public enum IoOperationType {
         DISK_ACCESS,
@@ -66,6 +67,7 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.currentIoOperationTimeRemaining = 0;
         this.pageHits = 0;
         this.pageFaults = 0;
+        this.ioWaitingTime = 0;
 
         // Initialize runtime structures from creation data
         for (Integer address : creationData.addressAccessList) {
@@ -180,6 +182,10 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
             return 0.0;
         }
         return (double) pageFaults / totalAccesses;
+    }
+
+    public void incrementIoWaitingTime() {
+        ioWaitingTime++;
     }
 
 }

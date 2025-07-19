@@ -40,8 +40,9 @@ public class Process {
     int burstTime; // length of the next "turn" on the processor
     @Setter
     private int priority;
-
-    // The next fields are relevant to the memory module
+    private int waitTime;
+    @Setter
+    private int endTime;
 
     private final ArrayList<ProcessModuleInfo> moduleInfo;
 
@@ -71,6 +72,10 @@ public class Process {
     public void forwardProcessExecution() {
         this.currExecTime +=1;
         this.burstTime -= 1;
+    }
+
+    public void forwardWaitingTime() {
+        this.waitTime += 1;
     }
 
     public boolean isFinished() {

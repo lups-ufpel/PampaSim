@@ -12,23 +12,24 @@ public abstract class RankingScheduler extends Scheduler {
 
     public RankingScheduler(Simulation simulation) {
         super(simulation);
-        readyList = new PriorityQueue<>(processRankingAlgorithm());
+        this.processQueue = new PriorityQueue<>(processRankingAlgorithm());
     }
+
     public abstract Comparator<Process> processRankingAlgorithm();
 
     @Override
     public boolean shouldRunNextTick() {
         return super.shouldRunNextTick()
-                || (this.lastProcessFinished() && !this.readyList.isEmpty());
+                || (this.lastProcessFinished() && !this.processQueue.isEmpty());
     }
 
     @Override
     protected Process nextProcessToSchedule() {
-        return readyList.poll();
+        return ((PriorityQueue<Process>) processQueue).poll();
     }
 
     @Override
     protected void handleProcessSchedule(org.pampasim.events.Process.Schedule event) {
-        readyList.add(event.getProcess());
+        this.processQueue.add(event.getProcess());
     }
 }

@@ -11,14 +11,13 @@ import java.util.Queue;
 // Doesn't respect priorities! FIXME
 // making it do so is nontrivial
 public class RoundRobin extends Scheduler implements RespectsQuantum {
-    public Queue<Process> rrQueue;
     @Getter
     @Setter
     int quantum;
 
     public RoundRobin(Simulation simulation) {
         super(simulation);
-        rrQueue = new ArrayDeque<>();
+        processQueue = new ArrayDeque<>();
     }
 
     @Override
@@ -36,17 +35,17 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     @Override
     public boolean shouldRunNextTick() {
         return super.shouldRunNextTick()
-                || (this.lastProcessFinished() && !this.rrQueue.isEmpty());
+                || (this.lastProcessFinished() && !processQueue.isEmpty());
     }
 
     @Override
     protected void handleProcessSchedule(org.pampasim.events.Process.Schedule event) {
-        rrQueue.add(event.getProcess());
+        ((Queue<Process>) processQueue).add(event.getProcess());
     }
 
     @Override
     protected Process nextProcessToSchedule() {
-        Process p = rrQueue.poll();
+        Process p = ((Queue<Process>) processQueue).poll();
         // be sure to send it off with the proper burst time
         if (p != null) { p.setBurstTime(getQuantum()); }
         return p;
