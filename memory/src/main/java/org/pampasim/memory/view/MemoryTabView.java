@@ -9,11 +9,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextFlow;
 import org.pampasim.memory.viewmodel.MemoryFrameViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
@@ -42,6 +44,13 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
     @FXML public HBox ioRunningList;
     @FXML public ProgressBar ioOperationProgressBar;
     @FXML public Circle info_circle;
+    @FXML public ScrollPane ioOperationInfoScrollPane;
+    @FXML public TextFlow ioOperationInfoTextFlow;
+    @FXML public Circle ioOperationSwapInCircle;
+    @FXML public Circle ioOperationSwapOutCircle;
+    @FXML public Text ioOperationSwapInText;
+    @FXML public Text ioOperationSwapOutText;
+
 
     @InjectViewModel
     private MemoryTabViewModel viewModel;
@@ -59,6 +68,11 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
         info_title.textProperty().bind(viewModel.getInfoTitle());
         info_text.textProperty().bind(viewModel.getInfoText());
 
+        ioOperationInfoScrollPane.viewportBoundsProperty().addListener((obs, oldVal, newVal) -> {
+            double padding = 30;
+            ioOperationInfoTextFlow.setMaxWidth(newVal.getWidth() - padding);
+        });
+
         info_title.textFillProperty().bind(
                 javafx.beans.binding.Bindings.createObjectBinding(() -> {
                     String title = viewModel.getInfoTitle().get();
@@ -75,6 +89,23 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
         info_circle.fillProperty().bind(viewModel.getInfoColor());
         info_circle.visibleProperty().bind(viewModel.getInfoColor().isNotNull());
         info_circle.managedProperty().bind(viewModel.getInfoColor().isNotNull());
+
+        ioOperationSwapInText.textProperty().bind(viewModel.getIoOperationInfoSwapInText());
+        ioOperationSwapInCircle.fillProperty().bind(viewModel.getIoOperationInfoSwapInColor());
+
+        ioOperationSwapOutText.textProperty().bind(viewModel.getIoOperationInfoSwapOutText());
+        ioOperationSwapOutCircle.fillProperty().bind(viewModel.getIoOperationInfoSwapOutColor());
+
+        ioOperationSwapInText.visibleProperty().bind(viewModel.getIoOperationInfoSwapInText().isNotEmpty());
+        ioOperationSwapInText.managedProperty().bind(ioOperationSwapInText.visibleProperty());
+        ioOperationSwapInCircle.visibleProperty().bind(ioOperationSwapInText.visibleProperty());
+        ioOperationSwapInCircle.managedProperty().bind(ioOperationSwapInText.visibleProperty());
+
+        ioOperationSwapOutText.visibleProperty().bind(viewModel.getIoOperationInfoSwapOutText().isNotEmpty());
+        ioOperationSwapOutText.managedProperty().bind(ioOperationSwapOutText.visibleProperty());
+        ioOperationSwapOutCircle.visibleProperty().bind(ioOperationSwapOutText.visibleProperty());
+        ioOperationSwapOutCircle.managedProperty().bind(ioOperationSwapOutText.visibleProperty());
+
 
         updateFrameDisplays();
 

@@ -42,6 +42,10 @@ public class MemoryTabViewModel implements ViewModel {
     @Getter private final SimpleStringProperty infoTitle = new SimpleStringProperty("");
     @Getter private final SimpleStringProperty infoText = new SimpleStringProperty("");
     @Getter private final SimpleObjectProperty<Color> infoColor = new SimpleObjectProperty<>();
+    @Getter private final SimpleStringProperty ioOperationInfoSwapInText = new SimpleStringProperty("");
+    @Getter private final SimpleStringProperty ioOperationInfoSwapOutText = new SimpleStringProperty("");
+    @Getter private final SimpleObjectProperty<Color> ioOperationInfoSwapInColor = new SimpleObjectProperty<>();
+    @Getter private final SimpleObjectProperty<Color> ioOperationInfoSwapOutColor = new SimpleObjectProperty<>();
 
     @Getter private final ObservableList<MemoryFrameViewModel> observableRamFrameList = FXCollections.observableArrayList();
     @Getter private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
@@ -149,6 +153,7 @@ public class MemoryTabViewModel implements ViewModel {
         switch (event) {
             case org.pampasim.events.Memory.TlbNoTranslation tlbEvent -> handleTlbNoTranslation(memoryInfo, process);
             case org.pampasim.events.Memory.DiskOperation diskOp -> handleDiskOperation(process, memoryInfo);
+            case org.pampasim.events.Memory.DiskOperationFinished diskOpFinished -> handleDiskOperationFinished(process, memoryInfo);
             case org.pampasim.events.Memory.PageHit pageHit -> handlePageHit(process, memoryInfo);
             case org.pampasim.events.Memory.PageFault pageFault -> handlePageFault(process, memoryInfo);
             default -> {} // Ignore other events
@@ -197,6 +202,60 @@ public class MemoryTabViewModel implements ViewModel {
 
         // Update I/O waiting times for queued processes
         updateIoWaitingTimes();
+    }
+
+    private void handleDiskOperationFinished(Process process, ProcessMemoryInfo memoryInfo) {
+        switch (memoryInfo.getCurrentIoOperation()) {
+            case PAGE_FAULT -> handleDiskOperationFinishedPageFault(process, memoryInfo);
+            case DISK_ACCESS -> handleDiskOperationFinishedDiskAccess(process, memoryInfo);
+        }
+    }
+
+    private void handleDiskOperationFinishedPageFault(Process process, ProcessMemoryInfo memoryInfo) {
+        PhysicalMemory physicalMemory = memoryManagement.getEntity(PhysicalMemory.class);
+        ArrayList<PageTableEntry> swappedInPages = physicalMemory.getLastSwappedInPages();
+        PageTableEntry swappedOutPage = physicalMemory.getLastSwappedOutPage();
+
+        // Build swap-in message
+        StringBuilder swapInMessage = new StringBuilder();
+        if (!swappedInPages.isEmpty()) {
+            Color processColor = colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK);
+            swapInMessage.append(" Processo ")
+                    .append(process.getPid())
+                    .append(swappedInPages.size() == 1 ? " carregou a página " : " carregou as páginas ")
+                    .append(swappedInPages.stream()
+                            .map(PageTableEntry::getPageNumber)
+                            .map(String::valueOf)
+                            .collect(Collectors.joining(", ")))
+                    .append(" para a memória RAM");
+
+            ioOperationInfoSwapInColor.set(processColor);
+        }
+
+        if (swappedOutPage != null) {
+            Process swappedOutProcess = swappedOutPage.getProcess();
+            swapInMessage.append(", substituindo a página ").append(swappedOutPage.getPageNumber()).append(" do ");
+            Color swappedOutColor = colorMap.getOrDefault(swappedOutProcess.getCreationData().getCreationId(), Color.BLACK);
+            String swapOutMessage = " Processo " +
+                    swappedOutProcess.getPid() +
+                    (swappedOutPage.isFileBacked() ?
+                            " (salva no sistema de arquivos)" :
+                            " (salva no endereço " + swappedOutPage.getFrameAddress() + " da swapfile)");
+
+            ioOperationInfoSwapOutText.set(swapOutMessage);
+            ioOperationInfoSwapOutColor.set(swappedOutColor);
+        } else {
+            ioOperationInfoSwapOutText.set("");
+            ioOperationInfoSwapOutColor.set(null);
+        }
+
+        ioOperationInfoSwapInText.set(swapInMessage.toString());
+    }
+
+    private void handleDiskOperationFinishedDiskAccess(Process process, ProcessMemoryInfo memoryInfo) {
+        ioOperationInfoSwapInText.set(" Processo " + process.getPid() + " Finalizou acesso a disco");
+        Color processColor = colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK);
+        ioOperationInfoSwapInColor.set(processColor);
     }
 
     private void updateIoWaitingTimes() {
