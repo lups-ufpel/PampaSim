@@ -41,6 +41,7 @@ import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.memory.view.MemoryTabView;
+import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
@@ -76,6 +77,9 @@ public class PampaSimViewModel implements ViewModel {
 
     @Getter
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
+
+    @Getter
+    private final SimulationStatisticsViewModel simulationStatisticsViewModel = new SimulationStatisticsViewModel();;
 
 
     //***** Dialog services *****//
@@ -134,10 +138,14 @@ public class PampaSimViewModel implements ViewModel {
                 }
             }
 
+            simulationStatisticsViewModel.updateStatistics(sim, allProcesses);
+
             // FIXME: There likely is a more elegant solution than this
             if (simMemoryModule != null) {
                 simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
                         this::handleProcessEvent);
+                simulationStatisticsViewModel.getModuleStatisticsViewModel(MemoryStatisticsViewModel.class).updateStatistics(sim, allProcesses);
+
             }
             return sim;
         });
@@ -196,11 +204,14 @@ public class PampaSimViewModel implements ViewModel {
 
         if (userSelection.module().equals("memory")) {
             reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation());
+            MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
+            simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);
 
             memoryModule = new MemoryTabViewModel(
                     simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
                     simulatedScenario.getSpec().getColorMap(),
-                    allProcesses
+                    allProcesses,
+                    memoryStatisticsViewModel
             );
 
             memoryModulePresent.set(true);
@@ -380,8 +391,10 @@ public class PampaSimViewModel implements ViewModel {
             double current = proc.getCurrExecTime();
             double total = proc.getCreationData().getDurationTicks();
             found.getProgress().set(current/total);
+            found.getEndTime().set(proc.getEndTime());
         }
 
+        // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
             Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation()
                     .getEntity(Scheduler.class)
@@ -395,6 +408,7 @@ public class PampaSimViewModel implements ViewModel {
                         .ifPresent(pvm -> pvm.getReadyWaitingTime().set(queuedProc.getWaitTime()));
             }
         }
+        simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation(), allProcesses);
 
     }
     private void setSimulationRunning(boolean running) {

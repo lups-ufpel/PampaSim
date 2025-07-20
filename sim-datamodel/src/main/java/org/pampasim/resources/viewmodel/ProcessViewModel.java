@@ -24,6 +24,7 @@ public class ProcessViewModel implements ViewModel {
     private final IntegerProperty readyWaitingTime = new SimpleIntegerProperty(0);
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
+    private final IntegerProperty endTime = new SimpleIntegerProperty();
 
     // Armazena informações dos módulos (ex: memória, IO, etc.)
     private final ObservableList<ModuleInfoViewModel> moduleInfoViewModels = FXCollections.observableArrayList();

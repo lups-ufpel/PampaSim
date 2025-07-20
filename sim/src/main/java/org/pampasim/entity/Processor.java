@@ -1,5 +1,6 @@
 package org.pampasim.entity;
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
@@ -15,6 +16,8 @@ public class Processor extends AbstractSimEntity {
     private final Logger LOGGER = LogManager.getLogger(Processor.class);
     private final ProcessorCore core;
     private boolean preemption;
+    @Getter
+    private int busyTicks;
 
     public Processor(Simulation simulation, ProcessorCore core) {
         super(simulation);
@@ -22,6 +25,7 @@ public class Processor extends AbstractSimEntity {
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
         this.core = core;
         this.preemption = false;
+        this.busyTicks = 0;
 
         // Adding the events which this entity handles
         simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Run.class, this);
@@ -66,6 +70,7 @@ public class Processor extends AbstractSimEntity {
 
         LOGGER.debug("Execução do processo de identificador: {}", process.getPid());
         core.execute(process);
+        busyTicks++;
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
             core.setStatus(ProcessorCore.Status.FREE);
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.RunPaused(this, process));

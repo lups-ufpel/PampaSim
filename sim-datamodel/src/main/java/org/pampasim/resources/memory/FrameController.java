@@ -9,18 +9,18 @@ public class FrameController {
     private final Map<Process, Set<Integer>> processtoFrameMap; // Optional: still useful for grouped access
     private final Map<Integer, PageTableEntry> frameToPageTableEntryMap; // Frame → PageTableEntry
     @Getter
-    private final int totalPages;
+    private final int totalFrames;
     private final List<PageTableEntry> frameAllocationList;
 
     public FrameController(int totalPages) {
-        this.totalPages = totalPages;
+        this.totalFrames = totalPages;
         this.processtoFrameMap = new HashMap<>();
         this.frameToPageTableEntryMap = new HashMap<>();
         this.frameAllocationList = new ArrayList<>(Collections.nCopies(totalPages, null));
     }
 
     public void allocateFrames(PageTableEntry entry, int frameAddress) {
-        if (frameAddress < 0 || frameAddress >= totalPages) {
+        if (frameAddress < 0 || frameAddress >= totalFrames) {
             throw new IllegalArgumentException("Frame address out of bounds: " + frameAddress);
         }
 
@@ -88,7 +88,7 @@ public class FrameController {
     }
 
     public boolean hasFreeFrames() {
-        return (totalPages - frameToPageTableEntryMap.size()) > 0;
+        return (totalFrames - frameToPageTableEntryMap.size()) > 0;
     }
 
     public int getTotalAllocatedFrames() {
@@ -101,14 +101,14 @@ public class FrameController {
     }
 
     public OptionalInt findFirstContiguousFreeRange(int rangeSize) {
-        if (rangeSize <= 0 || rangeSize > totalPages) {
+        if (rangeSize <= 0 || rangeSize > totalFrames) {
             return OptionalInt.empty();
         }
 
         int consecutiveFree = 0;
         int start = -1;
 
-        for (int frame = 0; frame < totalPages; frame++) {
+        for (int frame = 0; frame < totalFrames; frame++) {
             if (frameAllocationList.get(frame) == null) {
                 if (consecutiveFree == 0) {
                     start = frame;
@@ -147,6 +147,10 @@ public class FrameController {
 
     public List<PageTableEntry> getRawFrameAllocationList() {
         return Collections.unmodifiableList(frameAllocationList);
+    }
+
+    public int size() {
+        return frameAllocationList.size();
     }
 
 }

@@ -47,16 +47,20 @@ public class MemoryTabViewModel implements ViewModel {
     @Getter private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
     @Getter private final ObservableList<ProcessViewModel> observableProcessList;
 
+    private final MemoryStatisticsViewModel memoryStatisticsViewModel;
+
     private boolean resetInfo;
 
     public MemoryTabViewModel(
             MemoryManagement memoryManagement,
             Map<Long, Color> colorMap,
-            ObservableList<ProcessViewModel> observableProcessList) {
+            ObservableList<ProcessViewModel> observableProcessList,
+            MemoryStatisticsViewModel memoryStatisticsViewModel) {
 
         this.memoryManagement = memoryManagement;
         this.colorMap = colorMap;
         this.observableProcessList = observableProcessList;
+        this.memoryStatisticsViewModel = memoryStatisticsViewModel;
 
         setupSnoopers();
 
@@ -115,17 +119,6 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
 
-    private PageTableEntry findPageTableEntryForFrame(Process process, int frameIndex) {
-        ProcessMemoryInfo memoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-        if (memoryInfo == null) return null;
-
-        return memoryInfo.getPageTable().getAllEntries().stream()
-                .filter(PageTableEntry::isValid)
-                .filter(entry -> entry.getFrameNumber() != null && entry.getFrameNumber() == frameIndex)
-                .findFirst()
-                .orElse(null);
-    }
-
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent) uncastEvent;
 
@@ -161,8 +154,9 @@ public class MemoryTabViewModel implements ViewModel {
             default -> {} // Ignore other events
         }
 
-        // Update frame lists (common for all events except Allocate)
         updateFrameLists();
+        memoryStatisticsViewModel.updateStatistics(memoryManagement, observableProcessList);
+
     }
 
     private void handleTlbNoTranslation(ProcessMemoryInfo memoryInfo, Process process) {

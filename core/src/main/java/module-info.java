@@ -5,6 +5,7 @@ module org.pampasim.core {
     requires guru.nidi.graphviz;
     requires org.antlr.antlr4.runtime;
     requires org.apache.logging.log4j;
+    requires de.saxsys.mvvmfx;
 
     exports org.pampasim.core.dsl;
     exports org.pampasim.core.dsl.metadata;

@@ -41,11 +41,14 @@ public class ProcessManager extends AbstractSimEntity {
     }
 
     private void handleProcessRunPaused(org.pampasim.events.Process.RunPaused event) {
-        if (event.getProcess().isFinished()) {
-            event.getProcess().setState(Process.State.TERMINATED);
-            scheduleToNextClock(new org.pampasim.events.Process.End(this, event.getProcess()));
+        Process process = event.getProcess();
+
+        if (process.isFinished()) {
+            process.setState(Process.State.TERMINATED);
+            process.setEndTime(getSimulation().getRealClock().getTick());
+            scheduleToNextClock(new org.pampasim.events.Process.End(this, process));
         } else {
-            event.getProcess().setState(Process.State.WAITING);
+            process.setState(Process.State.WAITING);
             scheduleToNextClock(new org.pampasim.events.Process.Schedule(this, event.getProcess()));
         }
     }

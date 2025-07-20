@@ -41,7 +41,9 @@ public class PhysicalMemory extends AbstractSimEntity {
     private final double variablePageAllocationBottomThreshold;
 
     // Statistics
+    @Getter
     private int pageFaults;
+    @Getter
     private int pageHits;
 
     //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
@@ -366,7 +368,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         //TODO: Anticipated page loading (Load all pages the process is allowed to have)
         if (anticipatedPageLoading) {
             int freeProcessFrames = processMemoryInfo.getMaxFrames() - mainMemory.getTotalProcessFrames(process);
-            int freeMemoryFrames = mainMemory.getTotalPages() - mainMemory.getTotalAllocatedFrames();
+            int freeMemoryFrames = mainMemory.getTotalFrames() - mainMemory.getTotalAllocatedFrames();
             int prePagingNumber = min(freeProcessFrames, freeMemoryFrames);
 
             if (prePagingNumber <= 0) {

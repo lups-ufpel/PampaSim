@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationStatisticsView">
+    <TitledPane text="Gerência de Processos">
+        <content>
+            <VBox spacing="10">
+                <GridPane hgap="10" vgap="10">
+                    <Label text="Ticks Decorridos:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="elapsedTicksLabel" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                    <Label text="Total de Processos:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label fx:id="totalProcessesLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label text="Processos Concluídos:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label fx:id="completedProcessesLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label text="Ticks de CPU Ocupada:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="cpuBusyTicksLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label text="Ticks Acumulados de Espera para CPU" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label fx:id="readyWaitingTicksLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label text="Uso da CPU (%):" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <Label fx:id="processorUsageLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                    <Label text="Média de Espera para CPU:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <Label fx:id="avgReadyWaitLabel" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                    <Label text="Tempo Médio de Retorno:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                    <Label fx:id="avgTurnaroundLabel" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                    <Label text="Throughput (/tick):" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                    <Label fx:id="throughputLabel" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                    <columnConstraints>
+                        <ColumnConstraints maxWidth="250.0" minWidth="250.0" prefWidth="250.0" />
+                        <ColumnConstraints maxWidth="0.0" minWidth="55.0" prefWidth="0.0" />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
+            </VBox>
+        </content>
+    </TitledPane>
+</VBox>
