@@ -2,6 +2,7 @@ package org.pampasim.view;
 
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -34,7 +36,6 @@ import java.util.ResourceBundle;
 
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
-    public Button stepBtn;
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
@@ -83,6 +84,12 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public TableColumn<ProcessViewModel, Double> progressCol;
     @FXML
     public TabPane moduleTabPane;
+    @FXML
+    public Button stepBtn;
+    @FXML
+    public Button statisticsBtn;
+    @FXML
+    public Button addModuleBtn;
 
     private Timeline animation;
     private ProcessViewModel editedProcessViewModel = null;
@@ -176,6 +183,19 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         .getSimulationIsValidSetup().not()
                         .or(pampaSimViewModel.getSimulationRunning())
         );
+        statisticsBtn.disableProperty().bind(
+                pampaSimViewModel
+                        .getSimulationIsValidSetup().not()
+                        .or(pampaSimViewModel.getSimulationRunning())
+        );
+
+        addModuleBtn.disableProperty().bind(
+                pampaSimViewModel
+                        .getSimulationIsValidSetup()
+                        .or(pampaSimViewModel.getSimulationRunning())
+                        .or(pampaSimViewModel.getMemoryModulePresent())
+        );
+
         resetBtn.disableProperty()
                 .bind(pampaSimViewModel.getSimulationRunning());
         loadSpecBtn.disableProperty()
@@ -261,11 +281,15 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 .viewModel(pampaSimViewModel.getSimulationStatisticsViewModel())
                 .load();
 
+        var statisticsView = statisticsViewTuple.getView();
+
         Stage stage = new Stage();
         stage.setTitle("Estatísticas da Simulação");
-        stage.setScene(new Scene(statisticsViewTuple.getView()));
-        stage.setResizable(false);
+        stage.setScene(new Scene(statisticsView));
+        stage.setResizable(true);
+        stage.minWidthProperty().set(330);
         stage.show();
     }
+
 
 }

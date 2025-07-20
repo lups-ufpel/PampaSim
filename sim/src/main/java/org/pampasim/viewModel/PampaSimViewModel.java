@@ -144,7 +144,7 @@ public class PampaSimViewModel implements ViewModel {
             if (simMemoryModule != null) {
                 simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
                         this::handleProcessEvent);
-                simulationStatisticsViewModel.getModuleStatisticsViewModel(MemoryStatisticsViewModel.class).updateStatistics(sim, allProcesses);
+                simulationStatisticsViewModel.getModuleStatisticsViewModel(MemoryStatisticsViewModel.class).updateStatistics(simMemoryModule, allProcesses);
 
             }
             return sim;

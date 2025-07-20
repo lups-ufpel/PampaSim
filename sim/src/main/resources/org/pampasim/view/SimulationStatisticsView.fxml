@@ -10,8 +10,8 @@
 <VBox spacing="10" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationStatisticsView">
     <TitledPane text="Gerência de Processos">
         <content>
-            <VBox spacing="10">
-                <GridPane hgap="10" vgap="10">
+            <VBox>
+                <GridPane hgap="5" vgap="5">
                     <Label text="Ticks Decorridos:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <Label fx:id="elapsedTicksLabel" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
@@ -59,4 +59,67 @@
             </VBox>
         </content>
     </TitledPane>
+    <TitledPane fx:id="memoryTitledPane" text="Gerência de Memória" visible="false" managed="false">
+        <content>
+            <VBox>
+                <GridPane hgap="5" vgap="5">
+                    <Label text="Quadros na RAM:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="framesInRamLabel" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                    <Label text="Quadros na Swap:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label fx:id="framesInSwapLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label text="Tamanho da Página (Bytes):" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label fx:id="pageSizeLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label text="Quadros RAM em uso:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="usedRamFramesLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label text="Ram Livre (%):" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label fx:id="freeRamPercentageLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label text="Quadros Swap em uso:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <Label fx:id="usedSwapFramesLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                    <Label text="Swap Livre (%):" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <Label fx:id="freeSwapPercentageLabel" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                    <Label text="Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                    <Label fx:id="pageFaultsLabel" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                    <Label text="Page Hits:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                    <Label fx:id="pageHitsLabel" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                    <Label text="Taxa de Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="9" />
+                    <Label fx:id="pageFaultRateLabel" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+
+                    <Label text="Ticks acumulados de espera I/O:" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                    <Label fx:id="accumulatedIoWaitingTicksLabel" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+
+                    <Label text="Média de espera I/O (ticks):" GridPane.columnIndex="0" GridPane.rowIndex="11" />
+                    <Label fx:id="averageIoWaitingTicksLabel" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+
+               <columnConstraints>
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+            </VBox>
+        </content>
+    </TitledPane>
+
 </VBox>

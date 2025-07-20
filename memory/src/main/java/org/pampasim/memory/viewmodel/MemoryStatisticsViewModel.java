@@ -22,8 +22,8 @@ public class MemoryStatisticsViewModel implements StatisticsViewModel {
     public final SimpleIntegerProperty usedRamFrames = new SimpleIntegerProperty();
     public final SimpleIntegerProperty usedSwapFrames = new SimpleIntegerProperty();
     public final SimpleIntegerProperty accumulatedIoWaitingTicks = new SimpleIntegerProperty();
-    public final SimpleDoubleProperty usedRamPercentage = new SimpleDoubleProperty();
-    public final SimpleDoubleProperty usedSwapPercentage = new SimpleDoubleProperty();
+    public final SimpleDoubleProperty freeRamPercentage = new SimpleDoubleProperty();
+    public final SimpleDoubleProperty freeSwapPercentage = new SimpleDoubleProperty();
     public final SimpleDoubleProperty totalPageFaultPercentage = new SimpleDoubleProperty();
     public final SimpleDoubleProperty averageIoWaitingTicks = new SimpleDoubleProperty();
 
@@ -53,14 +53,14 @@ public class MemoryStatisticsViewModel implements StatisticsViewModel {
                 allProcesses.isEmpty() ? 0.0 :
                         (double) totalIoWaitingTicks / allProcesses.size()
         );
-        usedRamPercentage.set(
+        freeRamPercentage.set(
                 framesInRam.get() == 0 ? 0.0 :
-                        (double) usedRamFrames.get() / framesInRam.get()
+                        (1 - ((double) usedRamFrames.get() / framesInRam.get()))
         );
 
-        usedSwapPercentage.set(
+        freeSwapPercentage.set(
                 framesInSwap.get() == 0 ? 0.0 :
-                        (double) usedSwapFrames.get() / framesInSwap.get()
+                        (1 - ((double) usedSwapFrames.get() / framesInSwap.get()))
         );
         int totalPageAccesses = totalPageFaults.get() + totalPageHits.get();
         totalPageFaultPercentage.set(
