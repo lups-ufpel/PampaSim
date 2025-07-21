@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -13,139 +14,140 @@
 <?import javafx.scene.layout.VBox?>
 
 <TabPane prefHeight="572.0" prefWidth="515.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.PCBView">
-   <tabs>
-      <Tab closable="false" text="PCB">
-         <content>
-            <VBox>
-                <TitledPane text="Gerência de Processos">
-                    <VBox spacing="10">
-                        <GridPane hgap="10" vgap="10">
-                            <Label text="PID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                            <Label fx:id="pidLabel" GridPane.columnIndex="2" />
+    <tabs>
+        <Tab closable="false" text="PCB">
+            <content>
+                <VBox>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+                        <TitledPane text="Gerência de Processos">
+                            <VBox spacing="10">
+                                <GridPane hgap="10" vgap="10">
+                                    <Label text="PID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label fx:id="pidLabel" GridPane.columnIndex="2" />
 
-                            <Label text="Cor:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                            <Label fx:id="colorLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <Label text="Cor:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label fx:id="colorLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-                            <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                            <Label fx:id="stateLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                    <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <Label fx:id="stateLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
 
-                            <Label text="Tempo de Chegada:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                            <Label fx:id="arrivalTickLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                    <Label text="Tempo de Chegada:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                    <Label fx:id="arrivalTickLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
 
-                            <Label text="Prioridade:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                            <Label fx:id="priorityLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                    <Label text="Prioridade:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                    <Label fx:id="priorityLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
 
-                            <Label text="Tempo em Espera para Escalonamento:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                            <Label fx:id="readyWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                    <Label text="Tempo em Espera para Escalonamento:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                    <Label fx:id="readyWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="5" />
 
-                            <Label text="Tempo Total de Execução: " GridPane.rowIndex="6" />
-                            <Label fx:id="burstLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                                    <Label text="Tempo Total de Execução: " GridPane.rowIndex="6" />
+                                    <Label fx:id="burstLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
 
-                            <Label text="Tempo Decorrente de Execução:" GridPane.rowIndex="7" />
-                            <Label fx:id="currExecTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                    <Label text="Tempo Decorrente de Execução:" GridPane.rowIndex="7" />
+                                    <Label fx:id="currExecTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="7" />
 
-
-
-                          <columnConstraints>
-                             <ColumnConstraints />
-                             <ColumnConstraints />
-                           <ColumnConstraints />
-                          </columnConstraints>
-                          <rowConstraints>
-                             <RowConstraints />
-                           <RowConstraints />
-                             <RowConstraints />
-                             <RowConstraints />
-                             <RowConstraints />
-                           <RowConstraints />
-                             <RowConstraints />
-                           <RowConstraints />
-                          </rowConstraints>
-                          <VBox.margin>
-                             <Insets />
-                          </VBox.margin>
-                        </GridPane>
-                    </VBox>
-                </TitledPane>
-                <TitledPane fx:id="processMemoryInfoTitledPane" text="Gerência de Memória">
-                    <content>
-                        <VBox spacing="10">
-                            <GridPane hgap="10" vgap="10">
-                                <Label text="Tamanho (em páginas):" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Label fx:id="memorySizeLabel" GridPane.columnIndex="2" />
-
-                                <Label text="Máximo de páginas na RAM:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                <Label fx:id="maxPagesRamLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                                <Label text="Tempo em Espera para Operaçao I/O:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                <Label fx:id="ioWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                                <Label text="Page Hits:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                <Label fx:id="pageHitsLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-                                <Label text="Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                <Label fx:id="pageFaultsLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-
-                                <Label text="Taxa de Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                <Label fx:id="pageFaultRateLabel" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-
-                                <Label text="Tamanho da Janela do Working Set:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                                <Label fx:id="workingSetWindowLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-
-
-                                <columnConstraints>
-                                    <ColumnConstraints />
-                                    <ColumnConstraints />
-                              <ColumnConstraints />
-                                </columnConstraints>
-                                <rowConstraints>
-                                    <RowConstraints />
-                                    <RowConstraints />
-                              <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                </rowConstraints>
-                                <VBox.margin>
-                                    <Insets bottom="10.0" />
-                                </VBox.margin>
-                            </GridPane>
-
-                            <VBox spacing="5">
-                                <Label text="Working Set:" />
-                                <Label fx:id="workingSetListLabel" wrapText="true" />
-
-                                <Label text="Lista de Acessos:" />
-                                <Label fx:id="accessListLabel" wrapText="true" />
+                                    <columnConstraints>
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                        <ColumnConstraints />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
+                                    <VBox.margin>
+                                        <Insets />
+                                    </VBox.margin>
+                                </GridPane>
                             </VBox>
-                        </VBox>
-                    </content>
-                </TitledPane>
-            </VBox>
-         </content>
-      </Tab>
-       <Tab fx:id="pageTableTab" closable="false" text="Tabela de Páginas">
-           <content>
-               <VBox>
-                   <Label fx:id="noPageTableLabel" managed="false" text="Tabela de páginas ainda não foi criada" visible="false" />
+                        </TitledPane>
+                    </ScrollPane>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                        <TitledPane fx:id="processMemoryInfoTitledPane" text="Gerência de Memória">
+                            <content>
+                                <VBox spacing="10">
+                                    <GridPane hgap="10" vgap="10">
+                                        <Label text="Tamanho (em páginas):" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Label fx:id="memorySizeLabel" GridPane.columnIndex="2" />
 
-                   <TableView fx:id="pageTableView" VBox.vgrow="ALWAYS">
-                       <columns>
-                           <TableColumn fx:id="pageNumberColumn" prefWidth="57.0" text="Página" />
-                           <TableColumn fx:id="validColumn" prefWidth="54.0" text="Válida" />
-                           <TableColumn fx:id="dirtyColumn" prefWidth="87.0" text="Modificada" />
-                           <TableColumn fx:id="referencedColumn" prefWidth="96.0" text="Referenciada" />
-                           <TableColumn fx:id="fileBackedColumn" prefWidth="87.0" text="File-backed" />
-                           <TableColumn fx:id="frameAddressColumn" prefWidth="131.0" text="Endereço do Frame" />
-                       </columns>
-                       <columnResizePolicy>
-                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                       </columnResizePolicy>
-                   </TableView>
-               </VBox>
-           </content>
-       </Tab>
+                                        <Label text="Máximo de páginas na RAM:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="maxPagesRamLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-   </tabs>
+                                        <Label text="Tempo em Espera para Operaçao I/O:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Label fx:id="ioWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                                        <Label text="Page Hits:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                        <Label fx:id="pageHitsLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
+                                        <Label text="Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                        <Label fx:id="pageFaultsLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+
+                                        <Label text="Taxa de Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                        <Label fx:id="pageFaultRateLabel" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+
+                                        <Label text="Tamanho da Janela do Working Set:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                        <Label fx:id="workingSetWindowLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+
+                                        <columnConstraints>
+                                            <ColumnConstraints />
+                                            <ColumnConstraints />
+                                            <ColumnConstraints />
+                                        </columnConstraints>
+                                        <rowConstraints>
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                            <RowConstraints />
+                                        </rowConstraints>
+                                        <VBox.margin>
+                                            <Insets bottom="10.0" />
+                                        </VBox.margin>
+                                    </GridPane>
+
+                                    <VBox spacing="5">
+                                        <Label text="Working Set:" />
+                                        <Label fx:id="workingSetListLabel" wrapText="true" />
+
+                                        <Label text="Lista de Acessos:" />
+                                        <Label fx:id="accessListLabel" wrapText="true" />
+                                    </VBox>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+                    </ScrollPane>
+                </VBox>
+            </content>
+        </Tab>
+        <Tab fx:id="pageTableTab" closable="false" text="Tabela de Páginas">
+            <content>
+                <VBox>
+                    <Label fx:id="noPageTableLabel" managed="false" text="Tabela de páginas ainda não foi criada" visible="false" />
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                        <TableView fx:id="pageTableView" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="pageNumberColumn" prefWidth="57.0" text="Página" />
+                                <TableColumn fx:id="validColumn" prefWidth="54.0" text="Válida" />
+                                <TableColumn fx:id="dirtyColumn" prefWidth="87.0" text="Modificada" />
+                                <TableColumn fx:id="referencedColumn" prefWidth="96.0" text="Referenciada" />
+                                <TableColumn fx:id="fileBackedColumn" prefWidth="87.0" text="File-backed" />
+                                <TableColumn fx:id="frameAddressColumn" prefWidth="131.0" text="Endereço do Frame" />
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
+                        </TableView>
+                    </ScrollPane>
+                </VBox>
+            </content>
+        </Tab>
+    </tabs>
 </TabPane>

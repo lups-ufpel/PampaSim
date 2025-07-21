@@ -7,10 +7,7 @@ import lombok.Setter;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessMemoryInfo.IoOperationType;
 import org.pampasim.resources.memory.PageTableEntry;
-import javafx.collections.ObservableList;
 import org.pampasim.resources.memory.ProcessPageTable;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -76,7 +73,7 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
                         .toList()
         );
 
-        accessList.setAll(memoryInfo.getCurrentAccessList());
+        accessList.setAll(memoryInfo.getCurrentAccess());
 
         // IO operation info
         IoOperationType currentType = memoryInfo.getCurrentIoOperation();

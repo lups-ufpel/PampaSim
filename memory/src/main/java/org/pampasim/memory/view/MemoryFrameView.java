@@ -39,7 +39,7 @@ public class MemoryFrameView implements FxmlView<MemoryFrameViewModel> {
         pageNumberLabel.managedProperty().bind(circle.managedProperty());
 
         frameVBox.styleProperty().bind(
-                Bindings.when(viewModel.getReferenced())
+                Bindings.when(viewModel.getDirty())
                         .then("-fx-background-color: #dcdcdc; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);")
                         .otherwise("-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);")
         );

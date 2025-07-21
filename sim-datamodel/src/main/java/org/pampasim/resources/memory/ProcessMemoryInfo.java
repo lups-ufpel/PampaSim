@@ -7,7 +7,6 @@ import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -47,8 +46,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private int pageHits;
     private int pageFaults;
     private final Map<Integer, Integer> runtimeIoOperationSchedule = new HashMap<>();
-    private final ArrayList<ArrayList<Integer>> runtimeAddressAccessList = new ArrayList<>();
-    private final ArrayList<ArrayList<Boolean>> runtimeModifyPage = new ArrayList<>();
+    private final ArrayList<Integer> runtimeAddressAccessList = new ArrayList<>();
+    private final ArrayList<Boolean> runtimeModifyPage = new ArrayList<>();
     private int ioWaitingTime;
 
     public enum IoOperationType {
@@ -70,13 +69,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.ioWaitingTime = 0;
 
         // Initialize runtime structures from creation data
-        for (Integer address : creationData.addressAccessList) {
-            this.runtimeAddressAccessList.add(new ArrayList<>(List.of(address)));
-        }
-
-        for (Boolean modifyFlag : creationData.modifyPage) {
-            this.runtimeModifyPage.add(new ArrayList<>(List.of(modifyFlag)));
-        }
+        this.runtimeAddressAccessList.addAll(creationData.addressAccessList);
+        this.runtimeModifyPage.addAll(creationData.modifyPage);
     }
 
     public void forwardIoOperation() {
@@ -85,17 +79,17 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         }
     }
 
-    public ArrayList<Integer> getCurrentAccessList() {
-        int nextAccessListIndex = getCurrentAccessListIndex();
-        return nextAccessListIndex >= 0 ? runtimeAddressAccessList.get(nextAccessListIndex) : new ArrayList<>(List.of(0));
+    public Integer getCurrentAccess() {
+        int nextAccessListIndex = getCurrentAccessIndex();
+        return nextAccessListIndex >= 0 ? runtimeAddressAccessList.get(nextAccessListIndex) : 0;
     }
 
-    public ArrayList<Boolean> getCurrentModifyPageFlags() {
-        int nextAccessListIndex = getCurrentAccessListIndex();
+    public Boolean getCurrentModifyPageFlag() {
+        int nextAccessListIndex = getCurrentAccessIndex();
         return nextAccessListIndex >= 0 ? runtimeModifyPage.get(nextAccessListIndex) : null;
     }
 
-    private int getCurrentAccessListIndex() {
+    private int getCurrentAccessIndex() {
         int nextAccessListIndex = process.getCurrExecTime();
         int addressAccessListSize = runtimeAddressAccessList.size();
 
@@ -187,5 +181,4 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     public void incrementIoWaitingTime() {
         ioWaitingTime++;
     }
-
 }

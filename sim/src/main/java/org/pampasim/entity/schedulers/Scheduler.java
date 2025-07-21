@@ -53,7 +53,6 @@ public abstract class Scheduler extends AbstractSimEntity {
         if (proc == null) { return; }
         proc.setState(Process.State.SCHEDULED);
         lastRunProcess = proc;
-        //LOGGER.error("process scheduled of pid {}", proc.getPid());
         scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
 
     }

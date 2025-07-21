@@ -70,52 +70,48 @@ public class PageTableManager extends AbstractSimEntity {
     private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-        ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList();
-        ArrayList<Boolean> modifyFlags = processMemoryInfo.getCurrentModifyPageFlags();
+        Integer access = processMemoryInfo.getCurrentAccess();
+        Boolean modifyFlag = processMemoryInfo.getCurrentModifyPageFlag();
         ProcessPageTable pageTable = processMemoryInfo.getPageTable();
-        PageTableEntry pageTableEntry;
+        PageTableEntry pageTableEntry = null;
 
-        // Verify both lists have the same size
-        if (modifyFlags != null && accessList.size() != modifyFlags.size()) {
-            LOGGER.error("Process ID {}: Access list and modify flags size mismatch", process.getPid());
+        if (access == null) {
+            LOGGER.error("Process ID {}: No access address found", process.getPid());
             scheduleToNextClock(new FreeProcessMemory(this, process));
             return;
         }
 
-        for (int i = 0; i < accessList.size(); i++) {
-            int access = accessList.get(i);
-            int pageNo = MemoryConfig.extractPageNumber(access);
-            try {
-                pageTableEntry = pageTable.getEntry(pageNo);
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Process ID {}: Illegal access! Segmentation fault for address {}", process.getPid(), access);
-                scheduleToNextClock(new FreeProcessMemory(this, process));
-                return;
-            }
-
-            pageTableEntry.setReferenced(true);
-
-            // Set dirty bit if this is a write operation
-            if (modifyFlags != null && modifyFlags.get(i)) {
-                pageTableEntry.setDirty(true);
-            }
-
-            if (pageTableEntry.getFrameNumber() == null || !pageTableEntry.isValid()) {
-                // if there is at least 1 page fault, suspend process and send a PageFault event
-                if (pageTableEntry.getFrameNumber() == null) {
-                    LOGGER.debug("Process ID {}: Page table access generated Page Fault (No translation)", process.getPid());
-                } else {
-                    LOGGER.debug("Process ID {}: Page table access generated Page Fault (Valid bit 0)", process.getPid());
-                }
-
-                process.setState(Process.State.IO_WAITING);
-                scheduleToNextClock(new PageFault(this, process));
-                return;
-            }
+        int pageNo = MemoryConfig.extractPageNumber(access);
+        try {
+            pageTableEntry = pageTable.getEntry(pageNo);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Process ID {}: Illegal access! Segmentation fault for address {}", process.getPid(), access);
+            scheduleToNextClock(new FreeProcessMemory(this, process));
+            return;
         }
 
-        // If no page faults found, all entries were present in memory
-        LOGGER.debug("Process ID {}: Page table access generated only Page Hits", process.getPid());
+        if (pageTableEntry.getFrameNumber() == null || !pageTableEntry.isValid()) {
+            // if there is a page fault, suspend process and send a PageFault event
+            if (pageTableEntry.getFrameNumber() == null) {
+                LOGGER.debug("Process ID {}: Page table access generated Page Fault (No translation)", process.getPid());
+            } else {
+                LOGGER.debug("Process ID {}: Page table access generated Page Fault (Valid bit 0)", process.getPid());
+            }
+
+            process.setState(Process.State.IO_WAITING);
+            scheduleToNextClock(new PageFault(this, process));
+            return;
+        }
+
+        // If no page fault found, entry was present in memory
+
+        // Set dirty bit if this is a write operation
+        if (modifyFlag != null && modifyFlag) {
+            pageTableEntry.setDirty(true);
+        }
+        pageTableEntry.setReferenced(true);
+
+        LOGGER.debug("Process ID {}: Page table access generated Page Hit", process.getPid());
         if (referenceCounter >= referencedBitReset) {
             resetReferencedBits();
         }
@@ -148,6 +144,4 @@ public class PageTableManager extends AbstractSimEntity {
             }
         }
     }
-
-
 }

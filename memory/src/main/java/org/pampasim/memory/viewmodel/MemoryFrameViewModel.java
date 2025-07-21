@@ -14,6 +14,7 @@ public class MemoryFrameViewModel implements ViewModel {
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
     private final IntegerProperty pageNumber = new SimpleIntegerProperty(-1); // -1 means unused
     private final BooleanProperty referenced = new SimpleBooleanProperty(false);
+    private final BooleanProperty dirty = new SimpleBooleanProperty(false);
 
     MemoryFrameViewModel(int frameNum) {
         this.frameNum = frameNum;

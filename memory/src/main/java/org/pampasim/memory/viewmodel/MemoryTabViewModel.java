@@ -19,10 +19,7 @@ import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -74,7 +71,6 @@ public class MemoryTabViewModel implements ViewModel {
         List<PageTableEntry> swapFrameList = memoryManagement.getEntity(PhysicalMemory.class)
                 .getSwapFile().getRawFrameAllocationList();
 
-
         createFrameList(ramFrameList, observableRamFrameList);
         createFrameList(swapFrameList, observableSwapFrameList);
     }
@@ -90,17 +86,18 @@ public class MemoryTabViewModel implements ViewModel {
                 vm.getPid().set(process.getPid());
                 vm.getPageNumber().set(entry.getPageNumber());
                 vm.getReferenced().set(entry.isReferenced());
+                vm.getDirty().set(entry.isDirty());
             } else {
                 vm.getPid().set(null);
                 vm.getColorProperty().set(null);
                 vm.getPageNumber().set(-1);
                 vm.getReferenced().set(false);
+                vm.getDirty().set(false);
             }
 
             observableList.add(vm);
         });
     }
-
 
     private void updateFrameList(List<PageTableEntry> frameList, ObservableList<MemoryFrameViewModel> observableList) {
         for (int i = 0; i < frameList.size(); i++) {
@@ -113,22 +110,23 @@ public class MemoryTabViewModel implements ViewModel {
                 vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
                 vm.getPageNumber().set(entry.getPageNumber());
                 vm.getReferenced().set(entry.isReferenced());
+                vm.getDirty().set(entry.isDirty());
             } else {
                 vm.getPid().set(null);
                 vm.getColorProperty().set(null);
                 vm.getPageNumber().set(-1);
                 vm.getReferenced().set(false);
+                vm.getDirty().set(false);
             }
         }
     }
 
-
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent) uncastEvent;
 
-        // Early return for allocation events, since they don't require any handling and would cause issues with the abscence of memory info classes which haven't been created yet
+        // Early return for allocation events
         if (event instanceof org.pampasim.events.Process.Allocate ||
-            event instanceof org.pampasim.events.Memory.Allocate) {
+                event instanceof org.pampasim.events.Memory.Allocate) {
             return;
         }
 
@@ -161,11 +159,10 @@ public class MemoryTabViewModel implements ViewModel {
 
         updateFrameLists();
         memoryStatisticsViewModel.updateStatistics(memoryManagement, observableProcessList);
-
     }
 
     private void handleTlbNoTranslation(ProcessMemoryInfo memoryInfo, Process process) {
-        int access = memoryInfo.getCurrentAccessList().getFirst();
+        int access = memoryInfo.getCurrentAccess();
         virtualAddress.set(Integer.toString(access));
         pageNumber.set(Integer.toString(MemoryConfig.extractPageNumber(access)));
         offset.set(Integer.toString(MemoryConfig.extractOffsetNumber(access)));
@@ -213,7 +210,7 @@ public class MemoryTabViewModel implements ViewModel {
 
     private void handleDiskOperationFinishedPageFault(Process process, ProcessMemoryInfo memoryInfo) {
         PhysicalMemory physicalMemory = memoryManagement.getEntity(PhysicalMemory.class);
-        ArrayList<PageTableEntry> swappedInPages = physicalMemory.getLastSwappedInPages();
+        List<PageTableEntry> swappedInPages = physicalMemory.getLastSwappedInPages();
         PageTableEntry swappedOutPage = physicalMemory.getLastSwappedOutPage();
 
         // Build swap-in message
@@ -259,11 +256,11 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     private void updateIoWaitingTimes() {
-        ArrayList<Process> processIoQueue = memoryManagement.getEntity(PhysicalMemory.class)
+        List<Process> processIoQueue = memoryManagement.getEntity(PhysicalMemory.class)
                 .getIoEventQueue()
                 .stream()
                 .map(ioEvent -> ((org.pampasim.events.ProcessEvent) ioEvent).getProcess())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
 
         for (Process queuedProc : processIoQueue) {
             long queuedId = queuedProc.getCreationData().getCreationId();
@@ -277,7 +274,7 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     private void handlePageHit(Process process, ProcessMemoryInfo memoryInfo) {
-        int access = memoryInfo.getCurrentAccessList().getFirst();
+        int access = memoryInfo.getCurrentAccess();
         infoTitle.set("Page Hit");
         infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
         infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
@@ -285,7 +282,7 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     private void handlePageFault(Process process, ProcessMemoryInfo memoryInfo) {
-        int access = memoryInfo.getCurrentAccessList().getFirst();
+        int access = memoryInfo.getCurrentAccess();
         infoTitle.set("Page Fault");
         infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que não está presente na memória RAM, e deve ser carregado da memória secundária");
         infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));

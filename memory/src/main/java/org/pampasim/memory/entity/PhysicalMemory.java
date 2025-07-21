@@ -50,10 +50,6 @@ public class PhysicalMemory extends AbstractSimEntity {
     @Getter
     private ArrayList<PageTableEntry> lastSwappedInPages = new ArrayList<>();
 
-    //TODO: maybe a queue of memory access events will be needed when multiple processor cores exist
-    //TODO: add LOGGER debug messages for every event
-    //TODO: more error handling
-
     public PhysicalMemory(Simulation simulation, boolean globalReplacementPolicy,
                           PageReplacementAlgorithm pageReplacementAlgorithm,
                           boolean anticipatedPageLoading, boolean variablePageAllocation,
@@ -75,7 +71,6 @@ public class PhysicalMemory extends AbstractSimEntity {
         this.pageFaults = 0;
         this.pageHits = 0;
 
-        // Register event handlers
         simulation.getEventManager().addEventHandler(PageHit.class, this);
         simulation.getEventManager().addEventHandler(PageFault.class, this);
         simulation.getEventManager().addEventHandler(FreeProcessMemory.class, this);
@@ -86,7 +81,7 @@ public class PhysicalMemory extends AbstractSimEntity {
     @Override
     public void acceptEvent(Event event) {
         switch (event) {
-            case IoOperation e -> acceptIoEventRequest(e); // these events lead into IO operations which can only be done one at a time
+            case IoOperation e -> acceptIoEventRequest(e);
             case PageFault e -> acceptIoEventRequest(e);
             default -> super.acceptEvent(event);
         }
@@ -94,8 +89,8 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     @Override
     protected void managedRun() {
-        if (!occupied && !ioEventQueue.isEmpty()) { // no disk operation currently being run
-            buffer.add(ioEventQueue.poll()); // add the next event that will lead into an IO operation into the buffer
+        if (!occupied && !ioEventQueue.isEmpty()) {
+            buffer.add(ioEventQueue.poll());
             occupied = true;
         }
         while (!buffer.isEmpty()) {
@@ -125,7 +120,6 @@ public class PhysicalMemory extends AbstractSimEntity {
     private void acceptIoEventRequest(Event event) {
         LOGGER.trace("rx {}", event);
         this.ioEventQueue.add(event);
-        // the events handled here are non-blocking
     }
 
     private void handleDiskOperation(DiskOperation event) {
@@ -142,7 +136,6 @@ public class PhysicalMemory extends AbstractSimEntity {
                 case PAGE_FAULT -> treatPageFault(process);
                 case DISK_ACCESS -> treatDiskAccess(process);
             }
-            //processMemoryInfo.setCurrentIoOperation(null); // not resetting this is useful for the GUI
             scheduleToNextClock(new DiskOperationFinished(this, event.getProcess()));
             process.setState(Process.State.WAITING);
             occupied = false;
@@ -215,14 +208,12 @@ public class PhysicalMemory extends AbstractSimEntity {
             );
 
             if (mainMemory.getTotalProcessFrames(process) > processMemoryInfo.getMaxFrames()) {
-                ArrayList<Integer> accessList =  processMemoryInfo.getCurrentAccessList()
-                        .stream()
-                        .map(MemoryConfig::extractPageNumber)
-                        .collect(Collectors.toCollection(ArrayList::new));
+                Integer access = processMemoryInfo.getCurrentAccess();
+                int pageNumber = MemoryConfig.extractPageNumber(access);
                 ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
-                ArrayList<PageTableEntry> entries = processPageTable.getEntries(accessList);
+                PageTableEntry entry = processPageTable.getEntry(pageNumber);
 
-                ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, entries);
+                ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, List.of(entry));
                 PageTableEntry pageToRemove = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
 
                 LOGGER.trace(
@@ -240,8 +231,8 @@ public class PhysicalMemory extends AbstractSimEntity {
             return;
         }
 
-        entry.setDirty(false); // saving to secondary memory, so the dirty bit flips to unmodified
-        this.lastSwappedOutPage = entry; // Track the last swapped-out page
+        entry.setDirty(false);
+        this.lastSwappedOutPage = entry;
 
         if (entry.isFileBacked()) {
             mainMemory.freeFrame(entry.getFrameNumber());
@@ -291,7 +282,6 @@ public class PhysicalMemory extends AbstractSimEntity {
             frameMap.put(entry.getFrameNumber(), entry);
             entry.setValid(true);
 
-            // Add to the list of recently swapped-in pages
             this.lastSwappedInPages.add(entry);
 
             LOGGER.trace(
@@ -305,19 +295,17 @@ public class PhysicalMemory extends AbstractSimEntity {
         }
     }
 
-    private ArrayList<PageTableEntry> getValidPagePool(Process process, ArrayList<PageTableEntry> excludedPages) {
+    private ArrayList<PageTableEntry> getValidPagePool(Process process, List<PageTableEntry> excludedPages) {
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
         ArrayList<PageTableEntry> validPagePool;
 
         if (globalPageReplacement && mainMemory.getTotalProcessFrames(process) < processMemoryInfo.getMaxFrames()) {
-            // Global replacement - can use any page in memory
             validPagePool = frameMap.values().stream()
                     .filter(PageTableEntry::isValid)
                     .filter(entry -> !excludedPages.contains(entry))
                     .collect(Collectors.toCollection(ArrayList::new));
         } else {
-            // Local replacement - only use pages from this process
             validPagePool = processPageTable.getValidEntries().stream()
                     .filter(entry -> !excludedPages.contains(entry))
                     .collect(Collectors.toCollection(ArrayList::new));
@@ -329,33 +317,25 @@ public class PhysicalMemory extends AbstractSimEntity {
     private void treatPageFault(Process process) {
         LOGGER.debug("Processando Page Fault para o processo de identificador {}", process.getPid());
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
-        ArrayList<Integer> accessList = processMemoryInfo.getCurrentAccessList()
-                .stream()
-                .map(MemoryConfig::extractPageNumber)
-                .collect(Collectors.toCollection(ArrayList::new));
+        Integer access = processMemoryInfo.getCurrentAccess();
+        int pageNumber = MemoryConfig.extractPageNumber(access);
         ProcessPageTable processPageTable = processMemoryInfo.getPageTable();
-        ArrayList<PageTableEntry> entries = processPageTable.getEntries(accessList);
+        PageTableEntry entry = processPageTable.getEntry(pageNumber);
 
-        // Reset the list of swapped-in pages
         this.lastSwappedInPages.clear();
 
-        // Get faulty pages
-        ArrayList<PageTableEntry> faultyPages = entries.stream()
-                .filter(entry -> entry.getFrameNumber() == null || !entry.isValid())
-                .collect(Collectors.toCollection(ArrayList::new));
+        if (entry.getFrameNumber() == null || !entry.isValid()) {
+            ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, List.of(entry));
 
-        ArrayList<PageTableEntry> validPagePool = getValidPagePool(process, faultyPages);
-
-        for (PageTableEntry faultyPage : faultyPages) {
             if (mainMemory.hasFreeFrames() &&
                     mainMemory.getTotalProcessFrames(process) < processMemoryInfo.getMaxFrames()) {
 
                 LOGGER.trace(
                         "Ainda há frames na memória principal, realizando swap in da pagina {} do Processo de identificador {}",
-                        faultyPage.getPageNumber(),
+                        entry.getPageNumber(),
                         process.getPid()
                 );
-                swapIn(faultyPage);
+                swapIn(entry);
             } else {
                 PageTableEntry pageToSwap = pageReplacementAlgorithm.pickPagesToSwap(1, validPagePool).getFirst();
                 validPagePool.remove(pageToSwap);
@@ -369,32 +349,26 @@ public class PhysicalMemory extends AbstractSimEntity {
 
                 LOGGER.trace(
                         "Depois de liberar o frame, realizando swap in da pagina {} do Processo de identificador {}",
-                        faultyPage.getPageNumber(),
+                        entry.getPageNumber(),
                         mainMemory.getFrameOwner(pageToSwap.getPageNumber())
                 );
-                swapIn(faultyPage);
+                swapIn(entry);
             }
         }
 
-        // Anticipated page loading (Load all pages the process is allowed to have)
         if (anticipatedPageLoading) {
             int freeProcessFrames = processMemoryInfo.getMaxFrames() - mainMemory.getTotalProcessFrames(process);
             int freeMemoryFrames = mainMemory.getTotalFrames() - mainMemory.getTotalAllocatedFrames();
             int prePagingNumber = min(freeProcessFrames, freeMemoryFrames);
 
             if (prePagingNumber <= 0) {
-                LOGGER.error("Não existe espaço para fazer carregamento de páginas antecipado!");
+                LOGGER.trace("Não existe espaço para fazer carregamento de páginas antecipado!");
                 return;
             }
 
-            ArrayList<PageTableEntry> pagesToLoad = new ArrayList<>();
-            ArrayList<Integer> currentAccesses = faultyPages.stream()
-                    .map(PageTableEntry::getPageNumber)
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            ArrayList<Integer> prefetchList = getPrefetchList(processMemoryInfo, currentAccesses);
+            ArrayList<Integer> prefetchList = getPrefetchList(processMemoryInfo, List.of(pageNumber));
             Collections.sort(prefetchList);
-            pagesToLoad.addAll(processMemoryInfo.getPageTable().getEntries(prefetchList));
+            ArrayList<PageTableEntry> pagesToLoad = processMemoryInfo.getPageTable().getEntries(prefetchList);
             LOGGER.trace("Carregamento antecipado baseado na localidade espacial do processo");
 
             int swappedInCounter = 0;
@@ -412,7 +386,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         }
     }
 
-    private static ArrayList<Integer> getPrefetchList(ProcessMemoryInfo processMemoryInfo, ArrayList<Integer> currentAccesses) {
+    private static ArrayList<Integer> getPrefetchList(ProcessMemoryInfo processMemoryInfo, List<Integer> currentAccesses) {
         int processSize = processMemoryInfo.getSize();
         int prefetchDistance = MemoryConfig.getPrePagingRange();
         Set<Integer> prefetchSet = new HashSet<>();
@@ -431,7 +405,6 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     private void treatDiskAccess(Process process) {
         LOGGER.debug("Processando acesso a disco para o processo de identificador {}", process.getPid());
-        // nothing else is required
     }
 
     private int getEventPriority(Event event) {

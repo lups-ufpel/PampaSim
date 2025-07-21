@@ -44,7 +44,7 @@ public class ProcessView  implements FxmlView<ProcessViewModel> {
         Stage stage = new Stage();
         stage.setTitle("Informações do Processo");
         stage.setScene(new Scene(pcbViewTuple.getView()));
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.show();
     }
 
