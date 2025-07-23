@@ -11,9 +11,13 @@ import java.util.stream.Collectors;
 public class ProcessPageTable {
     // page table that stores the page table entries for each process
     private final ArrayList<PageTableEntry> entries;
+    private final ProcessMemoryInfo processMemoryInfo;
 
-    public ProcessPageTable(Process process, int processSize, List<Boolean> fileBackedFlags) {
-        this.entries = new ArrayList<>(processSize);
+    public ProcessPageTable(Process process) {
+        processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
+        int processSize = processMemoryInfo.getSize();
+        ArrayList<Boolean> fileBackedFlags = processMemoryInfo.getFileBackedPages();
+        this.entries = new ArrayList<>(processMemoryInfo.getCreationData().getSize());
         for (int i = 0; i < processSize; i++) {
             entries.add(new PageTableEntry(process, i, fileBackedFlags.get(i)));
         }

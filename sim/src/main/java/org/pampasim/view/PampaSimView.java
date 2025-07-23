@@ -186,7 +186,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         statisticsBtn.disableProperty().bind(
                 pampaSimViewModel
                         .getSimulationIsValidSetup().not()
-                        .or(pampaSimViewModel.getSimulationRunning())
         );
 
         addModuleBtn.disableProperty().bind(

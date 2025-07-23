@@ -131,12 +131,12 @@
                             <Spinner fx:id="bottomThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="11" />
 
                             <!-- TLBexists -->
-                            <Label text="TLB Habilitada" GridPane.rowIndex="12" />
-                            <CheckBox fx:id="tlbExistsCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                            <Label text="TLB Habilitada" GridPane.rowIndex="12" disable="true"/>
+                            <CheckBox fx:id="tlbExistsCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="12"  disable="true"/>
 
                             <!-- numberOfTLBEntries -->
-                            <Label text="   Número de Entradas na TLB" GridPane.rowIndex="13" />
-                            <Spinner fx:id="tlbEntriesSpinner" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                            <Label text="   Número de Entradas na TLB" GridPane.rowIndex="13" disable="true"/>
+                            <Spinner fx:id="tlbEntriesSpinner" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" disable="true" />
                         </children>
                     </GridPane>
                 </VBox>

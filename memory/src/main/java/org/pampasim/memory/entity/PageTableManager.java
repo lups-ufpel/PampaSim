@@ -49,7 +49,7 @@ public class PageTableManager extends AbstractSimEntity {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
 
-        ProcessPageTable pageTable = new ProcessPageTable(process, processMemoryInfo.getSize(), processMemoryInfo.getFileBackedPages());
+        ProcessPageTable pageTable = new ProcessPageTable(process);
         processMemoryInfo.setPageTable(pageTable);
         pageTableMap.put(process, pageTable);
 
@@ -109,15 +109,18 @@ public class PageTableManager extends AbstractSimEntity {
         if (modifyFlag != null && modifyFlag) {
             pageTableEntry.setDirty(true);
         }
-        pageTableEntry.setReferenced(true);
+
+        pageTableEntry.setReferenced(true); //register reference only for page hits to compute the working set, otherwise there are problems with double-counting
+        referenceCounter++;
 
         LOGGER.debug("Process ID {}: Page table access generated Page Hit", process.getPid());
         if (referenceCounter >= referencedBitReset) {
-            resetReferencedBits();
+            pageTableMap.values().forEach(processPageTable -> processPageTable.getProcessMemoryInfo().computeWorkingSet());
+            referenceCounter = 0;
         }
 
-        referenceCounter++;
-        processMemoryInfo.registerReference(); //register reference only for page hits to compute the working set, otherwise there are problems with double-counting
+
+
         scheduleToNextClock(new PageHit(this, process));
     }
 
@@ -136,12 +139,4 @@ public class PageTableManager extends AbstractSimEntity {
         };
     }
 
-    private void resetReferencedBits() {
-        referenceCounter = 0;
-        for (ProcessPageTable pageTable : pageTableMap.values()) {
-            for (PageTableEntry entry : pageTable.getEntries()) {
-                entry.setReferenced(false);
-            }
-        }
-    }
 }

@@ -42,7 +42,6 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private ProcessPageTable pageTable;
     private int maxFrames;
     private final ArrayList<PageTableEntry> workingSet;
-    private int referenceCounter;
     private int pageHits;
     private int pageFaults;
     private final Map<Integer, Integer> runtimeIoOperationSchedule = new HashMap<>();
@@ -62,7 +61,6 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.maxFrames = memoryConfigData.getMaxFrames();
         this.currentIoOperation = null;
         this.workingSet = new ArrayList<>();
-        this.referenceCounter = 0;
         this.currentIoOperationTimeRemaining = 0;
         this.pageHits = 0;
         this.pageFaults = 0;
@@ -131,15 +129,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         workingSet.clear();
         workingSet.addAll(referencedEntries);
         referencedEntries.forEach(pageTableEntry -> pageTableEntry.setReferenced(false));
-        referenceCounter = 0;
     }
 
-    public void registerReference() {
-        referenceCounter++;
-        if (referenceCounter >= memoryConfigData.getWorkingSetWindow()) {
-            computeWorkingSet();
-        }
-    }
 
     // Getters for creation data properties
     public Integer getSize() {
