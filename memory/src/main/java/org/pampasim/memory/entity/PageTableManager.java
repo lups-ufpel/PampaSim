@@ -35,9 +35,9 @@ public class PageTableManager extends AbstractSimEntity {
 
     public void processEvent(Event event) {
         switch (event) {
-            case Allocate e -> handleMemoryAllocate(e);
-            case DeletePageTableEntry e -> handleMemoryDeletePageTableEntry(e);
-            case TlbNoTranslation e -> handleMemoryTlbNoTranslation(e);
+            case Allocate e -> handleAllocate(e);
+            case DeletePageTableEntry e -> handleDeletePageTableEntry(e);
+            case TlbNoTranslation e -> handleTlbNoTranslation(e);
             default -> throw new IllegalStateException(
                     "[PageTableManager] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -45,7 +45,7 @@ public class PageTableManager extends AbstractSimEntity {
         }
     }
 
-    private void handleMemoryAllocate(Allocate event) {
+    private void handleAllocate(Allocate event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
 
@@ -57,7 +57,7 @@ public class PageTableManager extends AbstractSimEntity {
         scheduleToNextClock(new AllocateFinished(this, process));
     }
 
-    private void handleMemoryDeletePageTableEntry(DeletePageTableEntry event) {
+    private void handleDeletePageTableEntry(DeletePageTableEntry event) {
         Process process = event.getProcess();
 
         process.getModuleInfo(ProcessMemoryInfo.class).setPageTable(null);
@@ -67,7 +67,7 @@ public class PageTableManager extends AbstractSimEntity {
         scheduleToNextClock(new DeleteTlbEntry(this, process));
     }
 
-    private void handleMemoryTlbNoTranslation(TlbNoTranslation event) {
+    private void handleTlbNoTranslation(TlbNoTranslation event) {
         Process process = event.getProcess();
         ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         Integer access = processMemoryInfo.getCurrentAccess();

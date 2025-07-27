@@ -12,6 +12,7 @@ public class ProcessorCore extends ResourceManageableAbstract implements Core {
 
     private static double defaultMips = 1000;
     private Status status;
+    // TODO: there is an issue where the core status will not update back to FREE when a process is interrupted by memory
 
     public enum Status {
         FREE, BUSY

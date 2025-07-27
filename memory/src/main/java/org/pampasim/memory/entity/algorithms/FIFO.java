@@ -1,12 +1,23 @@
 package org.pampasim.memory.entity.algorithms;
 
 import org.pampasim.resources.memory.PageTableEntry;
+import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FIFO implements PageReplacementAlgorithm{
+public class FIFO extends AbstractPageReplacementAlgorithm {
+    @Override
     public ArrayList<PageTableEntry> pickPagesToSwap(int quantity, List<PageTableEntry> pageTableEntries) {
-        return null;
+        ArrayList<PageTableEntry> candidates = new ArrayList<>();
+        for (PageTableEntry entry : recentlySwappedIn) {
+            if (pageTableEntries.contains(entry) && entry.isValid()) {
+                candidates.add(entry);
+                if (candidates.size() >= quantity) {
+                    break;
+                }
+            }
+        }
+        return candidates;
     }
 }

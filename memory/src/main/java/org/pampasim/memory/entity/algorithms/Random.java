@@ -5,10 +5,9 @@ import org.pampasim.resources.memory.PageTableEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Random implements PageReplacementAlgorithm {
+public class Random extends AbstractPageReplacementAlgorithm {
     private final java.util.Random random = new java.util.Random();
-
-    @Override
+    
     public ArrayList<PageTableEntry> pickPagesToSwap(int quantity, List<PageTableEntry> pageTableEntries) {
         // Validate input
         if (quantity <= 0) {

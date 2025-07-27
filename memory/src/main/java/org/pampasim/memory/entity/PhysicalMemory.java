@@ -181,6 +181,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         Process process = event.getProcess();
         pageHits++;
         process.getModuleInfo(ProcessMemoryInfo.class).registerPageHit();
+        pageReplacementAlgorithm.registerReference(process.getModuleInfo(ProcessMemoryInfo.class).getCurrentAccessEntry());
 
         if (variablePageAllocation) {
             handleVariablePageAllocation(process);
@@ -232,6 +233,7 @@ public class PhysicalMemory extends AbstractSimEntity {
         }
 
         entry.setDirty(false);
+        pageReplacementAlgorithm.registerSwapOut(entry);
         this.lastSwappedOutPage = entry;
 
         if (entry.isFileBacked()) {
@@ -290,6 +292,7 @@ public class PhysicalMemory extends AbstractSimEntity {
                     entry.getProcess().getPid(),
                     entry.getFrameNumber()
             );
+            pageReplacementAlgorithm.registerSwapIn(entry);
         } else {
             throw new OutOfMemoryError("Não existe espaço na memória principal suficiente para realizar a operação");
         }

@@ -100,6 +100,11 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         return nextAccessListIndex < addressAccessListSize ? nextAccessListIndex : -1;
     }
 
+    public PageTableEntry getCurrentAccessEntry() {
+        int nextAccessListIndex = getCurrentAccessIndex();
+        return pageTable.getEntry(nextAccessListIndex);
+    }
+
     public void scheduleIoOperation(int execTick, int ioOperationLength) {
         if (execTick >= 0 && ioOperationLength > 0 && execTick >= process.getBurstTime()) {
             runtimeIoOperationSchedule.put(execTick, ioOperationLength);

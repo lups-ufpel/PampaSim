@@ -152,6 +152,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         Process.State.READY, ReadyList,
                         Process.State.RUNNING, RunningList,
                         Process.State.SCHEDULED, WaitingList,
+                        Process.State.IO_WAITING, WaitingList,
+                        Process.State.IO_RUNNING, WaitingList,
                         Process.State.TERMINATED, FinishedList),
                 ProcessProgress,
                 ProcessViewModel::getProgress,
