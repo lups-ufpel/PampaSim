@@ -14,6 +14,7 @@ import org.pampasim.viewModel.SimulationSetupDialogView;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SelectSchedulerDialogService implements DialogService<SchedulerSelectionRecord> {
 
@@ -40,7 +41,9 @@ public class SelectSchedulerDialogService implements DialogService<SchedulerSele
         }
 
         if (args.length > 1 && args[1] instanceof List<?> rawList) {
-            List<String> pageReplacementAlgorithmNames = (List<String>) rawList;
+            List<String> pageReplacementAlgorithmNames = (List<String>) rawList.stream()
+                    .filter(str -> !str.equals("AbstractPageReplacementAlgorithm"))
+                    .collect(Collectors.toList());
             viewTuple.getViewModel().setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
         }
 

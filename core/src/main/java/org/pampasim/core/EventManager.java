@@ -6,6 +6,11 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.events.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -16,9 +21,38 @@ public abstract class EventManager {
     protected final Map<Class<? extends Event>, Boolean> takesTime;
     private static long eventSerialCounter;
     protected final Simulation simulation;
-    protected final
-        Map<Class<? extends Event>, Set<Consumer<Event>>>
-            snoopers = new HashMap<>();
+    protected final Map<Class<? extends Event>, Set<Consumer<Event>>> snoopers = new HashMap<>();
+
+    // Shared logging resources
+    private static BufferedWriter EVENT_LOG_WRITER;
+    private static final String LOG_FILE_NAME = "simulation_events.log";
+    private static final Object FILE_LOCK = new Object();
+
+    static {
+        initializeLogFile();
+    }
+
+    private static void initializeLogFile() {
+        try {
+            Path logPath = Paths.get(LOG_FILE_NAME);
+            EVENT_LOG_WRITER = new BufferedWriter(new FileWriter(logPath.toFile(), true));
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                synchronized (FILE_LOCK) {
+                    try {
+                        if (EVENT_LOG_WRITER != null) {
+                            EVENT_LOG_WRITER.close();
+                        }
+                    } catch (IOException e) {
+                        LogManager.getLogger(EventManager.class)
+                                .error("Failed to close event log file", e);
+                    }
+                }
+            }));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to initialize event log file", e);
+        }
+    }
 
     public EventManager(Simulation simulation) {
         handlers = new HashMap<>();
@@ -45,14 +79,13 @@ public abstract class EventManager {
         translations.put(eventClass, translationClass);
     }
 
-    /*
-        Method to call the accept method for the registered handler of the event type. If there is no handler,
-        it attempts to translate it to a different event type. If there is no translation, an exception is thrown
-     */
     public void handleEvent(Event event) {
         SimEntity handler = null;
         do {
             if (event == null) { return; }
+
+            logEvent("HANDLED", event.getClass(), event, null);
+
             handler = handlers.get(event.getClass());
             Event finalEvent = event;
             snoopers.entrySet()
@@ -77,6 +110,7 @@ public abstract class EventManager {
             var translationClass = translations.get(event.getClass());
             try {
                 var translated = event.cloneAs(translationClass);
+                logEvent("TRANSLATED", event.getClass(), event, translationClass);
                 LOGGER.trace("Event translated: {} to {}", event, translated);
                 return translated;
             } catch (IncompatibleEventDataException e) {
@@ -85,6 +119,37 @@ public abstract class EventManager {
                                 + event + ": " + e);
             }
         }
+    }
+
+    private void logEvent(String action, Class<? extends Event> eventClass, Event event,
+                          Class<? extends Event> translatedClass) {
+        long tick = simulation.getRealClock().getTick();
+        String managerType = this.getClass().getSimpleName();
+
+        String logEntry = String.format("[TICK %d][%s] %s: %s%s - %s%n",
+                tick,
+                managerType,
+                action,
+                formatClassName(eventClass),
+                (translatedClass != null) ? " -> " + formatClassName(translatedClass) : "",
+                event.toString());
+
+        synchronized (FILE_LOCK) {
+            try {
+                EVENT_LOG_WRITER.write(logEntry);
+                EVENT_LOG_WRITER.flush();
+            } catch (IOException e) {
+                LOGGER.error("Failed to write to event log: {}", e.getMessage());
+            }
+        }
+    }
+
+    private String formatClassName(Class<?> clazz) {
+        String[] parts = clazz.getCanonicalName().split("\\.");
+        if (parts.length > 2) {
+            return parts[parts.length-2] + "." + parts[parts.length-1];
+        }
+        return clazz.getCanonicalName();
     }
 
     public List<SimEntity> getAllDestinations(Class<? extends Event> eventClass) {
@@ -105,8 +170,7 @@ public abstract class EventManager {
     }
 
     public void addSnooper(Class<? extends Event> eventClass, Consumer<Event> callback) {
-        snoopers.compute(eventClass, (key, val)
-                -> {
+        snoopers.compute(eventClass, (key, val) -> {
             if (val != null) { val.add(callback); }
             else { val = new HashSet<>(List.of(callback)); }
             return val;
@@ -127,6 +191,4 @@ public abstract class EventManager {
                 })
         );
     }
-
-
 }

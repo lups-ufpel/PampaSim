@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class AbstractPageReplacementAlgorithm {
+public abstract class AbstractPageReplacementAlgorithm implements PageReplacementAlgorithm{
     // Collections to track page access patterns
     protected final LinkedList<PageTableEntry> recentlyAccessed = new LinkedList<>();
     protected final LinkedList<PageTableEntry> recentlySwappedIn = new LinkedList<>();

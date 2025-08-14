@@ -38,7 +38,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     @Getter
     protected PidAllocator pidAllocator;
     @Getter
-    protected final RealClock realClock = new RealClock();
+    protected RealClock realClock = new RealClock();
 
     public SimulationBase(SimEntity parent) {
         super(parent);
@@ -48,6 +48,9 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         this.pidAllocator = new PidAllocator();
         this.state = EntityState.Run;
         this.clearBlock = false;
+        if(parent != null) {
+            this.realClock = ((Simulation) parent).getRealClock();
+        }
     }
 
     protected void setEventManager(EventManager eventManager) {
@@ -183,7 +186,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
 
     private void executeRunnableEntities() {
         for (SimEntity entity : entityList) {
-            if (entity.getState() != EntityState.Run) { continue; }
+           if (entity.getState() != EntityState.Run) { continue; }
             entity.run();
         }
     }

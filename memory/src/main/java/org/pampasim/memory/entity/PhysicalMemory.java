@@ -179,9 +179,13 @@ public class PhysicalMemory extends AbstractSimEntity {
 
     private void handlePageHit(PageHit event) {
         Process process = event.getProcess();
+        ProcessMemoryInfo processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         pageHits++;
-        process.getModuleInfo(ProcessMemoryInfo.class).registerPageHit();
-        pageReplacementAlgorithm.registerReference(process.getModuleInfo(ProcessMemoryInfo.class).getCurrentAccessEntry());
+        processMemoryInfo.registerPageHit();
+        Integer currentAccess = processMemoryInfo.getCurrentAccess();
+        int pageNo = MemoryConfig.extractPageNumber(currentAccess);
+        PageTableEntry entry = processMemoryInfo.getPageTable().getEntry(pageNo);
+        pageReplacementAlgorithm.registerReference(entry);
 
         if (variablePageAllocation) {
             handleVariablePageAllocation(process);
