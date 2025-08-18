@@ -8,6 +8,14 @@ import java.util.List;
 
 public class FIFO extends AbstractPageReplacementAlgorithm {
     @Override
+    public void registerSwapIn(PageTableEntry pageTableEntry) {
+        recentlySwappedIn.addLast(pageTableEntry);
+        if (recentlySwappedIn.size() > TRACKING_SIZE) {
+            recentlySwappedIn.removeFirst();
+        }
+    }
+
+    @Override
     public ArrayList<PageTableEntry> pickPagesToSwap(int quantity, List<PageTableEntry> pageTableEntries) {
         ArrayList<PageTableEntry> candidates = new ArrayList<>();
         for (PageTableEntry entry : recentlySwappedIn) {

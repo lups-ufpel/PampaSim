@@ -17,6 +17,7 @@ import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
+import org.pampasim.resources.viewmodel.ProcessMemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.util.*;
@@ -238,6 +239,7 @@ public class MemoryTabViewModel implements ViewModel {
                     (swappedOutPage.isFileBacked() ?
                             " (salva no sistema de arquivos)" :
                             " (salva no endereço " + swappedOutPage.getFrameAddress() + " da swapfile)");
+            updateSwapOutPageTable();
 
             ioOperationInfoSwapOutText.set(swapOutMessage);
             ioOperationInfoSwapOutColor.set(swappedOutColor);
@@ -333,5 +335,14 @@ public class MemoryTabViewModel implements ViewModel {
 
         createFrameList(ramFrameList, observableRamFrameList);
         createFrameList(swapFrameList, observableSwapFrameList);
+    }
+
+    public void updateSwapOutPageTable() {
+        PageTableEntry lastSwappedOutEntry = memoryManagement.getEntity(PhysicalMemory.class).getLastSwappedOutPage();
+        long queuedId = lastSwappedOutEntry.getProcess().getCreationData().getCreationId();
+        observableProcessList.stream()
+                .filter(pvm -> pvm.getCreationId() == queuedId)
+                .findFirst()
+                .ifPresent(pvm -> pvm.getModuleInfoViewModel(MemoryInfoViewModel.class).updateFrom(lastSwappedOutEntry.getProcess().getModuleInfo(ProcessMemoryInfo.class)));
     }
 }

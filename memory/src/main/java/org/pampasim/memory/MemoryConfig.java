@@ -102,10 +102,6 @@ public final class MemoryConfig {
         }
     }
 
-    public static int getVirtualMemoryPerProcess() {
-        return getMaxPagesPerProcess() * getPageSize();
-    }
-
     public static int getPhysicalRAM() {
         return getFramesInRAM() * getPageSize();
     }
@@ -119,9 +115,9 @@ public final class MemoryConfig {
     }
 
     public static int getPageNumberBits() {
-        int totalBits = Integer.SIZE - Integer.numberOfLeadingZeros(getVirtualMemoryPerProcess() - 1);
-        return totalBits - getPageOffsetBits();
+        return Integer.SIZE - getPageOffsetBits();
     }
+
 
     public static int getTotalVirtualAddressBits() {
         return getPageOffsetBits() + getPageNumberBits();

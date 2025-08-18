@@ -131,7 +131,7 @@
             <content>
                 <VBox>
                     <Label fx:id="noPageTableLabel" managed="false" text="Tabela de páginas ainda não foi criada" visible="false" />
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                         <TableView fx:id="pageTableView" VBox.vgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="pageNumberColumn" prefWidth="57.0" text="Página" />
