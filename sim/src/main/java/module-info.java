@@ -14,6 +14,7 @@ module org.pampasim {
     requires org.apache.logging.log4j;
     requires antlr4;
     requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.feather;
     requires javafx.controls;
     requires org.kordamp.ikonli.bootstrapicons;
 
