@@ -43,9 +43,17 @@ _minimum version_:
 
 ## Using a Terminal
 
-Open a terminal at the project root directory and type the following commands:
+First, open a terminal at the project root directory.
 
+<<<<<<< HEAD
 on Linux/macOS
+=======
+on Linux/macOs
+If you have Make installed, do:
+`Make run`
+
+Else, type the following commands:
+>>>>>>> 6ccdbe3 (added Makefile and updated README)
 `mvn clean install`
 
 # 5. How to use it
