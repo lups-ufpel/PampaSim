@@ -18,7 +18,7 @@
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
-            <Label text="Modulo" />
+            <Label text="Módulo" />
             <ChoiceBox fx:id="choiceBox" prefWidth="150.0" GridPane.columnIndex="1" />
         </GridPane>
     </content>
