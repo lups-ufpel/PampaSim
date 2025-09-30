@@ -34,9 +34,32 @@ check_maven() {
     echo "Maven $MAVEN_VER OK"
 }
 
-# --- Run project ---
-check_java
-check_maven
-mvn clean install
-(cd sim && mvn javafx:run)
+build() {
+    check_java
+    check_maven
+    mvn clean install
+}
+
+run() {
+    (cd sim && mvn javafx:run)
+}
+
+# --- Main dispatcher ---
+case "$1" in
+    build)
+        build
+        ;;
+    run)
+        run
+        ;;
+    "" )
+        build
+        run
+        ;;
+    *)
+        echo "Usage: $0 {build|run}"
+        echo "If no argument is provided, both build and run are executed."
+        exit 1
+        ;;
+esac
 

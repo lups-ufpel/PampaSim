@@ -41,11 +41,7 @@ _mininum version_:
 
 First, open a terminal at the project root directory.
 
-on Linux/macOs
-If you have Make installed, do:
-`Make run`
-
-Else, type the following commands:
+on Linux/macOs, do:
 `mvn clean install`
 `cd sim`
 `mvn javafx:run`
