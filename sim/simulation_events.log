@@ -509,3 +509,52 @@
 [TICK 2][InterimEventManager] HANDLED: Process.End - Event End #16
 [TICK 2][InterimEventManager] TRANSLATED: Process.End -> Process.Kill - Event End #16
 [TICK 2][InterimEventManager] HANDLED: Process.Kill - Event Kill #17
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][InterimEventManager] TRANSLATED: Process.Allocate -> Process.Ready - Event Allocate #0
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #1
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #2
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #3
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #4
+[TICK 0][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #4
+[TICK 0][InterimEventManager] HANDLED: Process.Run - Event Run #5
+[TICK 1][InterimEventManager] HANDLED: Process.RunPaused - Event RunPaused #6
+[TICK 1][InterimEventManager] HANDLED: Process.End - Event End #7
+[TICK 1][InterimEventManager] TRANSLATED: Process.End -> Process.Kill - Event End #7
+[TICK 1][InterimEventManager] HANDLED: Process.Kill - Event Kill #8
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][MemoryEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][MemoryEventManager] HANDLED: Memory.Allocate - Event Allocate #1
+[TICK 0][MemoryEventManager] HANDLED: Memory.AllocateFinished - Event AllocateFinished #2
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #3
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #4
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #5
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #6
+[TICK 0][MemoryEventManager] HANDLED: Process.Load - Event Load #6
+[TICK 0][MemoryEventManager] HANDLED: Memory.TranslateVirtualAddress - Event TranslateVirtualAddress #7
+[TICK 0][MemoryEventManager] TRANSLATED: Memory.TranslateVirtualAddress -> Memory.TlbNoTranslation - Event TranslateVirtualAddress #7
+[TICK 0][MemoryEventManager] HANDLED: Memory.TlbNoTranslation - Event TlbNoTranslation #8
+[TICK 0][MemoryEventManager] HANDLED: Memory.PageFault - Event PageFault #9
+[TICK 0][MemoryEventManager] HANDLED: Memory.DiskOperation - Event DiskOperation #10
+[TICK 1][MemoryEventManager] HANDLED: Memory.DiskOperation - Event DiskOperation #11
+[TICK 2][MemoryEventManager] HANDLED: Memory.DiskOperation - Event DiskOperation #12
+[TICK 3][MemoryEventManager] HANDLED: Memory.DiskOperationFinished - Event DiskOperationFinished #13
+[TICK 3][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #14
+[TICK 3][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #15
+[TICK 3][InterimEventManager] HANDLED: Process.Load - Event Load #16
+[TICK 3][MemoryEventManager] HANDLED: Process.Load - Event Load #16
+[TICK 3][MemoryEventManager] HANDLED: Memory.TranslateVirtualAddress - Event TranslateVirtualAddress #17
+[TICK 3][MemoryEventManager] TRANSLATED: Memory.TranslateVirtualAddress -> Memory.TlbNoTranslation - Event TranslateVirtualAddress #17
+[TICK 3][MemoryEventManager] HANDLED: Memory.TlbNoTranslation - Event TlbNoTranslation #18
+[TICK 3][MemoryEventManager] HANDLED: Memory.PageHit - Event PageHit #19
+[TICK 3][MemoryEventManager] HANDLED: Memory.ProcessReady - Event ProcessReady #20
+[TICK 3][InterimEventManager] HANDLED: Process.Run - Event Run #21
+[TICK 4][InterimEventManager] HANDLED: Process.Load - Event Load #22
+[TICK 4][MemoryEventManager] HANDLED: Process.Load - Event Load #22
+[TICK 4][MemoryEventManager] HANDLED: Memory.TranslateVirtualAddress - Event TranslateVirtualAddress #23
+[TICK 4][MemoryEventManager] TRANSLATED: Memory.TranslateVirtualAddress -> Memory.TlbNoTranslation - Event TranslateVirtualAddress #23
+[TICK 4][MemoryEventManager] HANDLED: Memory.TlbNoTranslation - Event TlbNoTranslation #24
+[TICK 4][MemoryEventManager] HANDLED: Memory.PageHit - Event PageHit #25
+[TICK 4][MemoryEventManager] HANDLED: Memory.ProcessReady - Event ProcessReady #26
+[TICK 4][InterimEventManager] HANDLED: Process.Run - Event Run #27

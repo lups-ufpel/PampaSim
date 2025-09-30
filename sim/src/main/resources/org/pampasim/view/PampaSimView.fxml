@@ -268,7 +268,7 @@
                   <Font size="12.0" />
                </font>
                 </Button>
-                <Button fx:id="addModuleBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSelectModule" text="Adicionar Modulo" textFill="#27a800fc" wrapText="true">
+                <Button fx:id="addModuleBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSelectModule" text="Adicionar Módulo" textFill="#27a800fc" wrapText="true">
                    <tooltip>
                       <Tooltip text="Adiciona módulos a simulação" />
                    </tooltip>
