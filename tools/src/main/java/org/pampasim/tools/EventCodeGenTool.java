@@ -61,18 +61,19 @@ public class EventCodeGenTool {
     }
 
     private static void writeModuleInfo(List<EventGroup> eventGroups) throws IOException {
-        String code = """
-module org.pampasim.events {
-    requires org.pampasim.core;
-    requires org.pampasim.resources;
-    requires lombok;
-    exports org.pampasim.events;
-                """;
+        StringBuilder code = new StringBuilder("""
+                module org.pampasim.events {
+                    requires org.pampasim.core;
+                    requires org.pampasim.resources;
+                    requires lombok;
+                    opens org.pampasim.events;
+                    exports org.pampasim.events;
+                """);
         for (String modName : eventGroups.stream().map(EventGroup::name).toList()) {
-            code += "\n\texports org.pampasim.events." + modName + ";";
+            code.append("\n\texports org.pampasim.events.").append(modName).append(";");
         }
-        code += "\n}\n";
-        Files.writeString(pkgPath.resolve("module-info.java"), code);
+        code.append("\n}\n");
+        Files.writeString(destinationFolder.resolve("module-info.java"), code.toString());
     }
 
     private record GroupInfo (EventGroup eventGroup, String className, String dataType) {};

@@ -35,16 +35,24 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 /// Data to set up a simulation scenario
 /// Usually comes from a spec file
 @Getter
+@XmlRootElement
 public class Spec {
     // This string-based programming is really awkward, but needed:
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
+    @XmlRootElement
     public record SchedulerInfo(Class<? extends Scheduler> clazz, Optional<Integer> quantum) {};
+    @XmlRootElement
+    public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
+
     @Setter
     private SchedulerInfo schedulerInfo;
-    public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
     @Setter
     private ArrayList<ProcessorInfo> processors;
     @Setter

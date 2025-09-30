@@ -5,17 +5,20 @@ module org.pampasim {
     requires java.desktop;
     requires org.pampasim.core;
     requires org.pampasim.resources;
-    requires org.pampasim.events;
-    requires org.pampasim.memory;
     requires guru.nidi.graphviz;
     requires static lombok;
     requires org.antlr.antlr4.runtime;
     requires io.github.classgraph;
     requires org.apache.logging.log4j;
     requires antlr4;
+
     requires org.kordamp.ikonli.javafx;
     requires javafx.controls;
     requires org.kordamp.ikonli.bootstrapicons;
+    requires jakarta.xml.bind;
+
+    requires org.pampasim.events;
+    requires org.pampasim.memory;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
