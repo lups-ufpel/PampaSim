@@ -60,15 +60,6 @@
                     </graphic>
                 </Button>
                 <Separator />
-                <Button fx:id="runBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onStartSimulation" text="Run">
-                    <tooltip>
-                        <Tooltip text="Iniciar simulação" />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon iconLiteral="fth-play" />
-                    </graphic>
-                    <text>New</text>
-                </Button>
                 <Button fx:id="stopBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onFinishSimulation" text="Stop">
                     <tooltip>
                         <Tooltip text="Parar simulação" />
@@ -82,8 +73,17 @@
                         <Tooltip text="Avançar simulação" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconLiteral="fth-arrow-right-circle" />
+                        <FontIcon iconLiteral="fth-play" />
                     </graphic>
+                </Button>
+                <Button fx:id="runBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onStartSimulation" text="Run">
+                    <tooltip>
+                        <Tooltip text="Iniciar simulação" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconLiteral="fth-fast-forward" />
+                    </graphic>
+                    <text>New</text>
                 </Button>
                 <Button fx:id="resetBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onResetSimulation" text="Reset">
                     <tooltip>
