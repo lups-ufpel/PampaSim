@@ -55,8 +55,11 @@ import org.pampasim.resources.viewmodel.ProcessViewModel;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -89,6 +92,16 @@ public class PampaSimViewModel implements ViewModel {
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
 
     private Map<PidAllocator.Pid, Map<Integer, Process.State>> asciiReportData = new HashMap<>();
+    private final Map<Process.State, Character> stateChar = Map.of(
+            Process.State.NEW, 'n',
+            Process.State.READY, 'r',
+            Process.State.RUNNING, 'R',
+            Process.State.SCHEDULED, 'x',
+            Process.State.WAITING, 'w',
+            Process.State.IO_WAITING, 'i',
+            Process.State.IO_RUNNING, 'I',
+            Process.State.TERMINATED, 't'
+    );
     private int asciiReportClock = -1;
 
     public SimulatedScenario simulatedScenario;
@@ -328,42 +341,9 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         if(!sim.shouldRunNextTick()) {
-            int maxRealTick = sim.getRealClock().getTick();
-            long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
-            int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
-            int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
-            final Map<Process.State, Character> stateChar = Map.of(
-                    Process.State.NEW, 'n',
-                    Process.State.READY, 'r',
-                    Process.State.RUNNING, 'R',
-                    Process.State.SCHEDULED, 'x',
-                    Process.State.WAITING, 'w',
-                    Process.State.IO_WAITING, 'i',
-                    Process.State.IO_RUNNING, 'I',
-                    Process.State.TERMINATED, 't'
-            );
+            generateASCIIReport(sim);
+            generateCSVReport(sim);
 
-            Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
-            String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
-                    + "    " + " ".repeat(pidWidth) + " | "
-                    + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
-                    .reduce((l,r) -> l.concat(" ").concat(r))
-                    .orElseThrow()
-                    + "\n";
-            String asciiReportPrintout = "\n\tReport\n" + header +
-                asciiReportData
-                    .entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .map(procEntry -> {
-                        var stateMap = procEntry.getValue();
-                        return "pid " + procEntry.getKey() + " |"
-                                + range.get().map(stateMap::get).map(state ->
-                                String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
-                        ).reduce(String::concat).orElseThrow();
-                    }).reduce((l,r) -> l.concat("\n").concat(r))
-                    .orElse("couldn't generate report");
-            LOGGER.log(Level.INFO, asciiReportPrintout);
             stopSimulation();
         }
 
@@ -374,6 +354,7 @@ public class PampaSimViewModel implements ViewModel {
             }
         }
     }
+
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
@@ -411,6 +392,67 @@ public class PampaSimViewModel implements ViewModel {
         simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation(), allProcesses);
 
     }
+
+    private void generateCSVReport(Simulation sim) {
+        int maxRealTick = sim.getRealClock().getTick();
+
+        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+        var headerBuilder = new StringBuilder("pid");
+        for (var x = 0; x <= maxRealTick; x++) {
+            headerBuilder.append(",").append(x);
+        }
+        headerBuilder.append("\n");
+
+        String csv = headerBuilder.toString() + asciiReportData
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(procEntry -> {
+                        var stateMap = procEntry.getValue();
+                        var rowBuilder = new StringBuilder()
+                                .append(procEntry.getKey()); // pid
+                        range.get().map(stateMap::get).forEach(state -> {
+                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
+                        });
+                        return rowBuilder.append("\n").toString();
+                    }).reduce((l,r) -> l.concat("\n").concat(r))
+                .orElse("couldn't generate csv report");
+        try {
+            Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            LOGGER.error("couldn't write CSV simulation report!", e);
+        }
+    }
+
+    private void generateASCIIReport(Simulation sim) {
+        int maxRealTick = sim.getRealClock().getTick();
+        long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
+        int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
+        int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
+
+        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+        String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
+                + "    " + " ".repeat(pidWidth) + " | "
+                + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
+                .reduce((l,r) -> l.concat(" ").concat(r))
+                .orElseThrow()
+                + "\n";
+        String asciiReportPrintout = "\n\tReport\n" + header +
+            asciiReportData
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(procEntry -> {
+                    var stateMap = procEntry.getValue();
+                    return "pid " + procEntry.getKey() + " |"
+                            + range.get().map(stateMap::get).map(state ->
+                            String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
+                    ).reduce(String::concat).orElseThrow();
+                }).reduce((l,r) -> l.concat("\n").concat(r))
+                .orElse("couldn't generate report");
+        LOGGER.log(Level.INFO, asciiReportPrintout);
+    }
+
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);
     }
