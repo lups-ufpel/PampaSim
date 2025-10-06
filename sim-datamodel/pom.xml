@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>PampaSim</artifactId>
+    <groupId>org.pampasim</groupId>
+    <version>2.0</version>
+  </parent>
+
+  <artifactId>sim-datamodel</artifactId>
+  <version>1.0</version>
+
+  <name>sim-datamodel</name>
+  <!-- FIXME change it to the project's website -->
+  <url>http://www.example.com</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>21</maven.compiler.release>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.pampasim</groupId>
+      <artifactId>core</artifactId>
+      <version>1.0</version>
+    </dependency>
+      <dependency>
+          <groupId>de.saxsys</groupId>
+          <artifactId>mvvmfx</artifactId>
+      </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+    </dependency>
+      <dependency>
+          <groupId>org.kordamp.ikonli</groupId>
+          <artifactId>ikonli-javafx</artifactId>
+      </dependency>
+  </dependencies>
+  <build>
+  </build>
+</project>

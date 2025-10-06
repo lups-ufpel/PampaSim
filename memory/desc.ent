@@ -1,0 +1,48 @@
+events import sim/refactor.ent {
+  Memory transmitting org.pampasim.resources.Process {
+    Allocate;
+    AllocateFinished;
+    DeletePageTableEntry;
+    DeleteTlbEntry;
+    FreeProcessMemory;
+    FreeProcessMemoryFinished;
+    IoOperation;
+    PageFault;
+    PageHit;
+    ProcessReady;
+    DiskOperation realtime;
+    DiskOperationFinished;
+    TlbNoTranslation;
+    TranslateVirtualAddress;
+  }
+}
+
+PageTable {
+  on Memory.DeletePageTableEntry do "delete page table entry" chains Memory.FreeProcessMemory;
+  on Memory.Allocate do "allocate memory" chains Memory.AllocateFinished;
+  on Memory.TlbNoTranslation do "check page table" chains (Memory.PageHit) + (Memory.PageFault);
+}
+
+PhysicalMemory {
+  on Memory.FreeProcessMemory do "free process memory";
+  on Memory.PageHit do "page hit" chains Memory.ProcessReady;
+  on Memory.PageFault do "page fault" chains Memory.DiskOperation;
+  on Memory.DiskOperation do "time advance" chains (Memory.DiskOperation) + (Memory.DiskOperationFinished);
+  on Memory.IoOperation do "start disk operation" chains Memory.DiskOperation;
+}
+
+TLB {
+  on Memory.TranslateVirtualAddress do "translate virtual address" chains (Memory.PageHit) + (Memory.PageFault);
+  transmits Memory.TlbNoTranslation;
+}
+
+VirtualMemory {
+  on Process.Allocate do "allocate process" chains Memory.Allocate;
+  on Process.End do "end process" chains Memory.DeletePageTableEntry;
+  on Process.Load do "load process" chains Memory.TranslateVirtualAddress;
+  on Process.IoOperation do "io operation" chains Memory.DiskOperation;
+  on Memory.AllocateFinished do "allocate process finished" chains Process.Ready;
+  on Memory.FreeProcessMemoryFinished do "kill process" chains Process.Kill;
+  on Memory.DiskOperationFinished do "schedule process" chains Process.Schedule;
+  on Memory.ProcessReady do "run process" chains Process.Run;
+}

@@ -1,0 +1,42 @@
+events {
+  External transmitting org.pampasim.resources.Process$CreationData {
+    Arrival;
+  }
+  Process transmitting org.pampasim.resources.Process {
+    Allocate;
+    Ready;
+    Schedule;
+    Dispatch;
+    Run;
+    Load;
+    IoOperation;
+    Preemption;
+    RunPaused;
+    End;
+    Kill;
+  }
+}
+
+ProcessManager {
+  on External.Arrival do "create process" chains Process.Allocate;
+  on Process.Ready do "schedule for execution" chains Process.Schedule;
+  on Process.RunPaused do "schedule for execution or end process" chains (Process.Schedule) + (Process.End);
+}
+
+Scheduler {
+  on Process.Schedule do "ask memory to load process" chains Process.Dispatch;
+  transmits Process.Preemption;
+}
+
+Processor {
+  on Process.Preemption do "suspend and evict current process" chains Process.RunPaused;
+  on Process.Dispatch do "request for memory to load the pages for the current execution tick" chains Process.Run;
+  on Process.Run do "run process for 1 tick" chains Process.Load;
+}
+
+Memory {
+  on Process.Allocate do "allocate memory" chains Process.Ready;
+  on Process.End do "free memory" chains Process.Kill;
+  on Process.Load do "Load requested pages into main memory" chains Process.Run; // Could also result in the process being suspended, and eventually a Process.Schedule event
+  on Process.IoOperation do "perform expensive IO operations" chains Process.Schedule;
+}

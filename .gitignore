@@ -43,3 +43,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### SVG graph clutter ###
+graph*.svg
+graph*.dot
