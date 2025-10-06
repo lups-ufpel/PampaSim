@@ -15,6 +15,7 @@ module org.pampasim {
     requires org.kordamp.ikonli.javafx;
     requires javafx.controls;
     requires org.kordamp.ikonli.bootstrapicons;
+    requires org.kordamp.ikonli.feather;
     requires jakarta.xml.bind;
 
     requires org.pampasim.events;
