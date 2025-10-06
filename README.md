@@ -1,6 +1,6 @@
 # PampaSim – Operating System Simulator
 
-![PampaSim in execution](https://github.com/lups-ufpel/PampaSim/blob/2025-refactor/doc/PampaSim-running.png?raw=true)
+![PampaSim in execution](https://github.com/lups-ufpel/PampaSim/blob/main/doc/PampaSim-running.png?raw=true)
 
 # 1. Overview
 Hello @everyone, this project is an operating system simulator to help students in the process of understanding the inner workings of operating systems (OSes).
@@ -26,12 +26,12 @@ PampaSim was presented at the 9th SIIEPE (Semana Integrada de Inovação, Ensino
 # 3. Project Structure
 
 ## Technologies
-JavaFX - user interface
-SLF4J - logging
-Maven - build system
-JUnit - tests
-Antlr4 - domain specific language parsing
-JAXB - specification marshalling
+- JavaFX - user interface
+- SLF4J - logging
+- Maven - build system
+- JUnit - tests
+- Antlr4 - domain specific language parsing
+- JAXB - specification marshalling
 
 # 4. Building and Installation PampaOs
 
