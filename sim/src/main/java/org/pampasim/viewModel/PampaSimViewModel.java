@@ -49,6 +49,7 @@ import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
 import org.pampasim.resources.dialog.CreateProcessRecord;
 import org.pampasim.resources.dialog.ProcessMemoryInfoRecord;
+import org.pampasim.dialog.AddSpecOrModuleDialogService;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
@@ -90,6 +91,7 @@ public class PampaSimViewModel implements ViewModel {
     private final AddModuleDialogService addModuleDialogService = new AddModuleDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
+    private final AddSpecOrModuleDialogService addSpecOrModuleDialogService = new AddSpecOrModuleDialogService();
 
     @Getter
     private ObservableMap<PidAllocator.Pid, ObservableMap<Integer, Process.State>> ganttData = FXCollections.observableHashMap();
@@ -514,6 +516,17 @@ public class PampaSimViewModel implements ViewModel {
             selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
         }
 
+    }
+
+    public void openAddSpecOrModuleDialog() {
+        List<String> modules = simulatedScenario.getSpec().listAvailableModules();
+        addSpecOrModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
+            try {
+                setSimulationModules(userSelection);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void openAddModuleDialog() {
