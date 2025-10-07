@@ -119,7 +119,11 @@ public class Spec {
                 printer.format("proc start %d duration %d priority %d clr #%s;",
                         creationData.getArrivalTick(),
                         creationData.getDurationTicks(),
-                        creationData.getStartPriority());
+                        creationData.getStartPriority(),
+                        colorMap.get(creationData.getCreationId())
+                                .toString()
+                                .substring(2) // skip the 0x leader
+                );
                 printer.println();
             });
         } catch (IOException e) {

@@ -37,7 +37,7 @@ public class Process {
     State state;
     private int currExecTime; // elapsed execution time
     @Setter
-    int burstTime; // length of the next "turn" on the processor
+    int burstTime; // length of the next "turn" on the processor -- incorrect, but true for now
     @Setter
     private int priority;
     private int waitTime;

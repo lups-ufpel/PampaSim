@@ -47,7 +47,10 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     protected Process nextProcessToSchedule() {
         Process p = ((Queue<Process>) processQueue).poll();
         // be sure to send it off with the proper burst time
-        if (p != null) { p.setBurstTime(getQuantum()); }
+        if (p != null) { p.setBurstTime(getQuantum()); } // This is incorrect
+        // burst time is a measurable stat, not a remaining time counter we can set
+        // ...right now this is a distinction without difference, but it will matter once
+        // we bring code exec to the processes
         return p;
     }
 }
