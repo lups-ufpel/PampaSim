@@ -1,11 +1,15 @@
 package org.pampasim.view;
 
 import de.saxsys.mvvmfx.*;
+import eu.dariolucia.jfx.timeline.model.TaskItem;
+import eu.dariolucia.jfx.timeline.model.TaskLine;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,15 +26,20 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.view.ProcessView;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
+import eu.dariolucia.jfx.timeline.Timeline;
 
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -90,8 +99,12 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button statisticsBtn;
     @FXML
     public Button addModuleBtn;
+    @FXML
+    public Timeline ganttChart;
+    public record GanttProcData(TaskLine line, List<TaskItem> items, ObservableMap<Integer, Process.State> stateMap) {};
+    public Map<PidAllocator.Pid, GanttProcData> ganttItems = new HashMap<>();
 
-    private Timeline animation;
+    private javafx.animation.Timeline animation;
     private ProcessViewModel editedProcessViewModel = null;
 
     private ObservableList<ProcessViewModel> processList = FXCollections.observableArrayList();
@@ -162,8 +175,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 Process.State.RUNNING
         );
 
-        this.animation = new Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation(false)));
-        this.animation.setCycleCount(Timeline.INDEFINITE);
+        this.animation = new javafx.animation.Timeline(new KeyFrame(Duration.millis(500), e -> pampaSimViewModel.runSimulation(false)));
+        this.animation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
         bindTimeLineProperty();
 
         genGraphs.setAllowIndeterminate(false);
@@ -261,6 +274,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 }
             }
         });
+        bindGanttChartObservable();
     }
 
     private void bindTimeLineProperty() {
@@ -292,5 +306,50 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         stage.show();
     }
 
-
+    public void bindGanttChartObservable() {
+        pampaSimViewModel.getGanttData().addListener(
+                new MapChangeListener<PidAllocator.Pid, Map<Integer, Process.State>>() {
+                    @Override
+                    public void onChanged(Change<? extends PidAllocator.Pid, ? extends Map<Integer, Process.State>> change) {
+                        if (change.wasAdded()) {
+                            var procLine = new TaskLine(change.getKey().toString());
+                            var procStateMap = pampaSimViewModel.getGanttData().get(change.getKey());
+                            procStateMap.addListener(
+                                    new MapChangeListener<Integer, Process.State>() {
+                                        @Override
+                                        public void onChanged(Change<? extends Integer, ? extends Process.State> change) {
+                                            if (change.wasAdded()) {
+                                                int tick = change.getKey();
+                                                var prev = procStateMap.get(tick - 1);
+                                                if (prev != null) {
+                                                    // extend existing
+                                                    procLine.getItems().stream()
+                                                            .filter(i -> i.getStartTime().equals(Instant.ofEpochSecond(tick)))
+                                                            .findFirst()
+                                                            .ifPresent(i -> i.setActualDuration(tick - i.getStartTime().getEpochSecond()));
+                                                } else {
+                                                    procLine.getItems().add(new TaskItem(
+                                                            "slice" + ganttChart.getTaskItemCount(),
+                                                            Instant.ofEpochSecond(tick),
+                                                            1
+                                                    ));
+                                                }
+                                            } else if (change.wasRemoved()) {
+                                                // shouldn't happen lol
+                                            }
+                                        }
+                                    }
+                            );
+                            var ganttData = new GanttProcData(procLine, List.of(), procStateMap);
+                            ganttItems.put(change.getKey(), ganttData);
+                            ganttChart.getItems().add(procLine);
+                        } else if (change.wasRemoved()) {
+                            var item = ganttItems.get(change.getKey());
+                            ganttChart.getItems().remove(item.line);
+                            ganttItems.remove(change.getKey());
+                        }
+                    }
+                }
+        );
+    }
 }

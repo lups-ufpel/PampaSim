@@ -20,6 +20,7 @@ module org.pampasim {
 
     requires org.pampasim.events;
     requires org.pampasim.memory;
+    requires eu.dariolucia.jfx.timeline;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

@@ -8,6 +8,7 @@ import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -55,7 +56,6 @@ import org.pampasim.resources.viewmodel.ProcessViewModel;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,7 +91,8 @@ public class PampaSimViewModel implements ViewModel {
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
 
-    private Map<PidAllocator.Pid, Map<Integer, Process.State>> asciiReportData = new HashMap<>();
+    @Getter
+    private ObservableMap<PidAllocator.Pid, ObservableMap<Integer, Process.State>> ganttData = FXCollections.observableHashMap();
     private final Map<Process.State, Character> stateChar = Map.of(
             Process.State.NEW, 'n',
             Process.State.READY, 'r',
@@ -329,9 +330,9 @@ public class PampaSimViewModel implements ViewModel {
                     if (pid == null) {
                         continue;
                     }
-                    asciiReportData.compute(pid, (k, v) -> {
+                    ganttData.compute(pid, (k, v) -> {
                         if (v == null) {
-                            v = new HashMap<>();
+                            v = FXCollections.observableHashMap();
                         }
                         v.put(asciiReportClock, pvm.getState());
                         return v;
@@ -345,6 +346,8 @@ public class PampaSimViewModel implements ViewModel {
             generateCSVReport(sim);
 
             stopSimulation();
+            this.asciiReportClock = 0;
+            this.ganttData.clear();
         }
 
         if (genGraphs.get()) {
@@ -403,7 +406,7 @@ public class PampaSimViewModel implements ViewModel {
         }
         headerBuilder.append("\n");
 
-        String csv = headerBuilder.toString() + asciiReportData
+        String csv = headerBuilder.toString() + ganttData
             .entrySet()
             .stream()
             .sorted(Map.Entry.comparingByKey())
@@ -438,7 +441,7 @@ public class PampaSimViewModel implements ViewModel {
                 .orElseThrow()
                 + "\n";
         String asciiReportPrintout = "\n\tReport\n" + header +
-            asciiReportData
+            ganttData
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())

@@ -57,13 +57,11 @@ public class Spec {
     private ArrayList<ProcessorInfo> processors;
     @Setter
     private boolean hasProcManager;
-    private PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
     private EventSchedule eventSchedule;
     private Map<Long, Color> colorMap;
 
     public Spec() {
         this.schedulerInfo = null;
-        this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
         this.colorMap = new HashMap<>();
         this.processors = new ArrayList<>();

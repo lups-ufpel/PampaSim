@@ -81,7 +81,6 @@ public class PampaSim extends SimulationBase {
         } else {
             LOGGER.warn("Possible mistake: no process manager set up by spec!");
         }
-        sim.pidAllocator = s.getPidAlloc();
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
         return sim;
     }

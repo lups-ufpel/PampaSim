@@ -30,6 +30,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     protected EventSchedule eventsSchedule;
     protected final List<Event> lastClockInputs = new ArrayList<>();
     protected final List<Event> lastClockOutputs = new ArrayList<>();
+
     @Getter
     protected EventManager eventManager;
     private boolean clearBlock;
