@@ -13,8 +13,16 @@ import java.util.List;
 public class AddSpecOrModuleDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     private final StringProperty selectedModule = new SimpleStringProperty();
+    private final PampaSimViewModel pampaSimViewModel;
 
+ // tight coupling is probably necessary with PampaSimViewModel to set the modules
+    public void setPampaSimViewModel(PampaSimViewModel pampaSimViewModel){
+      this.pampaSimViewModel = pampaSimViewModel;
+    }
 
+    public void openAddModuleDialog() {
+      pampaSimViewModel.openAddModuleDialog();
+    }
     public void setModuleNames(List<String> names) {
         moduleName.setAll(names);
         setDefaultSelectedModule(names);
@@ -30,4 +38,5 @@ public class AddSpecOrModuleDialogViewModel implements ViewModel {
     }
     public ObservableList<String> moduleNameProperty() { return moduleName; }
     public String getSelectedModule() { return selectedModule.get(); }
+
 }

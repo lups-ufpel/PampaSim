@@ -24,7 +24,6 @@ public class AddSpecOrModuleDialogService implements DialogService<AddModuleReco
 
     @Override
     public Optional<AddModuleRecord> showDialog(Object ... args) {
-        //problem is not on this file (ignore if not on branch intuitive-GUI)
         ViewTuple<AddSpecOrModuleDialogView, AddSpecOrModuleDialogViewModel> viewTuple =
                 FluentViewLoader.fxmlView(AddSpecOrModuleDialogView.class).load();
 

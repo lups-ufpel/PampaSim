@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import org.pampasim.viewModel.AddSpecOrModuleDialogViewModel;
+import javafx.event.ActionEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -16,14 +17,11 @@ public class AddSpecOrModuleDialogView implements FxmlView<AddSpecOrModuleDialog
     AddSpecOrModuleDialogViewModel viewModel;
 
     @FXML
-    ChoiceBox<String> choiceBox;
+    public void onSelectModule(ActionEvent actionEvent) {
+        AddSpecOrModuleDialogViewModel.openAddModuleDialog();
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // list of options
-        choiceBox.setItems(viewModel.moduleNameProperty());
-
-        // selected value
-        choiceBox.valueProperty().bindBidirectional(viewModel.selectedModuleProperty());
     }
 }
