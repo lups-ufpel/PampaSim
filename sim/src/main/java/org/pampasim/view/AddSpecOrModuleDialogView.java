@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import org.pampasim.viewModel.AddSpecOrModuleDialogViewModel;
+import org.pampasim.viewModel.PampaSimViewModel;
 import javafx.event.ActionEvent;
 
 import java.net.URL;
@@ -15,10 +16,11 @@ public class AddSpecOrModuleDialogView implements FxmlView<AddSpecOrModuleDialog
 
     @InjectViewModel
     AddSpecOrModuleDialogViewModel viewModel;
+    private SimulatedScenario simulatedScenario; // only info needed for module part of dialogue
 
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {
-        AddSpecOrModuleDialogViewModel.openAddModuleDialog();
+        viewModel.openAddSpecOrModuleDialog();
     }
 
     @Override
