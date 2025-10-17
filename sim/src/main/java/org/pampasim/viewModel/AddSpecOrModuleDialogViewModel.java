@@ -1,4 +1,7 @@
 package org.pampasim.viewModel;
+import org.pampasim.dialog.AddModuleRecord;
+import org.pampasim.dialog.AddModuleDialogService;
+
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
@@ -9,22 +12,18 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.paint.Color;
 
 import java.util.List;
+import java.util.Optional;
 
 public class AddSpecOrModuleDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     private final StringProperty selectedModule = new SimpleStringProperty();
 
-    public void openAddSpecOrModuleDialog() {
-        List<String> modules = simulatedScenario.getSpec().listAvailableModules();
-        addSpecOrModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
-            try {
-                setSimulationModules(userSelection);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+    public AddModuleRecord  openAddModuleDialog(List<String> modules, AddModuleDialogService addModuleDialogService){
+    //List<String> modules = simulatedScenario.getSpec().listAvailableModules();
+      Optional<AddModuleRecord> userSelection = addModuleDialogService.showDialog(modules);
+      return userSelection.orElse(null);
     }
-    /*
+
     public void setModuleNames(List<String> names) {
         moduleName.setAll(names);
         setDefaultSelectedModule(names);
@@ -41,5 +40,4 @@ public class AddSpecOrModuleDialogViewModel implements ViewModel {
     public ObservableList<String> moduleNameProperty() { return moduleName; }
     public String getSelectedModule() { return selectedModule.get(); }
 
-    */
 }

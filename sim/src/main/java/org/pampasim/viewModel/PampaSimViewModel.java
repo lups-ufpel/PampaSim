@@ -308,23 +308,6 @@ public class PampaSimViewModel implements ViewModel {
     public void stopSimulation() {
         setSimulationRunning(false);
     }
-    // for addSpecOrDialog (probably a terrible idea?)
-    public void setModuleNames(List<String> names) {
-        moduleName.setAll(names);
-        setDefaultSelectedModule(names);
-    }
-    public void setDefaultSelectedModule(List<String> names) {
-        if(!names.isEmpty()) {
-            selectedModule.set(names.getFirst());
-        }
-    }
-
-    public StringProperty selectedModuleProperty() {
-        return selectedModule;
-    }
-    public ObservableList<String> moduleNameProperty() { return moduleName; }
-    public String getSelectedModule() { return selectedModule.get(); }
-    //
 
     public void runSimulation(boolean fullStep) {
         boolean blockedTick;
@@ -535,6 +518,16 @@ public class PampaSimViewModel implements ViewModel {
 
     }
 
+    public void openAddSpecOrModuleDialog() {
+        List<String> modules = simulatedScenario.getSpec().listAvailableModules();
+        addSpecOrModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
+            try {
+                setSimulationModules(userSelection);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
     public void openAddModuleDialog() {
         List<String> modules = simulatedScenario.getSpec().listAvailableModules();
