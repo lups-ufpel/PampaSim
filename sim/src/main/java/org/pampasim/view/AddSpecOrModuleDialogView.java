@@ -20,12 +20,11 @@ public class AddSpecOrModuleDialogView implements FxmlView<AddSpecOrModuleDialog
 
     @InjectViewModel
     AddSpecOrModuleDialogViewModel viewModel;
-    private List<String> modules;
     private AddModuleDialogService addModuleDialogService = new AddModuleDialogService();
 
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {
-        viewModel.openAddModuleDialog(modules, addModuleDialogService);
+        viewModel.openAddModuleDialog(addModuleDialogService);
     }
 
     @Override

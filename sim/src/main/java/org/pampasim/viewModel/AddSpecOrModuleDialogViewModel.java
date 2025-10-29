@@ -18,9 +18,9 @@ public class AddSpecOrModuleDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     private final StringProperty selectedModule = new SimpleStringProperty();
 
-    public AddModuleRecord  openAddModuleDialog(List<String> modules, AddModuleDialogService addModuleDialogService){
+    public AddModuleRecord  openAddModuleDialog(AddModuleDialogService addModuleDialogService){
     //List<String> modules = simulatedScenario.getSpec().listAvailableModules();
-      Optional<AddModuleRecord> userSelection = addModuleDialogService.showDialog(modules);
+      Optional<AddModuleRecord> userSelection = addModuleDialogService.showDialog(moduleName);
       return userSelection.orElse(null);
     }
 
