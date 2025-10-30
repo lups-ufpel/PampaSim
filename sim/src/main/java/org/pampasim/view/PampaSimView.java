@@ -157,7 +157,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        pampaSimViewModel.openAddSpecOrModuleDialog();
         pampaSimViewModel.setTabPane(moduleTabPane); // FIXME: tight coupling
 
         ViewListBinder.bind(

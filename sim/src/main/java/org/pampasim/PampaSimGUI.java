@@ -18,13 +18,21 @@ public class PampaSimGUI extends Application {
     @Override
     public void start(Stage stage) {
         //Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
-        this.initializeMainFrame();
+        PampaSimViewModel viewModel = this.initializeMainFrame();
+        openSetupScreens(viewModel);
         this.configureStage(stage);
     }
 
-    private void initializeMainFrame() {
+    private PampaSimViewModel initializeMainFrame() {
         final ViewTuple<PampaSimView, PampaSimViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class).load();
         this.mainFrame = (BorderPane) viewTuple.getView();
+        
+        return viewTuple.getViewModel();
+    }
+
+    private void openSetupScreens(PampaSimViewModel viewModel) {
+        viewModel.openAddSpecOrModuleDialog();
+        viewModel.openSelectSchedulerDialog();
     }
 
     private void configureStage(Stage stage) {

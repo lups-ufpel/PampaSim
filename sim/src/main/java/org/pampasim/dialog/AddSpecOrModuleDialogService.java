@@ -41,7 +41,6 @@ public class AddSpecOrModuleDialogService implements DialogService<AddModuleReco
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
-            // handle data from select scheduler.
             AddModuleRecord userSelection = new AddModuleRecord(
             viewTuple.getViewModel().getSelectedModule());
             return Optional.of(userSelection);
