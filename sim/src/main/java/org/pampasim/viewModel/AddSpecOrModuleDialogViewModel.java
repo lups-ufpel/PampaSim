@@ -17,7 +17,7 @@ import java.util.Optional;
 public class AddSpecOrModuleDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     private final StringProperty selectedModule = new SimpleStringProperty();
-    private boolean didUserSetModule = false;
+    private boolean didUserSetModule = false; // seems like total jank but it works
 
     public AddModuleRecord  openAddModuleDialog(AddModuleDialogService addModuleDialogService){
     //List<String> modules = simulatedScenario.getSpec().listAvailableModules();
