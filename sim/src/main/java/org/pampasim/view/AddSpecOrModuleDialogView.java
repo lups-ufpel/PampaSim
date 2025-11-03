@@ -27,6 +27,10 @@ public class AddSpecOrModuleDialogView implements FxmlView<AddSpecOrModuleDialog
         viewModel.openAddModuleDialog(addModuleDialogService);
     }
 
+    @FXML
+    public void loadSpec(ActionEvent actionEvent) {
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
     }
