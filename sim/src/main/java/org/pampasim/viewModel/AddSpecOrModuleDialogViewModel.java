@@ -17,10 +17,15 @@ import java.util.Optional;
 public class AddSpecOrModuleDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     private final StringProperty selectedModule = new SimpleStringProperty();
+    private boolean didUserSetModule = false;
 
     public AddModuleRecord  openAddModuleDialog(AddModuleDialogService addModuleDialogService){
     //List<String> modules = simulatedScenario.getSpec().listAvailableModules();
       Optional<AddModuleRecord> userSelection = addModuleDialogService.showDialog(moduleName);
+      if(userSelection.isPresent()){
+        didUserSetModule = true;
+      }
+      
       return userSelection.orElse(null);
     }
 
@@ -39,5 +44,9 @@ public class AddSpecOrModuleDialogViewModel implements ViewModel {
     }
     public ObservableList<String> moduleNameProperty() { return moduleName; }
     public String getSelectedModule() { return selectedModule.get(); }
+
+    public boolean didUserSetModule(){
+      return didUserSetModule;
+    }
 
 }
