@@ -7,26 +7,23 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import org.pampasim.core.dialog.DialogService;
-import org.pampasim.view.AddSpecOrModuleDialogView;
+import org.pampasim.view.AddSpecOrModulesDialogView;
 import org.pampasim.viewModel.AddSpecOrModuleDialogViewModel;
-import org.pampasim.viewModel.PampaSimViewModel;
 
 //temp
-import org.pampasim.view.AddModuleDialogView;
-import org.pampasim.viewModel.AddModuleDialogViewModel;
 //temp
 
 import java.util.List;
 import java.util.Optional;
 
-public class AddSpecOrModuleDialogService implements DialogService<AddModuleRecord> {
+public class AddSpecOrModuleDialogService implements DialogService<AddModulesRecord> {
 
     List<String> availableSchedulers;
 
     @Override
-    public Optional<AddModuleRecord> showDialog(Object ... args) {
-        ViewTuple<AddSpecOrModuleDialogView, AddSpecOrModuleDialogViewModel> viewTuple =
-                FluentViewLoader.fxmlView(AddSpecOrModuleDialogView.class).load();
+    public Optional<AddModulesRecord> showDialog(Object ... args) {
+        ViewTuple<AddSpecOrModulesDialogView, AddSpecOrModuleDialogViewModel> viewTuple =
+                FluentViewLoader.fxmlView(AddSpecOrModulesDialogView.class).load();
 
 
         Dialog<ButtonType> dialog = new Dialog<>();
