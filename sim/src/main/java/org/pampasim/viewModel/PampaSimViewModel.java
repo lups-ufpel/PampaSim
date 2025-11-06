@@ -49,7 +49,7 @@ import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
 import org.pampasim.resources.dialog.CreateProcessRecord;
 import org.pampasim.resources.dialog.ProcessMemoryInfoRecord;
-import org.pampasim.dialog.AddSpecOrModuleDialogService;
+import org.pampasim.dialog.AddSpecOrModulesDialogService;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
@@ -62,6 +62,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -88,10 +89,10 @@ public class PampaSimViewModel implements ViewModel {
 
     //***** Dialog services *****//
     private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
-    private final AddModuleDialogService addModuleDialogService = new AddModuleDialogService();
+    private final AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
-    private final AddSpecOrModuleDialogService addSpecOrModuleDialogService = new AddSpecOrModuleDialogService();
+    private final AddSpecOrModulesDialogService addSpecOrModulesDialogService = new AddSpecOrModulesDialogService();
 
     @Getter
     private ObservableMap<PidAllocator.Pid, ObservableMap<Integer, Process.State>> ganttData = FXCollections.observableHashMap();
@@ -215,10 +216,10 @@ public class PampaSimViewModel implements ViewModel {
         updateProps();
     }
 
-    public void setSimulationModules(AddModuleRecord userSelection) throws IOException {
+    public void setSimulationModules(AddModulesRecord userSelection) throws IOException {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
 
-        if (userSelection.module().equals("memory")) {
+        if (userSelection.modules().getFirst().equals("memory")) { // FIXME: multiple modules
             reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation());
             MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
             simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);
@@ -518,20 +519,29 @@ public class PampaSimViewModel implements ViewModel {
 
     }
 
-    public void openAddSpecOrModuleDialog() {
+    ///  returns true if the spec is already loadable with no further changes.
+    public boolean openAddSpecOrModuleDialog() {
         List<String> modules = simulatedScenario.getSpec().listAvailableModules();
-        addSpecOrModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
-            try {
-                setSimulationModules(userSelection);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        AtomicBoolean done = new AtomicBoolean(false);
+        addSpecOrModulesDialogService.showDialog(modules).ifPresent(userSelection -> {
+                userSelection.modulesRecord().ifPresent(mods -> {
+                    try {
+                        setSimulationModules(mods);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                userSelection.specPath().ifPresent(specPath -> {
+                    loadSpec(Paths.get(specPath));
+                    done.set(true);
+                });
         });
+        return done.get();
     }
 
     public void openAddModuleDialog() {
         List<String> modules = simulatedScenario.getSpec().listAvailableModules();
-        addModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
+        addModulesDialogService.showDialog(modules).ifPresent(userSelection -> {
             try {
                 setSimulationModules(userSelection);
             } catch (IOException e) {

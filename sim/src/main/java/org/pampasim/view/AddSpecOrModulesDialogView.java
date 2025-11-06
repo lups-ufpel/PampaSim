@@ -2,28 +2,29 @@ package org.pampasim.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
-import org.pampasim.viewModel.AddSpecOrModuleDialogViewModel;
-import org.pampasim.dialog.AddModuleDialogService;
+import javafx.stage.FileChooser;
+import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
+import org.pampasim.dialog.AddModulesDialogService;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
 
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModuleDialogViewModel>, Initializable {
+public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDialogViewModel>, Initializable {
 
     @InjectViewModel
-    AddSpecOrModuleDialogViewModel viewModel;
-    private AddModuleDialogService addModuleDialogService = new AddModuleDialogService();
+    AddSpecOrModulesDialogViewModel viewModel;
+    private AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
 
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {
-        viewModel.openAddModuleDialog(addModuleDialogService);
+        viewModel.openAddModuleDialog(addModulesDialogService);
     }
 
     @FXML
@@ -31,7 +32,7 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModuleDialo
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open specification file");
         File file = fileChooser.showOpenDialog(null);
-        viewModel.loadSpec(Paths.get(file.getPath()));
+        viewModel.setSpecPath(Optional.of(file.getPath()));
     }
 
     @Override

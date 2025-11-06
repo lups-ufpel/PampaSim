@@ -8,7 +8,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.view.AddSpecOrModulesDialogView;
-import org.pampasim.viewModel.AddSpecOrModuleDialogViewModel;
+import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
 
 //temp
 //temp
@@ -16,15 +16,14 @@ import org.pampasim.viewModel.AddSpecOrModuleDialogViewModel;
 import java.util.List;
 import java.util.Optional;
 
-public class AddSpecOrModuleDialogService implements DialogService<AddModulesRecord> {
+public class AddSpecOrModulesDialogService implements DialogService<AddSpecOrModulesRecord> {
 
     List<String> availableSchedulers;
 
     @Override
-    public Optional<AddModulesRecord> showDialog(Object ... args) {
-        ViewTuple<AddSpecOrModulesDialogView, AddSpecOrModuleDialogViewModel> viewTuple =
+    public Optional<AddSpecOrModulesRecord> showDialog(Object ... args) {
+        ViewTuple<AddSpecOrModulesDialogView, AddSpecOrModulesDialogViewModel> viewTuple =
                 FluentViewLoader.fxmlView(AddSpecOrModulesDialogView.class).load();
-
 
         Dialog<ButtonType> dialog = new Dialog<>();
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
@@ -37,9 +36,10 @@ public class AddSpecOrModuleDialogService implements DialogService<AddModulesRec
         }
 
         Optional<ButtonType> result = dialog.showAndWait();
-        if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY && viewTuple.getViewModel().didUserSetModule()) {
-            AddModuleRecord userSelection = new AddModuleRecord(
-            viewTuple.getViewModel().getSelectedModule());
+        if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
+            Optional<String> specPath = viewTuple.getViewModel().getSpecPath();
+            AddSpecOrModulesRecord userSelection = new AddSpecOrModulesRecord(
+            viewTuple.getViewModel().getSelectedModulesOpt(), specPath);
             return Optional.of(userSelection);
         }
         return Optional.empty();

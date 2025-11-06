@@ -31,7 +31,7 @@ public class PampaSimGUI extends Application {
     }
 
     private void openSetupScreens(PampaSimViewModel viewModel) {
-        viewModel.openAddSpecOrModuleDialog();
+        if (viewModel.openAddSpecOrModuleDialog()) { return; }
         viewModel.openSelectSchedulerDialog();
     }
 
