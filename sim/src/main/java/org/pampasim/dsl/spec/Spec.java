@@ -147,6 +147,9 @@ public class Spec {
                     = scanResult.getSubclasses(Scheduler.class.getName());
             ClassInfo schedulerInfo = schedulerClasses.filter(clazz -> clazz.getName().contains(name)).getFirst();
             if (schedulerInfo == null) { throw new RuntimeException("scheduler " + name + " not found!"); }
+            if (schedulerInfo.getInterfaces().filter(iface -> iface.getName().contains(RespectsQuantum.class.getName())).iterator().hasNext() == false) {
+                quantum = Optional.empty();
+            }
             try {
                 setSchedulerInfo(
                     new SchedulerInfo((Class<? extends Scheduler>) schedulerInfo.loadClass(), quantum)
