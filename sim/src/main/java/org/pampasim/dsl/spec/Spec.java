@@ -68,11 +68,11 @@ public class Spec {
         this.hasProcManager = false;
     }
 
-    public static Spec loadSpec(Path path) {
+    public static Spec loadSpec(InputStream stream) {
         Spec spec;
-        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            CharStream stream = CharStreams.fromReader(reader);
-            var lexer = new SpecFileLexer(stream);
+        try {
+            CharStream charStream = CharStreams.fromStream(stream);
+            var lexer = new SpecFileLexer(charStream);
             var tokStream = new CommonTokenStream(lexer);
             var specParser = new SpecFileParser(tokStream);
             var specVisitor = new SpecVisitor();
@@ -205,26 +205,32 @@ public class Spec {
                 "core", "tools", "sim-datamodel", "events", "sim"
         );
 
-        try {
-            File pomFile = new File("../pom.xml");
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(pomFile);
-            doc.getDocumentElement().normalize();
+        // we can't read arbitrary files from inside the uber-jar
+        if (false) {
+            try {
+                File pomFile = new File("../pom.xml");
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(pomFile);
+                doc.getDocumentElement().normalize();
 
-            NodeList moduleNodes = doc.getElementsByTagName("module");
-            for (int i = 0; i < moduleNodes.getLength(); i++) {
-                Node node = moduleNodes.item(i);
-                String moduleName = node.getTextContent().trim();
-                if (!moduleName.isEmpty() && !excludedModules.contains(moduleName)) {
-                    modules.add(moduleName);
+                NodeList moduleNodes = doc.getElementsByTagName("module");
+                for (int i = 0; i < moduleNodes.getLength(); i++) {
+                    Node node = moduleNodes.item(i);
+                    String moduleName = node.getTextContent().trim();
+                    if (!moduleName.isEmpty() && !excludedModules.contains(moduleName)) {
+                        modules.add(moduleName);
+                    }
                 }
-            }
 
-            Collections.sort(modules);
-            return modules;
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing pom.xml to list modules", e);
+                Collections.sort(modules);
+                return modules;
+            } catch (Exception e) {
+                throw new RuntimeException("Error parsing pom.xml to list modules", e);
+            }
+        } else {
+                // so we do the dumb, brittle way for now (tm)
+            return List.of("memory");
         }
     }
 

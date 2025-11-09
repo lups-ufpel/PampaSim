@@ -56,6 +56,7 @@ import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -119,10 +120,8 @@ public class PampaSimViewModel implements ViewModel {
     private MemoryTabViewModel memoryModule = null;
 
     public PampaSimViewModel() {
-        var templateSpec = Spec.loadSpec(Paths.get(
-                Objects.requireNonNull(PampaSim.class.getResource("template.spec"))
-                        .getPath())
-        );
+        var templateSpecStream = PampaSim.class.getResourceAsStream("template.spec");
+        var templateSpec = Spec.loadSpec(templateSpecStream);
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
             var sim = PampaSim.fromSpec(spec);
             var eventManager = sim.getEventManager();
@@ -169,16 +168,20 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void loadSpec(Path path) {
-        var spec = Spec.loadSpec(path);
-        LOGGER.debug("loaded {}", spec);
-        if (spec == null) {
-            throw new RuntimeException("couldn't load spec file at " + path);
-        }
+        try {
+            var spec = Spec.loadSpec(new FileInputStream(path.toString()));
+            LOGGER.debug("loaded {}", spec);
+            if (spec == null) {
+                throw new RuntimeException("couldn't load spec file at " + path);
+            }
 
-        LOGGER.info("loaded {}", path);
-        simulatedScenario.setSpec(spec);
-        syncWithSpec();
-        updateProps();
+            LOGGER.info("loaded {}", path);
+            simulatedScenario.setSpec(spec);
+            syncWithSpec();
+            updateProps();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void saveSpec(Path path) {
