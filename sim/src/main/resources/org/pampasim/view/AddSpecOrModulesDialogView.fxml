@@ -22,7 +22,7 @@
             <FontIcon iconColor="#27a600a6" iconLiteral="bi-folder-plus" iconSize="22" text="" />
          </graphic>
       </Button>
-        <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
+        <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar Cenário" textFill="#1976d2">
           <tooltip>
             <Tooltip text="Carrega arquivo de descrição de cenário" />
           </tooltip>
