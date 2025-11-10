@@ -19,6 +19,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import eu.dariolucia.jfx.timeline.Timeline?>
@@ -51,6 +52,7 @@
                         <FontIcon iconLiteral="fth-calendar" />
                     </graphic>
                 </Button>
+                <Region prefHeight="60" />
                 <Separator />
                 <Button fx:id="stopBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onFinishSimulation" text="Stop">
                     <tooltip>
@@ -85,6 +87,7 @@
                         <FontIcon iconLiteral="fth-refresh-cw" />
                     </graphic>
                 </Button>
+                <Separator />
 
                 <Pane VBox.vgrow="ALWAYS" />
             </items>
