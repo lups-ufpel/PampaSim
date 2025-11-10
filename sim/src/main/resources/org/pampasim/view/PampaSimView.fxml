@@ -27,14 +27,6 @@
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
-                <Button fx:id="addProcessBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar">
-                    <tooltip>
-                        <Tooltip text="Criar processo" />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon iconLiteral="fth-plus-circle" text="" />
-                    </graphic>
-                </Button>
                 <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Abrir">
                     <tooltip>
                         <Tooltip text="Abrir editor de código" />
@@ -230,6 +222,21 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
+                <Button fx:id="addProcessBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar processo" textFill="#1976d2">
+                    <tooltip>
+                        <Tooltip text="Criar processo" />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square" iconSize="22" selectionFill="BLACK">
+                            <font>
+                                <Font size="27.0" />
+                            </font>
+                        </FontIcon>
+                    </graphic>
+               <font>
+                  <Font size="12.0" />
+               </font>
+                </Button>
                 <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
                     <tooltip>
                         <Tooltip text="Carrega arquivo de descrição de cenário" />
