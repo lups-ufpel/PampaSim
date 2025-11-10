@@ -222,9 +222,9 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
-                <Button fx:id="addProcessBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar processo" textFill="#000000">
+                <Button fx:id="addProcessBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar Processo" textFill="#000000">
                     <tooltip>
-                        <Tooltip text="Criar processo" />
+                        <Tooltip text="Criar Processo" />
                     </tooltip>
                     <graphic>
                         <FontIcon iconColor="#000000" iconLiteral="bi-plus-square" iconSize="22" selectionFill="BLACK">
@@ -237,7 +237,7 @@
                   <Font size="12.0" />
                </font>
                 </Button>
-                <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar cenário" textFill="#1976d2">
+                <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar Cenário" textFill="#1976d2">
                     <tooltip>
                         <Tooltip text="Carrega arquivo de descrição de cenário" />
                     </tooltip>
@@ -252,7 +252,7 @@
                   <Font size="12.0" />
                </font>
                 </Button>
-                <Button fx:id="saveSpecBtn" alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#saveSpec" text="Salvar cenário" textFill="#ff6d00">
+                <Button fx:id="saveSpecBtn" alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="1.0" layoutX="197.0" layoutY="15.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#saveSpec" text="Salvar Cenário" textFill="#ff6d00">
                     <tooltip>
                         <Tooltip text="Salva arquivo de descrição de cenário" />
                     </tooltip>
