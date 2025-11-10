@@ -209,7 +209,7 @@
                         <ImageView fitHeight="40.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
                             <Image url="@../../../imgs/pampasimlogo.png" />
                         </ImageView>
-                        <Label prefHeight="34.0" prefWidth="139.0" text="PampaSim">
+                        <Label prefHeight="34.0" prefWidth="143.0" text="PampaSim">
                             <font>
                                 <Font name="System Bold Italic" size="28.0" />
                             </font>
