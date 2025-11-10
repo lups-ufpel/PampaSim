@@ -222,12 +222,12 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
                 </HBox>
-                <Button fx:id="addProcessBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar processo" textFill="#1976d2">
+                <Button fx:id="addProcessBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="1.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#createProcess" text="Criar processo" textFill="#000000">
                     <tooltip>
                         <Tooltip text="Criar processo" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square" iconSize="22" selectionFill="BLACK">
+                        <FontIcon iconColor="#000000" iconLiteral="bi-plus-square" iconSize="22" selectionFill="BLACK">
                             <font>
                                 <Font size="27.0" />
                             </font>
@@ -242,7 +242,7 @@
                         <Tooltip text="Carrega arquivo de descrição de cenário" />
                     </tooltip>
                     <graphic>
-                        <FontIcon iconColor="#1976d2" iconLiteral="bi-plus-square" iconSize="22" selectionFill="BLACK">
+                        <FontIcon iconColor="#1976d2" iconLiteral="bi-upload" iconSize="22" selectionFill="BLACK">
                             <font>
                                 <Font size="27.0" />
                             </font>
