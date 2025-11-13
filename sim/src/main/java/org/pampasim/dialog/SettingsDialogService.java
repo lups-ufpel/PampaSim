@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class SelectSchedulerDialogService implements DialogService<SchedulerSelectionRecord> {
+public class SettingsDialogService implements DialogService<SchedulerSelectionRecord> {
 
     List<String> availableSchedulers;
     @Getter

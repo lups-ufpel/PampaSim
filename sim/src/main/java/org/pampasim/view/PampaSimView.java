@@ -68,9 +68,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public Button stopBtn;
     @FXML
-    public Button selectSchedBtn;
-    @FXML
     public Button loadSpecBtn;
+    @FXML
+    public Button configBtn;
     @FXML
     public Button saveSpecBtn;
     @FXML
@@ -132,8 +132,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         pampaSimViewModel.openCreateProcessDialog();
     }
     @FXML
-    public void onSelectScheduler(ActionEvent actionEvent) {
-        pampaSimViewModel.openSelectSchedulerDialog();
+    public void onSettings(ActionEvent actionEvent) {
+        pampaSimViewModel.openSettingsDialog();
     }
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {

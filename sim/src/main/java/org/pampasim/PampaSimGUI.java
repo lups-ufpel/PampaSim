@@ -32,7 +32,7 @@ public class PampaSimGUI extends Application {
 
     private void openSetupScreens(PampaSimViewModel viewModel) {
         if (viewModel.openAddSpecOrModuleDialog()) { return; }
-        viewModel.openSelectSchedulerDialog();
+        viewModel.openSettingsDialog();
     }
 
     private void configureStage(Stage stage) {
