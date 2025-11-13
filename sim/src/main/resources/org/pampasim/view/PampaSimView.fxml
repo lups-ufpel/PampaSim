@@ -28,24 +28,6 @@
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Abrir">
-                    <tooltip>
-                        <Tooltip text="Abrir editor de código" />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon iconLiteral="fth-file-plus" />
-                    </graphic>
-                </Button>
-                <Button alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Compile">
-                    <tooltip>
-                        <Tooltip text="Compilar código" />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon disable="true" iconLiteral="fth-code" />
-                    </graphic>
-                </Button>
-                <Region prefHeight="60" />
-                <Separator />
                 <Button fx:id="stopBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onFinishSimulation" text="Stop">
                     <tooltip>
                         <Tooltip text="Parar simulação" />
@@ -79,7 +61,6 @@
                         <FontIcon iconLiteral="fth-refresh-cw" />
                     </graphic>
                 </Button>
-                <Separator />
 
                 <Pane VBox.vgrow="ALWAYS" />
             </items>
