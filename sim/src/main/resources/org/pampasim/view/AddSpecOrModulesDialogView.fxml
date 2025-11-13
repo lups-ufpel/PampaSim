@@ -13,7 +13,7 @@
 
 <DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView">
   <content>
-    <VBox>
+    <VBox spacing="10">
       <HBox spacing="10">
         <Button fx:id="addModuleBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSelectModule" text="Adicionar Módulo" textFill="#27a800fc" wrapText="true">
            <tooltip>
