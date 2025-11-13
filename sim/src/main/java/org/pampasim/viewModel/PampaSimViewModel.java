@@ -89,7 +89,7 @@ public class PampaSimViewModel implements ViewModel {
 
 
     //***** Dialog services *****//
-    private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
+    private final SettingsDialogService settingsDialogService = new SettingsDialogService();
     private final AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
@@ -489,13 +489,13 @@ public class PampaSimViewModel implements ViewModel {
         simulationIsValidSetup.set(isValidSetup());
         scenarioIsSaved.set(simulatedScenario.isSaved());
     }
-    public void openSelectSchedulerDialog() {
+    public void openSettingsDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
 
-        selectSchedulerDialogService.setMemoryModulePresent(memoryModule != null);
+        settingsDialogService.setMemoryModulePresent(memoryModule != null);
         if (memoryModule != null) {
             List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
-            selectSchedulerDialogService.showDialog(schedulers, pageReplacementAlgorithms).ifPresent(selection -> {
+            settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms).ifPresent(selection -> {
                 MemoryConfigSelectionRecord mem = selection.memoryConfig();
                 MemoryConfig.initialize(
                         mem.pageSize(),
@@ -517,7 +517,7 @@ public class PampaSimViewModel implements ViewModel {
                 setSimulationScheduler(selection);
             });
         } else {
-            selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
+            settingsDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
         }
 
     }

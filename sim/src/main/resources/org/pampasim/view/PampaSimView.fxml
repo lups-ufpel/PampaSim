@@ -44,14 +44,6 @@
                         <FontIcon disable="true" iconLiteral="fth-code" />
                     </graphic>
                 </Button>
-                <Button fx:id="selectSchedBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" graphicTextGap="5.0" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#onSelectScheduler" prefHeight="26.0" prefWidth="17.0" text="scheduler">
-                    <tooltip>
-                        <Tooltip text="Compilar código" />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon iconLiteral="fth-calendar" />
-                    </graphic>
-                </Button>
                 <Region prefHeight="60" />
                 <Separator />
                 <Button fx:id="stopBtn" alignment="CENTER" contentDisplay="GRAPHIC_ONLY" disable="true" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onFinishSimulation" text="Stop">
@@ -267,7 +259,7 @@
                         </FontIcon>
                     </graphic>
                 </Button>
-                <Button alignment="CENTER" contentDisplay="TOP" disable="true" graphicTextGap="5.0" mnemonicParsing="false" text="Configurações">
+                <Button fx:id = "configBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSettings" text="Configurações">
                     <tooltip>
                         <Tooltip text="Configurações" />
                     </tooltip>
