@@ -3,6 +3,7 @@ package org.pampasim.view;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.stage.FileChooser;
+import javafx.scene.control.Label;
 import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
 import org.pampasim.dialog.AddModulesDialogService;
 
@@ -21,6 +22,8 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDial
     @InjectViewModel
     AddSpecOrModulesDialogViewModel viewModel;
     private AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
+    @FXML public Label modulesFeedback;
+    @FXML public Label specFeedback;
 
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {
@@ -37,5 +40,7 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDial
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+      modulesFeedback.textProperty().bind(viewModel.getModulesFeedbackStringProperty());
+      specFeedback.textProperty().bind(viewModel.getSpecFeedbackStringProperty());
     }
 }

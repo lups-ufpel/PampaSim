@@ -16,19 +16,43 @@ import java.util.Optional;
 public class AddSpecOrModulesDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     @Getter
-    @Setter
     private Optional<String> specPath = Optional.empty();
     @Getter
     @Setter
     private Optional<AddModulesRecord> selectedModulesOpt = Optional.empty();
-    private boolean didUserSetModule = false; // seems like total jank but it works
+    @Getter
+    private StringProperty modulesFeedbackStringProperty = new SimpleStringProperty("Módulos: Processador");
+    @Getter
+    private StringProperty specFeedbackStringProperty = new SimpleStringProperty("Cenário: Nenhum");
 
     public void openAddModuleDialog(AddModulesDialogService addModulesDialogService){
       //List<String> modules = simulatedScenario.getSpec().listAvailableModules();
       selectedModulesOpt = addModulesDialogService.showDialog(moduleName);
+      if(selectedModulesOpt.isPresent()){
+        for(String s : selectedModulesOpt.get().modules())
+        {
+          String newModule = ", ";
+          if(s.equals("memory")){ // manual translation :(
+            newModule += "Memória";
+          } else{
+            throw new IllegalStateException("Missing translation for module " + s);
+          }
+
+          modulesFeedbackStringProperty.set(modulesFeedbackStringProperty.get() + newModule); 
+        }
+      }
+    }
+
+    public void setSpecPath(Optional<String> specPath){
+      this.specPath = specPath;
+
+      if(specPath.isPresent()){
+        specFeedbackStringProperty.set("Cenário: Carregado");
+      }
     }
 
     public void setModuleNames(List<String> names) {
         moduleName.setAll(names);
     }
+
 }

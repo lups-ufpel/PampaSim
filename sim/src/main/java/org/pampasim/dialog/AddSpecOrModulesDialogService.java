@@ -10,8 +10,6 @@ import org.pampasim.core.dialog.DialogService;
 import org.pampasim.view.AddSpecOrModulesDialogView;
 import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
 
-//temp
-//temp
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +24,7 @@ public class AddSpecOrModulesDialogService implements DialogService<AddSpecOrMod
                 FluentViewLoader.fxmlView(AddSpecOrModulesDialogView.class).load();
 
         Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("PampaSim Setup");
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
         dialog.setDialogPane(dialogPane);
 
