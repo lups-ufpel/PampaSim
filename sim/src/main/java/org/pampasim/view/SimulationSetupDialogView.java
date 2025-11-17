@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -25,7 +26,9 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
     Spinner<Integer> quantumSpinner;
 
     @FXML
-    public VBox memorySectionVBox;
+    private Tab memoryTab;
+    //@FXML
+    //public VBox memorySectionVBox;
 
     @FXML
     public Spinner<Integer> pageSizeSpinner;
@@ -65,8 +68,9 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
         quantumSpinner.getValueFactory().setValue(viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
 
-        memorySectionVBox.visibleProperty().bind(viewModel.memoryModulePresentProperty());
-        memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
+        memoryTab.disableProperty().bind(viewModel.memoryModulePresentProperty().not());
+        //memorySectionVBox.visibleProperty().bind(viewModel.memoryModulePresentProperty());
+        //memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
 
         // Memory section
         pageSizeSpinner.getValueFactory().setValue(viewModel.getPageSize());
