@@ -73,8 +73,8 @@ public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
-    @Getter
-    private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
+    //@Getter
+    //private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
     @Getter
     private final BooleanProperty simulationIsValidSetup = new SimpleBooleanProperty(false);
     @Getter
@@ -355,13 +355,14 @@ public class PampaSimViewModel implements ViewModel {
             this.asciiReportClock = 0;
             this.ganttData.clear();
         }
-
+        /*
         if (genGraphs.get()) {
             try { exportSimulationGraph(); }
             catch(Exception e) {
                 JOptionPane.showMessageDialog(null, e);
             }
         }
+        */
     }
 
     public void handleProcessEvent(Event uncastEvent) {

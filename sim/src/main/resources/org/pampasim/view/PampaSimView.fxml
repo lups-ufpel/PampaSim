@@ -330,6 +330,19 @@
                         <FontIcon iconColor="#a81cff" iconLiteral="bi-graph-up" iconSize="22" text="" />
                     </graphic>
                 </Button>
+<<<<<<< HEAD
+=======
+        <!-- 
+                <CheckBox fx:id="genGraphs" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" text="Exportar gráficos" textFill="#0000007f">
+                    <tooltip>
+                        <Tooltip text="Habilita/desabilita a exportação de SVGs que descrevem a relação das entidades da simulação e os eventos transmitidos." />
+                    </tooltip>
+                    <graphic>
+                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="22" />
+                    </graphic>
+                </CheckBox>
+        !-->
+>>>>>>> cf44596 (commented the code for genGraph button)
             </items>
         </ToolBar>
     </top>
