@@ -73,8 +73,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button configBtn;
     @FXML
     public Button saveSpecBtn;
-    @FXML
-    public CheckBox genGraphs;
+    //@FXML
+    //public CheckBox genGraphs;
     @FXML
     public TableView<ProcessViewModel> procTable;
     @FXML
@@ -179,9 +179,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         this.animation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
         bindTimeLineProperty();
 
-        genGraphs.setAllowIndeterminate(false);
-        genGraphs.setSelected(false);
-        pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
+        //genGraphs.setAllowIndeterminate(false);
+        //genGraphs.setSelected(false);
+        //pampaSimViewModel.getGenGraphs().bind(genGraphs.selectedProperty());
 
         addProcessBtn.disableProperty().bind(
                 pampaSimViewModel
