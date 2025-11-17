@@ -2,7 +2,6 @@ package org.pampasim.viewModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.dialog.AddModulesRecord;
-import org.pampasim.dialog.AddModulesDialogService;
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
@@ -18,37 +17,28 @@ public class AddSpecOrModulesDialogViewModel implements ViewModel {
     @Getter
     private Optional<String> specPath = Optional.empty();
     @Getter
-    @Setter
-    private Optional<AddModulesRecord> selectedModulesOpt = Optional.empty();
-    @Getter
-    private StringProperty modulesFeedbackStringProperty = new SimpleStringProperty("Módulos: Processador");
-    @Getter
     private StringProperty specFeedbackStringProperty = new SimpleStringProperty("Cenário: Nenhum");
+    @Getter
+    private final BooleanProperty memoryModuleEnabled = new SimpleBooleanProperty(false);
 
-    public void openAddModuleDialog(AddModulesDialogService addModulesDialogService){
-      //List<String> modules = simulatedScenario.getSpec().listAvailableModules();
-      selectedModulesOpt = addModulesDialogService.showDialog(moduleName);
-      if(selectedModulesOpt.isPresent()){
-        for(String s : selectedModulesOpt.get().modules())
-        {
-          String newModule = ", ";
-          if(s.equals("memory")){ // manual translation :(
-            newModule += "Memória";
-          } else{
-            throw new IllegalStateException("Missing translation for module " + s);
-          }
-
-          modulesFeedbackStringProperty.set(modulesFeedbackStringProperty.get() + newModule); 
-        }
-      }
+    public BooleanProperty memoryModuleEnabledProperty() {
+        return memoryModuleEnabled;
     }
-
     public void setSpecPath(Optional<String> specPath){
       this.specPath = specPath;
 
       if(specPath.isPresent()){
         specFeedbackStringProperty.set("Cenário: Carregado");
       }
+    }
+
+    public Optional<AddModulesRecord> getSelectedModulesOpt(){
+      if(memoryModuleEnabled.get()){
+          AddModulesRecord userSelection = new AddModulesRecord(List.of("memory"));
+            return Optional.of(userSelection);
+      }
+
+      return Optional.empty();
     }
 
     public void setModuleNames(List<String> names) {

@@ -24,7 +24,7 @@ public class AddSpecOrModulesDialogService implements DialogService<AddSpecOrMod
                 FluentViewLoader.fxmlView(AddSpecOrModulesDialogView.class).load();
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("PampaSim Setup");
+        dialog.setTitle("PampaSim");
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
         dialog.setDialogPane(dialogPane);
 
