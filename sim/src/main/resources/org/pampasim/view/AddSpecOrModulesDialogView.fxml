@@ -4,25 +4,26 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import javafx.scene.text.Font?>
 
 <DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView">
   <content>
-    <VBox spacing="10">
-      <HBox spacing="10">
-        <Button fx:id="addModuleBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onSelectModule" text="Adicionar Módulo" textFill="#27a800fc" wrapText="true">
-           <tooltip>
-              <Tooltip text="Adiciona módulos a simulação" />
-           </tooltip>
-           <graphic>
-              <FontIcon iconColor="#27a600a6" iconLiteral="bi-folder-plus" iconSize="22" text="" />
-           </graphic>
-        </Button>
+    <VBox spacing="10" alignment="CENTER">
+
+      <Label text="Módulos Ativos:" />
+    <HBox spacing="10" alignment="CENTER">
+        <CheckBox fx:id="processorCheckBox" text="Processador" disable="true" selected="true"/>
+        <CheckBox fx:id="memoryCheckBox" text="Memória"/>
+    </HBox>
+    <Region prefHeight="20" />
+      <Label fx:id ="specFeedback" text="${viewModel.specFeedback}" />
           <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar Cenário" textFill="#1976d2">
             <tooltip>
               <Tooltip text="Carrega arquivo de descrição de cenário" />
@@ -38,9 +39,6 @@
                         <Font size="12.0" />
                      </font>
         </Button>
-      </HBox>
-      <Label fx:id ="modulesFeedback" text="${viewModel.ModulesFeedback}" />
-      <Label fx:id ="specFeedback" text="${viewModel.specFeedback}" />
     </VBox>
   </content>
   <buttonTypes>
