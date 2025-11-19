@@ -177,6 +177,7 @@ public class PampaSimViewModel implements ViewModel {
 
             LOGGER.info("loaded {}", path);
             simulatedScenario.setSpec(spec);
+            simulatedScenario.setSaved(true); // we just loaded from a file
             syncWithSpec();
             updateProps();
         } catch (Exception e) {
@@ -192,6 +193,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void createNewProcess(CreateProcessRecord userProcess) {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
         var spec = simulatedScenario.getSpec();
         spec.addProcessArrival(creationData);
@@ -207,7 +209,6 @@ public class PampaSimViewModel implements ViewModel {
                                                                         null);
             MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
         }
-        // syncWithSpec(); // this is already called after this method in the only place that it is referenced
     }
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
@@ -307,6 +308,7 @@ public class PampaSimViewModel implements ViewModel {
     public void syncWithSpec() {
         allProcesses.clear();
         simulatedScenario.resetToSpec();
+        updateProps();
     }
 
     public void stopSimulation() {

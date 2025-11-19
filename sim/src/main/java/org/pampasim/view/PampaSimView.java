@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.core.dialog.DialogService;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.Process;
@@ -138,10 +139,22 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void loadSpec() {
+        if (! pampaSimViewModel.getScenarioIsSaved().get()) {
+            Alert confirmOverwriteAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmOverwriteAlert.setTitle("Confirmar operação destrutiva");
+            confirmOverwriteAlert.setHeaderText("Essa operação irá substituir a especificação ativa!");
+            confirmOverwriteAlert.setContentText("Salve as suas alterações para evitar perda de dados. Continuar mesmo assim?");
+            var result = confirmOverwriteAlert.showAndWait();
+            if (result.isPresent() && (! result.get().equals(ButtonType.OK))) {
+                return; // early return, aborting the op.
+            }
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open specification file");
         File file = fileChooser.showOpenDialog(null);
-        pampaSimViewModel.loadSpec(Paths.get(file.getPath()));
+        if (file != null) {
+            pampaSimViewModel.loadSpec(Paths.get(file.getPath()));
+        }
     }
 
     @FXML
@@ -206,7 +219,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         resetBtn.disableProperty()
                 .bind(pampaSimViewModel.getSimulationRunning());
         loadSpecBtn.disableProperty()
-                .bind(pampaSimViewModel.getSimulationRunning().or(pampaSimViewModel.getScenarioIsSaved().not()));
+                .bind(pampaSimViewModel.getSimulationRunning());
         saveSpecBtn.disableProperty()
                 .bind(pampaSimViewModel.getScenarioIsSaved());
         pampaSimViewModel.updateProps();

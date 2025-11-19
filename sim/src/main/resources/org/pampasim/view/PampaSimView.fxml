@@ -109,7 +109,7 @@
                                         </HBox>
                                         <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="0.0" spacing="5.0">
                                             <children>
-                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" VBox.vgrow="NEVER">
+                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
                                                     <HBox fx:id="NewList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
@@ -133,7 +133,7 @@
                                                         </font>
                                                     </Label>
                                                 </StackPane>
-                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" VBox.vgrow="NEVER">
+                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
                                                     <HBox fx:id="ReadyList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
@@ -157,7 +157,7 @@
                                                         </font>
                                                     </Label>
                                                 </StackPane>
-                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" VBox.vgrow="NEVER">
+                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
                                                     <HBox fx:id="WaitingList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
@@ -181,7 +181,7 @@
                                                         </font>
                                                     </Label>
                                                 </StackPane>
-                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" VBox.vgrow="NEVER">
+                                                <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
                                                     <HBox fx:id="FinishedList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
