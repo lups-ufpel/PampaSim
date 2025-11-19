@@ -4,18 +4,13 @@ import de.saxsys.mvvmfx.*;
 import eu.dariolucia.jfx.timeline.model.TaskItem;
 import eu.dariolucia.jfx.timeline.model.TaskLine;
 import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Bounds;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -47,6 +42,10 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
+    @FXML
+    public SplitPane simPane;
+    @FXML
+    public ScrollPane masterScrollPane;
     @FXML
     public ProgressBar ProcessProgress;
     @FXML
