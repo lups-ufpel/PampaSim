@@ -121,7 +121,7 @@
                                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                         </StackPane.margin>
                                                     </HBox>
-                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" text="Criados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
+                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Criados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
                                                         <StackPane.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                         </StackPane.margin>
@@ -145,7 +145,7 @@
                                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                         </StackPane.margin>
                                                     </HBox>
-                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" text="Prontos" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
+                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Prontos" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
                                                         <StackPane.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                         </StackPane.margin>
@@ -169,7 +169,7 @@
                                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                         </StackPane.margin>
                                                     </HBox>
-                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" text="Em espera" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
+                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Em espera" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
                                                         <StackPane.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                         </StackPane.margin>
@@ -193,7 +193,7 @@
                                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                         </StackPane.margin>
                                                     </HBox>
-                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" text="Finalizados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
+                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Finalizados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
                                                         <StackPane.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                         </StackPane.margin>
@@ -330,19 +330,6 @@
                         <FontIcon iconColor="#a81cff" iconLiteral="bi-graph-up" iconSize="22" text="" />
                     </graphic>
                 </Button>
-<<<<<<< HEAD
-=======
-        <!-- 
-                <CheckBox fx:id="genGraphs" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" mnemonicParsing="false" text="Exportar gráficos" textFill="#0000007f">
-                    <tooltip>
-                        <Tooltip text="Habilita/desabilita a exportação de SVGs que descrevem a relação das entidades da simulação e os eventos transmitidos." />
-                    </tooltip>
-                    <graphic>
-                        <FontIcon iconColor="#0000007e" iconLiteral="fth-settings" iconSize="22" />
-                    </graphic>
-                </CheckBox>
-        !-->
->>>>>>> cf44596 (commented the code for genGraph button)
             </items>
         </ToolBar>
     </top>
