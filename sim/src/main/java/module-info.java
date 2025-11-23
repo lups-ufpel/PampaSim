@@ -17,12 +17,12 @@ module org.pampasim {
     requires javafx.controls;
     requires org.kordamp.ikonli.bootstrapicons;
     requires jakarta.xml.bind;
+    requires info.picocli;
 
     requires org.pampasim.events;
     requires org.pampasim.memory;
-    requires eu.dariolucia.jfx.timeline;
 
-    opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
+    opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx, info.picocli;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.view to javafx.fxml, de.saxsys.mvvmfx;
     exports org.pampasim.viewModel to de.saxsys.mvvmfx;

@@ -1,8 +1,17 @@
 package org.pampasim;
 
 import lombok.Getter;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.core.config.Configurator;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * The main entry point for PampaSim application.
@@ -12,19 +21,41 @@ import org.apache.logging.log4j.Logger;
  *     - Start the JavaFX main thread.
  * </p>
  */
-public class Launcher {
+@Command(name="PampaSim", mixinStandardHelpOptions = true)
+public class Launcher implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(Launcher.class);
+    private static String[] args;
 
-    public static void main(String[] args) {
-        configLogging(args);
+    @Getter
+    @Option(names = {"-s", "--spec"},
+            paramLabel = "<ARQUIVO-SPEC>",
+            description = "especificação à ser carregada")
+    private static Path autoloadSpec = null;
+
+    @Getter
+    @Option(names = {"-l", "--log-level"},
+            paramLabel = "<OFF|FATAL|ERROR|WARN|[INFO]|DEBUG|TRACE|ALL>",
+            description = "nível de verbosidade dos logs")
+    private static Level debugLevel = Level.INFO;
+
+    @Override
+    public void run() {
         LOGGER.info("==================██Starting PampaOS Simulator██==================\n");
         PampaSimGUI.launch(PampaSimGUI.class,args);
     }
 
-    private static void configLogging(String[] args) {
-        //TODO: In the future include more logging options from command line arguments.
-        // such as enabling a special debug logging mode for debugging from args.
-        // tweak some logging configuration properties to improve performance and legibility.
-        // add the option for redirecting all or some log messages to a file.
+    public static void main(String[] args) {
+        Launcher.args = args;
+        var cmdline = new CommandLine(new Launcher());
+        cmdline.registerConverter(Level.class, new Log4jLevelConverter());
+        int exitCode = cmdline.execute(args);
+        System.exit(exitCode);
+    }
+
+    public static class Log4jLevelConverter implements CommandLine.ITypeConverter<Level> {
+        @Override
+        public Level convert(String value) throws Exception {
+            return Level.valueOf(value.toUpperCase());
+        }
     }
 }

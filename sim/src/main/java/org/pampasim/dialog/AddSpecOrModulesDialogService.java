@@ -9,7 +9,7 @@ import javafx.scene.control.DialogPane;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.view.AddSpecOrModulesDialogView;
 import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
-
+import org.pampasim.Launcher;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +34,10 @@ public class AddSpecOrModulesDialogService implements DialogService<AddSpecOrMod
 
         }
 
+        var autoloadSpec = Launcher.getAutoloadSpec();
+        if (autoloadSpec != null) {
+            viewTuple.getViewModel().setSpecPath(Optional.of(autoloadSpec.toString()));
+        }
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
             Optional<String> specPath = viewTuple.getViewModel().getSpecPath();

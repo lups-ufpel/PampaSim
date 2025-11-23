@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import eu.dariolucia.jfx.timeline.Timeline?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -23,7 +23,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
@@ -61,7 +61,15 @@
                     </graphic>
                 </Button>
 
-                <Pane VBox.vgrow="ALWAYS" />
+                <Pane VBox.vgrow="ALWAYS">
+               <children>
+                  <Slider fx:id="stepFreqSlider" blockIncrement="1.0" layoutX="8.0" majorTickUnit="1.0" max="10.0" minorTickCount="0" orientation="VERTICAL" showTickMarks="true" snapToTicks="true" value="2.0" />
+                  <Label fx:id="stepFreqReadOut" alignment="CENTER" contentDisplay="CENTER" layoutX="4.0" layoutY="147.0" text="10 Hz" textAlignment="CENTER">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                  </Label>
+               </children></Pane>
             </items>
             <BorderPane.margin>
                 <Insets />
@@ -205,7 +213,7 @@
                                                         </font>
                                                     </Label>
                                                 </StackPane>
-                                                <TabPane fx:id="outputTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="20.0" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+                                                <TabPane fx:id="outputTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="20.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
                                                     <tabs>
                                                         <Tab text="Process Table">
                                                             <TableView fx:id="procTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="20.0">
@@ -224,8 +232,17 @@
                                                             </TableView>
                                                         </Tab>
                                                         <Tab text="Gantt">
-                                                            <Label>WIP</Label>
-                                                            <Timeline fx:id="ganttChart" />
+                                             <content>
+                                                <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                                                   <content>
+                                                      <TableView fx:id="ganttChart" minHeight="300.0" minWidth="800.0">
+                                                        <columns>
+                                                          <TableColumn fx:id="ganttPidCol" editable="false" prefWidth="100.0" text="PID" />
+                                                        </columns>
+                                                      </TableView>
+                                                   </content>
+                                                </ScrollPane>
+                                             </content>
                                                         </Tab>
                                                     </tabs>
                                                 </TabPane>

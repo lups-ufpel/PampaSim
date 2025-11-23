@@ -303,6 +303,8 @@ public class PampaSimViewModel implements ViewModel {
             throw new RuntimeException("tried to start a simulation without the correct setup");
         }
         setSimulationRunning(true);
+        this.asciiReportClock = 0;
+        this.ganttData.clear();
     }
 
     public void syncWithSpec() {
@@ -354,8 +356,6 @@ public class PampaSimViewModel implements ViewModel {
             generateCSVReport(sim);
 
             stopSimulation();
-            this.asciiReportClock = 0;
-            this.ganttData.clear();
         }
         /*
         if (genGraphs.get()) {

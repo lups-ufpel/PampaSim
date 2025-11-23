@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.ProcessView">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.ProcessView">
    <Circle fx:id="circle" centerX="30.0" centerY="30.0" onMouseClicked="#showInfo" radius="30.0" stroke="BLACK" strokeType="INSIDE" />
+   <Label alignment="CENTER" text="0" textAlignment="CENTER" textFill="WHITE">
+      <font>
+         <Font size="40.0" />
+      </font>
+   </Label>
 </Pane>
