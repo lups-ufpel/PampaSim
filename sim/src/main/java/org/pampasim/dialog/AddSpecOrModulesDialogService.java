@@ -45,6 +45,9 @@ public class AddSpecOrModulesDialogService implements DialogService<AddSpecOrMod
             viewTuple.getViewModel().getSelectedModulesOpt(), specPath);
             return Optional.of(userSelection);
         }
+        if(result.isEmpty()){ // x button
+          System.exit(0);
+        }
         return Optional.empty();
     }
 }

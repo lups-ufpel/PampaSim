@@ -492,38 +492,53 @@ public class PampaSimViewModel implements ViewModel {
         simulationIsValidSetup.set(isValidSetup());
         scenarioIsSaved.set(simulatedScenario.isSaved());
     }
-    public void openSettingsDialog() {
-        List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
 
-        settingsDialogService.setMemoryModulePresent(memoryModule != null);
-        if (memoryModule != null) {
-            List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
-            settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms).ifPresent(selection -> {
-                MemoryConfigSelectionRecord mem = selection.memoryConfig();
-                MemoryConfig.initialize(
-                        mem.pageSize(),
-                        mem.maxPagesPerProcess(),
-                        mem.framesInRAM(),
-                        mem.framesInSwap(),
-                        mem.swapOperationLength(),
-                        mem.workingSetWindow(),
-                        mem.pageSubstitutionAlgorithm(),
-                        mem.globalPageSubstitution(),
-                        mem.anticipatedPageLoading(),
-                        mem.prePagingRange(),
-                        mem.variablePageAllocation(),
-                        mem.variablePageAllocationTopThreshold(),
-                        mem.variablePageAllocationBottomThreshold(),
-                        mem.tlbEnabled(),
-                        mem.tlbEntries()
-                );
-                setSimulationScheduler(selection);
-            });
-        } else {
-            settingsDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
-        }
+// returns true if user clicked X or Cancel
+public boolean openSettingsDialog() {
+    List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
+    settingsDialogService.setMemoryModulePresent(memoryModule != null);
 
+    Optional<SchedulerSelectionRecord> opt =
+            (memoryModule != null)
+                ? settingsDialogService.showDialog(
+                        schedulers,
+                        simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms()
+                  )
+                : settingsDialogService.showDialog(schedulers);
+
+    // If empty (Cancel or X), return true
+    if (opt.isEmpty()) {
+        return true;
     }
+
+    SchedulerSelectionRecord selection = opt.get();
+
+    if (memoryModule != null) {
+        MemoryConfigSelectionRecord mem = selection.memoryConfig();
+        MemoryConfig.initialize(
+            mem.pageSize(),
+            mem.maxPagesPerProcess(),
+            mem.framesInRAM(),
+            mem.framesInSwap(),
+            mem.swapOperationLength(),
+            mem.workingSetWindow(),
+            mem.pageSubstitutionAlgorithm(),
+            mem.globalPageSubstitution(),
+            mem.anticipatedPageLoading(),
+            mem.prePagingRange(),
+            mem.variablePageAllocation(),
+            mem.variablePageAllocationTopThreshold(),
+            mem.variablePageAllocationBottomThreshold(),
+            mem.tlbEnabled(),
+            mem.tlbEntries()
+        );
+    }
+
+    setSimulationScheduler(selection);
+
+    return false;
+}
+
 
     ///  returns true if the spec is already loadable with no further changes.
     public boolean openAddSpecOrModuleDialog() {

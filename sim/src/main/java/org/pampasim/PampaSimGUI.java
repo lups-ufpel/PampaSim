@@ -32,8 +32,9 @@ public class PampaSimGUI extends Application {
     }
 
     private void openSetupScreens(PampaSimViewModel viewModel) {
+        // note that they have different return meanings
         if (viewModel.openAddSpecOrModuleDialog()) { return; }
-        viewModel.openSettingsDialog();
+        if (viewModel.openSettingsDialog()) {  System.exit(0); };
     }
 
     private void configureStage(Stage stage) {
