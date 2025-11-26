@@ -334,7 +334,7 @@ public class PampaSimViewModel implements ViewModel {
 
         { // Update ascii report
             if (blockedTick) {
-                asciiReportClock = sim.getRealClock().getTick();
+                asciiReportClock = sim.getRealClock().get();
                 for (ProcessViewModel pvm : allProcesses) {
                     PidAllocator.Pid pid = pvm.getPid().get();
                     if (pid == null) {
@@ -406,7 +406,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void generateCSVReport(Simulation sim) {
-        int maxRealTick = sim.getRealClock().getTick();
+        int maxRealTick = sim.getRealClock().get();
 
         Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
         var headerBuilder = new StringBuilder("pid");
@@ -437,7 +437,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void generateASCIIReport(Simulation sim) {
-        int maxRealTick = sim.getRealClock().getTick();
+        int maxRealTick = sim.getRealClock().get();
         long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
         int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
         int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));

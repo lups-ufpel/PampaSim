@@ -1,16 +1,15 @@
 package org.pampasim.core;
 
-import lombok.Getter;
+import javafx.beans.property.SimpleIntegerProperty;
 
-public class RealClock {
-    @Getter
-    private int tick = 0;
-
+public class RealClock extends SimpleIntegerProperty {
     public int next() {
-        return tick++;
+        var t = this.get()+1;
+        this.set(t);
+        return t;
     }
     @Override
     public String toString() {
-        return "real clock is " + getTick();
+        return "real clock is " + get();
     }
 };

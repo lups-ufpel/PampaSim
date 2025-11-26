@@ -131,7 +131,7 @@ public abstract class AbstractSimEntity implements SimEntity {
     public String toString() {
         Simulation sim = getSimulation();
         RealClock realClock = sim.getRealClock();
-        String realClockTxt = (realClock != null)? String.valueOf(sim.getRealClock().getTick()) : "0";
+        String realClockTxt = (realClock != null)? String.valueOf(sim.getRealClock().get()) : "0";
         String simClockTxt = String.valueOf(sim.getSimulationClock());
         return "[" + getClass().getSimpleName()
                 + " @ real clock "
