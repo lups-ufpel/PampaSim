@@ -1,5 +1,7 @@
 package org.pampasim;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.Simulation;
@@ -11,7 +13,7 @@ import java.util.function.Function;
 
 @Getter
 public class SimulatedScenario {
-    private Simulation simulation;
+    private ObjectProperty<Simulation> simulation;
     @Setter
     private Function<Spec, Simulation> simulationFactory;
 
@@ -24,11 +26,11 @@ public class SimulatedScenario {
     public SimulatedScenario(Spec template, Function<Spec, Simulation> simulationFactory) {
         this.spec = template;
         this.simulationFactory = simulationFactory;
-        this.simulation = simulationFactory.apply(template);
+        this.simulation = new SimpleObjectProperty<>(simulationFactory.apply(template));
     }
 
     public void resetToSpec() {
-        this.simulation = simulationFactory.apply(this.spec);
+        this.simulation.set(simulationFactory.apply(this.spec));
     }
 
     public void saveSpec(Path path) {

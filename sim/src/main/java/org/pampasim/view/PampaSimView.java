@@ -104,7 +104,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public TableView<ObservableValue<GanttLine>> ganttChart;
     @FXML
     public TableColumn<ObservableValue<GanttLine>, PidAllocator.Pid> ganttPidCol;
-    private List<TableColumn<GanttLine,Process.State>> ganttTickCols;
     private ObservableList<ObservableValue<GanttLine>> ganttLines;
 
     private javafx.animation.Timeline animation;
@@ -264,7 +263,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         });
 
         ganttLines = FXCollections.observableArrayList();
-        ganttTickCols = new ArrayList<>();
         bindGanttChartObservable();
     }
 
@@ -374,11 +372,27 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                     LOGGER.debug("added gantt info for PID {} = {}", change.getKey(), observableLine.toString());
                 } else if (change.wasRemoved()) {
                     LOGGER.debug("simulation removed gantt info for PID {}", change.getKey());
+                    ganttLines.removeIf(line -> line.getValue().pid == change.getKey());
                 }
             }
         });
 
         ganttPidCol.setCellValueFactory(cellData ->
                 cellData.getValue().map(GanttLine::pid));
+
+        pampaSimViewModel // what a ride
+                .simulatedScenario
+                .getSimulation()
+                .addListener((observableSim, oldSim, sim) ->
+                        sim.getRealClock()
+                                .addListener((observableClock, _oldNumber, number) -> {
+                                    LOGGER.info("adding column for {}", number);
+                                    if (number.intValue() < ganttChart.getColumns().size()) { return; } // don't rollback
+                                    var col = new TableColumn<ObservableValue<GanttLine>, Process.State>(number.toString());
+                                    col.setCellValueFactory(cellData ->
+                                            Bindings.valueAt(cellData.getValue().getValue().stateMap, number.intValue())
+                                    );
+                                    ganttChart.getColumns().add(col);
+                                }));
     }
 }

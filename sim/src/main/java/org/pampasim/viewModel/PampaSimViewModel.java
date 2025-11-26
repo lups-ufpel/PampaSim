@@ -224,12 +224,12 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
 
         if (userSelection.modules().getFirst().equals("memory")) { // FIXME: multiple modules
-            reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation());
+            reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation().get());
             MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
             simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);
 
             memoryModule = new MemoryTabViewModel(
-                    simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
+                    simulatedScenario.getSimulation().get().getEntity(MemoryManagement.class),
                     simulatedScenario.getSpec().getColorMap(),
                     allProcesses,
                     memoryStatisticsViewModel
@@ -319,7 +319,7 @@ public class PampaSimViewModel implements ViewModel {
 
     public void runSimulation(boolean fullStep) {
         boolean blockedTick;
-        Simulation sim = simulatedScenario.getSimulation();
+        Simulation sim = simulatedScenario.getSimulation().get();
         if (sim.getState() == SimEntity.EntityState.Blocked) {
             sim.run();
             blockedTick = true;
@@ -389,7 +389,7 @@ public class PampaSimViewModel implements ViewModel {
 
         // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
-            Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation()
+            Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation().get()
                     .getEntity(Scheduler.class)
                     .getProcessQueue();
 
@@ -401,7 +401,7 @@ public class PampaSimViewModel implements ViewModel {
                         .ifPresent(pvm -> pvm.getReadyWaitingTime().set(queuedProc.getWaitTime()));
             }
         }
-        simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation(), allProcesses);
+        simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation().get(), allProcesses);
 
     }
 
@@ -483,9 +483,9 @@ public class PampaSimViewModel implements ViewModel {
     }
     public boolean isValidSetup() {
         // FIXME / TODO: this can be made more thorough by analysing if there are any unhandled events
-        return simulatedScenario.getSimulation().getEntity(Scheduler.class) != null
-            && simulatedScenario.getSimulation().getEntity(Processor.class) != null
-            && simulatedScenario.getSimulation().getEntity(ProcessManager.class) != null;
+        return simulatedScenario.getSimulation().get().getEntity(Scheduler.class) != null
+            && simulatedScenario.getSimulation().get().getEntity(Processor.class) != null
+            && simulatedScenario.getSimulation().get().getEntity(ProcessManager.class) != null;
     }
 
     public void updateProps() {
