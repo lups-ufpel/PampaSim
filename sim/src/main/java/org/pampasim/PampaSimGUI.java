@@ -20,8 +20,8 @@ public class PampaSimGUI extends Application {
     public void start(Stage stage) {
         //Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
         PampaSimViewModel viewModel = this.initializeMainFrame();
-        openSetupScreens(viewModel);
         this.configureStage(stage);
+        openSetupScreens(viewModel);
     }
 
     private PampaSimViewModel initializeMainFrame() {

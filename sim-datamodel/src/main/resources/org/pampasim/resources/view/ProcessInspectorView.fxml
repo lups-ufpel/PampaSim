@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.ProcessInspectorView">
+   <bottom>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <buttons>
+            <Button mnemonicParsing="false" text="Deletar" ButtonBar.buttonData="NO" onAction="#delete" />
+            <Button mnemonicParsing="false" text="Editar" ButtonBar.buttonData="OTHER" onAction="#edit"/>
+            <Button defaultButton="true" mnemonicParsing="false" text="Ok" ButtonBar.buttonData="OK_DONE" onAction="#ok" />
+        </buttons>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <padding>
+            <Insets right="10.0" />
+         </padding>
+      </ButtonBar>
+   </bottom>
+</BorderPane>

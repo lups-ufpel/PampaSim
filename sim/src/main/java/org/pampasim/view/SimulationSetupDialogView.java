@@ -21,8 +21,6 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
     @FXML
     ChoiceBox<String> schedulerChoiceBox;
     @FXML
-    CheckBox preemptionCheckBox;
-    @FXML
     Spinner<Integer> quantumSpinner;
 
     @FXML
@@ -64,7 +62,6 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
         // Scheduler section
         schedulerChoiceBox.setItems(viewModel.schedulerNameProperty());
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
-        preemptionCheckBox.selectedProperty().bindBidirectional(viewModel.preemptiveProperty());
         quantumSpinner.getValueFactory().setValue(viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
 

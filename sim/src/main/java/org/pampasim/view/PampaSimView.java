@@ -387,7 +387,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         sim.getRealClock()
                                 .addListener((observableClock, _oldNumber, number) -> {
                                     LOGGER.info("adding column for {}", number);
-                                    if (number.intValue() < ganttChart.getColumns().size()) { return; } // don't rollback
+                                    if (number.intValue() < ganttChart.getColumns().size()-1) { return; } // don't rollback
                                     var col = new TableColumn<ObservableValue<GanttLine>, Process.State>(number.toString());
                                     col.setCellValueFactory(cellData ->
                                             Bindings.valueAt(cellData.getValue().getValue().stateMap, number.intValue())

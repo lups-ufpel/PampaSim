@@ -48,6 +48,10 @@
             <artifactId>ikonli-bootstrapicons-pack</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.rationalityfrontline.workaround</groupId>
+            <artifactId>jfoenix</artifactId>
+        </dependency>
+        <dependency>
             <groupId>de.saxsys</groupId>
             <artifactId>mvvmfx</artifactId>
         </dependency>

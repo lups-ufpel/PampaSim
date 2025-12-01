@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
@@ -11,19 +7,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationSetupDialogView">
+<DialogPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationSetupDialogView">
     <content>
-<TabPane fx:id="tabPane" minWidth="367" prefWidth="516" prefHeight="600">
+<TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="367" prefHeight="600" prefWidth="516" tabMinHeight="30.0" tabMinWidth="30.0">
     <tabs>
-        <Tab text="Processos">
+        <Tab closable="false" text="Processos">
             <content>
-          <VBox fx:id="processSectionVBox" alignment="CENTER" spacing="10">
+          <VBox fx:id="processSectionVBox" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="300.0" spacing="10">
+                     <Separator prefWidth="400.0" />
           <!-- Gerência de Processos + GridPane -->
                 <!-- Gerência de Processos -->
                 <Label alignment="CENTER" text="Gerência de Processos" textAlignment="CENTER">
@@ -38,27 +37,23 @@
                     <rowConstraints>
                         <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
                         <Label text="Algoritmo de Escalonamento" />
                         <ChoiceBox fx:id="schedulerChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
 
-                        <Label text="Preempção" GridPane.rowIndex="1" />
-                        <CheckBox fx:id="preemptionCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label text="Quantum" GridPane.rowIndex="2" />
-                        <Spinner fx:id="quantumSpinner" editable="true" initialValue="2" max="999" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label text="Quantum" GridPane.rowIndex="1" />
+                        <Spinner fx:id="quantumSpinner" editable="true" initialValue="2" max="999" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                     </children>
                 </GridPane>
 
                 </VBox>
                 </content>
         </Tab>
-        <Tab fx:id="memoryTab" text="Memória">
+        <Tab fx:id="memoryTab" closable="false" text="Memória">
             <content>
                 <!-- your memorySectionVBox goes here -->
-                <VBox fx:id="memorySectionVBox" alignment="CENTER" spacing="10"> <!-- visible="false" managed="false" -->
+                <VBox fx:id="memorySectionVBox" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10"> <!-- visible="false" managed="false" -->
                     <Separator prefWidth="400.0" />
                     <!-- Gerência de Memória -->
                     <Label alignment="CENTER" text="Gerência de Memória" textAlignment="CENTER">
@@ -87,6 +82,7 @@
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                         <children>
                             <!-- pageSize -->
@@ -115,13 +111,11 @@
 
                             <!-- Política de Substituição de Páginas -->
                             <Label text="Política de Substituição de Páginas" GridPane.rowIndex="6" />
-                            <ChoiceBox fx:id="replacementPolicyChoiceBox" maxWidth="1.7976931348623157E308"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                            <ChoiceBox fx:id="replacementPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 
                             <!-- Política de Busca de Páginas -->
                             <Label text="Política de Busca de Páginas" GridPane.rowIndex="7" />
-                            <ChoiceBox fx:id="pageLoadingPolicyChoiceBox" maxWidth="1.7976931348623157E308"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                            <ChoiceBox fx:id="pageLoadingPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
                             <!-- loadedPagesCount -->
                             <Label text="     Número de Páginas Carregadas" GridPane.rowIndex="8" />
@@ -129,8 +123,7 @@
 
                             <!-- Política de Alocação de Páginas -->
                             <Label text="Política de Alocação de Páginas" GridPane.rowIndex="9" />
-                            <ChoiceBox fx:id="pageAllocationPolicyChoiceBox" maxWidth="1.7976931348623157E308"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+                            <ChoiceBox fx:id="pageAllocationPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="9" />
 
                             <!-- variablePageAllocationTopThreshold -->
                             <Label text="     Threshold Superior" GridPane.rowIndex="10" />
@@ -141,12 +134,12 @@
                             <Spinner fx:id="bottomThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="11" />
 
                             <!-- TLBexists -->
-                            <Label text="TLB Habilitada" GridPane.rowIndex="12" disable="true"/>
-                            <CheckBox fx:id="tlbExistsCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="12"  disable="true"/>
+                            <Label disable="true" text="TLB Habilitada" GridPane.rowIndex="12" />
+                            <CheckBox fx:id="tlbExistsCheckBox" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="12" />
 
                             <!-- numberOfTLBEntries -->
-                            <Label text="   Número de Entradas na TLB" GridPane.rowIndex="13" disable="true"/>
-                            <Spinner fx:id="tlbEntriesSpinner" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" disable="true" />
+                            <Label disable="true" text="   Número de Entradas na TLB" GridPane.rowIndex="13" />
+                            <Spinner fx:id="tlbEntriesSpinner" disable="true" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" />
                         </children>
                     </GridPane>
                 </VBox>
