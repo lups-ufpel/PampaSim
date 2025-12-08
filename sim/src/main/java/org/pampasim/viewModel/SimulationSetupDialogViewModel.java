@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 
 import java.util.List;
 
-public class SimulationSetupDialogView implements ViewModel {
+public class SimulationSetupDialogViewModel implements ViewModel {
 
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
     private final ObservableList<String> schedulerName = FXCollections.observableArrayList();

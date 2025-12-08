@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
-import org.pampasim.viewModel.SimulationSetupDialogView;
+import org.pampasim.viewModel.SimulationSetupDialogViewModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
     @Override
     public Optional<SchedulerSelectionRecord> showDialog(Object... args) {
 
-        ViewTuple<org.pampasim.view.SimulationSetupDialogView, SimulationSetupDialogView> viewTuple =
+        ViewTuple<org.pampasim.view.SimulationSetupDialogView, SimulationSetupDialogViewModel> viewTuple =
                 FluentViewLoader.fxmlView(org.pampasim.view.SimulationSetupDialogView.class).load();
 
         viewTuple.getViewModel().setMemoryModulePresent(memoryModulePresent);

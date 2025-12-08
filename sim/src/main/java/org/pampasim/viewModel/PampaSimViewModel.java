@@ -492,71 +492,79 @@ public class PampaSimViewModel implements ViewModel {
         simulationIsValidSetup.set(isValidSetup());
         scenarioIsSaved.set(simulatedScenario.isSaved());
     }
+    public void openSettingsDialog() {
+        List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
 
-// returns true if user clicked X or Cancel
-public boolean openSettingsDialog() {
-    List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
-    settingsDialogService.setMemoryModulePresent(memoryModule != null);
+        final boolean[] closedWithoutApply = {false};
 
-    Optional<SchedulerSelectionRecord> opt =
-            (memoryModule != null)
-                ? settingsDialogService.showDialog(
-                        schedulers,
-                        simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms()
-                  )
-                : settingsDialogService.showDialog(schedulers);
+        settingsDialogService.setMemoryModulePresent(memoryModule != null);
 
-    // If empty (Cancel or X), return true
-    if (opt.isEmpty()) {
-        return true;
+        Optional<SchedulerSelectionRecord> result;
+
+        if (memoryModule != null) {
+            List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
+            result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms);
+        } else {
+            result = settingsDialogService.showDialog(schedulers);
+        }
+
+        // Process the result
+        if (result.isPresent()) {
+            // User pressed OK/Apply
+            SchedulerSelectionRecord selection = result.get();
+            if (memoryModule != null) {
+                MemoryConfigSelectionRecord mem = selection.memoryConfig();
+                MemoryConfig.initialize(
+                        mem.pageSize(),
+                        mem.maxPagesPerProcess(),
+                        mem.framesInRAM(),
+                        mem.framesInSwap(),
+                        mem.swapOperationLength(),
+                        mem.workingSetWindow(),
+                        mem.pageSubstitutionAlgorithm(),
+                        mem.globalPageSubstitution(),
+                        mem.anticipatedPageLoading(),
+                        mem.prePagingRange(),
+                        mem.variablePageAllocation(),
+                        mem.variablePageAllocationTopThreshold(),
+                        mem.variablePageAllocationBottomThreshold(),
+                        mem.tlbEnabled(),
+                        mem.tlbEntries()
+                );
+            }
+            setSimulationScheduler(selection);
+        } else {
+            // user closed the dialog via 'X' or Cancel button
+            throw new RuntimeException("Initial setup aborted by user (dialog closed).");
+        }
     }
-
-    SchedulerSelectionRecord selection = opt.get();
-
-    if (memoryModule != null) {
-        MemoryConfigSelectionRecord mem = selection.memoryConfig();
-        MemoryConfig.initialize(
-            mem.pageSize(),
-            mem.maxPagesPerProcess(),
-            mem.framesInRAM(),
-            mem.framesInSwap(),
-            mem.swapOperationLength(),
-            mem.workingSetWindow(),
-            mem.pageSubstitutionAlgorithm(),
-            mem.globalPageSubstitution(),
-            mem.anticipatedPageLoading(),
-            mem.prePagingRange(),
-            mem.variablePageAllocation(),
-            mem.variablePageAllocationTopThreshold(),
-            mem.variablePageAllocationBottomThreshold(),
-            mem.tlbEnabled(),
-            mem.tlbEntries()
-        );
-    }
-
-    setSimulationScheduler(selection);
-
-    return false;
-}
-
 
     ///  returns true if the spec is already loadable with no further changes.
     public boolean openAddSpecOrModuleDialog() {
         List<String> modules = simulatedScenario.getSpec().listAvailableModules();
         AtomicBoolean done = new AtomicBoolean(false);
-        addSpecOrModulesDialogService.showDialog(modules).ifPresent(userSelection -> {
-                userSelection.modulesRecord().ifPresent(mods -> {
-                    try {
-                        setSimulationModules(mods);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                userSelection.specPath().ifPresent(specPath -> {
-                    loadSpec(Paths.get(specPath));
-                    done.set(true);
-                });
+
+        Optional<AddSpecOrModulesRecord> result = addSpecOrModulesDialogService.showDialog(modules);
+
+        if (result.isEmpty()) {
+            throw new RuntimeException("Initial setup aborted by user (dialog closed).");
+        }
+
+
+        result.ifPresent(userSelection -> {
+            userSelection.modulesRecord().ifPresent(mods -> {
+                try {
+                    setSimulationModules(mods);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            userSelection.specPath().ifPresent(specPath -> {
+                loadSpec(Paths.get(specPath));
+                done.set(true);
+            });
         });
+
         return done.get();
     }
 
