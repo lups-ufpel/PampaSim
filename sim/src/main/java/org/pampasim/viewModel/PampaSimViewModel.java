@@ -131,7 +131,12 @@ public class PampaSimViewModel implements ViewModel {
                 for (var event : tick) {
                     if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
                         var creationData = e.getCreationData();
-                        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
+                        ProcessViewModel vm = new ProcessViewModel(
+                                creationData.getCreationId(),
+                                // bodge to make process inspector buttons work
+                                this::openEditProcessDialog,
+                                this::deleteProcess
+                        );
                         vm.getColorProperty().set(spec.getColorMap().get(creationData.getCreationId()));
                         vm.setState(Process.State.NEW);
                         vm.getArrivalTick().set(creationData.getArrivalTick());
@@ -204,7 +209,15 @@ public class PampaSimViewModel implements ViewModel {
                                                                         null);
             MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
         }
+        syncWithSpec();
     }
+    private void deleteProcess(ProcessViewModel processViewModel) {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
+        var spec = simulatedScenario.getSpec();
+        spec.removeProcessArrival(processViewModel.getCreationId());
+        syncWithSpec();
+    }
+
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         simulatedScenario.getSpec()
@@ -577,8 +590,6 @@ public class PampaSimViewModel implements ViewModel {
         createProcessDialogService.setMemoryModulePresent(memoryModule != null);
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
-
-        syncWithSpec();
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {

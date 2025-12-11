@@ -32,13 +32,13 @@ public class ProcessView  implements FxmlView<ProcessViewModel> {
     }
 
     public void showInfo(MouseEvent mouseEvent) {
-        if (viewModel.getPid().get() == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Aviso");
-            alert.setHeaderText(null);
-            alert.setContentText("Processo não foi inicializado!");
-            alert.show();
-        }
+//        if (viewModel.getPid().get() == null) {
+//            Alert alert = new Alert(Alert.AlertType.WARNING);
+//            alert.setTitle("Aviso");
+//            alert.setHeaderText(null);
+//            alert.setContentText("Processo não foi inicializado!");
+//            alert.showAndWait();
+//        }
 
         var processInspectorViewTuple = FluentViewLoader
                 .fxmlView(ProcessInspectorView.class)
@@ -51,6 +51,4 @@ public class ProcessView  implements FxmlView<ProcessViewModel> {
         stage.setResizable(true);
         stage.show();
     }
-
-
 }

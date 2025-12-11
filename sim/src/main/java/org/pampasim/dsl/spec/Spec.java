@@ -10,6 +10,8 @@ import lombok.Setter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.PampaSim;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.dsl.SpecFileLexer;
@@ -21,6 +23,7 @@ import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.resources.view.ProcessView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,6 +47,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @Getter
 @XmlRootElement
 public class Spec {
+    private final Logger LOGGER = LogManager.getLogger(Spec.class);
     // This string-based programming is really awkward, but needed:
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
     @XmlRootElement
@@ -133,6 +137,18 @@ public class Spec {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
         eventSchedule.schedule(creationData.getArrivalTick(), ev);
         return ev;
+    }
+
+    public Event removeProcessArrival(long creationId) {
+        return eventSchedule.removeFirstMatch((candidate) -> {
+            try {
+                org.pampasim.events.External.Arrival ev = (org.pampasim.events.External.Arrival) candidate;
+                return ev.getCreationData().getCreationId() == creationId;
+            } catch (ClassCastException e) {
+                LOGGER.debug("removeProcessArrival couldn't cast event {}", candidate);
+                return false;
+            }
+        });
     }
 
     public void setSchedulerInfo(String name, Optional<Integer> quantum) {
