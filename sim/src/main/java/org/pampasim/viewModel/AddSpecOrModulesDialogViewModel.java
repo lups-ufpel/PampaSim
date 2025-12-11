@@ -1,13 +1,11 @@
 package org.pampasim.viewModel;
 import lombok.Getter;
-import lombok.Setter;
 import org.pampasim.dialog.AddModulesRecord;
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.pampasim.dialog.AddSpecOrModulesRecord;
 
 import java.util.List;
 import java.util.Optional;

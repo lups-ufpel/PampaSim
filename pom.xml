@@ -118,6 +118,12 @@
         <version>2.25.2</version>
         <scope>runtime</scope>
       </dependency>
+      <!-- https://mvnrepository.com/artifact/com.jfoenix/jfoenix -->
+      <dependency>
+          <groupId>org.rationalityfrontline.workaround</groupId>
+          <artifactId>jfoenix</artifactId>
+          <version>21.0.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
