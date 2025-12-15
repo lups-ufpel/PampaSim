@@ -24,6 +24,8 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
     @FXML
     private Tab memoryTab;
     @FXML
+    private Tab fileSystemTab;
+    @FXML
     private TabPane tabPane;
     @FXML
     private DialogPane dialogPane;
@@ -83,13 +85,16 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        memoryTab.disableProperty().bind(viewModel.memoryModulePresentProperty().not());
+        fileSystemTab.disableProperty().bind(viewModel.fileSystemModulePresentProperty().not());
+
         // Scheduler section
         schedulerChoiceBox.setItems(viewModel.schedulerNameProperty());
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
         quantumSpinner.getValueFactory().setValue(viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
 
-        memoryTab.disableProperty().bind(viewModel.memoryModulePresentProperty().not());
 
         //memorySectionVBox.visibleProperty().bind(viewModel.memoryModulePresentProperty());
         //memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());

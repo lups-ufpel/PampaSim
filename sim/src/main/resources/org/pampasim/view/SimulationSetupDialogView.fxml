@@ -141,6 +141,10 @@
                 </VBox>
             </content>
         </Tab>
+        <Tab fx:id="filesTab" closable="false" text="Arquivos">
+          <content>
+          </content>
+        </Tab>
     </tabs>
     </TabPane>
     </content>

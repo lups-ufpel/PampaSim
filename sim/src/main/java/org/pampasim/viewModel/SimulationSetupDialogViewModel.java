@@ -10,6 +10,7 @@ import java.util.List;
 public class SimulationSetupDialogViewModel implements ViewModel {
 
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
+    private final BooleanProperty fileSystemModulePresent = new SimpleBooleanProperty(false);
     private final ObservableList<String> schedulerName = FXCollections.observableArrayList();
     private final ObservableList<String> pageSubstitutionAlgorithmName = FXCollections.observableArrayList();
 
@@ -131,4 +132,11 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public void setMemoryModulePresent(boolean present) {
         memoryModulePresent.set(present);
     }
+    public BooleanProperty fileSystemModulePresentProperty() {
+        return fileSystemModulePresent;
+    }
+    public void setFileSystemModulePresent(boolean present) {
+        fileSystemModulePresent.set(present);
+    }
+
 }

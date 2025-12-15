@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 public class AddSpecOrModulesDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
@@ -18,9 +19,14 @@ public class AddSpecOrModulesDialogViewModel implements ViewModel {
     private StringProperty specFeedbackStringProperty = new SimpleStringProperty("Cenário: Nenhum");
     @Getter
     private final BooleanProperty memoryModuleEnabled = new SimpleBooleanProperty(false);
+    @Getter
+    private final BooleanProperty fileSystemModuleEnabled = new SimpleBooleanProperty(false);
 
     public BooleanProperty memoryModuleEnabledProperty() {
         return memoryModuleEnabled;
+    }
+    public BooleanProperty fileSystemModuleEnabledProperty() {
+        return fileSystemModuleEnabled;
     }
     public void setSpecPath(Optional<String> specPath){
       this.specPath = specPath;
@@ -31,12 +37,24 @@ public class AddSpecOrModulesDialogViewModel implements ViewModel {
     }
 
     public Optional<AddModulesRecord> getSelectedModulesOpt(){
+      List<String> modules = new ArrayList<>();
       if(memoryModuleEnabled.get()){
-          AddModulesRecord userSelection = new AddModulesRecord(List.of("memory"));
-            return Optional.of(userSelection);
+        modules.add("memory");
       }
 
-      return Optional.empty();
+      if(fileSystemModuleEnabled.get()){
+        modules.add("file-system");
+      }
+
+      if(modules.size() > 0){
+        AddModulesRecord userSelection = new AddModulesRecord(modules);
+        return Optional.of(userSelection);
+
+      }  else{
+
+        return Optional.empty();
+      }
+
     }
 
     public void setModuleNames(List<String> names) {

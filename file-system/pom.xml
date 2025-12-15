@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.pampasim</groupId>
   <artifactId>file-system</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>file-system</name>
   <url>http://maven.apache.org</url>
   <dependencies>

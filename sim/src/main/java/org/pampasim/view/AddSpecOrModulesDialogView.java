@@ -24,6 +24,7 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDial
     @FXML public Label modulesFeedback;
     @FXML public Label specFeedback;
     @FXML public CheckBox memoryCheckBox;
+    @FXML public CheckBox fileSystemCheckBox;
 
     @FXML
     public void loadSpec(ActionEvent actionEvent) {
@@ -37,5 +38,6 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDial
     public void initialize(URL url, ResourceBundle resourceBundle) {
       specFeedback.textProperty().bind(viewModel.getSpecFeedbackStringProperty());
       memoryCheckBox.selectedProperty().bindBidirectional(viewModel.memoryModuleEnabledProperty());
+      fileSystemCheckBox.selectedProperty().bindBidirectional(viewModel.fileSystemModuleEnabledProperty());
     }
 }
