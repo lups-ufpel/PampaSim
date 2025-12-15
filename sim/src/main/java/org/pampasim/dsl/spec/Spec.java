@@ -10,6 +10,8 @@ import lombok.Setter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.PampaSim;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.dsl.SpecFileLexer;
@@ -21,6 +23,7 @@ import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.resources.view.ProcessView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,38 +38,45 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 /// Data to set up a simulation scenario
 /// Usually comes from a spec file
 @Getter
+@XmlRootElement
 public class Spec {
+    private final Logger LOGGER = LogManager.getLogger(Spec.class);
     // This string-based programming is really awkward, but needed:
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
+    @XmlRootElement
     public record SchedulerInfo(Class<? extends Scheduler> clazz, Optional<Integer> quantum) {};
+    @XmlRootElement
+    public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
+
     @Setter
     private SchedulerInfo schedulerInfo;
-    public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
     @Setter
     private ArrayList<ProcessorInfo> processors;
     @Setter
     private boolean hasProcManager;
-    private PidAllocator pidAlloc; // and this is a bodge to just make the PIDs work for now
     private EventSchedule eventSchedule;
     private Map<Long, Color> colorMap;
 
     public Spec() {
         this.schedulerInfo = null;
-        this.pidAlloc = new PidAllocator();
         this.eventSchedule = new EventSchedule();
         this.colorMap = new HashMap<>();
         this.processors = new ArrayList<>();
         this.hasProcManager = false;
     }
 
-    public static Spec loadSpec(Path path) {
+    public static Spec loadSpec(InputStream stream) {
         Spec spec;
-        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            CharStream stream = CharStreams.fromReader(reader);
-            var lexer = new SpecFileLexer(stream);
+        try {
+            CharStream charStream = CharStreams.fromStream(stream);
+            var lexer = new SpecFileLexer(charStream);
             var tokStream = new CommonTokenStream(lexer);
             var specParser = new SpecFileParser(tokStream);
             var specVisitor = new SpecVisitor();
@@ -111,7 +121,11 @@ public class Spec {
                 printer.format("proc start %d duration %d priority %d clr #%s;",
                         creationData.getArrivalTick(),
                         creationData.getDurationTicks(),
-                        creationData.getStartPriority());
+                        creationData.getStartPriority(),
+                        colorMap.get(creationData.getCreationId())
+                                .toString()
+                                .substring(2) // skip the 0x leader
+                );
                 printer.println();
             });
         } catch (IOException e) {
@@ -123,6 +137,18 @@ public class Spec {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
         eventSchedule.schedule(creationData.getArrivalTick(), ev);
         return ev;
+    }
+
+    public Event removeProcessArrival(long creationId) {
+        return eventSchedule.removeFirstMatch((candidate) -> {
+            try {
+                org.pampasim.events.External.Arrival ev = (org.pampasim.events.External.Arrival) candidate;
+                return ev.getCreationData().getCreationId() == creationId;
+            } catch (ClassCastException e) {
+                LOGGER.debug("removeProcessArrival couldn't cast event {}", candidate);
+                return false;
+            }
+        });
     }
 
     public void setSchedulerInfo(String name, Optional<Integer> quantum) {
@@ -137,6 +163,9 @@ public class Spec {
                     = scanResult.getSubclasses(Scheduler.class.getName());
             ClassInfo schedulerInfo = schedulerClasses.filter(clazz -> clazz.getName().contains(name)).getFirst();
             if (schedulerInfo == null) { throw new RuntimeException("scheduler " + name + " not found!"); }
+            if (schedulerInfo.getInterfaces().filter(iface -> iface.getName().contains(RespectsQuantum.class.getName())).iterator().hasNext() == false) {
+                quantum = Optional.empty();
+            }
             try {
                 setSchedulerInfo(
                     new SchedulerInfo((Class<? extends Scheduler>) schedulerInfo.loadClass(), quantum)
@@ -192,26 +221,32 @@ public class Spec {
                 "core", "tools", "sim-datamodel", "events", "sim"
         );
 
-        try {
-            File pomFile = new File("../pom.xml");
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(pomFile);
-            doc.getDocumentElement().normalize();
+        // we can't read arbitrary files from inside the uber-jar
+        if (false) {
+            try {
+                File pomFile = new File("../pom.xml");
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(pomFile);
+                doc.getDocumentElement().normalize();
 
-            NodeList moduleNodes = doc.getElementsByTagName("module");
-            for (int i = 0; i < moduleNodes.getLength(); i++) {
-                Node node = moduleNodes.item(i);
-                String moduleName = node.getTextContent().trim();
-                if (!moduleName.isEmpty() && !excludedModules.contains(moduleName)) {
-                    modules.add(moduleName);
+                NodeList moduleNodes = doc.getElementsByTagName("module");
+                for (int i = 0; i < moduleNodes.getLength(); i++) {
+                    Node node = moduleNodes.item(i);
+                    String moduleName = node.getTextContent().trim();
+                    if (!moduleName.isEmpty() && !excludedModules.contains(moduleName)) {
+                        modules.add(moduleName);
+                    }
                 }
-            }
 
-            Collections.sort(modules);
-            return modules;
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing pom.xml to list modules", e);
+                Collections.sort(modules);
+                return modules;
+            } catch (Exception e) {
+                throw new RuntimeException("Error parsing pom.xml to list modules", e);
+            }
+        } else {
+                // so we do the dumb, brittle way for now (tm)
+            return List.of("memory");
         }
     }
 

@@ -1,0 +1,19 @@
+#+title: PampaSim development notes
+
+*** TODO XML spec, feature parity with the DSL version
+*** TODO Arbitrary event serialization (hard, needs arch work)
+*** TODO Memory spec integration
+*** TODO Runtime event graph (https://github.com/brunomnsilva/JavaFXSmartGraph?)
+*** TODO Abstract over sub-sim clock stepping
+*** TODO Granular clock stepping, UI work
+*** TODO Finish the entity generator
+*** TODO Maybe switch over to processes as entities? (hard too)
+*** TODO Add a clock speed slider, UI work
+*** TODO Spec versioning?
+*** TODO Write the mass storage interface
+*** TODO Virtual machine!
+*** TODO Improve UX for the custom scheduler feature
+*** TODO Event breakpoints? Rules based maybe
+*** TODO Dark mode pls
+*** TODO Tutorial tooltips!
+*** TODO A program-wide config store, for preferences and such

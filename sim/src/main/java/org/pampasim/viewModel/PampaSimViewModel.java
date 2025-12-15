@@ -8,6 +8,7 @@ import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -30,7 +31,6 @@ import org.pampasim.*;
 import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.dialog.*;
 import org.pampasim.dsl.spec.Spec;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
@@ -45,19 +45,20 @@ import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
-import org.pampasim.resources.dialog.CreateProcessDialogService;
-import org.pampasim.resources.dialog.CreateProcessRecord;
-import org.pampasim.resources.dialog.ProcessMemoryInfoRecord;
-import org.pampasim.resources.memory.ProcessMemoryInfo;
-import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
-import org.pampasim.resources.viewmodel.ProcessViewModel;
+import org.pampasim.dialog.*;
+import org.pampasim.resources.memory.*;
+import org.pampasim.resources.viewmodel.*;
+import org.pampasim.resources.dialog.*;
 
-import javax.swing.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -67,8 +68,8 @@ public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
-    @Getter
-    private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
+    //@Getter
+    //private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
     @Getter
     private final BooleanProperty simulationIsValidSetup = new SimpleBooleanProperty(false);
     @Getter
@@ -83,12 +84,24 @@ public class PampaSimViewModel implements ViewModel {
 
 
     //***** Dialog services *****//
-    private final SelectSchedulerDialogService selectSchedulerDialogService = new SelectSchedulerDialogService();
-    private final AddModuleDialogService addModuleDialogService = new AddModuleDialogService();
+    private final SettingsDialogService settingsDialogService = new SettingsDialogService();
+    private final AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
+    private final AddSpecOrModulesDialogService addSpecOrModulesDialogService = new AddSpecOrModulesDialogService();
 
-    private Map<PidAllocator.Pid, Map<Integer, Process.State>> asciiReportData = new HashMap<>();
+    @Getter
+    private ObservableMap<PidAllocator.Pid, ObservableMap<Integer, Process.State>> ganttData = FXCollections.observableHashMap();
+    private final Map<Process.State, Character> stateChar = Map.of(
+            Process.State.NEW, 'n',
+            Process.State.READY, 'r',
+            Process.State.RUNNING, 'R',
+            Process.State.SCHEDULED, 'x',
+            Process.State.WAITING, 'w',
+            Process.State.IO_WAITING, 'i',
+            Process.State.IO_RUNNING, 'I',
+            Process.State.TERMINATED, 't'
+    );
     private int asciiReportClock = -1;
 
     public SimulatedScenario simulatedScenario;
@@ -102,10 +115,8 @@ public class PampaSimViewModel implements ViewModel {
     private MemoryTabViewModel memoryModule = null;
 
     public PampaSimViewModel() {
-        var templateSpec = Spec.loadSpec(Paths.get(
-                Objects.requireNonNull(PampaSim.class.getResource("template.spec"))
-                        .getPath())
-        );
+        var templateSpecStream = PampaSim.class.getResourceAsStream("template.spec");
+        var templateSpec = Spec.loadSpec(templateSpecStream);
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
             var sim = PampaSim.fromSpec(spec);
             var eventManager = sim.getEventManager();
@@ -120,7 +131,12 @@ public class PampaSimViewModel implements ViewModel {
                 for (var event : tick) {
                     if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
                         var creationData = e.getCreationData();
-                        ProcessViewModel vm = new ProcessViewModel(creationData.getCreationId());
+                        ProcessViewModel vm = new ProcessViewModel(
+                                creationData.getCreationId(),
+                                // bodge to make process inspector buttons work
+                                this::openEditProcessDialog,
+                                this::deleteProcess
+                        );
                         vm.getColorProperty().set(spec.getColorMap().get(creationData.getCreationId()));
                         vm.setState(Process.State.NEW);
                         vm.getArrivalTick().set(creationData.getArrivalTick());
@@ -152,16 +168,21 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void loadSpec(Path path) {
-        var spec = Spec.loadSpec(path);
-        LOGGER.debug("loaded {}", spec);
-        if (spec == null) {
-            throw new RuntimeException("couldn't load spec file at " + path);
-        }
+        try {
+            var spec = Spec.loadSpec(new FileInputStream(path.toString()));
+            LOGGER.debug("loaded {}", spec);
+            if (spec == null) {
+                throw new RuntimeException("couldn't load spec file at " + path);
+            }
 
-        LOGGER.info("loaded {}", path);
-        simulatedScenario.setSpec(spec);
-        syncWithSpec();
-        updateProps();
+            LOGGER.info("loaded {}", path);
+            simulatedScenario.setSpec(spec);
+            simulatedScenario.setSaved(true); // we just loaded from a file
+            syncWithSpec();
+            updateProps();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void saveSpec(Path path) {
@@ -172,6 +193,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void createNewProcess(CreateProcessRecord userProcess) {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
         var spec = simulatedScenario.getSpec();
         spec.addProcessArrival(creationData);
@@ -187,8 +209,15 @@ public class PampaSimViewModel implements ViewModel {
                                                                         null);
             MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
         }
-        // syncWithSpec(); // this is already called after this method in the only place that it is referenced
+        syncWithSpec();
     }
+    private void deleteProcess(ProcessViewModel processViewModel) {
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
+        var spec = simulatedScenario.getSpec();
+        spec.removeProcessArrival(processViewModel.getCreationId());
+        syncWithSpec();
+    }
+
     public void setSimulationScheduler(SchedulerSelectionRecord userSelection) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         simulatedScenario.getSpec()
@@ -199,16 +228,16 @@ public class PampaSimViewModel implements ViewModel {
         updateProps();
     }
 
-    public void setSimulationModules(AddModuleRecord userSelection) throws IOException {
+    public void setSimulationModules(AddModulesRecord userSelection) throws IOException {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
 
-        if (userSelection.module().equals("memory")) {
-            reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation());
+        if (userSelection.modules().getFirst().equals("memory")) { // FIXME: multiple modules
+            reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation().get());
             MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
             simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);
 
             memoryModule = new MemoryTabViewModel(
-                    simulatedScenario.getSimulation().getEntity(MemoryManagement.class),
+                    simulatedScenario.getSimulation().get().getEntity(MemoryManagement.class),
                     simulatedScenario.getSpec().getColorMap(),
                     allProcesses,
                     memoryStatisticsViewModel
@@ -282,11 +311,14 @@ public class PampaSimViewModel implements ViewModel {
             throw new RuntimeException("tried to start a simulation without the correct setup");
         }
         setSimulationRunning(true);
+        this.asciiReportClock = 0;
+        this.ganttData.clear();
     }
 
     public void syncWithSpec() {
         allProcesses.clear();
         simulatedScenario.resetToSpec();
+        updateProps();
     }
 
     public void stopSimulation() {
@@ -295,7 +327,7 @@ public class PampaSimViewModel implements ViewModel {
 
     public void runSimulation(boolean fullStep) {
         boolean blockedTick;
-        Simulation sim = simulatedScenario.getSimulation();
+        Simulation sim = simulatedScenario.getSimulation().get();
         if (sim.getState() == SimEntity.EntityState.Blocked) {
             sim.run();
             blockedTick = true;
@@ -310,15 +342,15 @@ public class PampaSimViewModel implements ViewModel {
 
         { // Update ascii report
             if (blockedTick) {
-                asciiReportClock = sim.getRealClock().getTick();
+                asciiReportClock = sim.getRealClock().get();
                 for (ProcessViewModel pvm : allProcesses) {
                     PidAllocator.Pid pid = pvm.getPid().get();
                     if (pid == null) {
                         continue;
                     }
-                    asciiReportData.compute(pid, (k, v) -> {
+                    ganttData.compute(pid, (k, v) -> {
                         if (v == null) {
-                            v = new HashMap<>();
+                            v = FXCollections.observableHashMap();
                         }
                         v.put(asciiReportClock, pvm.getState());
                         return v;
@@ -328,52 +360,21 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         if(!sim.shouldRunNextTick()) {
-            int maxRealTick = sim.getRealClock().getTick();
-            long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
-            int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
-            int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
-            final Map<Process.State, Character> stateChar = Map.of(
-                    Process.State.NEW, 'n',
-                    Process.State.READY, 'r',
-                    Process.State.RUNNING, 'R',
-                    Process.State.SCHEDULED, 'x',
-                    Process.State.WAITING, 'w',
-                    Process.State.IO_WAITING, 'i',
-                    Process.State.IO_RUNNING, 'I',
-                    Process.State.TERMINATED, 't'
-            );
+            generateASCIIReport(sim);
+            generateCSVReport(sim);
 
-            Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
-            String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
-                    + "    " + " ".repeat(pidWidth) + " | "
-                    + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
-                    .reduce((l,r) -> l.concat(" ").concat(r))
-                    .orElseThrow()
-                    + "\n";
-            String asciiReportPrintout = "\n\tReport\n" + header +
-                asciiReportData
-                    .entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .map(procEntry -> {
-                        var stateMap = procEntry.getValue();
-                        return "pid " + procEntry.getKey() + " |"
-                                + range.get().map(stateMap::get).map(state ->
-                                String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
-                        ).reduce(String::concat).orElseThrow();
-                    }).reduce((l,r) -> l.concat("\n").concat(r))
-                    .orElse("couldn't generate report");
-            LOGGER.log(Level.INFO, asciiReportPrintout);
             stopSimulation();
         }
-
+        /*
         if (genGraphs.get()) {
             try { exportSimulationGraph(); }
             catch(Exception e) {
                 JOptionPane.showMessageDialog(null, e);
             }
         }
+        */
     }
+
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
@@ -396,7 +397,7 @@ public class PampaSimViewModel implements ViewModel {
 
         // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
-            Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation()
+            Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation().get()
                     .getEntity(Scheduler.class)
                     .getProcessQueue();
 
@@ -408,9 +409,70 @@ public class PampaSimViewModel implements ViewModel {
                         .ifPresent(pvm -> pvm.getReadyWaitingTime().set(queuedProc.getWaitTime()));
             }
         }
-        simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation(), allProcesses);
+        simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation().get(), allProcesses);
 
     }
+
+    private void generateCSVReport(Simulation sim) {
+        int maxRealTick = sim.getRealClock().get();
+
+        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+        var headerBuilder = new StringBuilder("pid");
+        for (var x = 0; x <= maxRealTick; x++) {
+            headerBuilder.append(",").append(x);
+        }
+        headerBuilder.append("\n");
+
+        String csv = headerBuilder.toString() + ganttData
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(procEntry -> {
+                        var stateMap = procEntry.getValue();
+                        var rowBuilder = new StringBuilder()
+                                .append(procEntry.getKey()); // pid
+                        range.get().map(stateMap::get).forEach(state -> {
+                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
+                        });
+                        return rowBuilder.append("\n").toString();
+                    }).reduce((l,r) -> l.concat("\n").concat(r))
+                .orElse("couldn't generate csv report");
+        try {
+            Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            LOGGER.error("couldn't write CSV simulation report!", e);
+        }
+    }
+
+    private void generateASCIIReport(Simulation sim) {
+        int maxRealTick = sim.getRealClock().get();
+        long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
+        int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
+        int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
+
+        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+        String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
+                + "    " + " ".repeat(pidWidth) + " | "
+                + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
+                .reduce((l,r) -> l.concat(" ").concat(r))
+                .orElseThrow()
+                + "\n";
+        String asciiReportPrintout = "\n\tReport\n" + header +
+            ganttData
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(procEntry -> {
+                    var stateMap = procEntry.getValue();
+                    return "pid " + procEntry.getKey() + " |"
+                            + range.get().map(stateMap::get).map(state ->
+                            String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
+                    ).reduce(String::concat).orElseThrow();
+                }).reduce((l,r) -> l.concat("\n").concat(r))
+                .orElse("couldn't generate report");
+        LOGGER.log(Level.INFO, asciiReportPrintout);
+    }
+
     private void setSimulationRunning(boolean running) {
         this.simulationRunning.set(running);
     }
@@ -429,22 +491,36 @@ public class PampaSimViewModel implements ViewModel {
     }
     public boolean isValidSetup() {
         // FIXME / TODO: this can be made more thorough by analysing if there are any unhandled events
-        return simulatedScenario.getSimulation().getEntity(Scheduler.class) != null
-            && simulatedScenario.getSimulation().getEntity(Processor.class) != null
-            && simulatedScenario.getSimulation().getEntity(ProcessManager.class) != null;
+        return simulatedScenario.getSimulation().get().getEntity(Scheduler.class) != null
+            && simulatedScenario.getSimulation().get().getEntity(Processor.class) != null
+            && simulatedScenario.getSimulation().get().getEntity(ProcessManager.class) != null;
     }
 
     public void updateProps() {
         simulationIsValidSetup.set(isValidSetup());
         scenarioIsSaved.set(simulatedScenario.isSaved());
     }
-    public void openSelectSchedulerDialog() {
+    public void openSettingsDialog() {
         List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
 
-        selectSchedulerDialogService.setMemoryModulePresent(memoryModule != null);
+        final boolean[] closedWithoutApply = {false};
+
+        settingsDialogService.setMemoryModulePresent(memoryModule != null);
+
+        Optional<SchedulerSelectionRecord> result;
+
         if (memoryModule != null) {
             List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
-            selectSchedulerDialogService.showDialog(schedulers, pageReplacementAlgorithms).ifPresent(selection -> {
+            result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms);
+        } else {
+            result = settingsDialogService.showDialog(schedulers);
+        }
+
+        // Process the result
+        if (result.isPresent()) {
+            // User pressed OK/Apply
+            SchedulerSelectionRecord selection = result.get();
+            if (memoryModule != null) {
                 MemoryConfigSelectionRecord mem = selection.memoryConfig();
                 MemoryConfig.initialize(
                         mem.pageSize(),
@@ -463,17 +539,46 @@ public class PampaSimViewModel implements ViewModel {
                         mem.tlbEnabled(),
                         mem.tlbEntries()
                 );
-                setSimulationScheduler(selection);
-            });
+            }
+            setSimulationScheduler(selection);
         } else {
-            selectSchedulerDialogService.showDialog(schedulers).ifPresent(this::setSimulationScheduler);
+            // user closed the dialog via 'X' or Cancel button
+            throw new RuntimeException("Initial setup aborted by user (dialog closed).");
+        }
+    }
+
+    ///  returns true if the spec is already loadable with no further changes.
+    public boolean openAddSpecOrModuleDialog() {
+        List<String> modules = simulatedScenario.getSpec().listAvailableModules();
+        AtomicBoolean done = new AtomicBoolean(false);
+
+        Optional<AddSpecOrModulesRecord> result = addSpecOrModulesDialogService.showDialog(modules);
+
+        if (result.isEmpty()) {
+            throw new RuntimeException("Initial setup aborted by user (dialog closed).");
         }
 
+
+        result.ifPresent(userSelection -> {
+            userSelection.modulesRecord().ifPresent(mods -> {
+                try {
+                    setSimulationModules(mods);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            userSelection.specPath().ifPresent(specPath -> {
+                loadSpec(Paths.get(specPath));
+                done.set(true);
+            });
+        });
+
+        return done.get();
     }
 
     public void openAddModuleDialog() {
         List<String> modules = simulatedScenario.getSpec().listAvailableModules();
-        addModuleDialogService.showDialog(modules).ifPresent(userSelection -> {
+        addModulesDialogService.showDialog(modules).ifPresent(userSelection -> {
             try {
                 setSimulationModules(userSelection);
             } catch (IOException e) {
@@ -485,8 +590,6 @@ public class PampaSimViewModel implements ViewModel {
         createProcessDialogService.setMemoryModulePresent(memoryModule != null);
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
-
-        syncWithSpec();
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {

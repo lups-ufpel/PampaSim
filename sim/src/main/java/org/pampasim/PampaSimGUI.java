@@ -3,9 +3,11 @@ package org.pampasim;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.pampasim.Launcher;
 import org.pampasim.view.PampaSimView;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.slf4j.Logger;
@@ -18,13 +20,34 @@ public class PampaSimGUI extends Application {
     @Override
     public void start(Stage stage) {
         //Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
-        this.initializeMainFrame();
-        this.configureStage(stage);
+        PampaSimViewModel viewModel = this.initializeMainFrame();
+        if (openSetupScreens(viewModel)) {
+            this.configureStage(stage);
+        }
+
     }
 
-    private void initializeMainFrame() {
+    private PampaSimViewModel initializeMainFrame() {
         final ViewTuple<PampaSimView, PampaSimViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class).load();
         this.mainFrame = (BorderPane) viewTuple.getView();
+
+        return viewTuple.getViewModel();
+    }
+
+    private boolean openSetupScreens(PampaSimViewModel viewModel) {
+        try{
+            if (!viewModel.openAddSpecOrModuleDialog()) {
+                viewModel.openSettingsDialog();
+            }
+         } catch (RuntimeException e) {
+            // If the thrown exception signals an abort:
+            if (e.getMessage().contains("aborted by user")) {
+                System.out.println(e.getMessage());
+                Platform.exit();
+                return false;
+            }
+        }
+        return true;
     }
 
     private void configureStage(Stage stage) {

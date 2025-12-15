@@ -18,7 +18,7 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
         if (source != null) {
             var sim = source.getSimulation();
             this.serial = sim.getEventManager().nextEventSerial();
-            this.creationTick = sim.getSimulationClock();
+            this.creationTick = sim.getSimulationClock().get();
         } else { // botch to just punt the issue down the line
             this.serial = -1;
             this.creationTick = -1;

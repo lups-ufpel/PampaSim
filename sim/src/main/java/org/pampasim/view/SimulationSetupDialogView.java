@@ -5,27 +5,30 @@ import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Spinner;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import org.pampasim.viewModel.SimulationSetupDialogViewModel;
+import javafx.event.ActionEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewModel.SimulationSetupDialogView>, Initializable {
+public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialogViewModel>, Initializable {
     @InjectViewModel
-    org.pampasim.viewModel.SimulationSetupDialogView viewModel;
+    SimulationSetupDialogViewModel viewModel;
     
     @FXML
     ChoiceBox<String> schedulerChoiceBox;
     @FXML
-    CheckBox preemptionCheckBox;
-    @FXML
     Spinner<Integer> quantumSpinner;
 
     @FXML
-    public VBox memorySectionVBox;
+    private Tab memoryTab;
+    @FXML
+    private TabPane tabPane;
+    @FXML
+    private DialogPane dialogPane;
+    @FXML
+    private ButtonType okButtonType;
 
     @FXML
     public Spinner<Integer> pageSizeSpinner;
@@ -56,17 +59,40 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
     @FXML
     public Spinner<Integer> tlbEntriesSpinner;
 
+    @FXML
+    public Label ramFramesErrorLabel;
+    @FXML
+    public Label swapFramesErrorLabel;
+
+
+    private boolean isValid(boolean valid, Spinner<Integer> ramFramesSpinner, Label ramFramesErrorLabel) {
+        int ram = ramFramesSpinner.getValue();
+        if (!isPowerOfTwo(ram)) {
+            ramFramesSpinner.getStyleClass().add("invalid");
+            ramFramesErrorLabel.setVisible(true);
+            ramFramesErrorLabel.setManaged(true);
+            valid = false;
+        } else {
+            ramFramesSpinner.getStyleClass().removeAll("invalid");
+            ramFramesErrorLabel.setVisible(false);
+            ramFramesErrorLabel.setManaged(false);
+        }
+        return valid;
+    }
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Scheduler section
         schedulerChoiceBox.setItems(viewModel.schedulerNameProperty());
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
-        preemptionCheckBox.selectedProperty().bindBidirectional(viewModel.preemptiveProperty());
         quantumSpinner.getValueFactory().setValue(viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
 
-        memorySectionVBox.visibleProperty().bind(viewModel.memoryModulePresentProperty());
-        memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
+        memoryTab.disableProperty().bind(viewModel.memoryModulePresentProperty().not());
+
+        //memorySectionVBox.visibleProperty().bind(viewModel.memoryModulePresentProperty());
+        //memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
 
         // Memory section
         pageSizeSpinner.getValueFactory().setValue(viewModel.getPageSize());
@@ -138,6 +164,32 @@ public class SimulationSetupDialogView implements FxmlView<org.pampasim.viewMode
 
         boolean enablePrePagingRange = pageLoadingPolicyChoiceBox.getValue().equals("Antecipada");
         loadedPagesCountSpinner.setDisable(!enablePrePagingRange);
+
+        final Button okButton = (Button) dialogPane.lookupButton(okButtonType);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+
+            // Perform validation
+            boolean valid = true;
+            valid = isValid(valid, ramFramesSpinner, ramFramesErrorLabel);
+            valid = isValid(valid, swapFramesSpinner, swapFramesErrorLabel);
+
+            if (!valid) {
+                event.consume();
+
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Configuração Inválida");
+                alert.setHeaderText("Erro nos parâmetros de memória");
+                alert.setContentText("Os quadros de RAM e Swap devem ser potências de 2.");
+                alert.showAndWait();
+
+                tabPane.getSelectionModel().select(memoryTab);
+            }
+        });
     }
+
+    private static boolean isPowerOfTwo(int n) {
+        return (n > 0) && ((n & (n - 1)) == 0);
+    }
+
 
 }

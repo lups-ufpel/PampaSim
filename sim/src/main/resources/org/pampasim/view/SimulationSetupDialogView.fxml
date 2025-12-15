@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
@@ -9,17 +7,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationSetupDialogView">
+<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.SimulationSetupDialogView" stylesheets="/simulationSetup.css">
     <content>
-        <VBox alignment="CENTER" minWidth="367.0" prefHeight="150" prefWidth="516.0" spacing="10" style="-fx-padding: 10;">
-            <children>
-
+<TabPane fx:id="tabPane" minWidth="367" prefWidth="516" prefHeight="600">
+    <tabs>
+        <Tab closable="false" text="Processos">
+            <content>
+          <VBox fx:id="processSectionVBox" alignment="CENTER" spacing="10">
+          <!-- Gerência de Processos + GridPane -->
                 <!-- Gerência de Processos -->
                 <Label alignment="CENTER" text="Gerência de Processos" textAlignment="CENTER">
                     <font><Font size="16.0" /></font>
@@ -33,21 +36,22 @@
                     <rowConstraints>
                         <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
                         <Label text="Algoritmo de Escalonamento" />
                         <ChoiceBox fx:id="schedulerChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
 
-                        <Label text="Preempção" GridPane.rowIndex="1" />
-                        <CheckBox fx:id="preemptionCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label text="Quantum" GridPane.rowIndex="2" />
-                        <Spinner fx:id="quantumSpinner" editable="true" initialValue="2" max="999" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label text="Quantum" GridPane.rowIndex="1" />
+                        <Spinner fx:id="quantumSpinner" editable="true" initialValue="2" max="999" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                     </children>
                 </GridPane>
 
-
+                </VBox>
+                </content>
+        </Tab>
+        <Tab fx:id="memoryTab" closable="false" text="Memória">
+            <content>
+                <!-- your memorySectionVBox goes here -->
                 <VBox fx:id="memorySectionVBox" alignment="CENTER" spacing="10"> <!-- visible="false" managed="false" -->
                     <Separator prefWidth="400.0" />
                     <!-- Gerência de Memória -->
@@ -65,6 +69,9 @@
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -75,75 +82,69 @@
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                         <children>
-                            <!-- pageSize -->
                             <Label text="Tamanho da Página (KB)" />
                             <Spinner fx:id="pageSizeSpinner" editable="true" max="8192" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" />
 
-                            <!-- maxPagesPerProcess -->
                             <Label text="Máx. Páginas por Processo" GridPane.rowIndex="1" />
                             <Spinner fx:id="maxPagesSpinner" editable="true" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                            <!-- ramFrames -->
                             <Label text="Número de Quadros na RAM" GridPane.rowIndex="2" />
                             <Spinner fx:id="ramFramesSpinner" editable="true" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                            <!-- swapFrames -->
-                            <Label text="Número de Quadros no Swap" GridPane.rowIndex="3" />
-                            <Spinner fx:id="swapFramesSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                            <VBox GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.columnSpan="2" styleClass="error-message-wrapper">
+                                <Label fx:id="ramFramesErrorLabel" text="Deve ser potência de 2" styleClass="error-label" visible="false" managed="false"/>
+                            </VBox>
 
-                            <!-- workingSetWindow -->
-                            <Label text="Tamanho da Janela do Working Set" GridPane.rowIndex="4" />
-                            <Spinner fx:id="workingSetWindowSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                            <!-- Algoritmo de Substituição -->
-                            <Label text="Algoritmo de Substituição de Paginas" GridPane.rowIndex="5" />
-                            <ChoiceBox fx:id="pageReplacementAlgorithmChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                            <Label text="Número de Quadros no Swap" GridPane.rowIndex="4" />
+                            <Spinner fx:id="swapFramesSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                            <!-- Política de Substituição de Páginas -->
-                            <Label text="Política de Substituição de Páginas" GridPane.rowIndex="6" />
-                            <ChoiceBox fx:id="replacementPolicyChoiceBox" maxWidth="1.7976931348623157E308"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                            <VBox GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.columnSpan="2" styleClass="error-message-wrapper">
+                                <Label fx:id="swapFramesErrorLabel" text="Deve ser potência de 2" styleClass="error-label" visible="false" managed="false"/>
+                            </VBox>
 
-                            <!-- Política de Busca de Páginas -->
-                            <Label text="Política de Busca de Páginas" GridPane.rowIndex="7" />
-                            <ChoiceBox fx:id="pageLoadingPolicyChoiceBox" maxWidth="1.7976931348623157E308"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="7"/>
 
-                            <!-- loadedPagesCount -->
-                            <Label text="     Número de Páginas Carregadas" GridPane.rowIndex="8" />
-                            <Spinner fx:id="loadedPagesCountSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                            <Label text="Tamanho da Janela do Working Set" GridPane.rowIndex="6" />
+                            <Spinner fx:id="workingSetWindowSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 
-                            <!-- Política de Alocação de Páginas -->
-                            <Label text="Política de Alocação de Páginas" GridPane.rowIndex="9" />
-                            <ChoiceBox fx:id="pageAllocationPolicyChoiceBox" maxWidth="1.7976931348623157E308"
-                                       GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+                            <Label text="Algoritmo de Substituição de Paginas" GridPane.rowIndex="7" />
+                            <ChoiceBox fx:id="pageReplacementAlgorithmChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
-                            <!-- variablePageAllocationTopThreshold -->
-                            <Label text="     Threshold Superior" GridPane.rowIndex="10" />
-                            <Spinner fx:id="topThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                            <Label text="Política de Substituição de Páginas" GridPane.rowIndex="8" />
+                            <ChoiceBox fx:id="replacementPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
 
-                            <!-- variablePageAllocationBottomThreshold -->
-                            <Label text="     Threshold Inferior" GridPane.rowIndex="11" />
-                            <Spinner fx:id="bottomThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                            <Label text="Política de Busca de Páginas" GridPane.rowIndex="9" />
+                            <ChoiceBox fx:id="pageLoadingPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
 
-                            <!-- TLBexists -->
-                            <Label text="TLB Habilitada" GridPane.rowIndex="12" disable="true"/>
-                            <CheckBox fx:id="tlbExistsCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="12"  disable="true"/>
+                            <Label text="     Número de Páginas Carregadas" GridPane.rowIndex="10" />
+                            <Spinner fx:id="loadedPagesCountSpinner" editable="true" max="2048" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="10" />
 
-                            <!-- numberOfTLBEntries -->
-                            <Label text="   Número de Entradas na TLB" GridPane.rowIndex="13" disable="true"/>
-                            <Spinner fx:id="tlbEntriesSpinner" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="13" disable="true" />
+                            <Label text="Política de Alocação de Páginas" GridPane.rowIndex="11" />
+                            <ChoiceBox fx:id="pageAllocationPolicyChoiceBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="11"/>
+
+                            <Label text="     Threshold Superior" GridPane.rowIndex="12" />
+                            <Spinner fx:id="topThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+
+                            <Label text="     Threshold Inferior" GridPane.rowIndex="13" />
+                            <Spinner fx:id="bottomThresholdSpinner" editable="true" max="1.0" maxWidth="1.7976931348623157E308" min="0.0" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+
+                            <Label text="TLB Habilitada" GridPane.rowIndex="14" disable="true"/>
+                            <CheckBox fx:id="tlbExistsCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="14"  disable="true"/>
+
+                            <Label text="   Número de Entradas na TLB" GridPane.rowIndex="15" disable="true"/>
+                            <Spinner fx:id="tlbEntriesSpinner" max="256" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="15" disable="true" />
                         </children>
                     </GridPane>
                 </VBox>
-            </children>
-        </VBox>
+            </content>
+        </Tab>
+    </tabs>
+    </TabPane>
     </content>
 
-    <ButtonType fx:id="cancelButton" buttonData="CANCEL_CLOSE" text="Cancelar" />
-    <ButtonType fx:id="okButton" buttonData="APPLY" text="OK" />
+    <ButtonType fx:id="cancelButtonType" buttonData="CANCEL_CLOSE" text="Cancelar" />
+    <ButtonType fx:id="okButtonType" buttonData="APPLY" text="OK"  />
 </DialogPane>

@@ -52,7 +52,11 @@ public class PampaSim extends SimulationBase {
             Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
             if (schedulerClass != null) try {
                 Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
-                cons.newInstance(sim);
+                var instance = cons.newInstance(sim);
+                schedulerInfo.quantum().ifPresent(quantum -> {
+                    org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
+                    rq_instance.setQuantum(quantum);
+                });
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -77,7 +81,6 @@ public class PampaSim extends SimulationBase {
         } else {
             LOGGER.warn("Possible mistake: no process manager set up by spec!");
         }
-        sim.pidAllocator = s.getPidAlloc();
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
         return sim;
     }

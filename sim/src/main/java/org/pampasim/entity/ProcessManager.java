@@ -45,7 +45,7 @@ public class ProcessManager extends AbstractSimEntity {
 
         if (process.isFinished()) {
             process.setState(Process.State.TERMINATED);
-            process.setEndTime(getSimulation().getRealClock().getTick());
+            process.setEndTime(getSimulation().getRealClock().get());
             scheduleToNextClock(new org.pampasim.events.Process.End(this, process));
         } else {
             process.setState(Process.State.WAITING);

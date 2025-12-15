@@ -4,13 +4,10 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.paint.Color;
 
 import java.util.List;
 
-public class AddModuleDialogViewModel implements ViewModel {
+public class AddModulesDialogViewModel implements ViewModel {
     private final ObservableList<String> moduleName = FXCollections.observableArrayList();
     private final StringProperty selectedModule = new SimpleStringProperty();
 

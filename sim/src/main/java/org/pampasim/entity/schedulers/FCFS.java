@@ -18,10 +18,7 @@ public class FCFS extends RankingScheduler {
                 // lhs < rhs -> -return
                 // lhs = rhs -> 0 return
                 // lhs > rhs -> +return
-                // the "wrong" way around, since the highest priorities need to come first
-                int prio = rhs.getPriority() - lhs.getPriority();
-                int fcfs = lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
-                return (prio == 0)? fcfs : prio; // respect priority still
+                return lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
             }
         };
     }

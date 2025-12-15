@@ -35,7 +35,7 @@ public class SimulationStatisticsViewModel implements StatisticsViewModel {
     private final ObservableList<StatisticsViewModel> moduleStatisticsViewModels = FXCollections.observableArrayList();
 
     public void updateStatistics(SimulationBase simulation, ObservableList<ProcessViewModel> processes) {
-        elapsedTicks.set(simulation.getRealClock().getTick());
+        elapsedTicks.set(simulation.getRealClock().get());
         totalProcessesCreated.set(processes.size());
 
         List<ProcessViewModel> terminated = processes.stream()

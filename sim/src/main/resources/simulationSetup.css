@@ -1,0 +1,16 @@
+.invalid .text-field {
+    -fx-border-color: red;
+    -fx-border-width: 2px;
+    -fx-focus-color: red;
+}
+
+.error-label {
+    -fx-font-size: 0.75em; /* Smaller text */
+    -fx-text-fill: red;
+    -fx-font-weight: bold;
+}
+
+.error-message-wrapper {
+    /* Adjust this value (-5px to -10px) to control how close it gets to the Spinner */
+    -fx-padding: 0 0 0 0;
+}

@@ -13,7 +13,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.pampasim" level="TRACE"/>
+        <Logger name="org.pampasim" level="DEBUG"/> <!-- change log verbosity here -->
         <Root level="TRACE">
             <AppenderRef ref="CONSOLE"/>
         </Root>

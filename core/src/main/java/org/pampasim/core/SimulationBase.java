@@ -7,6 +7,8 @@ import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -30,11 +32,12 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     protected EventSchedule eventsSchedule;
     protected final List<Event> lastClockInputs = new ArrayList<>();
     protected final List<Event> lastClockOutputs = new ArrayList<>();
+
     @Getter
     protected EventManager eventManager;
     private boolean clearBlock;
     @Getter
-    protected int simulationClock;
+    protected IntegerProperty simulationClock;
     @Getter
     protected PidAllocator pidAllocator;
     @Getter
@@ -44,7 +47,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         super(parent);
         this.entityList = new ArrayList<>();
         this.eventsSchedule = new EventSchedule();
-        this.simulationClock = 0;
+        this.simulationClock = new SimpleIntegerProperty();
         this.pidAllocator = new PidAllocator();
         this.state = EntityState.Run;
         this.clearBlock = false;
@@ -103,10 +106,10 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         lastClockOutputs.clear();
 
         LOGGER.trace(phase2);
-        if (eventsSchedule.hasEventsFor(getRealClock().getTick())) {
+        if (eventsSchedule.hasEventsFor(getRealClock().get())) {
             // checks the list of events that were queued before the simulation started, if there are ones to "arrive"
             // at this clock tick, add them to the list of events to be processed
-            currentEvents.addAll(eventsSchedule.consume(getRealClock().getTick()));
+            currentEvents.addAll(eventsSchedule.consume(getRealClock().get()));
         }
         LOGGER.trace("{} currentEvents = {}",simulationName , currentEvents);
 
@@ -150,7 +153,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
             LOGGER.trace(phase5b);
             executeRunnableEntities();
         }
-        simulationClock += 1;
+        simulationClock.set(simulationClock.get()+1);
 
         LOGGER.trace(phase6);
         updateState();
@@ -204,8 +207,8 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
         String simulationName = "["+ this.getClass().getSimpleName()+"]";
         // it really is off by one
         LOGGER.trace("{} {} means any > {} == {}",simulationName,
-                eventsSchedule.toString(), getRealClock().getTick(),eventsSchedule.hasAnyAfter(getRealClock().getTick()-1));
-        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().getTick()-1);
+                eventsSchedule.toString(), getRealClock().get(),eventsSchedule.hasAnyAfter(getRealClock().get()-1));
+        return !lastClockInputs.isEmpty() || !lastClockOutputs.isEmpty() || eventsSchedule.hasAnyAfter(getRealClock().get()-1);
     }
 
     @Override
@@ -233,7 +236,7 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
                 "</table>\n";
         String htmlTable = "<table border='0' cellborder='1' cellspacing='0'>\n" +
                 "<tr><td>" + name + "</td>" +
-                "<td>Clock real " + this.getRealClock() + ", sim " + (this.getSimulationClock()-1) + "</td>" +
+                "<td>Clock real " + this.getRealClock() + ", sim " + (this.getSimulationClock().get()-1) + "</td>" +
                 "<td>" + this.getState() + "</td>" +
                 "</tr>\n" +
                 "<tr><td colspan='3' cellborder='0'>" + bufferTable + "</td></tr>\n" +

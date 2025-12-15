@@ -3,12 +3,15 @@ package org.pampasim.resources.viewmodel;
 import com.ibm.icu.impl.StringSegment;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.Process;
+
+import java.util.function.Consumer;
 
 @Getter
 public class ProcessViewModel implements ViewModel {
@@ -26,13 +29,29 @@ public class ProcessViewModel implements ViewModel {
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
     private final IntegerProperty endTime = new SimpleIntegerProperty();
 
+    // bodge to make the UD part of CRUD work with the edit and remove buttons
+    private final Consumer<ProcessViewModel> editCallback;
+    private final Consumer<ProcessViewModel> deleteCallback;
+
     // Armazena informações dos módulos (ex: memória, IO, etc.)
     private final ObservableList<ModuleInfoViewModel> moduleInfoViewModels = FXCollections.observableArrayList();
 
-    public ProcessViewModel(long creationId) {
+    public ProcessViewModel(long creationId, Consumer<ProcessViewModel> editCallback, Consumer<ProcessViewModel> deleteCallback) {
         this.creationId = creationId;
+        this.editCallback = editCallback;
+        this.deleteCallback = deleteCallback;
     }
 
+    /// callback hell magic, TODO FIXME
+    public void delete() {
+        this.deleteCallback.accept(this);
+        this.publish("CloseInspectors");
+    }
+
+    /// callback hell magic, TODO FIXME
+    public void edit() {
+        this.editCallback.accept(this);
+    }
 
     public void setState(Process.State newState) {
         this.state.set(newState);

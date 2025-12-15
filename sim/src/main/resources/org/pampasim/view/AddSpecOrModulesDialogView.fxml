@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.text.Font?>
+
+<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView" minWidth="200">
+  <content>
+    <VBox spacing="10" alignment="CENTER">
+
+      <Label text="Módulos Ativos:" />
+      <VBox spacing="10" alignment="CENTER">
+          <CheckBox fx:id="processorCheckBox" text="Processador" disable="true" selected="true" prefWidth="100"/>
+          <CheckBox fx:id="memoryCheckBox" text="Memória" prefWidth="100"/>
+      </VBox>
+      <Region prefHeight="5" />
+      <Label fx:id ="specFeedback" text="${viewModel.specFeedback}" />
+          <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar Cenário" textFill="#1976d2">
+            <tooltip>
+              <Tooltip text="Carrega arquivo de descrição de cenário" />
+            </tooltip>
+              <graphic>
+                <FontIcon iconColor="#1976d2" iconLiteral="bi-upload" iconSize="22" selectionFill="BLACK">
+                      <font>
+                        <Font size="27.0" />
+                      </font>
+                </FontIcon>
+                  </graphic>
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+        </Button>
+    </VBox>
+  </content>
+  <buttonTypes>
+    <!-- <ButtonType fx:id="cancelButton" buttonData="CANCEL_CLOSE" text="Cancel" /> !-->
+    <ButtonType fx:id="okButton" buttonData="APPLY" text="OK" />
+  </buttonTypes>
+</DialogPane>

@@ -123,7 +123,7 @@ public abstract class EventManager {
 
     private void logEvent(String action, Class<? extends Event> eventClass, Event event,
                           Class<? extends Event> translatedClass) {
-        long tick = simulation.getRealClock().getTick();
+        long tick = simulation.getRealClock().get();
         String managerType = this.getClass().getSimpleName();
 
         String logEntry = String.format("[TICK %d][%s] %s: %s%s - %s%n",
