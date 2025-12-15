@@ -231,7 +231,7 @@ public class PampaSimViewModel implements ViewModel {
     public void setSimulationModules(AddModulesRecord userSelection) throws IOException {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
 
-        if (userSelection.modules().getFirst().equals("memory")) { // FIXME: multiple modules
+        if (userSelection.modules().contains("memory")) { 
             reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation().get());
             MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
             simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);

@@ -120,9 +120,9 @@
       </dependency>
       <!-- https://mvnrepository.com/artifact/com.jfoenix/jfoenix -->
       <dependency>
-          <groupId>org.rationalityfrontline.workaround</groupId>
-          <artifactId>jfoenix</artifactId>
-          <version>21.0.0</version>
+        <groupId>org.rationalityfrontline.workaround</groupId>
+        <artifactId>jfoenix</artifactId>
+        <version>21.0.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -229,5 +229,6 @@
     <module>events</module>
     <module>memory</module>
     <module>sim</module>
+    <module>file-system</module>
   </modules>
 </project>
