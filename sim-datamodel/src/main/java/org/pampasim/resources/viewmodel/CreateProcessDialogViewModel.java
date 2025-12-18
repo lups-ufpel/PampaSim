@@ -15,10 +15,21 @@ public class CreateProcessDialogViewModel implements ViewModel {
     private final IntegerProperty processDuration = new SimpleIntegerProperty();
     private final IntegerProperty processPriority = new SimpleIntegerProperty();
 
-    private final ObjectProperty<Color> selectedColor = new SimpleObjectProperty<>(Color.BLUE);
+    private final ObjectProperty<Color> selectedColor = new SimpleObjectProperty<>(pleasantRandomColor());
 
     @Getter
     private final ProcessMemoryInfoViewModel memoryInfo = new ProcessMemoryInfoViewModel();
+
+    // gpt color theory ahead
+    private static double hue = Math.random() * 360;
+    private static Color pleasantRandomColor() {
+        hue = (hue + 137.508) % 360;
+
+        double saturation = 0.65 + Math.random() * 0.2;
+        double brightness = 0.75 + Math.random() * 0.15;
+
+        return Color.hsb(hue, saturation, brightness);
+    }
 
     public IntegerProperty processStartProperty() {
         return processStart;
