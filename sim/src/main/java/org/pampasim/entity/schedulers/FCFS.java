@@ -18,7 +18,11 @@ public class FCFS extends RankingScheduler {
                 // lhs < rhs -> -return
                 // lhs = rhs -> 0 return
                 // lhs > rhs -> +return
-                return lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
+                if(lhs.getCreationData().getArrivalTick() == rhs.getCreationData().getArrivalTick()){
+                  return (int) (lhs.getCreationData().getCreationId() - rhs.getCreationData().getCreationId());
+                }  else{
+                  return lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
+                }
             }
         };
     }
