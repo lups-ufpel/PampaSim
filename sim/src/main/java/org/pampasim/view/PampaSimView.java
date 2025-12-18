@@ -140,7 +140,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
     @FXML
     public void onSettings(ActionEvent actionEvent) {
-        pampaSimViewModel.openSettingsDialog();
+        try{
+          pampaSimViewModel.openSettingsDialog();
+        } catch (RuntimeException e) {
+           // user closed the window
+        }
     }
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {
