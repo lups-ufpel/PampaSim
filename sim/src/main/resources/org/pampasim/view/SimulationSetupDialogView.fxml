@@ -141,7 +141,7 @@
                 </VBox>
             </content>
         </Tab>
-        <Tab fx:id="filesTab" closable="false" text="Arquivos">
+        <Tab fx:id="fileSystemTab" closable="false" text="Arquivos">
           <content>
           </content>
         </Tab>
