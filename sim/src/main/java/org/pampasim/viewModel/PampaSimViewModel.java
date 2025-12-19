@@ -275,6 +275,9 @@ public class PampaSimViewModel implements ViewModel {
 
             tabPane.getTabs().add(memoryTab);
         }
+
+        if (userSelection.modules().contains("file-system")) { 
+        }
     }
 
     private Button getPopoutButton(FontIcon icon, Tab memoryTab) {
@@ -506,6 +509,7 @@ public class PampaSimViewModel implements ViewModel {
         final boolean[] closedWithoutApply = {false};
 
         settingsDialogService.setMemoryModulePresent(memoryModule != null);
+        settingsDialogService.setFileSystemModulePresent(fileSystemModule != null);
 
         Optional<SchedulerSelectionRecord> result;
 

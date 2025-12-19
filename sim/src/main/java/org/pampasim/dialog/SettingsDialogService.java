@@ -22,6 +22,9 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
     @Getter
     @Setter
     private boolean memoryModulePresent = false;
+    @Getter
+    @Setter
+    private boolean fileSystemModulePresent = false;
 
     @Override
     public Optional<SchedulerSelectionRecord> showDialog(Object... args) {
@@ -30,6 +33,7 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
                 FluentViewLoader.fxmlView(org.pampasim.view.SimulationSetupDialogView.class).load();
 
         viewTuple.getViewModel().setMemoryModulePresent(memoryModulePresent);
+        viewTuple.getViewModel().setFileSystemModulePresent(fileSystemModulePresent);
 
         Dialog<ButtonType> dialog = new Dialog<>();
         DialogPane dialogPane = (DialogPane) viewTuple.getView();

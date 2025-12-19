@@ -143,6 +143,7 @@
         </Tab>
         <Tab fx:id="fileSystemTab" closable="false" text="Arquivos">
           <content>
+            <Label text="   Teste de Entradas na TLB"/>
           </content>
         </Tab>
     </tabs>
