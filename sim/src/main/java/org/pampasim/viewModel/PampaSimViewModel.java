@@ -45,6 +45,7 @@ import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 
+import org.pampasim.filesystem.view.FileSystemTabView;
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 
 import org.pampasim.resources.Process;
@@ -118,7 +119,7 @@ public class PampaSimViewModel implements ViewModel {
 
     private MemoryTabViewModel memoryModule = null;
 
-    private fileSystemTabViewModel fileSystemModule = null;
+    private FileSystemTabViewModel fileSystemModule = null;
 
     public PampaSimViewModel() {
         var templateSpecStream = PampaSim.class.getResourceAsStream("template.spec");
@@ -283,12 +284,12 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         if (userSelection.modules().contains("file-system")) { 
-            fileSystemModule = new fileSystemTabViewModel();
+            fileSystemModule = new FileSystemTabViewModel();
 
             //fileSystemModulePresent.set(true);
 
-            ViewTuple<fileSystemTabView, fileSystemTabViewModel> viewTuple = FluentViewLoader
-                    .fxmlView(fileSystemTabView.class)
+            ViewTuple<FileSystemTabView, FileSystemTabViewModel> viewTuple = FluentViewLoader
+                    .fxmlView(FileSystemTabView.class)
                     .viewModel(fileSystemModule)
                     .load();
 

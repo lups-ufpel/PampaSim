@@ -21,6 +21,7 @@ module org.pampasim {
 
     requires org.pampasim.events;
     requires org.pampasim.memory;
+    requires org.pampasim.filesystem;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx, info.picocli;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
