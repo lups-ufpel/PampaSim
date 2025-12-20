@@ -229,6 +229,6 @@
     <module>events</module>
     <module>memory</module>
     <module>sim</module>
-    <module>file-system</module>
+    <module>filesystem</module>
   </modules>
 </project>

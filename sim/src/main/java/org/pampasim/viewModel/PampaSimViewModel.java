@@ -37,12 +37,16 @@ import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.events.ProcessCreationDataEvent;
+
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
+
+import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
+
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.dialog.*;
@@ -113,6 +117,8 @@ public class PampaSimViewModel implements ViewModel {
     private TabPane tabPane;
 
     private MemoryTabViewModel memoryModule = null;
+
+    private fileSystemTabViewModel fileSystemModule = null;
 
     public PampaSimViewModel() {
         var templateSpecStream = PampaSim.class.getResourceAsStream("template.spec");
@@ -277,6 +283,40 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         if (userSelection.modules().contains("file-system")) { 
+            fileSystemModule = new fileSystemTabViewModel();
+
+            //fileSystemModulePresent.set(true);
+
+            ViewTuple<fileSystemTabView, fileSystemTabViewModel> viewTuple = FluentViewLoader
+                    .fxmlView(fileSystemTabView.class)
+                    .viewModel(fileSystemModule)
+                    .load();
+
+            Parent content = viewTuple.getView();
+
+            FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
+            icon.setIconSize(14);
+
+            // Create the fileSystem tab with a pop-out button in the header
+            Tab fileSystemTab = new Tab();
+            HBox header = new HBox(5);
+            header.setAlignment(Pos.CENTER_LEFT); // center vertically
+            Label title = new Label("Arquivos");
+            Button popOutBtn = getPopoutButton(icon, fileSystemTab);
+
+            header.getChildren().addAll(title, popOutBtn);
+            fileSystemTab.setGraphic(header);
+            fileSystemTab.setContent(content);
+            fileSystemTab.setClosable(false);
+
+            ObservableList<Tab> tabs = tabPane.getTabs();
+            if (tabs.size() > 1) {
+                List<Tab> tabsToRemove = new ArrayList<>(tabs.subList(1, tabs.size()));
+                tabs.removeAll(tabsToRemove);
+            }
+
+            tabPane.getTabs().add(fileSystemTab);
+
         }
     }
 

@@ -43,7 +43,7 @@ public class AddSpecOrModulesDialogViewModel implements ViewModel {
       }
 
       if(fileSystemModuleEnabled.get()){
-        modules.add("file-system");
+        modules.add("filesystem");
       }
 
       if(modules.size() > 0){
