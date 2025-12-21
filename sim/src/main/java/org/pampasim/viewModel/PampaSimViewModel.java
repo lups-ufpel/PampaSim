@@ -267,18 +267,18 @@ public class PampaSimViewModel implements ViewModel {
             HBox header = new HBox(5);
             header.setAlignment(Pos.CENTER_LEFT); // center vertically
             Label title = new Label("Memória");
-            Button popOutBtn = getPopoutButton(icon, memoryTab, "Memória");
+            Button popOutBtn = getPopoutButton(icon, memoryTab, title.getText());
 
             header.getChildren().addAll(title, popOutBtn);
             memoryTab.setGraphic(header);
             memoryTab.setContent(content);
             memoryTab.setClosable(false);
+            memoryTab.setUserData("MEMORY"); // for identification purposes
+            //memoryTab.setText(title.getText());
 
             ObservableList<Tab> tabs = tabPane.getTabs();
-            if (tabs.size() > 1) {
-                List<Tab> tabsToRemove = new ArrayList<>(tabs.subList(1, tabs.size()));
-                tabs.removeAll(tabsToRemove);
-            }
+
+            tabs.removeIf(t -> "MEMORY".equals(t.getUserData()));
 
             tabPane.getTabs().add(memoryTab);
         }
@@ -303,18 +303,17 @@ public class PampaSimViewModel implements ViewModel {
             HBox header = new HBox(5);
             header.setAlignment(Pos.CENTER_LEFT); // center vertically
             Label title = new Label("Arquivos");
-            Button popOutBtn = getPopoutButton(icon, fileSystemTab, "Arquivos");
+            Button popOutBtn = getPopoutButton(icon, fileSystemTab, title.getText());
 
             header.getChildren().addAll(title, popOutBtn);
             fileSystemTab.setGraphic(header);
             fileSystemTab.setContent(content);
             fileSystemTab.setClosable(false);
+            fileSystemTab.setUserData("FILES"); // for identification purposes
 
             ObservableList<Tab> tabs = tabPane.getTabs();
-            if (tabs.size() > 1) {
-                List<Tab> tabsToRemove = new ArrayList<>(tabs.subList(1, tabs.size()));
-                tabs.removeAll(tabsToRemove);
-            }
+
+            tabs.removeIf(t -> "FILES".equals(t.getUserData()));
 
             tabPane.getTabs().add(fileSystemTab);
 
