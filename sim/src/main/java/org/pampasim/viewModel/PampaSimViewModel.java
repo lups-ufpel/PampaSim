@@ -267,7 +267,7 @@ public class PampaSimViewModel implements ViewModel {
             HBox header = new HBox(5);
             header.setAlignment(Pos.CENTER_LEFT); // center vertically
             Label title = new Label("Memória");
-            Button popOutBtn = getPopoutButton(icon, memoryTab);
+            Button popOutBtn = getPopoutButton(icon, memoryTab, "Memória");
 
             header.getChildren().addAll(title, popOutBtn);
             memoryTab.setGraphic(header);
@@ -303,7 +303,7 @@ public class PampaSimViewModel implements ViewModel {
             HBox header = new HBox(5);
             header.setAlignment(Pos.CENTER_LEFT); // center vertically
             Label title = new Label("Arquivos");
-            Button popOutBtn = getPopoutButton(icon, fileSystemTab);
+            Button popOutBtn = getPopoutButton(icon, fileSystemTab, "Arquivos");
 
             header.getChildren().addAll(title, popOutBtn);
             fileSystemTab.setGraphic(header);
@@ -321,19 +321,19 @@ public class PampaSimViewModel implements ViewModel {
         }
     }
 
-    private Button getPopoutButton(FontIcon icon, Tab memoryTab) {
+    private Button getPopoutButton(FontIcon icon, Tab moduleTab, String title) {
         Button popOutBtn = new Button();
         popOutBtn.setGraphic(icon);
         popOutBtn.setFocusTraversable(false);
 
         popOutBtn.setOnAction(e -> {
-            if (memoryTab.getContent() == null) return;
+            if (moduleTab.getContent() == null) return;
 
-            Parent poppedContent = (Parent) memoryTab.getContent();
-            memoryTab.setContent(null);
+            Parent poppedContent = (Parent) moduleTab.getContent();
+            moduleTab.setContent(null);
 
             Stage popOutStage = new Stage();
-            popOutStage.setTitle("Memória");
+            popOutStage.setTitle(title);
 
             BorderPane layout = new BorderPane(poppedContent);
             Scene popOutScene = new Scene(layout, 800, 600);
@@ -341,7 +341,7 @@ public class PampaSimViewModel implements ViewModel {
             popOutStage.initOwner(tabPane.getScene().getWindow());
 
             popOutStage.setOnCloseRequest(event -> {
-                memoryTab.setContent(poppedContent);
+                moduleTab.setContent(poppedContent);
             });
 
             popOutStage.show();
