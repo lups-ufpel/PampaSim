@@ -44,11 +44,16 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
             viewTuple.getViewModel().setSchedulerNames(schedulerNames);
         }
 
-        if (args.length > 1 && args[1] instanceof List<?> rawList) {
+        if (memoryModulePresent && args.length > 1 && args[1] instanceof List<?> rawList) {
             List<String> pageReplacementAlgorithmNames = (List<String>) rawList.stream()
                     .filter(str -> !str.equals("AbstractPageReplacementAlgorithm"))
                     .collect(Collectors.toList());
             viewTuple.getViewModel().setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
+        }
+
+        if (fileSystemModulePresent && args.length > 2 && args[2] instanceof List<?> rawList){
+            List<String> allocationSchemeNames = (List<String>) rawList;
+            viewTuple.getViewModel().setAllocationSchemeNames(allocationSchemeNames);
         }
 
         Optional<ButtonType> result = dialog.showAndWait();

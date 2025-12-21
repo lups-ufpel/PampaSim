@@ -13,6 +13,7 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     private final BooleanProperty fileSystemModulePresent = new SimpleBooleanProperty(false);
     private final ObservableList<String> schedulerName = FXCollections.observableArrayList();
     private final ObservableList<String> pageSubstitutionAlgorithmName = FXCollections.observableArrayList();
+    private final ObservableList<String> allocationSchemeName = FXCollections.observableArrayList();
 
     // ─────────────── Values the user can change ─────────────
 
@@ -41,30 +42,33 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     private final BooleanProperty tlbEnabled                     = new SimpleBooleanProperty(false);
     private final IntegerProperty tlbEntries                     = new SimpleIntegerProperty(16);
 
+        // ─────────────── File System Parameters ─────────────
+    private final IntegerProperty blockNumber                    = new SimpleIntegerProperty(512);
+    private final IntegerProperty blockSizeBytes                 = new SimpleIntegerProperty(64);
+    private final StringProperty allocationScheme                = new SimpleStringProperty();
+
 
     /* ========== public API ========== */
 
     public void setSchedulerNames(List<String> names) {
         schedulerName.setAll(names);
-        setDefaultSelectedScheduler(names);
+        setFirstAsDefault(selectedScheduler, names);
+    }
+
+    public void setAllocationSchemeNames(List<String> names) {
+        allocationSchemeName.setAll(names);
+        setFirstAsDefault(allocationScheme, names);
     }
 
     public void setPageSubstitutionAlgorithmNames(List<String> algorithmNames) {
         pageSubstitutionAlgorithmName.setAll(algorithmNames);
-        setDefaultPageSubstitutionAlgorithmName(algorithmNames);
-
+        setFirstAsDefault(pageSubstitutionAlgorithm, algorithmNames);
     }
 
-    public void setDefaultPageSubstitutionAlgorithmName(List<String> algorithmNames) {
-        if(!algorithmNames.isEmpty()) {
-            pageSubstitutionAlgorithm.set(algorithmNames.getFirst());
-        }
-    }
-
-    public void setDefaultSelectedScheduler(List<String> names) {
-        if(!names.isEmpty()) {
-            selectedScheduler.set(names.getFirst());
-        }
+    public void setFirstAsDefault(StringProperty property, List<String> names){
+      if(!names.isEmpty()){
+        property.set(names.getFirst());
+      }
     }
 
     public ObservableList<String> schedulerNameProperty () {

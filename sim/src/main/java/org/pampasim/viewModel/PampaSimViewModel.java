@@ -553,12 +553,9 @@ public class PampaSimViewModel implements ViewModel {
 
         Optional<SchedulerSelectionRecord> result;
 
-        if (memoryModule != null) {
-            List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
-            result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms);
-        } else {
-            result = settingsDialogService.showDialog(schedulers);
-        }
+        List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
+        // no getting file system args from spec for now
+        result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms, List.of("FAT", "I-NODES"));
 
         // Process the result
         if (result.isPresent()) {
