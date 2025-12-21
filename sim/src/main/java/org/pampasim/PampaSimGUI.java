@@ -45,6 +45,8 @@ public class PampaSimGUI extends Application {
                 System.out.println(e.getMessage());
                 Platform.exit();
                 return false;
+            }  else {
+              throw e;
             }
         }
         return true;

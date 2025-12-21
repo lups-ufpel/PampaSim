@@ -283,7 +283,7 @@ public class PampaSimViewModel implements ViewModel {
             tabPane.getTabs().add(memoryTab);
         }
 
-        if (userSelection.modules().contains("file-system")) { 
+        if (userSelection.modules().contains("filesystem")) { 
             fileSystemModule = new FileSystemTabViewModel();
 
             //fileSystemModulePresent.set(true);
