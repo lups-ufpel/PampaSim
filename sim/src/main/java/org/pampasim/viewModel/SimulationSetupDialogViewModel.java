@@ -79,6 +79,10 @@ public class SimulationSetupDialogViewModel implements ViewModel {
         return pageSubstitutionAlgorithmName;
     }
 
+    public ObservableList<String> allocationSchemeNameProperty() {
+      return allocationSchemeName;
+    }
+
     public StringProperty selectedSchedulerProperty() {
         return selectedScheduler;
     }
@@ -89,6 +93,7 @@ public class SimulationSetupDialogViewModel implements ViewModel {
         return quantum;
     }
 
+    // Memory
     public IntegerProperty pageSizeProperty()                             { return pageSize; }
     public IntegerProperty maxPagesPerProcessProperty()                   { return maxPagesPerProcess; }
     public IntegerProperty framesInRAMProperty()                          { return framesInRAM; }
@@ -104,6 +109,10 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public DoubleProperty  variablePageAllocationBottomThresholdProperty(){ return variablePageAllocationBottomThreshold; }
     public BooleanProperty tlbEnabledProperty()                           { return tlbEnabled; }
     public IntegerProperty tlbEntriesProperty()                           { return tlbEntries; }
+
+    
+    // File System
+    public StringProperty allocationSchemeProperty() { return allocationScheme; }
 
     /* Helper getters (used by the service after showAndWait()) */
     public String  getSelectedScheduler() { return selectedScheduler.get(); }

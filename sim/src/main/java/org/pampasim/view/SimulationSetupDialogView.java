@@ -22,16 +22,15 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
     Spinner<Integer> quantumSpinner;
 
     @FXML
-    private Tab memoryTab;
-    @FXML
-    private Tab fileSystemTab;
-    @FXML
     private TabPane tabPane;
     @FXML
     private DialogPane dialogPane;
     @FXML
     private ButtonType okButtonType;
 
+    // Memory
+    @FXML
+    private Tab memoryTab;
     @FXML
     public Spinner<Integer> pageSizeSpinner;
     @FXML
@@ -60,11 +59,16 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
     public CheckBox tlbExistsCheckBox;
     @FXML
     public Spinner<Integer> tlbEntriesSpinner;
-
     @FXML
     public Label ramFramesErrorLabel;
     @FXML
     public Label swapFramesErrorLabel;
+    
+    // File System
+    @FXML
+    private Tab fileSystemTab;
+    @FXML
+    private ChoiceBox<String> allocationSchemeChoiceBox;
 
 
     private boolean isValid(boolean valid, Spinner<Integer> ramFramesSpinner, Label ramFramesErrorLabel) {
@@ -169,6 +173,14 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
 
         boolean enablePrePagingRange = pageLoadingPolicyChoiceBox.getValue().equals("Antecipada");
         loadedPagesCountSpinner.setDisable(!enablePrePagingRange);
+
+        // file system section
+        allocationSchemeChoiceBox.setItems(viewModel.allocationSchemeNameProperty());
+        allocationSchemeChoiceBox.valueProperty().bindBidirectional(viewModel.allocationSchemeProperty());
+
+
+
+
 
         final Button okButton = (Button) dialogPane.lookupButton(okButtonType);
         okButton.addEventFilter(ActionEvent.ACTION, event -> {
