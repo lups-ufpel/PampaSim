@@ -112,6 +112,8 @@ public class SimulationSetupDialogViewModel implements ViewModel {
 
     
     // File System
+    public IntegerProperty blockNumberProperty() { return blockNumber; }
+    public IntegerProperty blockSizeBytesProperty() { return blockSizeBytes; }
     public StringProperty allocationSchemeProperty() { return allocationScheme; }
 
     /* Helper getters (used by the service after showAndWait()) */
@@ -119,6 +121,7 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public boolean isPreemptive()         { return preemptive.get(); }
     public int     getQuantum()           { return quantum.get(); }
 
+    // Memory
     public int     getPageSize()                             { return pageSize.get(); }
     public int     getMaxPagesPerProcess()                   { return maxPagesPerProcess.get(); }
     public int     getFramesInRAM()                          { return framesInRAM.get(); }
@@ -134,6 +137,10 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public double  getVariablePageAllocationBottomThreshold(){ return variablePageAllocationBottomThreshold.get(); }
     public boolean isTlbEnabled()                            { return tlbEnabled.get(); }
     public int     getTlbEntries()                           { return tlbEntries.get(); }
+
+    // File System
+    public int getBlockNumber() { return blockNumber.get(); }
+    public int getBlockSizeBytes() { return blockSizeBytes.get(); }
 
 
     public BooleanProperty memoryModulePresentProperty() {
