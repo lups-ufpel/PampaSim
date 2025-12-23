@@ -1,5 +1,7 @@
 package org.pampasim.filesystem;
 
+import org.pampasim.filesystem.core.Disk;
+
 public class Print {
 
     public static void byteValue(Byte b){

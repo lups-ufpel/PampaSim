@@ -1,5 +1,8 @@
 package org.pampasim.filesystem.mapping;
 
+import org.pampasim.filesystem.file.FileMetadata;
+import org.pampasim.filesystem.core.AllocationScheme;
+
 import java.nio.ByteBuffer;
 
 public final class ContiguousMapping extends FileMapping {

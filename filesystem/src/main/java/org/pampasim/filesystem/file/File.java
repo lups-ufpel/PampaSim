@@ -1,5 +1,13 @@
 package org.pampasim.filesystem.file;
 
+import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.mapping.FileMapping;
+import org.pampasim.filesystem.mapping.ContiguousMapping;
+import org.pampasim.filesystem.mapping.InodeMapping;
+import org.pampasim.filesystem.directory.Directory;
+import org.pampasim.filesystem.directory.DirectoryEntry;
+
 import java.time.Instant;
 
 public class File{

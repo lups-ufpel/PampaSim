@@ -1,5 +1,10 @@
 package org.pampasim.filesystem.directory;
 
+import org.pampasim.filesystem.mapping.FileMapping;
+import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.filesystem.mapping.ContiguousMapping;
+import org.pampasim.filesystem.mapping.FATMapping;
+
 import java.nio.ByteBuffer;
 
 public class DirectoryEntry {

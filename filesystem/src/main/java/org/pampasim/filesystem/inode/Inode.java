@@ -1,5 +1,8 @@
 package org.pampasim.filesystem.inode;
 
+import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.file.FileMetadata;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 

@@ -1,5 +1,13 @@
 package org.pampasim.filesystem.directory;
 
+import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.filesystem.mapping.FileMapping;
+import org.pampasim.filesystem.mapping.ContiguousMapping;
+import org.pampasim.filesystem.mapping.InodeMapping;
+import org.pampasim.filesystem.inode.Inode;
+import org.pampasim.filesystem.file.File;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.nio.ByteBuffer;

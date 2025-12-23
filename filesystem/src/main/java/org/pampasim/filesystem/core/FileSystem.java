@@ -1,5 +1,13 @@
 package org.pampasim.filesystem.core;
 
+import org.pampasim.filesystem.inode.Inode;
+import org.pampasim.filesystem.directory.Directory;
+import org.pampasim.filesystem.directory.DirectoryEntry;
+import org.pampasim.filesystem.file.FileMetadata;
+import org.pampasim.filesystem.mapping.FileMapping;
+import org.pampasim.filesystem.mapping.ContiguousMapping;
+import org.pampasim.filesystem.mapping.InodeMapping;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
@@ -14,7 +22,7 @@ public class FileSystem{
   // addresses on the bit map are relative to partition
   private AllocationBitMap freeBlocksBitMap; // note: little-endian, i.e. backwards; create class for this to have update method
   private AllocationBitMap inodesBitMap;
-  private Operation[] journal; // needs an inode for itself
+  //private Operation[] journal; // needs an inode for itself
   private AllocationScheme allocationScheme;
   private Random random = new Random();
 

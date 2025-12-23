@@ -1,5 +1,13 @@
 package org.pampasim.filesystem;
 
+import org.pampasim.filesystem.*;
+import org.pampasim.filesystem.core.*;
+import org.pampasim.filesystem.directory.*;
+import org.pampasim.filesystem.fat.*;
+import org.pampasim.filesystem.inode.*;
+import org.pampasim.filesystem.mapping.*;
+import org.pampasim.filesystem.file.*;
+
 import java.util.Arrays;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
