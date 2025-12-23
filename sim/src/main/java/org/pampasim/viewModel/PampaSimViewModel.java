@@ -555,7 +555,7 @@ public class PampaSimViewModel implements ViewModel {
 
         List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
         // no getting file system args from spec for now
-        result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms, List.of("FAT", "I-NODES"));
+        result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms, List.of("Contígua", "I-nodes"));
 
         // Process the result
         if (result.isPresent()) {

@@ -1,0 +1,32 @@
+Todas operações tem de ser feitas de modo a serem idempotentes, 
+"isto é, elas 
+podem ser repetidas quantas vezes forem necessárias 
+sem prejuízo algum. Operações como “Atualize o mapa 
+de bits para marcar i-node k ou bloco n como livres” po
+dem ser repetidas sem nenhum problema até o objetivo 
+ser consumado. Do mesmo modo, buscar um diretório 
+e remover qualquer entrada chamada foobar também é 
+uma operação idempotente. Por outro lado, adicionar os 
+blocos recentemente liberados do i-node K para o final 
+da lista livre não é uma operação idempotente, pois eles 
+talvez já estejam ali. A operação mais cara “Pesquise 
+a lista de blocos livres e inclua o bloco n se ele ain
+da não estiver lá” é idempotente. " (Sistemas Operacionais Modernos)
+
+Addresses on freeBlocksBitMap is relative to partition. This (seemingly) is done on real systems as well,
+as the file system naturally does not keep track of blocks outside of its partition.
+
+The initialization block and superblock are "faked" for now, that is, the disk only stores garbage data in the spaces
+reserved for them. That could be changed though, for example, to have all the information of the file system on 
+the disk file (for importing)
+
+freeBlocksBitMap is stored as a bitSet, which uses little-endian representation. So printing its bits out 
+gives a "backwards" representation of the flags.
+
+for consistency's sake, directories always store a name, then a number, and then (sometimes) file attributes. On INodes, the second number is the index, on FAT, the first block, but there's always a number there.
+
+FileMetadata Instant attributes may lose millisecond information
+
+"relative" indexes are indexes that are relative to partition, i.e. 0 would be the first index on that partition but may be 20, 500, etc on disk.
+
+fileIndex = either first block for FAT and CONTIGUOUS or inodeIndex for inode

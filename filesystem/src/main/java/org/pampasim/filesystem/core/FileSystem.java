@@ -1,0 +1,527 @@
+package org.pampasim.filesystem.core;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.BitSet;
+import java.nio.ByteBuffer;
+import java.time.Instant;
+
+public class FileSystem{
+
+  private Disk disk; // does it make sense for this to be here?
+  private Partition partition;
+  // addresses on the bit map are relative to partition
+  private AllocationBitMap freeBlocksBitMap; // note: little-endian, i.e. backwards; create class for this to have update method
+  private AllocationBitMap inodesBitMap;
+  private Operation[] journal; // needs an inode for itself
+  private AllocationScheme allocationScheme;
+  private Random random = new Random();
+
+  public static final int ROOT_DIRECTORY_INODE_NUMBER = 0;
+  public static final float INODES_TO_BYTES_RATIO = (float) (1.0/5000.0);
+  public static int INODES_INDEX;
+  private static final int FREE_BLOCKS_BITMAP_INDEX = 2;
+  private static int FREE_INODES_BITMAP_INDEX; // might not exist
+  private static final int ROOT_DIRECTORY_ENTRIES_NUMBER = 5;
+
+  // is here for modularity. different file systems hava different disk requirements
+  public final int MINIMUM_PARTITION_SIZE;
+  private int root_directory_starting_index;
+
+  public FileSystem(Disk disk, Partition partition, AllocationScheme allocationScheme){
+      this.disk = disk;
+      this.allocationScheme = allocationScheme;
+      this.partition = partition;
+
+      int totalPartitionBlocks = partition.size(); 
+      this.freeBlocksBitMap = new AllocationBitMap(totalPartitionBlocks);
+      // maybe too granular. 
+      switch(allocationScheme) {
+        case INODES:
+          MINIMUM_PARTITION_SIZE = 512;
+          this.inodesBitMap = new AllocationBitMap(getNumberOfInodes());
+          if(disk.getBlockSizeBytes() < Inode.indirectBlockSizeBytes()){
+            throw new IllegalStateException("Blocks are too small to fit inode indirect block. Min=" + Inode.indirectBlockSizeBytes());
+          }
+          break;
+        default:
+          MINIMUM_PARTITION_SIZE = 512;
+          break;
+      }
+      
+      if(partition.size() * disk.getBlockSizeBytes() < MINIMUM_PARTITION_SIZE){
+        throw new IllegalStateException("Active partition of size " + partition.size() * disk.getBlockSizeBytes() + " bytes is too small. Minimum for this type of file system is " + MINIMUM_PARTITION_SIZE);
+      }
+
+
+  }
+
+  public int getNumberOfInodes(){
+    return (int) Math.ceil(partition.size() * disk.getBlockSizeBytes() * INODES_TO_BYTES_RATIO);
+  }
+
+  public int getRootDirectoryIndex(){
+    return switch(allocationScheme){
+      case AllocationScheme.INODES -> ROOT_DIRECTORY_INODE_NUMBER;
+      case AllocationScheme.CONTIGUOUS -> root_directory_starting_index;
+      case AllocationScheme.FAT -> root_directory_starting_index;
+    };
+  }
+
+  // not used (yet?)
+  /*
+  public FileMapping getRootDirectoryMapping(){
+    switch(allocationScheme){
+      case AllocationScheme.CONTIGUOUS:
+      return Directory.getDotFromDisk(root_directory_starting_index, this).getFileMapping();
+      case AllocationScheme.INODES:
+        return InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
+      default:
+        throw new Error("Not implemented");
+    }
+
+  }
+  */
+
+  public boolean isFree(int blockIndex){
+    return freeBlocksBitMap.get(blockIndex);
+  }
+
+  public boolean isInodeFree(int inodeIndex){
+    return inodesBitMap.get(inodeIndex);
+  }
+
+  public int freeBlocksCount(){
+    return freeBlocksBitMap.freeCount();
+  }
+
+  public AllocationScheme getAllocationScheme(){
+    return allocationScheme;
+  }
+
+  public void setAllocated(int fromIndex, int toIndex){
+    freeBlocksBitMap.setAllocated(fromIndex, toIndex);
+  }
+  
+  // missing bound checks
+  public void initialize(){
+    
+    int currentBlock = 0;
+    // add to journal: writing initialization block
+    writeInitializationBlock(currentBlock);
+    currentBlock++;
+
+    // add to journal: writing superBlock
+    writeSuperBlock(currentBlock);
+    currentBlock++;
+
+
+    // add to journal: writing freeBlocksBitMap 
+    int sizeBlocks = writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+    currentBlock+= sizeBlocks;
+    
+    if(allocationScheme == AllocationScheme.INODES){
+      // i-nodes bitmap
+      FREE_INODES_BITMAP_INDEX = currentBlock;
+      sizeBlocks = writeBitMap(inodesBitMap, FREE_INODES_BITMAP_INDEX);
+      currentBlock+= sizeBlocks;
+
+      // inodes
+      INODES_INDEX = currentBlock;
+      sizeBlocks = writeInodes(currentBlock);
+      currentBlock+= sizeBlocks;
+    }
+    
+    // needs to be updated for root dir
+    freeBlocksBitMap.setAllocated(0, currentBlock);
+    writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+
+    root_directory_starting_index = currentBlock;
+    sizeBlocks = writeRootDirectory(currentBlock);
+    currentBlock+= sizeBlocks;
+
+    freeBlocksBitMap.setAllocated(0, currentBlock);
+    writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+      
+  }
+
+  private void writeInitializationBlock(int index){
+    byte[] initializationBlock = new byte[disk.getBlockSizeBytes()];
+    fillWithRandomData(initializationBlock); // probably will have no use forever
+    writeBlock(index, initializationBlock);
+  }
+
+  private void writeSuperBlock(int index){
+    byte[] superBlock = new byte[disk.getBlockSizeBytes()];
+    fillWithRandomData(superBlock); // could be made more realistic later
+    writeBlock(index, superBlock);
+  }
+
+  private int writeBitMap(AllocationBitMap bitMap, int starting_index){
+    int sizeBlocks = blocksRequiredFor(bitMap.getByteArray().length);
+    writeBytes(bitMap.getByteArray(), starting_index, 0);
+
+    return sizeBlocks;
+  }
+
+  private int writeInodes(int starting_index){
+    int sizeBlocks = blocksRequiredFor(getNumberOfInodes() * Inode.sizeBytes());
+    // no need to write a bunch of zeros
+    //
+    return sizeBlocks;
+  }
+
+  public int getNextAndAllocate(AllocationBitMap bitMap, int amount, int bitMapStartingIndex){
+    int firstFree = bitMap.getContiguousFreeBlocksIndex(amount);
+    bitMap.setAllocated(firstFree, firstFree + amount);
+    writeBitMap(bitMap, bitMapStartingIndex);
+
+    return firstFree;
+  }
+
+  // only contiguous allocation asks for >1 block per call, clears the blocks first
+  public int getFreeBlocksAndSetAllocated(int numberOfBlocks){
+    int output = getNextAndAllocate(freeBlocksBitMap, numberOfBlocks, FREE_BLOCKS_BITMAP_INDEX); 
+
+    byte[] clearedBlock = new byte[getBlockSizeBytes()];
+    for(int i = 0; i < output; i++){
+      writeBlock(output + i, clearedBlock);
+    }
+
+    return output;
+  }
+
+  public int nextFreeBlock(){
+    return getFreeBlocksAndSetAllocated(1);
+  }
+
+  public int nextFreeInode(){
+    return getNextAndAllocate(inodesBitMap, 1, FREE_INODES_BITMAP_INDEX);
+  }
+  // not tested, returns size of root dir
+  private int writeRootDirectory(int starting_index){
+    Directory root;
+    int sizeBlocks = 0;
+    switch(allocationScheme) {
+      // maybe finer (for mapping only) switches would be better if FAT is similar too
+      case CONTIGUOUS: 
+      {
+        int entries = 2;
+        int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
+        sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
+        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
+
+        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMapping dotMapping = new ContiguousMapping(starting_index, sizeBlocks, dotMetadata);
+        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+        dot.writeToBuffer(buffer);
+
+        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMapping dotdotMapping = new ContiguousMapping(starting_index, sizeBlocks, dotdotMetadata);
+        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
+        dotdot.writeToBuffer(buffer);
+
+        byte[] rootDirectoryData = buffer.array();
+        byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
+        try{
+          for(int i = 0; i < rootDirectoryBlocks.length; i++){
+            writeBlock(starting_index + i, rootDirectoryBlocks[i]);
+          }
+        } catch(Exception e){
+          throw new Error("partition is too small for root directory");
+        }
+
+        buffer.rewind();
+
+        break;
+      }
+      case INODES: 
+      {
+        int entries = 2;
+        int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
+        sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
+        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
+
+        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMapping dotMapping = new InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
+        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+        dot.writeToBuffer(buffer);
+
+        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMapping dotdotMapping = new InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
+        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
+        dotdot.writeToBuffer(buffer);
+
+        byte[] rootDirectoryData = buffer.array();
+        byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
+        Inode rootInode = new Inode(this, dotMetadata);
+
+        for(int i = 0; i < rootDirectoryBlocks.length; i++){
+          int next = nextFreeBlock();
+          writeBlock(next, rootDirectoryBlocks[i]);
+          rootInode.add(next);
+        }
+
+        rootInode.writeToDisk();
+        buffer.rewind();
+        break;
+
+      }
+    }
+
+    return sizeBlocks;
+  }
+
+  // relative to partition. Checks bounds
+  public void writeBlock(int relativeBlockIndex, byte[] data){
+    if(relativeBlockIndex + partition.getFirstBlockIndex() > partition.getLastBlockIndex() || relativeBlockIndex < 0){
+      throw new IllegalArgumentException("Relative block index " + relativeBlockIndex + " is out of bounds. Partition goes up to " + (partition.size() - 1) + ".");
+    }
+    disk.writeBlock(partition.getFirstBlockIndex() + relativeBlockIndex, data);
+  }
+
+  // relative to partition. Checks bounds
+  public byte[] readBlock(int relativeBlockIndex){
+    if(relativeBlockIndex + partition.getFirstBlockIndex() > partition.getLastBlockIndex() || relativeBlockIndex < 0){
+      throw new IllegalArgumentException("Relative block index " + relativeBlockIndex + " is out of bounds. Partition goes up to " + (partition.size() - 1) + ".");
+    }
+    return disk.readBlock(partition.getFirstBlockIndex() + relativeBlockIndex);
+  }
+
+  public byte[][] readBlocks(int relativeFirstBlockIndex, int blockNumber){
+    byte[][] blocks = new byte[blockNumber][disk.getBlockSizeBytes()];
+    for(int i = 0; i < blockNumber; i++){
+      blocks[i] = readBlock(relativeFirstBlockIndex + i);
+    }
+
+    return blocks;
+  }
+
+  private void fillWithRandomData(byte[] buffer){
+    random.nextBytes(buffer);
+  }
+
+  public static byte[][] splitInBlocks(byte[] data, int blockSizeBytes){
+      int requiredBlocks = blocksRequiredFor(data.length, blockSizeBytes);
+      byte[][] blocks = new byte[requiredBlocks][blockSizeBytes];
+
+      for(int i = 0; i < data.length; i++){
+        int currentBlock = (int) Math.floor(i / blockSizeBytes);
+        blocks[currentBlock][i % blockSizeBytes] = data[i];
+      }
+      return blocks;
+  }
+
+  public static int blocksRequiredFor(int byteNumber, int blockSizeBytes){
+    return (int) Math.ceil((float) byteNumber / (float) blockSizeBytes);
+  }
+
+
+  public int blocksRequiredFor(int byteNumber){
+    return blocksRequiredFor(byteNumber, getBlockSizeBytes());
+  }
+
+  public byte[][] getBytesAsBlocks(int byteNumber, int relative_starting_index){
+    int requiredBlocks = blocksRequiredFor(byteNumber, disk.getBlockSizeBytes());
+    byte[][] blocks = new byte[requiredBlocks][disk.getBlockSizeBytes()];
+    for(int i = 0; i < requiredBlocks; i++){
+      blocks[i] = readBlock(relative_starting_index + i);
+    }
+
+    return blocks;
+  }
+
+  public byte[] readBytes(int byteNumber, int relative_starting_index, int byteOffsetFromBlockStart){
+
+    // chops off unecessary reads/writes
+    while(byteOffsetFromBlockStart > disk.getBlockSizeBytes()){
+      relative_starting_index++;
+      byteOffsetFromBlockStart -= disk.getBlockSizeBytes();
+    }
+
+    byte[][] blocks = getBytesAsBlocks(byteNumber + byteOffsetFromBlockStart, relative_starting_index);
+    byte[] rawBlocks = flatten(blocks); 
+
+    byte[] output = new byte[byteNumber];
+
+    for(int i = 0; i < byteNumber; i++){
+      output[i] = rawBlocks[i + byteOffsetFromBlockStart];
+    }
+
+    return output;
+  }
+
+  public static byte[] flatten(byte[][] data){
+    byte[] flattened = new byte[(data.length == 0) ? 0 : data.length * data[0].length];
+
+    int k = 0;
+    for(int i = 0; i < data.length; i++){
+      for(int j = 0; j < data[i].length; j++){
+        flattened[k] = data[i][j];
+        k++;
+      }
+    }
+
+    return flattened;
+  }
+
+  public int getBlockSizeBytes(){
+    return disk.getBlockSizeBytes();
+  }
+
+  public void writeBytes(byte[] data, int relative_starting_index, int byteOffsetFromBlockStart){
+
+    // chops off unecessary reads/writes
+    while(byteOffsetFromBlockStart > disk.getBlockSizeBytes()){
+      relative_starting_index++;
+      byteOffsetFromBlockStart -= disk.getBlockSizeBytes();
+    }
+
+    byte[][] blocks = getBytesAsBlocks(data.length + byteOffsetFromBlockStart, relative_starting_index);
+    byte[] rawBlocks = flatten(blocks); 
+    byte[][] newBlocks = writeToRawBlocks(rawBlocks, data, byteOffsetFromBlockStart);
+
+    for(int i = 0; i < newBlocks.length; i++){
+      writeBlock(relative_starting_index + i, newBlocks[i]);
+    }
+
+  }
+
+  public byte[][] writeToRawBlocks(byte[] blocks, byte[] data, int offset){
+    if(offset == 136){
+      System.out.println("here");
+    }
+
+    for(int i = offset; i < blocks.length; i++){
+      if(i - offset < data.length){
+        blocks[i] = data[i - offset];
+      }  else{
+        break;
+      }
+    }
+
+    byte[][] newBlocks = splitInBlocks(blocks, disk.getBlockSizeBytes());
+
+    return newBlocks;
+  }
+
+  public int getFileIndex(String path){
+    String name;
+    if(path.equals("/")){
+      name = ".";
+    }  else{
+      String[] segments = path.split("/");
+      name = segments[segments.length - 1];
+    }
+    FileMapping mapping = Directory.findParent(this, path).findEntry(name).getFileMapping();
+    return switch(allocationScheme){
+      case AllocationScheme.CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
+      case AllocationScheme.INODES -> ((InodeMapping) mapping).getIndex();
+      default -> throw new Error("not implemented");
+    };
+
+  }
+
+  public byte[] readFromFile(String path, int byteNumber, int position){
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+
+    Directory fileDirectory = Directory.findParent(this, path);
+    DirectoryEntry fileEntry = fileDirectory.findEntry(name);
+    FileMapping mapping = fileEntry.getFileMapping();
+
+    switch(allocationScheme){
+      case AllocationScheme.CONTIGUOUS:
+      {
+        ContiguousMapping cmapping = (ContiguousMapping) mapping;
+        int firstBlockIndex = cmapping.getFirstBlockIndex();
+        int finalSizeBlocks = cmapping.getFinalSizeBlocks();
+        if(blocksRequiredFor(position + byteNumber, getBlockSizeBytes()) > finalSizeBlocks){
+          throw new Error("read too large");
+        }
+        byte[] data = readBytes(byteNumber, firstBlockIndex, position);
+        FileMetadata metadata = cmapping.getMetadata();
+        metadata.updateLastAccess();
+
+        // updates metadata, should be write To disk method on metadata?
+        metadata.writeToDisk(this, path);
+        return data;
+      }
+      case AllocationScheme.INODES:
+      {
+        Inode fileInode = Inode.get(this, ((InodeMapping) mapping).getIndex());
+        byte[] data = fileInode.read(this, byteNumber, position);
+        FileMetadata metadata = fileInode.getMetadata();
+        
+        metadata.updateLastAccess();
+
+        return data;
+      }
+      default:
+        throw new Error("unhandled switch case");
+
+  }
+  }
+
+  public void writeToFile(String path, byte[] data, int position){
+
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+
+    Directory fileDirectory = Directory.findParent(this, path);
+    DirectoryEntry fileEntry = fileDirectory.findEntry(name);
+    FileMapping mapping = fileEntry.getFileMapping();
+
+    switch(allocationScheme){
+      case AllocationScheme.CONTIGUOUS:
+      {
+        ContiguousMapping cmapping = (ContiguousMapping) mapping;
+        int firstBlockIndex = cmapping.getFirstBlockIndex();
+        int finalSizeBlocks = cmapping.getFinalSizeBlocks();
+        if(blocksRequiredFor(position + data.length, getBlockSizeBytes()) > finalSizeBlocks){
+          throw new Error("write too large");
+        }
+        writeBytes(data, firstBlockIndex, position);
+        FileMetadata metadata = cmapping.getMetadata();
+        // no shrinking?
+        if(data.length + position > metadata.getCurrentSizeBytes()){
+          metadata.setCurrentSizeBytes(data.length + position);
+        }
+        
+        if(data.length > 0){
+          metadata.updateLastModified();
+        }
+
+        // updates metadata
+        metadata.writeToDisk(this, path);
+        break;
+      }
+
+      case AllocationScheme.INODES:
+      {
+        Inode fileInode = Inode.get(this, ((InodeMapping) mapping).getIndex());
+        fileInode.write(this, data, position);
+        FileMetadata metadata = fileInode.getMetadata();
+        // no shrinking?
+        if(data.length + position > metadata.getCurrentSizeBytes()){
+          metadata.setCurrentSizeBytes(data.length + position);
+        }
+        
+        if(data.length > 0){
+          metadata.updateLastModified();
+        }
+
+        //missing 
+        break;
+      }
+    }
+
+  }
+  
+  //public fileCreate(string Path, byte[] data){
+
+  //}
+    //public fileWrite(string Path, byte[] data);
+
+}
