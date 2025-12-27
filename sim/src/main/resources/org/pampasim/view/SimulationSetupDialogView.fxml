@@ -151,7 +151,7 @@
                         </rowConstraints>
                         <children>
                             <Label text="Número de Blocos de Disco" />
-                            <Spinner fx:id="blockNumberSpinner" editable="true" max="8192" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" />
+                            <Spinner fx:id="numberOfBlocksSpinner" editable="true" max="8192" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" />
 
                             <Label text="Tamanho de Bloco do Disco (Bytes)" GridPane.rowIndex="1" />
                             <Spinner fx:id="blockSizeBytesSpinner" editable="true" max="1024" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />

@@ -43,7 +43,7 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     private final IntegerProperty tlbEntries                     = new SimpleIntegerProperty(16);
 
         // ─────────────── File System Parameters ─────────────
-    private final IntegerProperty blockNumber                    = new SimpleIntegerProperty(512);
+    private final IntegerProperty numberOfBlocks                 = new SimpleIntegerProperty(512);
     private final IntegerProperty blockSizeBytes                 = new SimpleIntegerProperty(64);
     private final StringProperty allocationScheme                = new SimpleStringProperty();
 
@@ -112,7 +112,7 @@ public class SimulationSetupDialogViewModel implements ViewModel {
 
     
     // File System
-    public IntegerProperty blockNumberProperty() { return blockNumber; }
+    public IntegerProperty numberOfBlocksProperty() { return numberOfBlocks; }
     public IntegerProperty blockSizeBytesProperty() { return blockSizeBytes; }
     public StringProperty allocationSchemeProperty() { return allocationScheme; }
 
@@ -139,8 +139,9 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public int     getTlbEntries()                           { return tlbEntries.get(); }
 
     // File System
-    public int getBlockNumber() { return blockNumber.get(); }
+    public int getNumberOfBlocks() { return numberOfBlocks.get(); }
     public int getBlockSizeBytes() { return blockSizeBytes.get(); }
+    public String getAllocationScheme() { return allocationScheme.get(); }
 
 
     public BooleanProperty memoryModulePresentProperty() {

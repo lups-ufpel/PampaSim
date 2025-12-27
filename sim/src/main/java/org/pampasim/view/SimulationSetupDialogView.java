@@ -68,7 +68,7 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
     @FXML
     private Tab fileSystemTab;
     @FXML
-    private Spinner<Integer> blockNumberSpinner;
+    private Spinner<Integer> numberOfBlocksSpinner;
     @FXML
     private Spinner<Integer> blockSizeBytesSpinner;
     @FXML
@@ -179,17 +179,14 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         loadedPagesCountSpinner.setDisable(!enablePrePagingRange);
 
         // file system section
-        blockNumberSpinner.getValueFactory().setValue(viewModel.getBlockNumber());
-        viewModel.blockNumberProperty().bind(blockNumberSpinner.getValueFactory().valueProperty());
+        numberOfBlocksSpinner.getValueFactory().setValue(viewModel.getNumberOfBlocks());
+        viewModel.numberOfBlocksProperty().bind(numberOfBlocksSpinner.getValueFactory().valueProperty());
 
         blockSizeBytesSpinner.getValueFactory().setValue(viewModel.getBlockSizeBytes());
         viewModel.blockSizeBytesProperty().bind(blockSizeBytesSpinner.getValueFactory().valueProperty());
 
         allocationSchemeChoiceBox.setItems(viewModel.allocationSchemeNameProperty());
         allocationSchemeChoiceBox.valueProperty().bindBidirectional(viewModel.allocationSchemeProperty());
-
-
-
 
 
         final Button okButton = (Button) dialogPane.lookupButton(okButtonType);

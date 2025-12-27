@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.viewModel.SimulationSetupDialogViewModel;
+import org.pampasim.filesystem.FileSystemConfigSelectionRecord;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,11 +78,18 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
                     viewTuple.getViewModel().getTlbEntries()
             );
 
+            FileSystemConfigSelectionRecord fileSystemConfig = new FileSystemConfigSelectionRecord(
+                    viewTuple.getViewModel().getBlockSizeBytes(),
+                    viewTuple.getViewModel().getNumberOfBlocks(),
+                    viewTuple.getViewModel().getAllocationScheme()
+            );
+
             SchedulerSelectionRecord userSelection = new SchedulerSelectionRecord(
                     viewTuple.getViewModel().getSelectedScheduler(),
                     viewTuple.getViewModel().isPreemptive(),
                     viewTuple.getViewModel().getQuantum(),
-                    memoryConfig
+                    memoryConfig,
+                    fileSystemConfig
             );
 
             return Optional.of(userSelection);
