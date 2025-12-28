@@ -2,6 +2,8 @@ package org.pampasim.filesystem.core;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.core.BlockRecord;
 
 
 public class Disk {
@@ -10,12 +12,14 @@ public class Disk {
     private int numberOfReservedBlocks;
     private RandomAccessFile disk; // maybe it would make more sense for there to be several RandomAccessFiles, each being a partition
     private Partition[] partitions;
+    private BlockRecord[] blockInfoList;
     public static final int MAX_PARTITIONS = 10;
 
 
     public Disk(int blockSizeBytes, int numberOfBlocks){
         this.blockSizeBytes = blockSizeBytes;
         this.numberOfBlocks = numberOfBlocks;
+        this.blockInfoList = new BlockRecord[numberOfBlocks];
         numberOfReservedBlocks = calculateNumberOfReservedBlocks();
         if(numberOfBlocks < numberOfReservedBlocks){
           throw new IllegalArgumentException("Disk is too small for essential information (mbr) to be stored.");
@@ -91,10 +95,29 @@ public class Disk {
       byte[][] masterBootRecordBlocks = FileSystem.splitInBlocks(masterBootRecord, blockSizeBytes);
       for(int i = 0; i < masterBootRecordBlocks.length; i++){
         writeBlock(i, masterBootRecordBlocks[i]);
+        setBlockInfo(i, BlockType.MBR, "", 0);
       }
     }
 
+    public BlockRecord getBlockInfo(int blockIndex){
+      return blockInfoList[blockIndex];
+    }
+
+    public void setBlockInfo(int blockIndex, BlockType type, String userString, int userInt){
+      blockInfoList[blockIndex] = new BlockRecord(type, userString, userInt);
+    }
+
+    public void setBlockInfo(int blockIndex, BlockType type, int userInt){
+      setBlockInfo(blockIndex, type, "", userInt);
+    }
     
+    public void setBlockInfo(int blockIndex, BlockType type, String userString){
+      setBlockInfo(blockIndex, type, userString, -1);
+    }
+
+    public void setBlockInfo(int blockIndex, BlockType type){
+      setBlockInfo(blockIndex, type, "", -1);
+    }
 
     //public void createPartition(int initialBlockIndex, int lastBlockIndex){}
 
@@ -109,11 +132,13 @@ public class Disk {
         try {
             disk.seek(blockIndex * blockSizeBytes);
         } catch(IOException e) {
+            //TODO: handle
             System.out.println("unhandled");
         }
         try {
             disk.readFully(blockBuffer);
         } catch(IOException e){
+            //TODO: handle
             System.out.println("unhandled");
         }
 
@@ -131,12 +156,14 @@ public class Disk {
         try {
             disk.seek(blockIndex * blockSizeBytes);
         } catch(IOException e) {
+            //TODO: handle
             System.out.println("unhandled");
         }
 
         try {
             disk.write(data);
         } catch(IOException e){
+            //TODO: handle
             System.out.println("unhandled");
         }
     }
