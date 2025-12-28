@@ -3,6 +3,7 @@ package org.pampasim.filesystem.core;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
@@ -14,16 +15,16 @@ public class Disk {
     private int numberOfReservedBlocks;
     private RandomAccessFile disk; // maybe it would make more sense for there to be several RandomAccessFiles, each being a partition
     private Partition[] partitions;
-    private ArrayList<BlockRecord> blockInfoList; // list because of unmodifiable list on fileSystemSimulation
+    private ArrayList<BlockRecord> blockRecords; // list because of unmodifiable list on fileSystemSimulation
     public static final int MAX_PARTITIONS = 10;
 
 
     public Disk(int blockSizeBytes, int numberOfBlocks){
         this.blockSizeBytes = blockSizeBytes;
         this.numberOfBlocks = numberOfBlocks;
-        this.blockInfoList = new ArrayList<BlockRecord>();
+        this.blockRecords = new ArrayList<BlockRecord>();
         for(int i = 0; i < numberOfBlocks; i++){
-          blockInfoList.add(new BlockRecord(BlockType.EMPTY, "", -1));
+          blockRecords.add(new BlockRecord(BlockType.EMPTY, "", -1));
         }
 
         numberOfReservedBlocks = calculateNumberOfReservedBlocks();
@@ -79,10 +80,6 @@ public class Disk {
 
         this.partitions = partitions;
         writeMasterBootRecord(partitions);
-        for(int i = 0; i < 10; i++){
-          System.out.println(getBlockInfo(i));
-        }
-        System.exit(0);
     } 
     public void writeMasterBootRecord(Partition[] partitions){
       // writes MBR to disk
@@ -107,11 +104,11 @@ public class Disk {
     }
 
     public BlockRecord getBlockInfo(int blockIndex){
-      return blockInfoList.get(blockIndex);
+      return blockRecords.get(blockIndex);
     }
 
     public void setBlockInfo(int blockIndex, BlockType type, String userString, int userInt){
-      blockInfoList.set(blockIndex, new BlockRecord(type, userString, userInt));
+      blockRecords.set(blockIndex, new BlockRecord(type, userString, userInt));
     }
 
     public void setBlockInfo(int blockIndex, BlockType type, int userInt){
@@ -130,6 +127,10 @@ public class Disk {
       for(int i = firstBlock; i < lastBlockExclusive; i++){
         setBlockInfo(i, type, "", -1);
       }
+    }
+
+    public List<BlockRecord> getBlockRecords(){
+      return blockRecords;
     }
 
     //public void createPartition(int initialBlockIndex, int lastBlockIndex){}

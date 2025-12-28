@@ -1,16 +1,15 @@
 package org.pampasim.filesystem;
 
 import lombok.Getter;
+import java.util.List;
+
 import org.pampasim.core.SimulationBase;
 import org.pampasim.core.events.Event;
-
-//import org.pampasim.events.Process.IoOperation;
-//import org.pampasim.events....;
-
 import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.Partition;
 import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.filesystem.core.BlockRecord;
 
 @Getter
 public class FileSystemSimulation extends SimulationBase {
@@ -59,6 +58,10 @@ public class FileSystemSimulation extends SimulationBase {
     fileSystem.initialize();
 
   }
+
+    public List<BlockRecord> getBlockRecordsReference(){
+      return disk.getBlockRecords();
+    }
 
     @Override
     public void acceptEvent(Event evt) {}

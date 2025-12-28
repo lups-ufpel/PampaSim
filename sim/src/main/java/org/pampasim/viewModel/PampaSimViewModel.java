@@ -292,7 +292,9 @@ public class PampaSimViewModel implements ViewModel {
         if (userSelection.modules().contains("filesystem")) { 
             reinitializeFileSystemSimulation((SimulationBase) simulatedScenario.getSimulation().get());
 
-            fileSystemModule = new FileSystemTabViewModel();
+            fileSystemModule = new FileSystemTabViewModel(
+                  simulatedScenario.getSimulation().get().getEntity(FileSystemSimulation.class)
+            );
 
             //fileSystemModulePresent.set(true);
 
