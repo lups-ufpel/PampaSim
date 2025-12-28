@@ -45,6 +45,7 @@ import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 
+import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.FileSystemConfig;
 import org.pampasim.filesystem.view.FileSystemTabView;
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
@@ -134,6 +135,10 @@ public class PampaSimViewModel implements ViewModel {
                 reinitializeMemoryManagement(sim);
             }
             MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
+
+            if (fileSystemModule != null){
+                reinitializeFileSystemSimulation(sim);
+            }
 
             for (var tick : spec.getEventSchedule().values()) {
                 for (var event : tick) {
@@ -285,6 +290,8 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         if (userSelection.modules().contains("filesystem")) { 
+            reinitializeFileSystemSimulation((SimulationBase) simulatedScenario.getSimulation().get());
+
             fileSystemModule = new FileSystemTabViewModel();
 
             //fileSystemModulePresent.set(true);
@@ -662,6 +669,24 @@ public class PampaSimViewModel implements ViewModel {
             memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getColorMap());
             memoryModule.refreshFrameList();
         }
+    }
+
+    private void reinitializeFileSystemSimulation(SimulationBase simulationBase) {
+        simulationBase.removeModule(FileSystemSimulation.class);
+
+        new FileSystemSimulation(simulationBase);
+
+        /* // dont know whats all of this
+        MemoryManagement simMemoryModule = simulationBase.getEntity(MemoryManagement.class);
+
+        if (simMemoryModule != null) {
+            simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
+        }
+
+        if (memoryModule != null) {
+            memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getColorMap());
+            memoryModule.refreshFrameList();
+        } */
     }
 
 }

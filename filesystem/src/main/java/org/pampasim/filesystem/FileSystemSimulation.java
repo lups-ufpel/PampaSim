@@ -10,6 +10,7 @@ import org.pampasim.core.events.Event;
 import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.Partition;
+import org.pampasim.filesystem.core.AllocationScheme;
 
 @Getter
 public class FileSystemSimulation extends SimulationBase {
@@ -24,17 +25,32 @@ public class FileSystemSimulation extends SimulationBase {
     
 
     // initialize subsystems
-      this.disk = new Disk(FileSystemConfig.getBlockSizeBytes(), FileSystemConfig.getNumberOfBlocks());
-      
-      boolean active = true;
-      // only one partition for now
-      Partition partitionA = new Partition(0 + disk.getNumberOfReservedBlocks(), disk.getLastBlockIndex(), active);
-      Partition[] partitions = {partitionA};
-      disk.setPartitions(partitions);
+  
+    int blockSizeBytes;
+    int numberOfBlocks;
+    AllocationScheme allocationScheme;
+    // if config has not been set, use default (prevents crash)
+    if(FileSystemConfig.getNumberOfBlocks() == 0){
+      blockSizeBytes = 64;
+      numberOfBlocks = 512;
+      allocationScheme = AllocationScheme.CONTIGUOUS;
+    }  else{
+      blockSizeBytes = FileSystemConfig.getBlockSizeBytes();
+      numberOfBlocks = FileSystemConfig.getNumberOfBlocks();
+      allocationScheme = FileSystemConfig.getAllocationScheme();
+    }
 
-      this.fileSystem = new FileSystem(disk, partitionA, FileSystemConfig.getAllocationScheme());
-      // maybe should be on first tick?
-      fileSystem.initialize();
+    this.disk = new Disk(blockSizeBytes, numberOfBlocks);
+    
+    boolean active = true;
+    // only one partition for now
+    Partition partitionA = new Partition(0 + disk.getNumberOfReservedBlocks(), disk.getLastBlockIndex(), active);
+    Partition[] partitions = {partitionA};
+    disk.setPartitions(partitions);
+
+    this.fileSystem = new FileSystem(disk, partitionA, allocationScheme);
+    // maybe should be on first tick?
+    fileSystem.initialize();
 
   }
 

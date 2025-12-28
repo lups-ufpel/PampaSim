@@ -20,9 +20,11 @@ public class Disk {
         this.blockSizeBytes = blockSizeBytes;
         this.numberOfBlocks = numberOfBlocks;
         this.blockInfoList = new BlockRecord[numberOfBlocks];
+        setBlockInfo(0, blockInfoList.length, BlockType.EMPTY);
+
         numberOfReservedBlocks = calculateNumberOfReservedBlocks();
         if(numberOfBlocks < numberOfReservedBlocks){
-          throw new IllegalArgumentException("Disk is too small for essential information (mbr) to be stored.");
+          throw new IllegalArgumentException("Disk is too small for essential information (Master Boot Record) to be stored. Required blocks: " + numberOfBlocks + ". Total number of Blocks: " + numberOfBlocks + ".");
         }
 
    
@@ -117,6 +119,12 @@ public class Disk {
 
     public void setBlockInfo(int blockIndex, BlockType type){
       setBlockInfo(blockIndex, type, "", -1);
+    }
+
+    public void setBlockInfo(int firstBlock, int lastBlockExclusive, BlockType type){
+      for(int i = firstBlock; i < lastBlockExclusive; i++){
+        setBlockInfo(i, type, "", -1);
+      }
     }
 
     //public void createPartition(int initialBlockIndex, int lastBlockIndex){}
