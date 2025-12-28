@@ -150,7 +150,7 @@
                             <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                         <children>
-                            <Label text="Número de Blocos de Disco" />
+                            <Label text="Número de Blocos do Disco" />
                             <Spinner fx:id="numberOfBlocksSpinner" editable="true" max="8192" maxWidth="1.7976931348623157E308" min="1" GridPane.columnIndex="1" />
 
                             <Label text="Tamanho de Bloco do Disco (Bytes)" GridPane.rowIndex="1" />
