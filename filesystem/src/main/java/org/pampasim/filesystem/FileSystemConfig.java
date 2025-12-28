@@ -7,9 +7,9 @@ import org.pampasim.filesystem.FileSystemConfigSelectionRecord;
 import org.pampasim.filesystem.core.AllocationScheme;
 
 abstract public class FileSystemConfig {
-  private static int numberOfBlocks;
-  private static int blockSizeBytes;
-  private static AllocationScheme allocationScheme;
+  @Getter private static int numberOfBlocks;
+  @Getter private static int blockSizeBytes;
+  @Getter private static AllocationScheme allocationScheme;
 
 
   public static void initialize(FileSystemConfigSelectionRecord record){
