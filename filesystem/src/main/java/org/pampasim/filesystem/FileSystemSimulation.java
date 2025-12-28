@@ -29,18 +29,24 @@ public class FileSystemSimulation extends SimulationBase {
     int blockSizeBytes;
     int numberOfBlocks;
     AllocationScheme allocationScheme;
-    // if config has not been set, use default (prevents crash)
-    if(FileSystemConfig.getNumberOfBlocks() == 0){
-      blockSizeBytes = 64;
-      numberOfBlocks = 512;
-      allocationScheme = AllocationScheme.CONTIGUOUS;
-    }  else{
+
+    if(FileSystemConfig.isInitialized()){
       blockSizeBytes = FileSystemConfig.getBlockSizeBytes();
       numberOfBlocks = FileSystemConfig.getNumberOfBlocks();
       allocationScheme = FileSystemConfig.getAllocationScheme();
+    }  else{
+      // if config has not been set, use default values (prevents crash)
+      blockSizeBytes = 64;
+      numberOfBlocks = 512;
+      allocationScheme = AllocationScheme.CONTIGUOUS;
     }
 
-    this.disk = new Disk(blockSizeBytes, numberOfBlocks);
+    try{
+      this.disk = new Disk(blockSizeBytes, numberOfBlocks);
+    }  catch (IllegalArgumentException e){
+      // TODO: add alert
+      throw e;
+    }
     
     boolean active = true;
     // only one partition for now

@@ -10,6 +10,7 @@ abstract public class FileSystemConfig {
   @Getter private static int numberOfBlocks;
   @Getter private static int blockSizeBytes;
   @Getter private static AllocationScheme allocationScheme;
+  @Getter private static boolean initialized = false;
 
 
   public static void initialize(FileSystemConfigSelectionRecord record){
@@ -21,6 +22,7 @@ abstract public class FileSystemConfig {
       case "I-nodes" -> AllocationScheme.INODES;
       default -> throw new IllegalArgumentException ("Allocation Scheme" + record.allocationScheme() + " does not exist.");
     };
+    initialized = true;
 
   }
 

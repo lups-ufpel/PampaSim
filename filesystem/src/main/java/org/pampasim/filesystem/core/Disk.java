@@ -2,6 +2,8 @@ package org.pampasim.filesystem.core;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
 
@@ -12,19 +14,21 @@ public class Disk {
     private int numberOfReservedBlocks;
     private RandomAccessFile disk; // maybe it would make more sense for there to be several RandomAccessFiles, each being a partition
     private Partition[] partitions;
-    private BlockRecord[] blockInfoList;
+    private ArrayList<BlockRecord> blockInfoList; // list because of unmodifiable list on fileSystemSimulation
     public static final int MAX_PARTITIONS = 10;
 
 
     public Disk(int blockSizeBytes, int numberOfBlocks){
         this.blockSizeBytes = blockSizeBytes;
         this.numberOfBlocks = numberOfBlocks;
-        this.blockInfoList = new BlockRecord[numberOfBlocks];
-        setBlockInfo(0, blockInfoList.length, BlockType.EMPTY);
+        this.blockInfoList = new ArrayList<BlockRecord>();
+        for(int i = 0; i < numberOfBlocks; i++){
+          blockInfoList.add(new BlockRecord(BlockType.EMPTY, "", -1));
+        }
 
         numberOfReservedBlocks = calculateNumberOfReservedBlocks();
         if(numberOfBlocks < numberOfReservedBlocks){
-          throw new IllegalArgumentException("Disk is too small for essential information (Master Boot Record) to be stored. Required blocks: " + numberOfBlocks + ". Total number of Blocks: " + numberOfBlocks + ".");
+          throw new IllegalArgumentException("Disk is too small for essential information (Master Boot Record) to be stored. Required blocks: " + numberOfReservedBlocks + ". Total number of Blocks: " + numberOfBlocks + ".");
         }
 
    
@@ -41,9 +45,6 @@ public class Disk {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-     
-
 
     }
 
@@ -78,6 +79,10 @@ public class Disk {
 
         this.partitions = partitions;
         writeMasterBootRecord(partitions);
+        for(int i = 0; i < 10; i++){
+          System.out.println(getBlockInfo(i));
+        }
+        System.exit(0);
     } 
     public void writeMasterBootRecord(Partition[] partitions){
       // writes MBR to disk
@@ -102,11 +107,11 @@ public class Disk {
     }
 
     public BlockRecord getBlockInfo(int blockIndex){
-      return blockInfoList[blockIndex];
+      return blockInfoList.get(blockIndex);
     }
 
     public void setBlockInfo(int blockIndex, BlockType type, String userString, int userInt){
-      blockInfoList[blockIndex] = new BlockRecord(type, userString, userInt);
+      blockInfoList.set(blockIndex, new BlockRecord(type, userString, userInt));
     }
 
     public void setBlockInfo(int blockIndex, BlockType type, int userInt){
