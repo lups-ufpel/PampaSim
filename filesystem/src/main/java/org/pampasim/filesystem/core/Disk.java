@@ -95,7 +95,7 @@ public class Disk {
       byte[][] masterBootRecordBlocks = FileSystem.splitInBlocks(masterBootRecord, blockSizeBytes);
       for(int i = 0; i < masterBootRecordBlocks.length; i++){
         writeBlock(i, masterBootRecordBlocks[i]);
-        setBlockInfo(i, BlockType.MBR, "", 0);
+        setBlockInfo(i, BlockType.MBR);
       }
     }
 
