@@ -5,19 +5,23 @@ import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.scene.layout.TilePane;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Parent;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 
-public class FileSystemTabView implements FxmlView<FileSystemTabViewModel> {
+public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Initializable {
 
     @InjectViewModel
     private FileSystemTabViewModel viewModel;
     @FXML public TilePane blockTilePane;
 
-    public void initialize(){
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle){
       addBlockRecordsListener();
     }
 

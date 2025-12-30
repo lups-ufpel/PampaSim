@@ -21,10 +21,11 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <AnchorPane prefHeight="621.0" prefWidth="929.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.filesystem.view.FileSystemTabView">
-                            <Label alignment="CENTER" prefHeight="30.0" prefWidth="134.0" text="Endereço do Frame" textAlignment="CENTER" GridPane.columnIndex="2">
-                                <font>
-                                    <Font name="System Bold" size="13.0" />
-                                </font>
-                            </Label>
+      <VBox alignment="TOP_CENTER">
+          <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Disco" />
+          <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+              <TilePane fx:id="blockTilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
+          </ScrollPane>
+      </VBox>
 
 </AnchorPane>
