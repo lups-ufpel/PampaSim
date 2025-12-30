@@ -18,15 +18,21 @@ public class BlockView implements FxmlView<BlockViewModel> {
     @FXML
     public Label number;
     @FXML
+    public Label pageNumberLabel;
+    @FXML
     public Circle circle;
 
     public void initialize() {
         circle.fillProperty().bind(viewModel.getColorProperty());
-        number.setText(Integer.toString(viewModel.getNumber()));
-
+        //number.setText(Integer.toString(viewModel.getNumber()));
+        number.setText("1");
 
         circle.visibleProperty().bind(Bindings.isNotNull(viewModel.getColorProperty()));
         circle.managedProperty().bind(Bindings.isNotNull(viewModel.getColorProperty()));
+
+        pageNumberLabel.setText("test");
+        pageNumberLabel.visibleProperty().bind(circle.visibleProperty());
+        pageNumberLabel.managedProperty().bind(circle.managedProperty());
 
         blockVBox.setStyle("-fx-background-color: #dcdcdc; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);");
 

@@ -18,10 +18,12 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
     @InjectViewModel
     private FileSystemTabViewModel viewModel;
-    @FXML public TilePane blockTilePane;
+    @FXML public TilePane blockTilepane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
+      updateTilepaneChildren();
+
       addBlockRecordsListener();
     }
 
@@ -30,17 +32,22 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
         viewModel.getObservableBlockViewModels().addListener((ListChangeListener<BlockViewModel>) change -> {
             while (change.next()) {
                 if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
-                    blockTilePane.getChildren().clear();
-                    viewModel.getObservableBlockViewModels().forEach(vm -> {
-                        Parent view = FluentViewLoader.fxmlView(BlockView.class)
-                                .viewModel(vm)
-                                .load()
-                                .getView();
-                        blockTilePane.getChildren().add(view);
-                    });
+                  updateTilepaneChildren();
                 }
             }
         });
+    }
+
+    private void updateTilepaneChildren() {
+    blockTilepane.getChildren().clear();
+    viewModel.getObservableBlockViewModels().forEach(vm -> {
+        Parent view = FluentViewLoader.fxmlView(BlockView.class)
+                .viewModel(vm)
+                .load()
+                .getView();
+        blockTilepane.getChildren().add(view);
+    });
+
     }
 
 }
