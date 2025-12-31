@@ -15,8 +15,7 @@
     <children>
         <Label fx:id="number" text="0" />
         <StackPane>
-            <Circle fx:id="circle" fill="red" radius="14.0" />
-            <Label fx:id="pageNumberLabel" style="-fx-font-size: 10px; -fx-text-fill: white;" />
+            <Label fx:id="blockLabel" style="-fx-font-size: 10px; -fx-text-fill: black;" />
         </StackPane>
     </children>
 </VBox>
