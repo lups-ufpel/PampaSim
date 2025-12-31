@@ -14,10 +14,7 @@ import org.pampasim.filesystem.core.BlockType;
 public class BlockViewModel implements ViewModel {
     private final int number;
     @Getter private final SimpleStringProperty circleLabel = new SimpleStringProperty("");
-    //private final ObjectProperty<>
     private final ObjectProperty<BlockType> typeProperty = new SimpleObjectProperty<>();
-    private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
-    //private final IntegerProperty pageNumber = new SimpleIntegerProperty(-1); // -1 means unused
 
     // labels are for development purposes
     public BlockViewModel(int number, String circleLabel, BlockType type) {
@@ -26,16 +23,12 @@ public class BlockViewModel implements ViewModel {
         this.typeProperty.setValue(type);
     }
 
-    Color getColor() {
-        return colorProperty.get();
-    }
-
-    public void setColor(Color color) {
-        colorProperty.set(color);
-    }
-
     public BlockType getType(){
       return typeProperty.get();
+    }
+
+    public void setType(BlockType type){
+      this.typeProperty.set(type);
     }
 
     public ObjectProperty<BlockType> typeProperty(){

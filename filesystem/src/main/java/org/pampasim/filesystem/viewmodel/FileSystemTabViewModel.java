@@ -33,7 +33,7 @@ public class FileSystemTabViewModel implements ViewModel {
             BlockRecord entry = blockRecordsList.get(i);
             BlockViewModel vm = new BlockViewModel(i, entry.type().toString(), entry.type());
 
-            //vm.getDirty().set(entry.isDirty());
+            vm.getType().set(entry.type());
 
             observableList.add(vm);
         }
