@@ -23,8 +23,11 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     private FileSystemTabViewModel viewModel;
     @FXML public TilePane blockTilepane;
     @FXML private Rectangle mbrRect;
+    @FXML private Rectangle initializationRect;
     @FXML private Rectangle superBlockRect;
     @FXML private Rectangle freeBlocksBitMapRect;
+    @FXML private Rectangle freeInodesBitMapRect;
+    @FXML private Rectangle inodeTableRect;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
@@ -33,6 +36,11 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       addBlockRecordsListener();
 
       mbrRect.setFill(BlockType.getCorrespondingColor(BlockType.MBR));
+      initializationRect.setFill(BlockType.getCorrespondingColor(BlockType.INITIALIZATION));
+      superBlockRect.setFill(BlockType.getCorrespondingColor(BlockType.SUPERBLOCK));
+      freeBlocksBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_BLOCKS_BITMAP));
+      freeInodesBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_INODES_BITMAP));
+      inodeTableRect.setFill(BlockType.getCorrespondingColor(BlockType.INODE_TABLE));
     }
 
     // maybe listen to tick change instead of block change

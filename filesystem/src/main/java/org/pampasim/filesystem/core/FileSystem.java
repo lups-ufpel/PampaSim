@@ -118,26 +118,31 @@ public class FileSystem{
     int currentBlock = 0;
     // add to journal: writing initialization block
     writeInitializationBlock(currentBlock);
+    setBlockRecord(currentBlock, BlockType.INITIALIZATION);
     currentBlock++;
 
     // add to journal: writing superBlock
     writeSuperBlock(currentBlock);
+    setBlockRecord(currentBlock, BlockType.SUPERBLOCK);
     currentBlock++;
 
 
     // add to journal: writing freeBlocksBitMap 
     int sizeBlocks = writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+    setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.FREE_BLOCKS_BITMAP);
     currentBlock+= sizeBlocks;
     
     if(allocationScheme == AllocationScheme.INODES){
       // i-nodes bitmap
       FREE_INODES_BITMAP_INDEX = currentBlock;
       sizeBlocks = writeBitMap(inodesBitMap, FREE_INODES_BITMAP_INDEX);
+      setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.FREE_INODES_BITMAP);
       currentBlock+= sizeBlocks;
 
       // inodes
       INODES_INDEX = currentBlock;
       sizeBlocks = writeInodes(currentBlock);
+      setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.INODE_TABLE);
       currentBlock+= sizeBlocks;
     }
     
@@ -287,6 +292,20 @@ public class FileSystem{
       throw new IllegalArgumentException("Relative block index " + relativeBlockIndex + " is out of bounds. Partition goes up to " + (partition.size() - 1) + ".");
     }
     disk.writeBlock(partition.getFirstBlockIndex() + relativeBlockIndex, data);
+  }
+
+  // relative to partition
+  public void setBlockRecord(int relativeBlockIndex, BlockType type, String userString, int userInt){
+    disk.setBlockRecord(partition.getFirstBlockIndex() + relativeBlockIndex, type, userString, userInt);
+  }
+
+  public void setBlockRecord(int relativeBlockStartIndex, int relativeBlockEndIndex, BlockType type){
+    disk.setBlockRecord(partition.getFirstBlockIndex() + relativeBlockStartIndex, partition.getFirstBlockIndex() + relativeBlockEndIndex, type);
+  }
+
+  // relative to partition
+  public void setBlockRecord(int relativeBlockIndex, BlockType type){
+    setBlockRecord(relativeBlockIndex, type, "", -1);
   }
 
   // relative to partition. Checks bounds

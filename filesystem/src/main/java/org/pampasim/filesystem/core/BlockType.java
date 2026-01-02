@@ -5,22 +5,51 @@ import javafx.scene.paint.Color;
 public enum BlockType{
     EMPTY,
     MBR,
+    INITIALIZATION,
     SUPERBLOCK,
-    FREEBLOCKSBITMAP,
-    INODEBITMAP,
-    INODETABLE,
+    FREE_BLOCKS_BITMAP,
+    FREE_INODES_BITMAP,
+    INODE_TABLE,
     INODE,
     FILE,
     DIRECTORY;
 
-    public static Color getCorrespondingColor(BlockType type){
-      return switch(type) {
-        case MBR -> Color.LIGHTBLUE;
-        case EMPTY -> Color.web("#f8f9f3");
-        default -> throw new Error("Unhandled block type");
-      };
+    public static Color getCorrespondingColor(BlockType type) {
+            return switch (type) {
+                case EMPTY ->
+                    Color.web("#f8f9f3");
+    
+                case INITIALIZATION ->
+                    Color.web("#fff1c1");
+    
+                case MBR ->
+                    Color.web("#8ecae6");
+    
+                case SUPERBLOCK ->
+                    Color.web("#219ebc");
+    
+                case FREE_BLOCKS_BITMAP ->
+                    Color.web("#b7e4c7");
+    
+                case FREE_INODES_BITMAP ->
+                    Color.web("#95d5b2");
+    
+                case INODE_TABLE ->
+                    Color.web("#ffd166");
+    
+                case INODE ->
+                    Color.web("#f4a261");
+    
+                case FILE ->
+                    Color.web("#e76f51");
+    
+                case DIRECTORY ->
+                    Color.web("#cdb4db");
+    
+            };
 
     }
+
 }
 
 

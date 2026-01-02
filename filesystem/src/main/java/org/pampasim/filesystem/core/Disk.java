@@ -99,7 +99,7 @@ public class Disk {
       byte[][] masterBootRecordBlocks = FileSystem.splitInBlocks(masterBootRecord, blockSizeBytes);
       for(int i = 0; i < masterBootRecordBlocks.length; i++){
         writeBlock(i, masterBootRecordBlocks[i]);
-        setBlockInfo(i, BlockType.MBR);
+        setBlockRecord(i, BlockType.MBR);
       }
     }
 
@@ -107,25 +107,25 @@ public class Disk {
       return blockRecords.get(blockIndex);
     }
 
-    public void setBlockInfo(int blockIndex, BlockType type, String userString, int userInt){
+    public void setBlockRecord(int blockIndex, BlockType type, String userString, int userInt){
       blockRecords.set(blockIndex, new BlockRecord(type, userString, userInt));
     }
 
-    public void setBlockInfo(int blockIndex, BlockType type, int userInt){
-      setBlockInfo(blockIndex, type, "", userInt);
+    public void setBlockRecord(int blockIndex, BlockType type, int userInt){
+      setBlockRecord(blockIndex, type, "", userInt);
     }
     
-    public void setBlockInfo(int blockIndex, BlockType type, String userString){
-      setBlockInfo(blockIndex, type, userString, -1);
+    public void setBlockRecord(int blockIndex, BlockType type, String userString){
+      setBlockRecord(blockIndex, type, userString, -1);
     }
 
-    public void setBlockInfo(int blockIndex, BlockType type){
-      setBlockInfo(blockIndex, type, "", -1);
+    public void setBlockRecord(int blockIndex, BlockType type){
+      setBlockRecord(blockIndex, type, "", -1);
     }
 
-    public void setBlockInfo(int firstBlock, int lastBlockExclusive, BlockType type){
+    public void setBlockRecord(int firstBlock, int lastBlockExclusive, BlockType type){
       for(int i = firstBlock; i < lastBlockExclusive; i++){
-        setBlockInfo(i, type, "", -1);
+        setBlockRecord(i, type, "", -1);
       }
     }
 

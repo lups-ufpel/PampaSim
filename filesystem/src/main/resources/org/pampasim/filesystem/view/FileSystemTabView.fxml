@@ -30,7 +30,7 @@
         </Label>
 
         <!-- Disco -->
-        <VBox alignment="TOP_CENTER">
+        <VBox alignment="TOP_CENTER" spacing="10">
             <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Disco" />
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <TilePane fx:id="blockTilepane" hgap="5" prefTileHeight="30.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
@@ -44,6 +44,10 @@
             <Rectangle fx:id="mbrRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Bloco de Inicialização:" />
+            <Rectangle fx:id="initializationRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+          </HBox>
+          <HBox>
             <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " />
             <Rectangle fx:id="superBlockRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
@@ -52,8 +56,12 @@
             <Rectangle fx:id="freeBlocksBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="I-nodes: " />
-            <Rectangle fx:id="inodesRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de inodes livres: " />
+            <Rectangle fx:id="freeInodesBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+          </HBox>
+          <HBox>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Tabela de I-nodes: " />
+            <Rectangle fx:id="inodeTableRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
         </VBox>
 
