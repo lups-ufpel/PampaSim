@@ -32,13 +32,14 @@ public class BlockView implements FxmlView<BlockViewModel> {
     public void initialize() {
         number.setText(Integer.toString(viewModel.getNumber()));
 
-        blockLabel.textProperty().bind(viewModel.getCircleLabel());
+        //blockLabel.textProperty().bind(viewModel.getCircleLabel());
+        blockLabel.textProperty().set("");
         
         blockVBox.backgroundProperty().bind(
             Bindings.createObjectBinding(
                 () -> new Background(
                     new BackgroundFill(
-                        getCorrespondingColor(viewModel.getType()),
+                        BlockType.getCorrespondingColor(viewModel.getType()),
                         new CornerRadii(5),
                         Insets.EMPTY
                     )
@@ -59,13 +60,6 @@ public class BlockView implements FxmlView<BlockViewModel> {
         );
             }
 
-    private Color getCorrespondingColor(BlockType type){
-      return switch(type) {
-        case MBR -> Color.LIGHTBLUE;
-        case EMPTY -> Color.web("#f8f9f3");
-        default -> throw new Error("Unhandled block type");
-      };
 
-    }
 
 }

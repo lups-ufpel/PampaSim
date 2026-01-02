@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
@@ -32,13 +32,29 @@
         <!-- Disco -->
         <VBox alignment="TOP_CENTER">
             <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Disco" />
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
-                <TilePane fx:id="blockTilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+                <TilePane fx:id="blockTilepane" hgap="5" prefTileHeight="30.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
             </ScrollPane>
         </VBox>
 
         <!-- Color descriptions -->
         <VBox alignment="TOP_CENTER">
+          <HBox>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Master Boot Record: " />
+            <Rectangle fx:id="mbrRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+          </HBox>
+          <HBox>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " />
+            <Rectangle fx:id="superBlockRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+          </HBox>
+          <HBox>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de blocos livres: " />
+            <Rectangle fx:id="freeBlocksBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+          </HBox>
+          <HBox>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="I-nodes: " />
+            <Rectangle fx:id="inodesRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+          </HBox>
         </VBox>
 
     </SplitPane>
