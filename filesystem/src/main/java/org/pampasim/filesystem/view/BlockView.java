@@ -62,7 +62,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
     private Color getCorrespondingColor(BlockType type){
       return switch(type) {
         case MBR -> Color.LIGHTBLUE;
-        case EMPTY -> Color.web("#dcdcdc");
+        case EMPTY -> Color.web("#f8f9f3");
         default -> throw new Error("Unhandled block type");
       };
 
