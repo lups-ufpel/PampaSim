@@ -31,7 +31,7 @@
 
         <!-- Disco -->
         <VBox alignment="TOP_CENTER" spacing="10">
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Disco" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Blocos do Disco" />
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <TilePane fx:id="blockTilepane" hgap="5" prefTileHeight="30.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
             </ScrollPane>
@@ -40,27 +40,27 @@
         <!-- Color descriptions -->
         <VBox alignment="TOP_CENTER">
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Master Boot Record: " />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Master Boot Record: " prefWidth="250"/>
             <Rectangle fx:id="mbrRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Bloco de Inicialização:" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Bloco de Inicialização:" prefWidth="250"/>
             <Rectangle fx:id="initializationRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " prefWidth="250"/>
             <Rectangle fx:id="superBlockRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de blocos livres: " />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de blocos livres: " prefWidth="250"/>
             <Rectangle fx:id="freeBlocksBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de inodes livres: " />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de inodes livres: " prefWidth="250"/>
             <Rectangle fx:id="freeInodesBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
           <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Tabela de I-nodes: " />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Tabela de I-nodes: " prefWidth="250"/>
             <Rectangle fx:id="inodeTableRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
           </HBox>
         </VBox>

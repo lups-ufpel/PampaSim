@@ -27,7 +27,7 @@ public class FileSystem{
   private Random random = new Random();
 
   public static final int ROOT_DIRECTORY_INODE_NUMBER = 0;
-  public static final float INODES_TO_BYTES_RATIO = (float) (1.0/5000.0);
+  public static final float INODES_TO_BYTES_RATIO = (float) (1.0/10000.0);
   public static int INODES_INDEX;
   private static final int FREE_BLOCKS_BITMAP_INDEX = 2;
   private static int FREE_INODES_BITMAP_INDEX; // might not exist
