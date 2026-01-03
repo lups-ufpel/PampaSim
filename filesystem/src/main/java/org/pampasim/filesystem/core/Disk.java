@@ -4,6 +4,8 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
@@ -15,14 +17,14 @@ public class Disk {
     private int numberOfReservedBlocks;
     private RandomAccessFile disk; // maybe it would make more sense for there to be several RandomAccessFiles, each being a partition
     private Partition[] partitions;
-    private ArrayList<BlockRecord> blockRecords; // list because of unmodifiable list on fileSystemSimulation
+    private ObservableList<BlockRecord> blockRecords;
     public static final int MAX_PARTITIONS = 10;
 
 
     public Disk(int blockSizeBytes, int numberOfBlocks){
         this.blockSizeBytes = blockSizeBytes;
         this.numberOfBlocks = numberOfBlocks;
-        this.blockRecords = new ArrayList<BlockRecord>();
+        this.blockRecords =  FXCollections.observableArrayList();
         for(int i = 0; i < numberOfBlocks; i++){
           blockRecords.add(new BlockRecord(BlockType.EMPTY, "", -1));
         }
@@ -103,7 +105,7 @@ public class Disk {
       }
     }
 
-    public BlockRecord getBlockInfo(int blockIndex){
+    public BlockRecord getBlockRecord(int blockIndex){
       return blockRecords.get(blockIndex);
     }
 
@@ -129,7 +131,8 @@ public class Disk {
       }
     }
 
-    public List<BlockRecord> getBlockRecords(){
+    // make unmodifiable?
+    public ObservableList<BlockRecord> getBlockRecords(){
       return blockRecords;
     }
 

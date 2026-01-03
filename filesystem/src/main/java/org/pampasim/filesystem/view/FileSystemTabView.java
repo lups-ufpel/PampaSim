@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.core.BlockRecord;
 
 public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Initializable {
 
@@ -33,7 +34,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     public void initialize(URL url, ResourceBundle resourceBundle){
       updateTilepaneChildren();
 
-      addBlockRecordsListener();
+      addViewModelsListener();
 
       mbrRect.setFill(BlockType.getCorrespondingColor(BlockType.MBR));
       initializationRect.setFill(BlockType.getCorrespondingColor(BlockType.INITIALIZATION));
@@ -44,7 +45,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     }
 
     // maybe listen to tick change instead of block change
-    private void addBlockRecordsListener() {
+    private void addViewModelsListener() {
         viewModel.getObservableBlockViewModels().addListener((ListChangeListener<BlockViewModel>) change -> {
             while (change.next()) {
                 if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {

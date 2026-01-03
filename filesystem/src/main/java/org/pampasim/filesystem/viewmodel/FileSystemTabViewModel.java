@@ -6,6 +6,7 @@ import java.util.Collections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockRecord;
@@ -13,6 +14,7 @@ import org.pampasim.filesystem.core.BlockRecord;
 
 public class FileSystemTabViewModel implements ViewModel {
   private FileSystemSimulation fileSystemSimulation;
+  private final ObservableList<BlockRecord> observableBlockRecords;
   @Getter private final ObservableList<BlockViewModel> observableBlockViewModels = FXCollections.observableArrayList();
   //
       public FileSystemTabViewModel(
@@ -21,22 +23,35 @@ public class FileSystemTabViewModel implements ViewModel {
             ) {
 
         this.fileSystemSimulation = fileSystemSimulation;
-        List<BlockRecord> blockRecordsList = fileSystemSimulation.getBlockRecordsReference();
+        this.observableBlockRecords = fileSystemSimulation.getBlockRecordsReference();
 
-        createObservableViewModels(blockRecordsList, observableBlockViewModels);
-
+        createObservableViewModels();
+        addBlockRecordsListener();
     }
 
     // similar to createFrameList on memorytabviewmodel
-    private void createObservableViewModels(List<BlockRecord> blockRecordsList, ObservableList<BlockViewModel> observableList) {
-        for(int i = 0; i < blockRecordsList.size(); i++){
-            BlockRecord entry = blockRecordsList.get(i);
+    private void createObservableViewModels() {
+        for(int i = 0; i < observableBlockRecords.size(); i++){
+            BlockRecord entry = observableBlockRecords.get(i);
             BlockViewModel vm = new BlockViewModel(i, entry.type().toString(), entry.type());
 
             vm.typeProperty().set(entry.type());
 
-            observableList.add(vm);
+            observableBlockViewModels.add(vm);
         }
+    }
+
+    private void addBlockRecordsListener(){
+        observableBlockRecords.addListener((ListChangeListener<BlockRecord>) change -> {
+            while (change.next()) {
+                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
+                  for(int i = 0; i < observableBlockViewModels.size(); i++){
+                    observableBlockViewModels.get(i).setType(observableBlockRecords.get(i).type());
+                  }
+                }
+            }
+        });
+
     }
 
 }

@@ -87,6 +87,9 @@ public class PampaSimViewModel implements ViewModel {
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
 
     @Getter
+    private final BooleanProperty fileSystemModulePresent = new SimpleBooleanProperty(false);
+
+    @Getter
     private final SimulationStatisticsViewModel simulationStatisticsViewModel = new SimulationStatisticsViewModel();;
 
 
@@ -136,8 +139,8 @@ public class PampaSimViewModel implements ViewModel {
             }
             MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
 
-            if (fileSystemModule != null){
-                reinitializeFileSystemSimulation(sim);
+            if (fileSystemModulePresent.get()){
+                initializeFileSystemSimulation(sim);
             }
 
             for (var tick : spec.getEventSchedule().values()) {
@@ -290,43 +293,8 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         if (userSelection.modules().contains("filesystem")) { 
-            reinitializeFileSystemSimulation((SimulationBase) simulatedScenario.getSimulation().get());
-
-            fileSystemModule = new FileSystemTabViewModel(
-                  simulatedScenario.getSimulation().get().getEntity(FileSystemSimulation.class)
-            );
-
-            //fileSystemModulePresent.set(true);
-
-            ViewTuple<FileSystemTabView, FileSystemTabViewModel> viewTuple = FluentViewLoader
-                    .fxmlView(FileSystemTabView.class)
-                    .viewModel(fileSystemModule)
-                    .load();
-
-            Parent content = viewTuple.getView();
-
-            FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
-            icon.setIconSize(14);
-
-            // Create the fileSystem tab with a pop-out button in the header
-            Tab fileSystemTab = new Tab();
-            HBox header = new HBox(5);
-            header.setAlignment(Pos.CENTER_LEFT); // center vertically
-            Label title = new Label("Arquivos");
-            Button popOutBtn = getPopoutButton(icon, fileSystemTab, title.getText());
-
-            header.getChildren().addAll(title, popOutBtn);
-            fileSystemTab.setGraphic(header);
-            fileSystemTab.setContent(content);
-            fileSystemTab.setClosable(false);
-            fileSystemTab.setUserData("FILES"); // for identification purposes
-
-            ObservableList<Tab> tabs = tabPane.getTabs();
-
-            tabs.removeIf(t -> "FILES".equals(t.getUserData()));
-
-            tabPane.getTabs().add(fileSystemTab);
-
+            // is initialized on PampaSimViewModel
+            fileSystemModulePresent.set(true);
         }
     }
 
@@ -559,7 +527,7 @@ public class PampaSimViewModel implements ViewModel {
         final boolean[] closedWithoutApply = {false};
 
         settingsDialogService.setMemoryModulePresent(memoryModule != null);
-        settingsDialogService.setFileSystemModulePresent(fileSystemModule != null);
+        settingsDialogService.setFileSystemModulePresent(fileSystemModulePresent.get());
 
         Optional<SchedulerSelectionRecord> result;
 
@@ -592,7 +560,7 @@ public class PampaSimViewModel implements ViewModel {
                 );
             }
 
-            if (fileSystemModule != null) {
+            if (fileSystemModulePresent.get()) {
               FileSystemConfig.initialize(selection.fileSystemConfig());
             }
             setSimulationScheduler(selection);
@@ -673,10 +641,41 @@ public class PampaSimViewModel implements ViewModel {
         }
     }
 
-    private void reinitializeFileSystemSimulation(SimulationBase simulationBase) {
+    private void initializeFileSystemSimulation(SimulationBase simulationBase) {
         simulationBase.removeModule(FileSystemSimulation.class);
 
-        new FileSystemSimulation(simulationBase);
+        fileSystemModule = new FileSystemTabViewModel(new FileSystemSimulation(simulationBase));
+
+        //System.out.println(simulatedScenario.getSimulation().get().getEntity(FileSystemSimulation.class));
+
+        ViewTuple<FileSystemTabView, FileSystemTabViewModel> viewTuple = FluentViewLoader
+                .fxmlView(FileSystemTabView.class)
+                .viewModel(fileSystemModule)
+                .load();
+
+        Parent content = viewTuple.getView();
+
+        FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
+        icon.setIconSize(14);
+
+        // Create the fileSystem tab with a pop-out button in the header
+        Tab fileSystemTab = new Tab();
+        HBox header = new HBox(5);
+        header.setAlignment(Pos.CENTER_LEFT); // center vertically
+        Label title = new Label("Arquivos");
+        Button popOutBtn = getPopoutButton(icon, fileSystemTab, title.getText());
+
+        header.getChildren().addAll(title, popOutBtn);
+        fileSystemTab.setGraphic(header);
+        fileSystemTab.setContent(content);
+        fileSystemTab.setClosable(false);
+        fileSystemTab.setUserData("FILES"); // for identification purposes
+
+        ObservableList<Tab> tabs = tabPane.getTabs();
+
+        tabs.removeIf(t -> "FILES".equals(t.getUserData()));
+
+        tabPane.getTabs().add(fileSystemTab);
 
         /* // dont know whats all of this
         MemoryManagement simMemoryModule = simulationBase.getEntity(MemoryManagement.class);
