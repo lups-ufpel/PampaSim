@@ -14,6 +14,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.Cursor;
 
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
@@ -34,7 +35,12 @@ public class BlockView implements FxmlView<BlockViewModel> {
 
         //blockLabel.textProperty().bind(viewModel.getCircleLabel());
         blockLabel.textProperty().set("");
-        
+
+        blockVBox.setCursor(Cursor.HAND);
+        //blockVBox.setOnMouseClicked(e -> {
+          //viewModel.onClicked();
+        //});
+  
         blockVBox.backgroundProperty().bind(
             Bindings.createObjectBinding(
                 () -> new Background(

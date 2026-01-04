@@ -12,7 +12,6 @@ import javafx.scene.shape.Rectangle;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.paint.Color;
-import javafx.scene.Cursor;
 
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
@@ -33,7 +32,6 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
-      blockTilepane.setCursor(Cursor.HAND);
       updateTilepaneChildren();
 
       addViewModelsListener();
