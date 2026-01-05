@@ -43,7 +43,7 @@ public class DirectoryEntry {
         return ((FATMapping) fileMapping).getCurrentSizeBytes();
       // Inodes are more complicated since metadata is stored in the inodes, not directory entry
       default:
-        return -1;
+        throw new Error("unhandled switch case");
     }
 
   }

@@ -2,9 +2,7 @@ package org.pampasim.filesystem.directory;
 
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.AllocationScheme;
-import org.pampasim.filesystem.mapping.FileMapping;
-import org.pampasim.filesystem.mapping.ContiguousMapping;
-import org.pampasim.filesystem.mapping.InodeMapping;
+import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.file.File;
 
@@ -45,15 +43,12 @@ public class Directory{
   }
 
   public int getIndex(){
-    switch(fileSystemHandle.getAllocationScheme()){
-      case CONTIGUOUS:
-        return ((ContiguousMapping) getDot().getFileMapping()).getFirstBlockIndex();
-      case INODES:
-        return ((InodeMapping) getDot().getFileMapping()).getIndex();
-      default:
-        throw new Error("unhandled switch case");
-
-    }
+    return switch(fileSystemHandle.getAllocationScheme()){
+      case CONTIGUOUS -> ((ContiguousMapping) getDot().getFileMapping()).getFirstBlockIndex();
+      case FAT -> ((FATMapping) getDot().getFileMapping()).getFirstBlockIndex();
+      case INODES -> ((InodeMapping) getDot().getFileMapping()).getIndex();
+      default -> throw new Error("unhandled switch case");
+    };
   }
 
   public static Directory find(FileSystem fileSystem, String path){
@@ -73,7 +68,8 @@ public class Directory{
           int entryIndex = switch(fileSystem.getAllocationScheme()){
             case INODES -> ((InodeMapping) mapping).getIndex();
             case CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
-            case FAT -> throw new Error("not implemented");
+            case FAT -> ((FATMapping) mapping).getFirstBlockIndex();
+            default -> throw new Error("Unhandled switch case");
           };
           currentDirectory = getFromDisk(entryIndex, fileSystem);
           foundSegment = true;
@@ -139,6 +135,7 @@ public class Directory{
   public int getFirstEmptyEntryIndex(){
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     switch(as){
+      case FAT: // fall-through
       case CONTIGUOUS:
 
         for(int i = 0; i < entries.size(); i++){
@@ -167,9 +164,6 @@ public class Directory{
           position += DirectoryEntry.sizeBytes(as);
           i++;
         }
-
-      case FAT:
-        throw new Error("not implemented");
 
   }
     throw new Error("unreachable");

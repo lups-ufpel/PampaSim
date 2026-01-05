@@ -15,15 +15,16 @@ abstract public class FileMapping {
     int totalInts;
 
     switch(allocationScheme){
-      case AllocationScheme.CONTIGUOUS:
+      case CONTIGUOUS:
         totalInts = 2;
         return (intSizeBytes * totalInts) + FileMetadata.sizeBytes();
-      case AllocationScheme.INODES:
+      case FAT: // fall-through
+      case INODES:
         totalInts = 1;
         return (intSizeBytes * totalInts);
         
       default:
-        return -1;
+        throw new Error("unhandled switch");
     }
   }
 
@@ -39,13 +40,19 @@ abstract public class FileMapping {
         return new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
       }
 
+      case FAT:
+      {
+        int firstBlockIndex = buffer.getInt();
+        FileMetadata metadata = FileMetadata.getFromBuffer(buffer);
+
+        return new FATMapping(firstBlockIndex, metadata);
+      }
+
       case INODES:
       {
         return new InodeMapping(buffer.getInt());
       }
 
-      case FAT:
-        throw new Error("unhandled");
 
       default:
         {

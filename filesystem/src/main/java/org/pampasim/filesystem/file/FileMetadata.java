@@ -95,7 +95,7 @@ public class FileMetadata{
     int firstBlock;
     int offset;
     switch(fileSystem.getAllocationScheme()){
-      case AllocationScheme.INODES:
+      case INODES:
         int index = fileSystem.getFileIndex(path);
         int inodePosition = Inode.sizeBytes() * index; // metadata is at beggining
 
@@ -103,13 +103,14 @@ public class FileMetadata{
         offset = inodePosition;
         break;
 
-      case AllocationScheme.CONTIGUOUS:
+      case FAT: // fall-thorugh, is equal
+      case CONTIGUOUS:
         String[] segments = path.split("/");
         String name = segments[segments.length - 1];
 
         Directory fileDirectory = Directory.findParent(fileSystem, path);
         int entryPosition = fileDirectory.getEntryPosition(name);
-        int entryBytePosition = (DirectoryEntry.sizeBytes(AllocationScheme.CONTIGUOUS) * entryPosition);
+        int entryBytePosition = (DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * entryPosition);
         int metadataBytePosition = entryBytePosition + Directory.FILE_NAME_LENGTH_CHARS * (Character.SIZE / 8);
         int firstBlockIndex = fileSystem.getFileIndex(path);
         

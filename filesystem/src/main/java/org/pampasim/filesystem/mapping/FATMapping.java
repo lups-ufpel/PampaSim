@@ -22,6 +22,10 @@ public final class FATMapping extends FileMapping {
     return metadata.getCurrentSizeBytes();
   }
 
+  public int getFirstBlockIndex(){
+    return firstBlockIndex;
+  }
+
   @Override
   public void writeToBuffer(ByteBuffer buffer){
     buffer.putInt(firstBlockIndex);

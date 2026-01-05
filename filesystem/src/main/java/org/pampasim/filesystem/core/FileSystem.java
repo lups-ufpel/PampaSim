@@ -310,7 +310,7 @@ public class FileSystem{
             writeBlock(starting_index + i, rootDirectoryBlocks[i]);
             if(i != 0){
               // previous block points to new block
-              FAT[i - 1] = i;
+              FAT[starting_index + (i - 1)] = starting_index + i;
             }
           }
         } catch(Exception e){
@@ -487,8 +487,9 @@ public class FileSystem{
     }
     FileMapping mapping = Directory.findParent(this, path).findEntry(name).getFileMapping();
     return switch(allocationScheme){
-      case AllocationScheme.CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
-      case AllocationScheme.INODES -> ((InodeMapping) mapping).getIndex();
+      case CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
+      case FAT -> ((FATMapping) mapping).getFirstBlockIndex();
+      case INODES -> ((InodeMapping) mapping).getIndex();
       default -> throw new Error("not implemented");
     };
 
@@ -503,7 +504,7 @@ public class FileSystem{
     FileMapping mapping = fileEntry.getFileMapping();
 
     switch(allocationScheme){
-      case AllocationScheme.CONTIGUOUS:
+      case CONTIGUOUS:
       {
         ContiguousMapping cmapping = (ContiguousMapping) mapping;
         int firstBlockIndex = cmapping.getFirstBlockIndex();
@@ -519,7 +520,36 @@ public class FileSystem{
         metadata.writeToDisk(this, path);
         return data;
       }
-      case AllocationScheme.INODES:
+      case FAT:
+      {
+        FATMapping fmapping = (FATMapping) mapping;
+        int firstBlockIndex = fmapping.getFirstBlockIndex();
+
+        int nextBlock = firstBlockIndex;
+        byte[] data = new byte[byteNumber];
+        int dataPosition = 0;
+        int copyAmount = getBlockSizeBytes();
+        while(nextBlock != UNUSED){
+
+          boolean willCopyTooMuch = dataPosition + copyAmount > byteNumber;
+          if(willCopyTooMuch){
+            int missingUntilByteNumber = byteNumber - dataPosition;
+            copyAmount = missingUntilByteNumber;
+          }
+
+          System.arraycopy(readBlock(nextBlock), 0, data, dataPosition, getBlockSizeBytes());
+          position += getBlockSizeBytes();
+          nextBlock = FAT[nextBlock];
+        }
+
+        FileMetadata metadata = fmapping.getMetadata();
+        metadata.updateLastAccess();
+        metadata.writeToDisk(this, path);
+
+        return data;
+      }
+      
+      case INODES:
       {
         Inode fileInode = Inode.get(this, ((InodeMapping) mapping).getIndex());
         byte[] data = fileInode.read(this, byteNumber, position);
