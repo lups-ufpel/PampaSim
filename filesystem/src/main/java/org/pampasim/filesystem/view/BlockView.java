@@ -37,9 +37,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
         blockLabel.textProperty().set("");
 
         blockVBox.setCursor(Cursor.HAND);
-        //blockVBox.setOnMouseClicked(e -> {
-          //viewModel.onClicked();
-        //});
+        blockVBox.setOnMouseClicked(e -> {  viewModel.onClicked();  });
   
         blockVBox.backgroundProperty().bind(
             Bindings.createObjectBinding(

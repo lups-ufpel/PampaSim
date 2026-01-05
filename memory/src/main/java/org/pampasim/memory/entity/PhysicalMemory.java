@@ -291,7 +291,7 @@ public class PhysicalMemory extends AbstractSimEntity {
             this.lastSwappedInPages.add(entry);
 
             LOGGER.trace(
-                    "Pagina {} do processo de identificador {} swapped in para endereço {} na memória princical",
+                    "Pagina {} do processo de identificador {} swapped in para endereço {} na memória principal",
                     entry.getPageNumber(),
                     entry.getProcess().getPid(),
                     entry.getFrameNumber()
