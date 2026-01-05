@@ -23,8 +23,9 @@ public final class FATMapping extends FileMapping {
   }
 
   @Override
-  public void writeToBuffer(ByteBuffer Buffer){
-    throw new Error("FAT write to buffer is not implemented");
+  public void writeToBuffer(ByteBuffer buffer){
+    buffer.putInt(firstBlockIndex);
+    metadata.writeToBuffer(buffer);
   }
 
   @Override

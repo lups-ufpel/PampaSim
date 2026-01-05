@@ -4,9 +4,7 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.file.FileMetadata;
-import org.pampasim.filesystem.mapping.FileMapping;
-import org.pampasim.filesystem.mapping.ContiguousMapping;
-import org.pampasim.filesystem.mapping.InodeMapping;
+import org.pampasim.filesystem.mapping.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -24,8 +22,10 @@ public class FileSystem{
   private AllocationBitMap inodesBitMap;
   //private Operation[] journal; // needs an inode for itself
   private AllocationScheme allocationScheme;
+  private int[] FAT;
   private Random random = new Random();
 
+  public static final int UNUSED = -1;
   public static final int ROOT_DIRECTORY_INODE_NUMBER = 0;
   public static final float INODES_TO_BYTES_RATIO = (float) (1.0/10000.0);
   public static int INODES_INDEX;
@@ -144,6 +144,11 @@ public class FileSystem{
       sizeBlocks = writeInodes(currentBlock);
       setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.INODE_TABLE);
       currentBlock+= sizeBlocks;
+    }
+
+    if(allocationScheme == AllocationScheme.FAT){
+      this.FAT = new int[disk.getNumberOfBlocks()]; 
+      Arrays.fill(this.FAT, UNUSED);
     }
     
     // needs to be updated for root dir
@@ -281,6 +286,45 @@ public class FileSystem{
         break;
 
       }
+      case FAT:
+      {
+        int entries = 2;
+        int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
+        sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
+        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
+
+        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMapping dotMapping = new FATMapping(starting_index, dotMetadata);
+        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+        dot.writeToBuffer(buffer);
+
+        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMapping dotdotMapping = new FATMapping(starting_index, dotdotMetadata);
+        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
+        dotdot.writeToBuffer(buffer);
+
+        byte[] rootDirectoryData = buffer.array();
+        byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
+        try{
+          for(int i = 0; i < rootDirectoryBlocks.length; i++){
+            writeBlock(starting_index + i, rootDirectoryBlocks[i]);
+            if(i != 0){
+              // previous block points to new block
+              FAT[i - 1] = i;
+            }
+          }
+        } catch(Exception e){
+          throw new Error("partition is too small for root directory");
+        }
+
+        buffer.rewind();
+
+        break;
+
+      }
+      default:
+        throw new Error("unhandled switch case.");
+
     }
 
     return sizeBlocks;
