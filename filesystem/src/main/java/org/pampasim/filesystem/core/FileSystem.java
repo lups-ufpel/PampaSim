@@ -22,7 +22,7 @@ public class FileSystem{
   private AllocationBitMap inodesBitMap;
   //private Operation[] journal; // needs an inode for itself
   private AllocationScheme allocationScheme;
-  private int[] FAT;
+  private int[] fileAllocationTable;
   private Random random = new Random();
 
   public static final int UNUSED = -1;
@@ -75,6 +75,10 @@ public class FileSystem{
       case AllocationScheme.CONTIGUOUS -> root_directory_starting_index;
       case AllocationScheme.FAT -> root_directory_starting_index;
     };
+  }
+
+  public int[] getFileAllocationTable(){
+    return fileAllocationTable;
   }
 
   // not used (yet?)
@@ -147,8 +151,8 @@ public class FileSystem{
     }
 
     if(allocationScheme == AllocationScheme.FAT){
-      this.FAT = new int[disk.getNumberOfBlocks()]; 
-      Arrays.fill(this.FAT, UNUSED);
+      this.fileAllocationTable = new int[disk.getNumberOfBlocks()]; 
+      Arrays.fill(this.fileAllocationTable, UNUSED);
     }
     
     // needs to be updated for root dir
@@ -310,7 +314,7 @@ public class FileSystem{
             writeBlock(starting_index + i, rootDirectoryBlocks[i]);
             if(i != 0){
               // previous block points to new block
-              FAT[starting_index + (i - 1)] = starting_index + i;
+              fileAllocationTable[starting_index + (i - 1)] = starting_index + i;
             }
           }
         } catch(Exception e){
@@ -460,9 +464,6 @@ public class FileSystem{
   }
 
   public byte[][] writeToRawBlocks(byte[] blocks, byte[] data, int offset){
-    if(offset == 136){
-      System.out.println("here");
-    }
 
     for(int i = offset; i < blocks.length; i++){
       if(i - offset < data.length){
@@ -539,7 +540,7 @@ public class FileSystem{
 
           System.arraycopy(readBlock(nextBlock), 0, data, dataPosition, getBlockSizeBytes());
           position += getBlockSizeBytes();
-          nextBlock = FAT[nextBlock];
+          nextBlock = fileAllocationTable[nextBlock];
         }
 
         FileMetadata metadata = fmapping.getMetadata();

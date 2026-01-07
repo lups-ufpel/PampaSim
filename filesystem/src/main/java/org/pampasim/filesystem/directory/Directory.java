@@ -187,12 +187,14 @@ public class Directory{
 
     switch(as){
       case CONTIGUOUS:
+      {
 
         int directoryFirstIndex = getIndex();
         // maybe write too file is too different from writing to dir to use that
         fileSystemHandle.writeBytes(entryBuffer.array(), directoryFirstIndex, entryFirstByte);
 
         return;
+      }
 
       case INODES:
 
@@ -202,6 +204,51 @@ public class Directory{
         current.write(fileSystemHandle, entryBuffer.array(), entryFirstByte);
 
         return;
+
+      case FAT:
+        int directoryFirstIndex = getIndex();
+        int[] fat = fileSystemHandle.getFileAllocationTable();
+        
+        int blockSizeBytes = fileSystemHandle.getBlockSizeBytes();
+        byte[] buffer = entryBuffer.array();
+        
+        int currentIndex = directoryFirstIndex;
+        int currentByte = 0;
+        int bufferPointer = 0;
+        
+        while (bufferPointer < buffer.length) {
+        
+            int writeOffset = 0;
+            int writableBytes = blockSizeBytes;
+        
+            // First block offset handling
+            if (currentByte <= entryFirstByte &&
+                entryFirstByte < currentByte + blockSizeBytes) {
+        
+                writeOffset = entryFirstByte - currentByte;
+                writableBytes = blockSizeBytes - writeOffset;
+            }
+        
+            int bytesToWrite = Math.min(writableBytes, buffer.length - bufferPointer);
+        
+            byte[] chunk = Arrays.copyOfRange(
+                buffer,
+                bufferPointer,
+                bufferPointer + bytesToWrite
+            );
+        
+            fileSystemHandle.writeBytes(chunk, currentIndex, writeOffset);
+        
+            bufferPointer += bytesToWrite;
+            currentByte += blockSizeBytes;
+        
+            // Advance or extend FAT
+            if (fat[currentIndex] == FileSystem.UNUSED) {
+                fat[currentIndex] = fileSystemHandle.nextFreeBlock();
+            }
+        
+            currentIndex = fat[currentIndex];
+        }
 
 
 
