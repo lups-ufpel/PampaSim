@@ -19,6 +19,8 @@ abstract public class FileMapping {
         totalInts = 2;
         return (intSizeBytes * totalInts) + FileMetadata.sizeBytes();
       case FAT: // fall-through
+        totalInts = 1;
+        return (intSizeBytes * totalInts) + FileMetadata.sizeBytes();
       case INODES:
         totalInts = 1;
         return (intSizeBytes * totalInts);
