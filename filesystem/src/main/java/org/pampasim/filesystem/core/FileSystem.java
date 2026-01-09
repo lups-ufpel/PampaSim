@@ -215,7 +215,22 @@ public class FileSystem{
   }
 
   public int nextFreeBlock(){
-    return getFreeBlocksAndSetAllocated(1);
+    switch(allocationScheme){
+      case FAT:
+        int i = 0;
+        while(fileAllocationTable[i] == -1){
+          i++;
+        }
+        return i;
+        
+      case CONTIGUOUS:
+        return getFreeBlocksAndSetAllocated(1);
+
+      // i-node does not use this function
+      
+      default:
+        throw new Error("unhandled switch case");
+    }
   }
 
   public int nextFreeInode(){
@@ -502,7 +517,7 @@ public class FileSystem{
 
     Directory fileDirectory = Directory.findParent(this, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
-    FileMapping mapping = fileEntry.getFileMapping();
+    FileMapping mapping = Directory.getFileMapping(path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
@@ -568,15 +583,10 @@ public class FileSystem{
 
   public void writeToFile(String path, byte[] data, int position){
 
-    String[] segments = path.split("/");
-    String name = segments[segments.length - 1];
-
-    Directory fileDirectory = Directory.findParent(this, path);
-    DirectoryEntry fileEntry = fileDirectory.findEntry(name);
-    FileMapping mapping = fileEntry.getFileMapping();
+    FileMapping mapping = Directory.getFileMapping(path);
 
     switch(allocationScheme){
-      case AllocationScheme.CONTIGUOUS:
+      case CONTIGUOUS:
       {
         ContiguousMapping cmapping = (ContiguousMapping) mapping;
         int firstBlockIndex = cmapping.getFirstBlockIndex();
@@ -585,6 +595,7 @@ public class FileSystem{
           throw new Error("write too large");
         }
         writeBytes(data, firstBlockIndex, position);
+
         FileMetadata metadata = cmapping.getMetadata();
         // no shrinking?
         if(data.length + position > metadata.getCurrentSizeBytes()){
@@ -600,7 +611,7 @@ public class FileSystem{
         break;
       }
 
-      case AllocationScheme.INODES:
+      case INODES:
       {
         Inode fileInode = Inode.get(this, ((InodeMapping) mapping).getIndex());
         fileInode.write(this, data, position);
@@ -616,6 +627,69 @@ public class FileSystem{
 
         //missing 
         break;
+      }
+      case FAT:
+      {
+        // needs to update FIRST_BLOCK_NOT_SET
+        FATMapping fmapping = (FATMapping) mapping;
+        int blockSizeBytes = getBlockSizeBytes();
+        byte[] buffer = data;
+        
+        int currentIndex = fmapping.getFirstBlockIndex();
+        if(currentIndex == fmapping.FIRST_BLOCK_NOT_SET){
+          currentIndex = nextFreeBlock();
+        }
+        int currentByte = 0;
+        int bufferPointer = 0;
+        
+        while (bufferPointer < buffer.length) {
+        
+            int writeOffset = 0;
+            int writableBytes = blockSizeBytes;
+        
+            // First block offset handling
+            if (currentByte <= position &&
+                position < currentByte + blockSizeBytes) {
+        
+                writeOffset = position - currentByte;
+                writableBytes = blockSizeBytes - writeOffset;
+            }
+        
+            int bytesToWrite = Math.min(writableBytes, buffer.length - bufferPointer);
+        
+            byte[] chunk = Arrays.copyOfRange(
+                buffer,
+                bufferPointer,
+                bufferPointer + bytesToWrite
+            );
+        
+            writeBytes(chunk, currentIndex, writeOffset);
+        
+            bufferPointer += bytesToWrite;
+            currentByte += blockSizeBytes;
+        
+            // Advance or extend FAT
+            if (fileAllocationTable[currentIndex] == FileSystem.UNUSED) {
+                fileAllocationTable[currentIndex] = nextFreeBlock();
+            }
+        
+            currentIndex = fileAllocationTable[currentIndex];
+
+        }
+        FileMetadata metadata = fmapping.getMetadata();
+        // no shrinking?
+        if(data.length + position > metadata.getCurrentSizeBytes()){
+          metadata.setCurrentSizeBytes(data.length + position);
+        }
+        
+        if(data.length > 0){
+          metadata.updateLastModified();
+        }
+
+        // updates metadata
+        metadata.writeToDisk(this, path);
+        break;
+
       }
     }
 

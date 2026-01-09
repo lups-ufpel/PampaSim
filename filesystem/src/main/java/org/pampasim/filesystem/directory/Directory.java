@@ -51,6 +51,32 @@ public class Directory{
     };
   }
 
+  public FileMapping getFileMapping(String path){
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+
+    Directory fileDirectory = Directory.findParent(this, path);
+    DirectoryEntry fileEntry = fileDirectory.findEntry(name);
+
+    return fileEntry.getFileMapping();
+  }
+
+  //hacky
+  public void setFATFirstBlockIndex(String path, int firstBlockIndex){
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+    int entryPosition = getEntryPosition(name);
+    int entryFirstByte = entryPosition * DirectoryEntry.sizeBytes(as);
+
+    DirectoryEntry newMappingEntry = findEntry(name);
+    ((FATMapping) newMappingEntry.getFileMapping()).setFirstBlockIndex(firstBlockIndex);
+
+    ByteBuffer buffer = ByteBuffer.allocate(DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme()));
+    newMappingEntry.writeToBuffer(buffer);
+
+    fileSystemHandle.writeToFile(buffer.array(), parentPath(path), entryFirstByte);
+  }
+
   public static Directory find(FileSystem fileSystem, String path){
     String[] segments = path.split("/");
 

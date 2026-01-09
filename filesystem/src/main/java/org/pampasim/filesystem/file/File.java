@@ -21,7 +21,7 @@ public class File{
     FileMetadata metadata = new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
     FileMapping mapping;
     switch(fileSystem.getAllocationScheme()){
-      case AllocationScheme.CONTIGUOUS:
+      case CONTIGUOUS:
       {
         if(finalSizeBlocks == -1){
           throw new Error("incorrect create function called for contiguous file.");
@@ -30,13 +30,16 @@ public class File{
         mapping = new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
         break;
       }
-      case AllocationScheme.INODES:
+      case INODES:
       {
         mapping = new InodeMapping(fileSystem.nextFreeInode());
         break;
       }
-      case AllocationScheme.FAT:
-        throw new Error("unhandled");
+      case FAT:
+      {
+        mapping = new FATMapping(FIRST_BLOCK_NOT_SET);
+        break;
+      }
       default:
         throw new Error("unhandled");
     }

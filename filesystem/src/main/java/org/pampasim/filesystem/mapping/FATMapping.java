@@ -5,6 +5,7 @@ import org.pampasim.filesystem.file.FileMetadata;
 import java.nio.ByteBuffer;
 
 public final class FATMapping extends FileMapping {
+  public static final int FIRST_BLOCK_NOT_SET = 0;
   private int firstBlockIndex;
   private FileMetadata metadata;
 
@@ -16,6 +17,10 @@ public final class FATMapping extends FileMapping {
 
   public FileMetadata getMetadata(){
     return metadata;
+  }
+
+  public void setFirstBlockIndex(int firstBlockIndex){
+    this.firstBlockIndex = firstBlockIndex;
   }
 
   public int getCurrentSizeBytes(){
