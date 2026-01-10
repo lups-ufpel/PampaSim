@@ -223,6 +223,7 @@ public class FileSystem{
         }
         return i;
         
+      case INODES: //fall-through
       case CONTIGUOUS:
         return getFreeBlocksAndSetAllocated(1);
 
