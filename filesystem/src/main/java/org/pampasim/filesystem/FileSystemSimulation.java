@@ -38,7 +38,7 @@ public class FileSystemSimulation extends SimulationBase {
     Partition[] partitions = {partitionA};
     disk.setPartitions(partitions);
 
-    this.fileSystem = new FileSystem(disk, partitionA, FileSystemConfig.getAllocationScheme());
+    this.fileSystem = new FileSystem(this, disk, partitionA, FileSystemConfig.getAllocationScheme());
     // maybe should be on first tick?
     fileSystem.initialize();
 

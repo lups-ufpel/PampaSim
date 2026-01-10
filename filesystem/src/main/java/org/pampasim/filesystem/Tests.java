@@ -16,6 +16,7 @@ import java.util.Scanner;
 
 // TODO: create tests for bitmap (already tested but deleted)
 
+/*
 public class Main {
 
     public static void main(String[] args) {
@@ -446,6 +447,7 @@ public class Main {
       }
 
     }
-    */
+    
 
 }
+*/

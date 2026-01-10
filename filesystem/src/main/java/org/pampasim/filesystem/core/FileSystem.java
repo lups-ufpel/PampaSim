@@ -5,6 +5,8 @@ import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.mapping.*;
+import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.core.Simulation;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 
-public class FileSystem{
+public class FileSystem extends AbstractSimEntity {
 
   private Disk disk; // does it make sense for this to be here?
   private Partition partition;
@@ -37,7 +39,9 @@ public class FileSystem{
   public final int MINIMUM_PARTITION_SIZE;
   private int root_directory_starting_index;
 
-  public FileSystem(Disk disk, Partition partition, AllocationScheme allocationScheme){
+  public FileSystem(Simulation simulation, Disk disk, Partition partition, AllocationScheme allocationScheme){
+      super(simulation);
+
       this.disk = disk;
       this.allocationScheme = allocationScheme;
       this.partition = partition;
