@@ -51,11 +51,11 @@ public class Directory{
     };
   }
 
-  public FileMapping getFileMapping(String path){
+  public static FileMapping getFileMapping(FileSystem fileSystem, String path){
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    Directory fileDirectory = Directory.findParent(this, path);
+    Directory fileDirectory = Directory.findParent(fileSystem, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
 
     return fileEntry.getFileMapping();
@@ -66,7 +66,7 @@ public class Directory{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
     int entryPosition = getEntryPosition(name);
-    int entryFirstByte = entryPosition * DirectoryEntry.sizeBytes(as);
+    int entryFirstByte = entryPosition * DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme());
 
     DirectoryEntry newMappingEntry = findEntry(name);
     ((FATMapping) newMappingEntry.getFileMapping()).setFirstBlockIndex(firstBlockIndex);
@@ -74,7 +74,7 @@ public class Directory{
     ByteBuffer buffer = ByteBuffer.allocate(DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme()));
     newMappingEntry.writeToBuffer(buffer);
 
-    fileSystemHandle.writeToFile(buffer.array(), parentPath(path), entryFirstByte);
+    fileSystemHandle.writeToFile(parentPath(path), buffer.array(), entryFirstByte);
   }
 
   public static Directory find(FileSystem fileSystem, String path){

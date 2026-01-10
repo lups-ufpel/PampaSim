@@ -517,7 +517,7 @@ public class FileSystem{
 
     Directory fileDirectory = Directory.findParent(this, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
-    FileMapping mapping = Directory.getFileMapping(path);
+    FileMapping mapping = Directory.getFileMapping(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
@@ -583,7 +583,7 @@ public class FileSystem{
 
   public void writeToFile(String path, byte[] data, int position){
 
-    FileMapping mapping = Directory.getFileMapping(path);
+    FileMapping mapping = Directory.getFileMapping(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
