@@ -85,15 +85,11 @@ public class BlockView implements FxmlView<BlockViewModel> {
 
     public void openWindow(BlockType type){
         var viewTuple = switch (type) {
+            case EMPTY -> null;
+
             case MBR -> FluentViewLoader.fxmlView(MbrView.class)
                     .viewModel(new MbrViewModel())
                     .load();
-        
-            /*
-            case EMPTY -> FluentViewLoader.fxmlView(EmptyView.class)
-                    .viewModel(new EmptyViewModel())
-                    .load();
-            */
         
             case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)
                     .viewModel(new InitializationViewModel())
@@ -132,10 +128,13 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     .load();
       */
         
-                    };       
-        Stage stage = new Stage();
-        stage.setScene(new Scene(viewTuple.getView(), 600, 600));
-        stage.show();
+        };       
+
+        if(viewTuple != null){
+          Stage stage = new Stage();
+          stage.setScene(new Scene(viewTuple.getView(), 600, 600));
+          stage.show();
+        }
         /*
         Dialog<ButtonType> dialog = new Dialog<>();
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
