@@ -29,6 +29,8 @@ import org.pampasim.filesystem.viewmodel.InitializationViewModel;
 import org.pampasim.filesystem.viewmodel.SuperblockViewModel;
 import org.pampasim.filesystem.viewmodel.FreeBlocksViewModel;
 import org.pampasim.filesystem.viewmodel.FreeInodesViewModel;
+import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
+import org.pampasim.filesystem.viewmodel.FileViewModel;
 
 public class BlockView implements FxmlView<BlockViewModel> {
     @InjectViewModel
@@ -107,18 +109,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
             case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesView.class)
                     .viewModel(new FreeInodesViewModel())
                     .load();
-            default ->
-              throw new Error("unhandled");
-      /*
-        
-            case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
-                    .viewModel(new InodeTableViewModel())
-                    .load();
-        
-            case INODE -> FluentViewLoader.fxmlView(InodeView.class)
-                    .viewModel(new InodeViewModel())
-                    .load();
-        
+
             case FILE -> FluentViewLoader.fxmlView(FileView.class)
                     .viewModel(new FileViewModel())
                     .load();
@@ -126,8 +117,21 @@ public class BlockView implements FxmlView<BlockViewModel> {
             case DIRECTORY -> FluentViewLoader.fxmlView(DirectoryView.class)
                     .viewModel(new DirectoryViewModel())
                     .load();
-                    */
-        };       
+
+            default ->
+              throw new Error("unhandled");
+        
+      /*
+            case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
+                    .viewModel(new InodeTableViewModel())
+                    .load();
+        
+            case INODE -> FluentViewLoader.fxmlView(InodeView.class)
+                    .viewModel(new InodeViewModel())
+                    .load();
+      */
+        
+                    };       
         Stage stage = new Stage();
         stage.setScene(new Scene(viewTuple.getView(), 600, 600));
         stage.show();
