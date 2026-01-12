@@ -8,7 +8,7 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.pampasim.filesystem.view.MbrView">
 
-  <Label text="O Setor 0 do disco é chamado de MBR
+  <Label text="'O Setor 0 do disco é chamado de MBR
 (Master Boot Record — registro mestre de inicialização) e é usado para inicializar o computador. O fim do
 MBR contém a tabela de partição. Ela dá os endereços
 de início e fim de cada partição. Uma das partições da
@@ -17,5 +17,5 @@ inicializado, a BIOS lê e executa o MBR. A primeira
 coisa que o programa MBR faz é localizar a partição
 ativa, ler seu primeiro bloco, que é chamado de bloco
 de inicialização, e executá-lo. O programa no bloco de
-inicialização carrega o sistema operacional contido naquela partição ~Tanenbaum"/>
+inicialização carrega o sistema operacional contido naquela partição.' ~Tanenbaum" wrapText="true"/>
 </VBox>
