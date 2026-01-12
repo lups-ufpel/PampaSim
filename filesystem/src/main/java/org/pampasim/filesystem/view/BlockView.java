@@ -22,8 +22,8 @@ import javafx.scene.Cursor;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
-import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.viewmodel.MbrViewModel;
 import org.pampasim.filesystem.viewmodel.InitializationViewModel;
 import org.pampasim.filesystem.viewmodel.SuperblockViewModel;
@@ -31,6 +31,7 @@ import org.pampasim.filesystem.viewmodel.FreeBlocksViewModel;
 import org.pampasim.filesystem.viewmodel.FreeInodesViewModel;
 import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
 import org.pampasim.filesystem.viewmodel.FileViewModel;
+import org.pampasim.filesystem.viewmodel.InodeTableViewModel;
 
 public class BlockView implements FxmlView<BlockViewModel> {
     @InjectViewModel
@@ -118,14 +119,14 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     .viewModel(new DirectoryViewModel())
                     .load();
 
+            case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
+                    .viewModel(new InodeTableViewModel())
+                    .load();
+
             default ->
               throw new Error("unhandled");
         
       /*
-            case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
-                    .viewModel(new InodeTableViewModel())
-                    .load();
-        
             case INODE -> FluentViewLoader.fxmlView(InodeView.class)
                     .viewModel(new InodeViewModel())
                     .load();

@@ -1,4 +1,3 @@
-/*
 package org.pampasim.filesystem.view;
 
 import de.saxsys.mvvmfx.FxmlView;
@@ -18,11 +17,10 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.control.ButtonType;
 import javafx.scene.Cursor;
 
-import org.pampasim.filesystem.viewmodel.MbrViewModel;
+import org.pampasim.filesystem.viewmodel.InodeTableViewModel;
 
-public class MbrView implements FxmlView<MbrViewModel> {
+public class InodeTableView implements FxmlView<InodeTableViewModel> {
     @InjectViewModel
-    private MbrViewModel viewModel;
+    private InodeTableViewModel viewModel;
 
 }
-*/
