@@ -33,9 +33,7 @@ public class FileSystemTabViewModel implements ViewModel {
     private void createObservableViewModels() {
         for(int i = 0; i < observableBlockRecords.size(); i++){
             BlockRecord entry = observableBlockRecords.get(i);
-            BlockViewModel vm = new BlockViewModel(i, entry.type().toString(), entry.type());
-
-            vm.typeProperty().set(entry.type());
+            BlockViewModel vm = new BlockViewModel(i, entry.type().toString(), entry);
 
             observableBlockViewModels.add(vm);
         }
@@ -46,7 +44,7 @@ public class FileSystemTabViewModel implements ViewModel {
             while (change.next()) {
                 if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
                   for(int i = 0; i < observableBlockViewModels.size(); i++){
-                    observableBlockViewModels.get(i).setType(observableBlockRecords.get(i).type());
+                    observableBlockViewModels.get(i).setBlockRecord(observableBlockRecords.get(i));
                   }
                 }
             }

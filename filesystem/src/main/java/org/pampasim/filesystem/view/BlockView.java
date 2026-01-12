@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.viewmodel.MbrViewModel;
 import org.pampasim.filesystem.viewmodel.InitializationViewModel;
@@ -55,7 +56,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
         }
         blockVBox.setOnMouseClicked(e -> {
           System.out.println("clicked on block " + number);
-          openWindow(viewModel.getType());
+          openWindow(viewModel.getBlockRecord());
         });
   
         blockVBox.backgroundProperty().bind(
@@ -67,7 +68,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                         Insets.EMPTY
                     )
                 ),
-                viewModel.typeProperty()
+                viewModel.blockRecordProperty()
             )
         );
 
@@ -83,8 +84,9 @@ public class BlockView implements FxmlView<BlockViewModel> {
         );
     }
 
-    public void openWindow(BlockType type){
-        var viewTuple = switch (type) {
+  // probably dont create a new viewmodel every single time
+    public void openWindow(BlockRecord blockRecord){
+        var viewTuple = switch (blockRecord.type()) {
             case EMPTY -> null;
 
             case MBR -> FluentViewLoader.fxmlView(MbrView.class)
@@ -133,6 +135,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
         if(viewTuple != null){
           Stage stage = new Stage();
           stage.setScene(new Scene(viewTuple.getView(), 600, 600));
+          stage.setTitle(getCorrespondingWindowTitle(blockRecord));
           stage.show();
         }
         /*
@@ -142,6 +145,31 @@ public class BlockView implements FxmlView<BlockViewModel> {
         Optional<ButtonType> result = dialog.showAndWait();
         */
     }
+
+    public String getCorrespondingWindowTitle(BlockRecord blockRecord){
+        return switch (blockRecord.type()) {
+            case EMPTY -> null;
+
+            case MBR -> "Master Boot Record";
+        
+            case INITIALIZATION -> "Bloco de Inicialização";
+        
+            case SUPERBLOCK -> "Superbloco";
+        
+            case FREE_BLOCKS_BITMAP -> "Mapa de Blocos Livres";
+        
+            case FREE_INODES_BITMAP -> "Mapa de I-nodes Livres";
+
+            case FILE -> "Arquivo" + "\"" + blockRecord.userString() + "\"";
+        
+            case DIRECTORY -> "Diretório" + "\"" + blockRecord.userString() + "\"";
+
+            case INODE_TABLE -> "Tabela de I-nodes";
+
+            default ->
+              throw new Error("unhandled");
+    };
+  }
 
 
 

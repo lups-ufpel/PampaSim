@@ -9,30 +9,35 @@ import javafx.beans.property.SimpleStringProperty;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.core.BlockRecord;
 
 @Getter
 public class BlockViewModel implements ViewModel {
     private final int number;
     @Getter private final SimpleStringProperty circleLabel = new SimpleStringProperty("");
-    private final ObjectProperty<BlockType> typeProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<BlockRecord> blockRecordProperty = new SimpleObjectProperty<>();
 
     // labels are for development purposes
-    public BlockViewModel(int number, String circleLabel, BlockType type) {
+    public BlockViewModel(int number, String circleLabel, BlockRecord blockRecord) {
         this.number = number;
         this.circleLabel.setValue(circleLabel);
-        this.typeProperty.setValue(type);
+        this.blockRecordProperty.setValue(blockRecord);
+    }
+
+    public BlockRecord getBlockRecord(){
+      return blockRecordProperty.get();
     }
 
     public BlockType getType(){
-      return typeProperty.get();
+      return blockRecordProperty.get().type();
     }
 
-    public void setType(BlockType type){
-      this.typeProperty.set(type);
+    public void setBlockRecord(BlockRecord blockRecord){
+      this.blockRecordProperty.set(blockRecord);
     }
 
-    public ObjectProperty<BlockType> typeProperty(){
-      return typeProperty;
+    public ObjectProperty<BlockRecord> blockRecordProperty(){
+      return blockRecordProperty;
     }
 
 }
