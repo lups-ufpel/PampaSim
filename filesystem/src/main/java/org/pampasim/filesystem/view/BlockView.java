@@ -2,6 +2,9 @@ package org.pampasim.filesystem.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.FluentViewLoader;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -14,10 +17,14 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.control.ButtonType;
 import javafx.scene.Cursor;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.viewmodel.MbrViewModel;
 
 public class BlockView implements FxmlView<BlockViewModel> {
     @InjectViewModel
@@ -37,7 +44,10 @@ public class BlockView implements FxmlView<BlockViewModel> {
         blockLabel.textProperty().set("");
 
         blockVBox.setCursor(Cursor.HAND);
-        blockVBox.setOnMouseClicked(e -> {  viewModel.onClicked();  });
+        blockVBox.setOnMouseClicked(e -> {
+          System.out.println("clicked on block " + number);
+          openWindow(viewModel.getType());
+        });
   
         blockVBox.backgroundProperty().bind(
             Bindings.createObjectBinding(
@@ -62,7 +72,64 @@ public class BlockView implements FxmlView<BlockViewModel> {
                 0
             )
         );
-            }
+    }
+
+    public void openWindow(BlockType type){
+        var viewTuple = switch (type) {
+            case MBR -> FluentViewLoader.fxmlView(MbrView.class)
+                    .viewModel(new MbrViewModel())
+                    .load();
+            default ->
+              throw new Error("unhandled");
+      /*
+        
+            case EMPTY -> FluentViewLoader.fxmlView(EmptyView.class)
+                    .viewModel(new EmptyViewModel())
+                    .load();
+        
+            case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)
+                    .viewModel(new InitializationViewModel())
+                    .load();
+        
+            case SUPERBLOCK -> FluentViewLoader.fxmlView(SuperblockView.class)
+                    .viewModel(new SuperblockViewModel())
+                    .load();
+        
+            case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksBitmapView.class)
+                    .viewModel(new FreeBlocksBitmapViewModel())
+                    .load();
+        
+            case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesBitmapView.class)
+                    .viewModel(new FreeInodesBitmapViewModel())
+                    .load();
+        
+            case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
+                    .viewModel(new InodeTableViewModel())
+                    .load();
+        
+            case INODE -> FluentViewLoader.fxmlView(InodeView.class)
+                    .viewModel(new InodeViewModel())
+                    .load();
+        
+            case FILE -> FluentViewLoader.fxmlView(FileView.class)
+                    .viewModel(new FileViewModel())
+                    .load();
+        
+            case DIRECTORY -> FluentViewLoader.fxmlView(DirectoryView.class)
+                    .viewModel(new DirectoryViewModel())
+                    .load();
+                    */
+        };       
+        Stage stage = new Stage();
+        stage.setScene(new Scene(viewTuple.getView(), 600, 600));
+        stage.show();
+        /*
+        Dialog<ButtonType> dialog = new Dialog<>();
+        DialogPane dialogPane = (DialogPane) viewTuple.getView();
+        dialog.setDialogPane(dialogPane);
+        Optional<ButtonType> result = dialog.showAndWait();
+        */
+    }
 
 
 

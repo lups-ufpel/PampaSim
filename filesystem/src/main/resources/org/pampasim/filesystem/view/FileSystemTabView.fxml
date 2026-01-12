@@ -23,7 +23,7 @@
 <AnchorPane prefHeight="621.0" prefWidth="929.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.filesystem.view.FileSystemTabView">
     <SplitPane dividerPositions="0.5, 0.95" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <!-- File Tree -->
-        <Label layoutX="68.0" layoutY="10.0" text="Endereço Virtual">
+        <Label layoutX="68.0" layoutY="10.0" text=" ">
                               <font>
                                   <Font name="System Bold" size="15.0" />
                               </font>

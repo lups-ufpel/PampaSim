@@ -35,19 +35,4 @@ public class BlockViewModel implements ViewModel {
       return typeProperty;
     }
 
-    public void onClicked(){
-      System.out.println("clicked on block " + number);
-      switch(typeProperty.get()){
-        case MBR:
-        case EMPTY:
-        case INITIALIZATION:
-        case SUPERBLOCK:
-        case FREE_BLOCKS_BITMAP:
-        case FREE_INODES_BITMAP:
-        case INODE_TABLE:
-        case INODE:
-        case FILE:
-        case DIRECTORY:
-      }
-    }
 }
