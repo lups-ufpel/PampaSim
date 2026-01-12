@@ -25,6 +25,10 @@ import javafx.scene.Scene;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.viewmodel.MbrViewModel;
+import org.pampasim.filesystem.viewmodel.InitializationViewModel;
+import org.pampasim.filesystem.viewmodel.SuperblockViewModel;
+import org.pampasim.filesystem.viewmodel.FreeBlocksViewModel;
+import org.pampasim.filesystem.viewmodel.FreeInodesViewModel;
 
 public class BlockView implements FxmlView<BlockViewModel> {
     @InjectViewModel
@@ -43,7 +47,9 @@ public class BlockView implements FxmlView<BlockViewModel> {
         //blockLabel.textProperty().bind(viewModel.getCircleLabel());
         blockLabel.textProperty().set("");
 
-        blockVBox.setCursor(Cursor.HAND);
+        if(viewModel.getType() != BlockType.EMPTY){
+          blockVBox.setCursor(Cursor.HAND);
+        }
         blockVBox.setOnMouseClicked(e -> {
           System.out.println("clicked on block " + number);
           openWindow(viewModel.getType());
@@ -79,13 +85,12 @@ public class BlockView implements FxmlView<BlockViewModel> {
             case MBR -> FluentViewLoader.fxmlView(MbrView.class)
                     .viewModel(new MbrViewModel())
                     .load();
-            default ->
-              throw new Error("unhandled");
-      /*
         
+            /*
             case EMPTY -> FluentViewLoader.fxmlView(EmptyView.class)
                     .viewModel(new EmptyViewModel())
                     .load();
+            */
         
             case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)
                     .viewModel(new InitializationViewModel())
@@ -95,13 +100,16 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     .viewModel(new SuperblockViewModel())
                     .load();
         
-            case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksBitmapView.class)
-                    .viewModel(new FreeBlocksBitmapViewModel())
+            case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksView.class)
+                    .viewModel(new FreeBlocksViewModel())
                     .load();
         
-            case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesBitmapView.class)
-                    .viewModel(new FreeInodesBitmapViewModel())
+            case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesView.class)
+                    .viewModel(new FreeInodesViewModel())
                     .load();
+            default ->
+              throw new Error("unhandled");
+      /*
         
             case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
                     .viewModel(new InodeTableViewModel())
