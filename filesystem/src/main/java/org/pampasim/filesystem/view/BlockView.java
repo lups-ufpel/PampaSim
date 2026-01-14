@@ -22,6 +22,7 @@ import javafx.scene.Cursor;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
+import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
@@ -45,6 +46,8 @@ public class BlockView implements FxmlView<BlockViewModel> {
     @FXML
     public Label blockLabel;
 
+    private MbrViewModel mbrViewModel = null;
+
     public void initialize() {
         number.setText(Integer.toString(viewModel.getNumber()));
 
@@ -56,7 +59,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
         }
         blockVBox.setOnMouseClicked(e -> {
           System.out.println("clicked on block " + number);
-          openWindow(viewModel.getBlockRecord());
+          openWindow(viewModel.getBlockRecord(), viewModel.getFileSystemSimulation());
         });
   
         blockVBox.backgroundProperty().bind(
@@ -85,12 +88,12 @@ public class BlockView implements FxmlView<BlockViewModel> {
     }
 
   // probably dont create a new viewmodel every single time
-    public void openWindow(BlockRecord blockRecord){
+    public void openWindow(BlockRecord blockRecord, FileSystemSimulation fileSystemSimulation){
         var viewTuple = switch (blockRecord.type()) {
             case EMPTY -> null;
 
             case MBR -> FluentViewLoader.fxmlView(MbrView.class)
-                    .viewModel(new MbrViewModel())
+                    .viewModel((mbrViewModel == null) ? new MbrViewModel(fileSystemSimulation.getDisk().getPartitions()) : mbrViewModel)
                     .load();
         
             case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)

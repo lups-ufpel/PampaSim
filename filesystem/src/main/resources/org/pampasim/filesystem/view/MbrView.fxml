@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 
 <VBox spacing="10"
       xmlns="http://javafx.com/javafx"
@@ -18,4 +20,12 @@ coisa que o programa MBR faz é localizar a partição
 ativa, ler seu primeiro bloco, que é chamado de bloco
 de inicialização, e executá-lo. O programa no bloco de
 inicialização carrega o sistema operacional contido naquela partição.' ~Tanenbaum" wrapText="true"/>
+<TableView fx:id="tableView" prefWidth="400" prefHeight="300">
+    <columns>
+        <TableColumn fx:id="indexColumn" text="Partição" prefWidth="200"/>
+        <TableColumn fx:id="firstBlockColumn" text="Bloco inicial" prefWidth="100"/>
+        <TableColumn fx:id="lastBlockColumn" text="Bloco final" prefWidth="100"/>
+        <TableColumn fx:id="activeColumn" text="Ativa?" prefWidth="100"/>
+    </columns>
+</TableView>
 </VBox>

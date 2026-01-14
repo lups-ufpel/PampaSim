@@ -67,6 +67,10 @@ public class Disk {
       return numberOfReservedBlocks;
     }
 
+    public Partition[] getPartitions(){
+      return partitions;
+    }
+
     public void setPartitions(Partition[] partitions){
         if (partitions.length > MAX_PARTITIONS){
             throw new IllegalArgumentException("Too many partitions (max = 10): " + partitions.length);

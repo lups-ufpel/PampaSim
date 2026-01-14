@@ -33,7 +33,7 @@ public class FileSystemTabViewModel implements ViewModel {
     private void createObservableViewModels() {
         for(int i = 0; i < observableBlockRecords.size(); i++){
             BlockRecord entry = observableBlockRecords.get(i);
-            BlockViewModel vm = new BlockViewModel(i, entry.type().toString(), entry);
+            BlockViewModel vm = new BlockViewModel(i, entry.type().toString(), entry, fileSystemSimulation);
 
             observableBlockViewModels.add(vm);
         }
