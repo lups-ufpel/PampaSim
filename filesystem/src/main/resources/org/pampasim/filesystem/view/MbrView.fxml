@@ -11,7 +11,7 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.pampasim.filesystem.view.MbrView"
       stylesheets="@mbr.css">
-    <padding>
+    <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
@@ -21,7 +21,7 @@
            styleClass="description"/>
 
     <!-- Section label -->
-    <Label text="Tabela de Partições"
+    <Label text="Tabela de Partições:"
            styleClass="section"/>
 
     <!-- Table -->

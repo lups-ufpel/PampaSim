@@ -2,11 +2,25 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
 
 <VBox spacing="10"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.pampasim.filesystem.view.InitializationView">
+      fx:controller="org.pampasim.filesystem.view.InitializationView"
+      stylesheets="@mbr.css">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
-     <Label text="Initialization view"/>
+
+     <Label text="Quando o computador é
+inicializado, a BIOS lê e executa o MBR. A primeira
+coisa que o programa MBR faz é localizar a partição
+ativa, ler seu primeiro bloco, que é chamado de bloco
+de inicialização, e executá-lo. O programa no bloco de
+inicialização carrega o sistema operacional contido naquela partição. Por uniformidade, cada partição começa
+com um bloco de inicialização, mesmo que ela não contenha um sistema operacional que possa ser inicializado. Além disso, a partição poderá conter um no futuro. — Tanenbaum"
+           wrapText="true"
+           styleClass="description"/>
 </VBox>
