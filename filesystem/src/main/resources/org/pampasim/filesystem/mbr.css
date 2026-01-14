@@ -1,0 +1,46 @@
+/* Base font */
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-background-color: white;
+}
+
+/* Title */
+.title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Section label */
+.section {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 0 0 0;
+}
+
+/* Paragraph text */
+.description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #333333;
+    -fx-line-spacing: 4px;
+    -fx-max-width: 760;
+}
+
+/* Table tweaks */
+.table-view {
+    -fx-font-size: 12.5px;
+}
+
+.table-view .column-header {
+    -fx-font-weight: bold;
+    -fx-background-color: #f3f3f3;
+}
+
+.table-view .table-cell {
+    -fx-padding: 6 10 6 10;
+}
+
+/* Reduce visual noise */
+.table-view {
+    -fx-table-cell-border-color: transparent;
+}
