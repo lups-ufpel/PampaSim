@@ -206,6 +206,14 @@ public class FileSystem extends AbstractSimEntity {
     return firstFree;
   }
 
+  public AllocationBitMap getFreeBlocksBitMap(){
+    return freeBlocksBitMap;
+  }
+
+  public AllocationBitMap getFreeInodesBitMap(){
+    return inodesBitMap;
+  }
+
   // only contiguous allocation asks for >1 block per call, clears the blocks first
   public int getFreeBlocksAndSetAllocated(int numberOfBlocks){
     int output = getNextAndAllocate(freeBlocksBitMap, numberOfBlocks, FREE_BLOCKS_BITMAP_INDEX); 

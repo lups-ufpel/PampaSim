@@ -15,8 +15,9 @@ import org.pampasim.filesystem.core.BlockRecord;
 public class FileSystemTabViewModel implements ViewModel {
   private FileSystemSimulation fileSystemSimulation;
   private final ObservableList<BlockRecord> observableBlockRecords;
+  // the view models might be observable for no reason at all
   @Getter private final ObservableList<BlockViewModel> observableBlockViewModels = FXCollections.observableArrayList();
-  //
+
       public FileSystemTabViewModel(
             FileSystemSimulation fileSystemSimulation
             //ObservableList<ProcessViewModel> observableProcessList,

@@ -47,6 +47,10 @@ public class BlockView implements FxmlView<BlockViewModel> {
     public Label blockLabel;
 
     private MbrViewModel mbrViewModel = null;
+    private InitializationViewModel initializationViewModel = null;
+    private SuperblockViewModel superblockViewModel = null;
+    private FreeBlocksViewModel freeBlocksViewModel = null;
+    private FreeInodesViewModel freeInodesViewModel = null;
 
     public void initialize() {
         number.setText(Integer.toString(viewModel.getNumber()));
@@ -97,19 +101,19 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     .load();
         
             case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)
-                    .viewModel(new InitializationViewModel())
+                    .viewModel((initializationViewModel == null) ? new InitializationViewModel() : initializationViewModel)
                     .load();
         
             case SUPERBLOCK -> FluentViewLoader.fxmlView(SuperblockView.class)
-                    .viewModel(new SuperblockViewModel())
+                    .viewModel((superblockViewModel == null) ? new SuperblockViewModel() : superblockViewModel)
                     .load();
         
             case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksView.class)
-                    .viewModel(new FreeBlocksViewModel())
+                    .viewModel((freeBlocksViewModel == null) ? new FreeBlocksViewModel() : freeBlocksViewModel)
                     .load();
         
             case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesView.class)
-                    .viewModel(new FreeInodesViewModel())
+                    .viewModel((freeInodesViewModel == null) ? new FreeInodesViewModel(fileSystemSimulation.getFileSystem().getFreeInodesBitMap()) : freeInodesViewModel)
                     .load();
 
             case FILE -> FluentViewLoader.fxmlView(FileView.class)
