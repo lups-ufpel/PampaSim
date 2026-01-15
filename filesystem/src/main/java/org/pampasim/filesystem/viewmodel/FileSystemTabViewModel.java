@@ -28,6 +28,7 @@ public class FileSystemTabViewModel implements ViewModel {
         this.observableBlockRecords = fileSystemSimulation.getBlockRecordsReference();
 
         createObservableViewModels();
+        refreshLegendEntries();
         addBlockRecordsListener();
     }
 
