@@ -448,7 +448,6 @@ public class FileSystem extends AbstractSimEntity {
 
     }
 
-    System.out.println(output.toString());
     return output;
   }
 
