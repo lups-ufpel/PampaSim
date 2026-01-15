@@ -2,6 +2,7 @@
 package org.pampasim.filesystem.core;
 
 import java.util.BitSet;
+import javafx.scene.paint.Color;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
@@ -19,6 +20,12 @@ public class AllocationBitMap {
 
   public ReadOnlyIntegerProperty versionProperty() {
       return version;
+  }
+
+  public static Color getCorrespondingColor(boolean bit) {
+      return bit == AllocationBitMap.allocated
+              ? Color.web("#4CAF50")   // soft green
+              : Color.web("#B0BEC5");  // light gray
   }
 
   public boolean get(int index){

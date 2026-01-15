@@ -17,18 +17,24 @@ import org.pampasim.filesystem.viewmodel.FreeInodesViewModel;
 import org.pampasim.filesystem.viewmodel.BitViewModel;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.core.AllocationBitMap;
 
 public class FreeInodesView implements FxmlView<FreeInodesViewModel>, Initializable {
 
     @InjectViewModel
     private FreeInodesViewModel viewModel;
     @FXML public TilePane bitTilepane;
+    @FXML private Rectangle allocatedRect;
+    @FXML private Rectangle freeRect;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
       updateTilepaneChildren();
 
       addViewModelsListener();
+
+      allocatedRect.setFill(AllocationBitMap.getCorrespondingColor(AllocationBitMap.allocated));
+      freeRect.setFill(AllocationBitMap.getCorrespondingColor(AllocationBitMap.free));
     }
 
     // maybe listen to tick change instead of block change

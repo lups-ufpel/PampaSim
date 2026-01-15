@@ -4,11 +4,23 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.shape.Rectangle?>
 
 <VBox spacing="10"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.pampasim.filesystem.view.FreeBlocksView">
+
+      <HBox>
+        <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Alocado: " prefWidth="250"/>
+        <Rectangle fx:id="allocatedRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+      </HBox>
+      <HBox>
+        <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Livre: " prefWidth="250"/>
+        <Rectangle fx:id="freeRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+      </HBox>
+
 
        <VBox alignment="TOP_CENTER" spacing="10">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">

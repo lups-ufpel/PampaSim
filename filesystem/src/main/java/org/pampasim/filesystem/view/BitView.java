@@ -41,7 +41,7 @@ public class BitView implements FxmlView<BitViewModel> {
             Bindings.createObjectBinding(
                 () -> new Background(
                     new BackgroundFill(
-                        getCorrespondingColor(viewModel.getBit()),
+                        AllocationBitMap.getCorrespondingColor(viewModel.getBit()),
                         new CornerRadii(5),
                         Insets.EMPTY
                     )
@@ -61,12 +61,5 @@ public class BitView implements FxmlView<BitViewModel> {
             )
         );
     }
-
-    public Color getCorrespondingColor(boolean bit) {
-        return bit == AllocationBitMap.allocated
-                ? Color.web("#4CAF50")   // soft green
-                : Color.web("#B0BEC5");  // light gray
-    }
-
 
 }
