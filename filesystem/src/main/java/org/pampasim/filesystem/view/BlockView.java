@@ -70,7 +70,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
             Bindings.createObjectBinding(
                 () -> new Background(
                     new BackgroundFill(
-                        BlockType.getCorrespondingColor(viewModel.getType()),
+                        BlockRecord.getCorrespondingColor(viewModel.getBlockRecord()),
                         new CornerRadii(5),
                         Insets.EMPTY
                     )
