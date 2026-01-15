@@ -10,9 +10,7 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.pampasim.filesystem.view.FreeInodesView">
 
-     <Label text="FreeInodesBitMapView view"/>
        <VBox alignment="TOP_CENTER" spacing="10">
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Blocos do Disco" />
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                 <TilePane fx:id="bitTilepane" hgap="5" prefTileHeight="30.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
             </ScrollPane>

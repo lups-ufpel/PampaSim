@@ -109,7 +109,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     .load();
         
             case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksView.class)
-                    .viewModel((freeBlocksViewModel == null) ? new FreeBlocksViewModel() : freeBlocksViewModel)
+                    .viewModel((freeBlocksViewModel == null) ? new FreeBlocksViewModel(fileSystemSimulation.getFileSystem().getFreeBlocksBitMap()) : freeBlocksViewModel)
                     .load();
         
             case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesView.class)

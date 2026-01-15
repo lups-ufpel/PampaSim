@@ -1,26 +1,57 @@
 package org.pampasim.filesystem.view;
 
+import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
-import javafx.beans.binding.Bindings;
+import javafx.scene.layout.TilePane;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
+import javafx.fxml.Initializable;
+import javafx.collections.ListChangeListener;
+import javafx.scene.Parent;
+import javafx.scene.shape.Rectangle;
+import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.scene.paint.Color;
-import javafx.geometry.Insets;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.control.ButtonType;
-import javafx.scene.Cursor;
 
 import org.pampasim.filesystem.viewmodel.FreeBlocksViewModel;
+import org.pampasim.filesystem.viewmodel.BitViewModel;
+import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.core.BlockRecord;
 
-public class FreeBlocksView implements FxmlView<FreeBlocksViewModel> {
+public class FreeBlocksView implements FxmlView<FreeBlocksViewModel>, Initializable {
+
     @InjectViewModel
     private FreeBlocksViewModel viewModel;
+    @FXML public TilePane bitTilepane;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle){
+      updateTilepaneChildren();
+
+      addViewModelsListener();
+    }
+
+    // maybe listen to tick change instead of block change
+    private void addViewModelsListener() {
+        viewModel.getBitViewModels().addListener((ListChangeListener<BitViewModel>) change -> {
+            while (change.next()) {
+                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
+                  updateTilepaneChildren();
+                }
+            }
+        });
+    }
+
+    private void updateTilepaneChildren() {
+    bitTilepane.getChildren().clear();
+    viewModel.getBitViewModels().forEach(vm -> {
+        Parent view = FluentViewLoader.fxmlView(BitView.class)
+                .viewModel(vm)
+                .load()
+                .getView();
+        bitTilepane.getChildren().add(view);
+    });
+
+    }
 
 }
