@@ -50,12 +50,15 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       freeInodesBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_INODES_BITMAP));
       inodeTableRect.setFill(BlockType.getCorrespondingColor(BlockType.INODE_TABLE));
 
+      for(LegendEntry e : viewModel.getLegendEntries()){
+        addLegendEntry(e.isDirectory(), e.text(), e.color());
+      }
       viewModel.getLegendEntries().addListener(
           (ListChangeListener<LegendEntry>) change -> {
               while (change.next()) {
                   if (change.wasAdded()) {
                       for (LegendEntry e : change.getAddedSubList()) {
-                          addLegendEntry(e.text(), e.color());
+                          addLegendEntry(e.isDirectory(), e.text(), e.color());
                       }
                   }
               }
@@ -86,16 +89,16 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
     }
 
-    private void addLegendEntry(String text, Paint color) {
-        Label label = new Label(text);
+    private void addLegendEntry(Boolean isDirectory, String text, Paint color) {
+        String labelText = ((isDirectory) ? "Diretório: " : "Arquivo: ") + text;
+        Label label = new Label(labelText);
         label.setStyle("-fx-font-weight: bold; -fx-font-size: 15;");
         label.setPrefWidth(250);
     
         Rectangle rect = new Rectangle(16, 16);
         rect.setFill(color);
     
-        HBox row = new HBox(8);
-        row.setAlignment(Pos.CENTER_LEFT);
+        HBox row = new HBox(0);
         row.getChildren().addAll(label, rect);
     
         legendBox.getChildren().add(row);
