@@ -5,11 +5,12 @@ import de.saxsys.mvvmfx.ViewModel;
 import org.pampasim.filesystem.core.AllocationBitMap;
 import org.pampasim.filesystem.viewmodel.BitViewModel;
 
-import java.util.ArrayList;
+import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
 
 public class FreeInodesViewModel implements ViewModel {
 
-  private ArrayList<BitViewModel> bitViewModels;
+  private ObservableList<BitViewModel> bitViewModels = FXCollections.observableArrayList();
   private AllocationBitMap freeInodesBitMap;
 
   public FreeInodesViewModel(AllocationBitMap freeInodesBitMap){
@@ -29,6 +30,10 @@ public class FreeInodesViewModel implements ViewModel {
       }
         
     });
+  }
+
+  public ObservableList<BitViewModel> getBitViewModels(){
+    return bitViewModels;
   }
  
 }

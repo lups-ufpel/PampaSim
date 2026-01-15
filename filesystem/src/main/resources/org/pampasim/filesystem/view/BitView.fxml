@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox fx:id="blockVBox"
+      xmlns="http://javafx.com/javafx/22"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.pampasim.filesystem.view.BitView"
+      alignment="TOP_CENTER"
+      prefHeight="70.0" prefWidth="50.0"
+      style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);">
+
+    <children>
+        <Label fx:id="number" text="0" />
+        <StackPane>
+            <Label fx:id="bitLabel" style="-fx-font-size: 10px; -fx-text-fill: black;" />
+        </StackPane>
+    </children>
+</VBox>
