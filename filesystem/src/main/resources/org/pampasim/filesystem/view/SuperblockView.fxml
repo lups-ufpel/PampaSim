@@ -2,11 +2,23 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
 
 <VBox spacing="10"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.pampasim.filesystem.view.SuperblockView">
+      fx:controller="org.pampasim.filesystem.view.SuperblockView"
+      stylesheets="@mbr.css">
 
-     <Label text="SuperBlock view"/>
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+     <Label text=" 'Ele' (o superbloco) 'contém todos os parâmetros-chave a respeito do sistema de arquivos e é lido
+para a memória quando o computador é inicializado ou
+o sistema de arquivos é tocado pela primeira vez. Informações típicas no superbloco incluem um número
+mágico para identificar o tipo de sistema de arquivos,
+seu número de blocos e outras informações administrativas fundamentais.' — Tanenbaum"
+           wrapText="true"
+           styleClass="description"/>
 </VBox>

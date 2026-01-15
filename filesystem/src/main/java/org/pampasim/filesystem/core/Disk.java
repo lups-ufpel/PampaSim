@@ -130,8 +130,12 @@ public class Disk {
     }
 
     public void setBlockRecord(int firstBlock, int lastBlockExclusive, BlockType type){
+      setBlockRecord(firstBlock, lastBlockExclusive, type, "", -1);
+    }
+
+    public void setBlockRecord(int firstBlock, int lastBlockExclusive, BlockType type, String userString, int userInt){
       for(int i = firstBlock; i < lastBlockExclusive; i++){
-        setBlockRecord(i, type, "", -1);
+        setBlockRecord(i, type, userString, userInt);
       }
     }
 

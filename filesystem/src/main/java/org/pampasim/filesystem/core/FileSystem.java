@@ -165,6 +165,7 @@ public class FileSystem extends AbstractSimEntity {
 
     root_directory_starting_index = currentBlock;
     sizeBlocks = writeRootDirectory(currentBlock);
+    setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.DIRECTORY, "/");
     currentBlock+= sizeBlocks;
 
     freeBlocksBitMap.setAllocated(0, currentBlock);
@@ -375,8 +376,20 @@ public class FileSystem extends AbstractSimEntity {
     disk.setBlockRecord(partition.getFirstBlockIndex() + relativeBlockIndex, type, userString, userInt);
   }
 
+  public void setBlockRecord(int relativeBlockStartIndex, int relativeBlockEndIndex, BlockType type, String userString, int userInt){
+    disk.setBlockRecord(partition.getFirstBlockIndex() + relativeBlockStartIndex, partition.getFirstBlockIndex() + relativeBlockEndIndex, type, userString, userInt);
+  }
+
   public void setBlockRecord(int relativeBlockStartIndex, int relativeBlockEndIndex, BlockType type){
-    disk.setBlockRecord(partition.getFirstBlockIndex() + relativeBlockStartIndex, partition.getFirstBlockIndex() + relativeBlockEndIndex, type);
+    setBlockRecord(relativeBlockStartIndex, relativeBlockEndIndex, type, "", -1);
+  }
+
+  public void setBlockRecord(int relativeBlockStartIndex, int relativeBlockEndIndex, BlockType type, String userString){
+    setBlockRecord(relativeBlockStartIndex, relativeBlockEndIndex, type, userString, -1);
+  }
+
+  public void setBlockRecord(int relativeBlockIndex, BlockType type, int userInt){
+    setBlockRecord(relativeBlockIndex, type, "", userInt);
   }
 
   // relative to partition
