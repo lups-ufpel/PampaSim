@@ -5,15 +5,18 @@ import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.mapping.*;
+import org.pampasim.filesystem.LegendEntry;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.Simulation;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import javafx.scene.paint.Color;
 
 public class FileSystem extends AbstractSimEntity {
 
@@ -395,6 +398,58 @@ public class FileSystem extends AbstractSimEntity {
   // relative to partition
   public void setBlockRecord(int relativeBlockIndex, BlockType type){
     setBlockRecord(relativeBlockIndex, type, "", -1);
+  }
+
+  public ArrayList<LegendEntry> getFileTreeLegendEntries(){
+    return getDirectoryLegendEntries("/");
+  }
+
+  public ArrayList<LegendEntry> getDirectoryLegendEntries(String path){
+
+    var output = new ArrayList<LegendEntry>();
+    Directory current = Directory.find(this, path);
+
+    String name;
+    boolean isRoot = path.equals("/");
+    if(isRoot){
+      name = "/";
+    }  else{
+      String[] segments = path.split("/");
+      name = segments[segments.length - 1];
+    }
+
+    output.add(new LegendEntry(name, Color.GRAY)); // temp color
+    for(DirectoryEntry e : current.getEntries()){
+      if(e.getName() == "." || e.getName() == "..")
+      {
+        continue;
+      }
+
+      boolean isDirectory = switch(allocationScheme){
+        case CONTIGUOUS -> ((ContiguousMapping) e.getFileMapping()).getMetadata().isDirectory();
+        case FAT -> ((FATMapping) e.getFileMapping()).getMetadata().isDirectory();
+        case INODES -> Inode.getMetadata(this, ((InodeMapping) e.getFileMapping()).getIndex()).isDirectory();
+        default -> throw new Error("unhandled switch case");
+      };
+      if(isDirectory){
+        String subDirectoryPath;
+        if(isRoot){
+          subDirectoryPath = path + e.getName();
+        }  else{
+          subDirectoryPath = path + "/" + e.getName();
+
+        }
+        output.addAll(getDirectoryLegendEntries(subDirectoryPath));
+
+      }  else{
+        output.add(new LegendEntry(e.getName(), Color.GRAY)); // temp color
+
+      }
+
+
+    }
+
+    return output;
   }
 
   // relative to partition. Checks bounds

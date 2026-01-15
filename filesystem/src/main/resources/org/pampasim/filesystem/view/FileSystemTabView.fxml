@@ -38,7 +38,7 @@
         </VBox>
 
         <!-- Color descriptions -->
-        <VBox alignment="TOP_CENTER">
+        <VBox fx:id="legendBox" alignment="TOP_CENTER">
           <HBox>
             <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Master Boot Record: " prefWidth="250"/>
             <Rectangle fx:id="mbrRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />

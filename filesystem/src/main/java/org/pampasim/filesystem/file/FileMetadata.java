@@ -240,6 +240,10 @@ public class FileMetadata{
   public boolean isBinary() {
       return isBinary;
   }
+
+  public boolean isDirectory(){
+      return isDirectory;
+  }
   
   @Override
   public String toString(){

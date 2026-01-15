@@ -12,17 +12,24 @@ import javafx.scene.shape.Rectangle;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.paint.Color;
+import javafx.geometry.Pos;
+import javafx.scene.paint.Paint;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Label;
 
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.LegendEntry;
 
 public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Initializable {
 
     @InjectViewModel
     private FileSystemTabViewModel viewModel;
     @FXML public TilePane blockTilepane;
+    @FXML private VBox legendBox;
     @FXML private Rectangle mbrRect;
     @FXML private Rectangle initializationRect;
     @FXML private Rectangle superBlockRect;
@@ -42,6 +49,18 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       freeBlocksBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_BLOCKS_BITMAP));
       freeInodesBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_INODES_BITMAP));
       inodeTableRect.setFill(BlockType.getCorrespondingColor(BlockType.INODE_TABLE));
+
+      viewModel.getLegendEntries().addListener(
+          (ListChangeListener<LegendEntry>) change -> {
+              while (change.next()) {
+                  if (change.wasAdded()) {
+                      for (LegendEntry e : change.getAddedSubList()) {
+                          addLegendEntry(e.text(), e.color());
+                      }
+                  }
+              }
+          }
+      );
     }
 
     // maybe listen to tick change instead of block change
@@ -65,6 +84,21 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
         blockTilepane.getChildren().add(view);
     });
 
+    }
+
+    private void addLegendEntry(String text, Paint color) {
+        Label label = new Label(text);
+        label.setStyle("-fx-font-weight: bold; -fx-font-size: 15;");
+        label.setPrefWidth(250);
+    
+        Rectangle rect = new Rectangle(16, 16);
+        rect.setFill(color);
+    
+        HBox row = new HBox(8);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getChildren().addAll(label, rect);
+    
+        legendBox.getChildren().add(row);
     }
 
 }

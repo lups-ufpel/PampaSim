@@ -10,12 +10,14 @@ import javafx.collections.ListChangeListener;
 
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.LegendEntry;
 
 
 public class FileSystemTabViewModel implements ViewModel {
   private FileSystemSimulation fileSystemSimulation;
   private final ObservableList<BlockRecord> observableBlockRecords;
   @Getter private final ObservableList<BlockViewModel> observableBlockViewModels = FXCollections.observableArrayList();
+  private final ObservableList<LegendEntry> legendEntries = FXCollections.observableArrayList();
 
       public FileSystemTabViewModel(
             FileSystemSimulation fileSystemSimulation
@@ -43,13 +45,28 @@ public class FileSystemTabViewModel implements ViewModel {
         observableBlockRecords.addListener((ListChangeListener<BlockRecord>) change -> {
             while (change.next()) {
                 if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
-                  for(int i = 0; i < observableBlockViewModels.size(); i++){
-                    observableBlockViewModels.get(i).setBlockRecord(observableBlockRecords.get(i));
-                  }
+                  refreshViewModels();
+                  refreshLegendEntries();
                 }
             }
         });
 
+    }
+
+    private void refreshViewModels(){
+      for(int i = 0; i < observableBlockViewModels.size(); i++){
+        observableBlockViewModels.get(i).setBlockRecord(observableBlockRecords.get(i));
+      }
+    }
+
+    public void refreshLegendEntries(){
+      legendEntries.clear();
+      legendEntries.addAll(fileSystemSimulation.getFileSystem().getFileTreeLegendEntries());
+
+    }
+
+    public ObservableList<LegendEntry> getLegendEntries() {
+        return legendEntries;
     }
 
 }
