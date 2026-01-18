@@ -58,9 +58,10 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
 
         metadataColumn.setCellFactory(col -> new TableCell<>() {
         
-            private final Button button = new Button("Open");
-        
+            private final Button button = new Button("Expandir");
             {
+                button.setMaxWidth(Double.MAX_VALUE);
+
                 button.setOnAction(e -> {
                     DirectoryEntry rowItem = getTableView()
                             .getItems()

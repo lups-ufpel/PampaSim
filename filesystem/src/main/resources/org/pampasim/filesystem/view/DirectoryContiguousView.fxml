@@ -27,6 +27,7 @@
             <TableColumn fx:id="fileNameColumn" text="Nome" prefWidth="80"/>
             <TableColumn fx:id="firstBlockColumn" text="Primeiro Bloco" prefWidth="160"/>
             <TableColumn fx:id="finalSizeColumn" text="Tamanho Final" prefWidth="160"/>
+            <TableColumn fx:id="metadataColumn" text="Metadados" prefWidth="160"/>
         </columns>
 
     </TableView>
