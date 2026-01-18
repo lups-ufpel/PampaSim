@@ -200,9 +200,9 @@ public class BlockView implements FxmlView<BlockViewModel> {
         
             case FREE_INODES_BITMAP -> "Mapa de I-nodes Livres";
 
-            case FILE -> "Arquivo" + "\"" + blockRecord.userString() + "\"";
+            case FILE -> "Arquivo " + "\"" + blockRecord.userString() + "\"";
         
-            case DIRECTORY -> "Diretório" + "\"" + blockRecord.userString() + "\"";
+            case DIRECTORY -> "Diretório " + "\"" + blockRecord.userString() + "\"";
 
             case INODE_TABLE -> "Tabela de I-nodes";
 
