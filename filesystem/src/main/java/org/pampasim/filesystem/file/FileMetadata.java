@@ -19,7 +19,7 @@ public class FileMetadata{
   private Instant creationTime; // converts to epoch milli internally
   private Instant lastAccess;
   private Instant lastModified;
-  private boolean isBinary; // other option is ASCII
+  private boolean isBinary; // other option is ASCII, maybe remove this
   private boolean isDirectory;
   //private boolean isReadOnly; // maybe too scope too big 
   //private boolean isSystem; // maybe too scope too big 

@@ -51,6 +51,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
     private SuperblockViewModel superblockViewModel = null;
     private FreeBlocksViewModel freeBlocksViewModel = null;
     private FreeInodesViewModel freeInodesViewModel = null;
+    private DirectoryViewModel directoryViewModel = null;
 
     public void initialize() {
         number.setText(Integer.toString(viewModel.getNumber()));
@@ -120,25 +121,57 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     .viewModel(new FileViewModel())
                     .load();
         
-            case DIRECTORY -> FluentViewLoader.fxmlView(DirectoryView.class)
-                    .viewModel(new DirectoryViewModel())
-                    .load();
-
+            case DIRECTORY -> { // userString = path
+                var fs = fileSystemSimulation.getFileSystem();
+            
+                yield switch (fs.getAllocationScheme()) {
+            
+                    case INODES ->
+                        FluentViewLoader.fxmlView(DirectoryInodeView.class)
+                            .viewModel(
+                                directoryViewModel != null
+                                    ? directoryViewModel
+                                    : (directoryViewModel =
+                                        new DirectoryViewModel(fs, blockRecord.userString()))
+                            )
+                            .load();
+            
+                    case FAT ->
+                        FluentViewLoader.fxmlView(DirectoryFATView.class)
+                            .viewModel(
+                                directoryViewModel != null
+                                    ? directoryViewModel
+                                    : (directoryViewModel =
+                                        new DirectoryViewModel(fs, blockRecord.userString()))
+                            )
+                            .load();
+            
+                    case CONTIGUOUS ->
+                        FluentViewLoader.fxmlView(DirectoryContiguousView.class)
+                            .viewModel(
+                                directoryViewModel != null
+                                    ? directoryViewModel
+                                    : (directoryViewModel =
+                                        new DirectoryViewModel(fs, blockRecord.userString()))
+                            )
+                            .load();
+                };
+            }
             case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
-                    .viewModel(new InodeTableViewModel())
-                    .load();
+                                .viewModel(new InodeTableViewModel())
+                                .load();
 
             default ->
               throw new Error("unhandled");
-        
+
+            };
+                    
       /*
             case INODE -> FluentViewLoader.fxmlView(InodeView.class)
                     .viewModel(new InodeViewModel())
                     .load();
       */
         
-        };       
-
         if(viewTuple != null){
           Stage stage = new Stage();
           stage.setScene(new Scene(viewTuple.getView(), 600, 600));
