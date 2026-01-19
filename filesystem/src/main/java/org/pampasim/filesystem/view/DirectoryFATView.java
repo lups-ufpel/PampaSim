@@ -2,6 +2,8 @@ package org.pampasim.filesystem.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.FluentViewLoader;
+
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -22,8 +24,11 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Button;
 import javafx.collections.FXCollections;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
+import org.pampasim.filesystem.viewmodel.MetadataViewModel;
 import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.mapping.FATMapping;
 
@@ -52,15 +57,20 @@ public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
         
         metadataColumn.setCellFactory(col -> new TableCell<>() {
         
-            private final Button button = new Button("Open");
-        
+            private final Button button = new Button("Expandir");
             {
+                button.setMaxWidth(Double.MAX_VALUE);
+                
                 button.setOnAction(e -> {
-                    DirectoryEntry rowItem = getTableView()
-                            .getItems()
-                            .get(getIndex());
-        
-                    // do something with rowItem
+                var viewTuple = FluentViewLoader.fxmlView(MetadataView.class)
+                                                .viewModel(new MetadataViewModel(viewModel.getFileSystem(),  viewModel.getFilePath(getIndex())))
+                                                .load();
+
+                Stage stage = new Stage();
+                stage.setScene(new Scene(viewTuple.getView(), 400, 150));
+                stage.setTitle("Metadados");
+                stage.show();
+
                 });
             }
         
