@@ -30,6 +30,7 @@ public class MetadataViewModel implements ViewModel {
       currentSize.set(metadata.getCurrentSizeBytes());
       creationTime.set(metadata.getCreationTime());
       lastAccessTime.set(metadata.getLastAccess());
+      lastModifiedTime.set(metadata.getLastModified());
       directory.set(metadata.isDirectory());
     }
 

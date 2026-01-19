@@ -35,7 +35,7 @@ public class FileMetadata{
 
 
   public FileMetadata(int currentSizeBytes, boolean isBinary, boolean isDirectory, Instant creationTime, 
-    Instant lastAccess, Instant lastModiefied){
+    Instant lastAccess, Instant lastModified){
     this.currentSizeBytes = currentSizeBytes;
     this.isBinary = isBinary;
     this.isDirectory = isDirectory;
