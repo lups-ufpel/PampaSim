@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+
+<GridPane fx:id="metadataGrid"
+          xmlns="http://javafx.com/javafx/22.0.2"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="org.pampasim.filesystem.view.MetadataView"
+          hgap="12"
+          vgap="8">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Row 0 -->
+    <Label text="Tamanho atual (Bytes):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label fx:id="currentSizeLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+    <!-- Row 1 -->
+    <Label text="Criação:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label fx:id="creationTimeLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+    <!-- Row 2 -->
+    <Label text="Último acesso:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label fx:id="lastAccessLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+    <!-- Row 3 -->
+    <Label text="Última modificação:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+    <Label fx:id="lastModifiedLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+    <!-- Row 4 -->
+    <Label text="Diretório?" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+    <Label fx:id="isDirectoryLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+</GridPane>

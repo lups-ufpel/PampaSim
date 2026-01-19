@@ -774,10 +774,19 @@ public class FileSystem extends AbstractSimEntity {
     }
 
   }
+
+  public FileMetadata findMetadata(String filePath){
+    String[] segments = filePath.split("/");
+    String name = segments[segments.length - 1];
+
+    FileMapping m = Directory.findParent(this, filePath).findEntry(name).getFileMapping(); 
+
+    return switch(allocationScheme){
+      case INODES -> ((InodeMapping) m).getMetadata(this);
+      case FAT -> ((FATMapping) m).getMetadata();
+      case CONTIGUOUS -> ((ContiguousMapping) m).getMetadata();
+      default -> throw new Error("unhandled switch");
+    };
+  }
   
-  //public fileCreate(string Path, byte[] data){
-
-  //}
-    //public fileWrite(string Path, byte[] data);
-
 }
