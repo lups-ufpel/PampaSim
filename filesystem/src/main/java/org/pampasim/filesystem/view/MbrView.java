@@ -34,7 +34,7 @@ public class MbrView implements FxmlView<MbrViewModel> {
     @FXML
     private TableColumn<Partition, Integer> lastBlockColumn;
     @FXML
-    private TableColumn<Partition, Boolean> activeColumn;
+    private TableColumn<Partition, String> activeColumn;
     @FXML
     private TableColumn<Partition, Number> indexColumn = new TableColumn<>("#");
 
@@ -59,7 +59,7 @@ public class MbrView implements FxmlView<MbrViewModel> {
         );
         
         activeColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(cell.getValue().isActive())
+            cell -> new ReadOnlyObjectWrapper<>(cell.getValue().isActive() ? "Sim" : "Não")
         );
 
         //changes dont propagate, whatever
