@@ -345,21 +345,39 @@ public class Directory{
 
   public static DirectoryEntry getDotFromDisk(int relative_starting_index, FileSystem fileSystem){
     AllocationScheme as = fileSystem.getAllocationScheme();
-    if(as != AllocationScheme.CONTIGUOUS){
-      throw new Error("NOT IMPLEMENTED.");
-    }
-    byte[] dotEntryBytes = fileSystem.readBytes(DirectoryEntry.sizeBytes(as), relative_starting_index, 0);
+    return switch(as){
+      case CONTIGUOUS:
 
-    return DirectoryEntry.getFromBuffer(ByteBuffer.wrap(dotEntryBytes), as);
+        byte[] dotEntryBytes = fileSystem.readBytes(DirectoryEntry.sizeBytes(as), relative_starting_index, 0);
+        yield DirectoryEntry.getFromBuffer(ByteBuffer.wrap(dotEntryBytes), as);
+
+      case FAT:
+        
+        //rounded up to fit blocks
+        byte[] dotData = new byte[fileSystem.blocksRequiredFor(DirectoryEntry.sizeBytes(as)) * fileSystem.getBlockSizeBytes()];
+        int nextBlock = relative_starting_index;
+        int dataPosition = 0;
+        while(dataPosition < dotData.length){
+
+          System.arraycopy(fileSystem.readBlock(nextBlock), 0, dotData, dataPosition, fileSystem.getBlockSizeBytes());
+          dataPosition += fileSystem.getBlockSizeBytes();
+          nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
+        }
+
+        yield DirectoryEntry.getFromBuffer(ByteBuffer.wrap(dotData), as);
+
+      default:
+        throw new Error("Not implemented");
+    };
   }
 
   public static Directory getFromDisk(int fileIndex, FileSystem fileSystem){
     byte[] directoryData;
+    DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
     switch(fileSystem.getAllocationScheme()){
       case CONTIGUOUS:
         int relative_starting_index = fileIndex;
         
-        DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
 
         int sizeBlocks = ((ContiguousMapping) dot.getFileMapping()).getFinalSizeBlocks();
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
@@ -370,6 +388,24 @@ public class Directory{
         int inode_index = fileIndex;
         // need to update current size bytes properly
         directoryData = Inode.read(fileSystem, inode_index, Inode.getMetadata(fileSystem, inode_index).getCurrentSizeBytes(), 0);
+        break;
+
+      case FAT:
+        int firstBlockIndex = fileIndex;
+
+        // current size bytes rounded up to be divisible by blocks
+        int size = fileSystem.blocksRequiredFor(((FATMapping) dot.getFileMapping()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
+        directoryData = new byte[size];
+        int nextBlock = firstBlockIndex;
+        int dataPosition = 0;
+        int copyAmount = fileSystem.getBlockSizeBytes();
+        while(nextBlock != FileSystem.UNUSED){
+
+          System.arraycopy(fileSystem.readBlock(nextBlock), 0, directoryData, dataPosition, fileSystem.getBlockSizeBytes());
+          dataPosition += fileSystem.getBlockSizeBytes();
+          nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
+        }
+
         break;
 
       default:
