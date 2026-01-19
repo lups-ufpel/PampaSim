@@ -73,7 +73,7 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
                                                 .load();
 
                 Stage stage = new Stage();
-                stage.setScene(new Scene(viewTuple.getView(), 600, 600));
+                stage.setScene(new Scene(viewTuple.getView(), 400, 150));
                 stage.setTitle("Metadados");
                 stage.show();
 
