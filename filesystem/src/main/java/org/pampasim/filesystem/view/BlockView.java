@@ -130,7 +130,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                 yield switch (fs.getAllocationScheme()) {
             
                     case INODES: 
-                        width = 200;
+                        width = 280;
                         height = 400;
                         yield FluentViewLoader.fxmlView(DirectoryInodeView.class)
                             .viewModel(

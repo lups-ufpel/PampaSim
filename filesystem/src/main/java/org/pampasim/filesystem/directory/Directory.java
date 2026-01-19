@@ -373,16 +373,18 @@ public class Directory{
 
   public static Directory getFromDisk(int fileIndex, FileSystem fileSystem){
     byte[] directoryData;
-    DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
     switch(fileSystem.getAllocationScheme()){
       case CONTIGUOUS:
+        {
         int relative_starting_index = fileIndex;
         
 
+        DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
         int sizeBlocks = ((ContiguousMapping) dot.getFileMapping()).getFinalSizeBlocks();
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
         directoryData = FileSystem.flatten(directoryBlocks);
         break;
+        }
 
       case INODES:
         int inode_index = fileIndex;
@@ -391,8 +393,10 @@ public class Directory{
         break;
 
       case FAT:
+        {
         int firstBlockIndex = fileIndex;
 
+        DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
         // current size bytes rounded up to be divisible by blocks
         int size = fileSystem.blocksRequiredFor(((FATMapping) dot.getFileMapping()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
         directoryData = new byte[size];
@@ -407,6 +411,7 @@ public class Directory{
         }
 
         break;
+        }
 
       default:
         throw new Error("unhandled switch case");
