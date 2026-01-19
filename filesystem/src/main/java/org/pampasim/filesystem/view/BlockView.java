@@ -94,6 +94,9 @@ public class BlockView implements FxmlView<BlockViewModel> {
 
   // probably dont create a new viewmodel every single time
     public void openWindow(BlockRecord blockRecord, FileSystemSimulation fileSystemSimulation){
+        int width = 600;
+        int height = 600;
+
         var viewTuple = switch (blockRecord.type()) {
             case EMPTY -> null;
 
@@ -126,8 +129,10 @@ public class BlockView implements FxmlView<BlockViewModel> {
             
                 yield switch (fs.getAllocationScheme()) {
             
-                    case INODES ->
-                        FluentViewLoader.fxmlView(DirectoryInodeView.class)
+                    case INODES: 
+                        width = 200;
+                        height = 400;
+                        yield FluentViewLoader.fxmlView(DirectoryInodeView.class)
                             .viewModel(
                                 directoryViewModel != null
                                     ? directoryViewModel
@@ -136,8 +141,10 @@ public class BlockView implements FxmlView<BlockViewModel> {
                             )
                             .load();
             
-                    case FAT ->
-                        FluentViewLoader.fxmlView(DirectoryFATView.class)
+                    case FAT:
+                        width = 420;
+                        height = 400;
+                        yield FluentViewLoader.fxmlView(DirectoryFATView.class)
                             .viewModel(
                                 directoryViewModel != null
                                     ? directoryViewModel
@@ -146,8 +153,10 @@ public class BlockView implements FxmlView<BlockViewModel> {
                             )
                             .load();
             
-                    case CONTIGUOUS ->
-                        FluentViewLoader.fxmlView(DirectoryContiguousView.class)
+                    case CONTIGUOUS:
+                        width = 600;
+                        height = 400;
+                        yield FluentViewLoader.fxmlView(DirectoryContiguousView.class)
                             .viewModel(
                                 directoryViewModel != null
                                     ? directoryViewModel
@@ -174,7 +183,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
         
         if(viewTuple != null){
           Stage stage = new Stage();
-          stage.setScene(new Scene(viewTuple.getView(), 600, 600));
+          stage.setScene(new Scene(viewTuple.getView(), width, height));
           stage.setTitle(getCorrespondingWindowTitle(blockRecord));
           stage.show();
         }
