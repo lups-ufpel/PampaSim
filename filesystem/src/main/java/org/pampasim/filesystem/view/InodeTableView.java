@@ -22,6 +22,7 @@ import javafx.scene.Parent;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
+import javafx.collections.ListChangeListener;
 
 import org.pampasim.filesystem.viewmodel.InodeTableViewModel;
 import org.pampasim.filesystem.viewmodel.InodeBlockViewModel;
@@ -35,13 +36,11 @@ public class InodeTableView implements FxmlView<InodeTableViewModel>, Initializa
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
       updateTilepaneChildren();
-      //addViewModelsListener();
+      addViewModelsListener();
     }
 
-    // maybe listen to tick change instead of block change
-    /*
     private void addViewModelsListener() {
-        viewModel.getObservableInodeBlockViewModels().addListener((ListChangeListener<InodeBlockViewModel>) change -> {
+        viewModel.getInodeBlockViewModels().addListener((ListChangeListener<InodeBlockViewModel>) change -> {
             while (change.next()) {
                 if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
                   updateTilepaneChildren();
@@ -49,7 +48,6 @@ public class InodeTableView implements FxmlView<InodeTableViewModel>, Initializa
             }
         });
     }
-    */
 
     private void updateTilepaneChildren() {
         inodeTilepane.getChildren().clear();

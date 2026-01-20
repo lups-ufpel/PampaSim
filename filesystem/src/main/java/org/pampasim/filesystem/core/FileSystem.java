@@ -16,6 +16,7 @@ import java.util.Random;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.time.Instant;
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 
 public class FileSystem extends AbstractSimEntity {
@@ -86,6 +87,10 @@ public class FileSystem extends AbstractSimEntity {
 
   public int[] getFileAllocationTable(){
     return fileAllocationTable;
+  }
+
+  public ObservableList<BlockRecord> getBlockRecordsReference(){
+    return disk.getBlockRecords();
   }
 
   public boolean isInodeEmpty(int index){

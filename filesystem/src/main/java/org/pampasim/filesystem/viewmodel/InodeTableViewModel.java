@@ -5,29 +5,49 @@ import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.inode.Inode;
 
 @Getter
 public class InodeTableViewModel implements ViewModel {
     private final FileSystem fileSystem;
-    @Getter private final InodeBlockViewModel[] inodeBlockViewModels;
+    // maybe listen to tick change instead of block change
+    private final ObservableList<BlockRecord> observableBlockRecords;
+    @Getter private final ObservableList<InodeBlockViewModel> inodeBlockViewModels = FXCollections.observableArrayList();
 
     public InodeTableViewModel(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
-        inodeBlockViewModels = new InodeBlockViewModel[fileSystem.getNumberOfInodes()];
-        createInodeBlockViewModels();
+        this.observableBlockRecords = fileSystem.getBlockRecordsReference();
+
+        refreshViewModels();
+        addListener();
     }
 
-    private void createInodeBlockViewModels() {
-        for(int i = 0; i < inodeBlockViewModels.length; i++){
+    private void refreshViewModels() {
+        inodeBlockViewModels.clear();
+        for(int i = 0; i < fileSystem.getNumberOfInodes(); i++){
             InodeBlockViewModel vm = new InodeBlockViewModel(fileSystem, i);
-            inodeBlockViewModels[i] = vm;
+            inodeBlockViewModels.add(vm);
         }
+    }
+
+    private void addListener(){
+        observableBlockRecords.addListener((ListChangeListener<BlockRecord>) change -> {
+            while (change.next()) {
+                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
+                  refreshViewModels();
+                }
+            }
+        });
+
     }
 
     public Inode[] getInodeTable(){
