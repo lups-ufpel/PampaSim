@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox spacing="10"
@@ -8,5 +10,11 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.pampasim.filesystem.view.InodeTableView">
 
-     <Label text="Inode Table view"/>
+      <VBox alignment="TOP_CENTER" spacing="10">
+          <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="I-nodes" />
+          <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+              <TilePane fx:id="inodeTilepane" hgap="5" prefTileHeight="30.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
+          </ScrollPane>
+      </VBox>
+
 </VBox>

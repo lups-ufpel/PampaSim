@@ -62,6 +62,10 @@ public class Inode{
     return metadata;
   }
 
+  public boolean isEmpty(){
+    return directAddresses[0] == EMPTY;
+  }
+
   public void add(int blockIndex){
     for(int i = 0; i < ADDRESSES_NUMBER; i++){
       //System.out.println(directAddresses[i]);

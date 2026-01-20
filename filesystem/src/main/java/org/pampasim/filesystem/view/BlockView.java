@@ -166,7 +166,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                 };
             }
             case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
-                                .viewModel(new InodeTableViewModel())
+                                .viewModel(new InodeTableViewModel(viewModel.getFileSystemSimulation().getFileSystem()))
                                 .load();
 
             default ->

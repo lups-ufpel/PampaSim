@@ -52,7 +52,7 @@ public class FileSystem extends AbstractSimEntity {
       int totalPartitionBlocks = partition.size(); 
       this.freeBlocksBitMap = new AllocationBitMap(totalPartitionBlocks);
       // maybe too granular. 
-      switch(allocationScheme) {
+      switch(allocationScheme) { // not well thought-out... if inconvenient, delete this
         case INODES:
           MINIMUM_PARTITION_SIZE = 512;
           this.inodesBitMap = new AllocationBitMap(getNumberOfInodes());
@@ -86,6 +86,20 @@ public class FileSystem extends AbstractSimEntity {
 
   public int[] getFileAllocationTable(){
     return fileAllocationTable;
+  }
+
+  public boolean isInodeEmpty(int index){
+    return Inode.get(this, index).isEmpty();
+  }
+   
+  public Inode[] getInodeTable(){
+
+    Inode[] output = new Inode[getNumberOfInodes()];
+    for(int i = 0; i < getNumberOfInodes(); i++){
+      output[i] = Inode.get(this, i);
+    }
+
+    return output;
   }
 
   // not used (yet?)
