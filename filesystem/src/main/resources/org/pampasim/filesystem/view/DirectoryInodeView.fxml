@@ -30,4 +30,10 @@
 
     </TableView>
 
+     <Label text="OBS: Os metadados de arquivos no sistema de arquivos com esquema de alocação por I-nodes, ao contrário da alocação contígua e por FAT, são armazenados nos próprios I-nodes e não nos diretórios. Para acessá-los, abra a janela da tabela de I-nodes."
+         wrapText="true"
+         styleClass="description"/>
+
+
+
 </VBox>

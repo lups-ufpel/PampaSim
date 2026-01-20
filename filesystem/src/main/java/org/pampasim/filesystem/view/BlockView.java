@@ -63,7 +63,6 @@ public class BlockView implements FxmlView<BlockViewModel> {
           blockVBox.setCursor(Cursor.HAND);
         }
         blockVBox.setOnMouseClicked(e -> {
-          System.out.println("clicked on block " + number);
           openWindow(viewModel.getBlockRecord(), viewModel.getFileSystemSimulation());
         });
   
@@ -131,7 +130,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
             
                     case INODES: 
                         width = 280;
-                        height = 400;
+                        height = 550;
                         yield FluentViewLoader.fxmlView(DirectoryInodeView.class)
                             .viewModel(
                                 directoryViewModel != null
