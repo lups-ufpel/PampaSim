@@ -9,8 +9,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.pampasim.filesystem.view.InodeBlockView"
       alignment="TOP_CENTER"
-      prefHeight="70.0" prefWidth="50.0"
-      style="-fx-background-color: #f8f8f2; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0, 0, 0);">
+      prefHeight="70.0" prefWidth="50.0">
 
     <children>
         <Label fx:id="index" text="0" />

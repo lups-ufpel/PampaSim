@@ -20,8 +20,8 @@ public class InodeBlockViewModel implements ViewModel {
 
     public Color getCorrespondingColor(int index){
       return fileSystem.isInodeEmpty(index)
-              ? Color.web("#4CAF50")   // soft green
-              : Color.web("#B0BEC5");  // light gray
+              ? Color.web("#B0BEC5")    // light gray
+              : Color.web("#4CAF50");   // soft green
     }
 
 }

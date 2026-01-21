@@ -22,7 +22,6 @@ import javafx.scene.Cursor;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
-import org.pampasim.filesystem.core.AllocationBitMap;
 import org.pampasim.filesystem.viewmodel.InodeBlockViewModel;
 
 public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
@@ -37,15 +36,14 @@ public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
     public void initialize() {
         index.setText(Integer.toString(viewModel.getIndex()));
 
-        blockVBox.backgroundProperty().set(
-                new Background(
-                    new BackgroundFill(
-                        viewModel.getCorrespondingColor(viewModel.getIndex()),
-                        new CornerRadii(5),
-                        Insets.EMPTY
-                    )
-                )
-        );
+        blockVBox.setBackground(new Background(
+            new BackgroundFill(
+                viewModel.getCorrespondingColor(viewModel.getIndex()),
+                new CornerRadii(5),
+                Insets.EMPTY
+            )
+        ));
+
 
         blockVBox.setEffect(
             new DropShadow(

@@ -42,9 +42,7 @@ public class InodeTableView implements FxmlView<InodeTableViewModel>, Initializa
     private void addViewModelsListener() {
         viewModel.getInodeBlockViewModels().addListener((ListChangeListener<InodeBlockViewModel>) change -> {
             while (change.next()) {
-                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
-                  updateTilepaneChildren();
-                }
+                updateTilepaneChildren();
             }
         });
     }
