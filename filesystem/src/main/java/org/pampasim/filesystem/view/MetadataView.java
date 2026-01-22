@@ -27,18 +27,19 @@ import org.pampasim.filesystem.viewmodel.MetadataViewModel;
 
 public class MetadataView implements FxmlView<MetadataViewModel> {
 
+    @InjectViewModel
+    private MetadataViewModel viewModel;
+
     @FXML private Label currentSizeLabel;
     @FXML private Label creationTimeLabel;
     @FXML private Label lastAccessLabel;
     @FXML private Label lastModifiedLabel;
     @FXML private Label isDirectoryLabel;
 
-    @InjectViewModel
-    private MetadataViewModel viewModel;
-
     @FXML
     public void initialize() {
 
+        //horrible code
         currentSizeLabel.textProperty().bind(
             viewModel.currentSizeProperty().asString()
         );

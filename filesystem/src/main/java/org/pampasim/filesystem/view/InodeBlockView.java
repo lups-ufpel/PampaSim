@@ -23,6 +23,8 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 
 import org.pampasim.filesystem.viewmodel.InodeBlockViewModel;
+import org.pampasim.filesystem.viewmodel.InodeViewModel;
+import org.pampasim.filesystem.FileSystemSimulation;
 
 public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
     @InjectViewModel
@@ -33,7 +35,16 @@ public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
     @FXML
     public Label index;
 
+    private InodeViewModel inodeViewModel = null;
+
     public void initialize() {
+        if(!viewModel.isInodeEmpty()){
+          blockVBox.setCursor(Cursor.HAND);
+        }
+        blockVBox.setOnMouseClicked(e -> {
+          openInodeWindow(viewModel.getFileSystemSimulation(), viewModel.getIndex());
+        });
+
         index.setText(Integer.toString(viewModel.getIndex()));
 
         blockVBox.setBackground(new Background(
@@ -55,6 +66,18 @@ public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
                 0
             )
         );
+    }
+
+    public void openInodeWindow(FileSystemSimulation sim, int index){
+        var viewTuple = FluentViewLoader.fxmlView(InodeView.class)
+                    .viewModel((inodeViewModel == null) ? new InodeViewModel(sim, index) : inodeViewModel)
+                    .load();
+
+        Stage stage = new Stage();
+        stage.setScene(new Scene(viewTuple.getView(), 600, 600));
+        stage.setTitle("I-node " + index);
+        stage.show();
+   
     }
 
 }

@@ -5,12 +5,13 @@ import org.pampasim.filesystem.file.FileMetadata;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import lombok.Getter;
 
 public class Inode{
-  private FileMetadata metadata;
-  private int[] directAddresses;
-  private int singlyIndirectPointer = 0; // points to block containing "indirectBlocks"
-  private int[] indirectAddresses; // 12 indirect disk addresses (not actually part of the inode)
+  @Getter private FileMetadata metadata;
+  @Getter private int[] directAddresses;
+  @Getter private int singlyIndirectPointer = 0; // points to block containing "indirectBlocks"
+  @Getter private int[] indirectAddresses; // 12 indirect disk addresses (not actually part of the inode)
   private int index; // not actually part of inode
   private FileSystem fileSystem; 
   public static final int ADDRESSES_NUMBER = 12; // same as Unix
@@ -56,10 +57,6 @@ public class Inode{
 
   public int getIndex(){
     return index;
-  }
-
-  public FileMetadata getMetadata(){
-    return metadata;
   }
 
   public boolean isEmpty(){

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
@@ -18,6 +20,7 @@ public class Disk {
     private RandomAccessFile disk; // maybe it would make more sense for there to be several RandomAccessFiles, each being a partition
     private Partition[] partitions;
     private ObservableList<BlockRecord> blockRecords;
+    private final IntegerProperty totalWrites = new SimpleIntegerProperty(0);
     public static final int MAX_PARTITIONS = 10;
 
 
@@ -69,6 +72,10 @@ public class Disk {
 
     public Partition[] getPartitions(){
       return partitions;
+    }
+
+    public IntegerProperty getTotalWritesProperty(){
+      return totalWrites;
     }
 
     public void setPartitions(Partition[] partitions){
@@ -191,6 +198,8 @@ public class Disk {
             //TODO: handle
             System.out.println("unhandled");
         }
+
+        totalWrites.set(totalWrites.get() + 1);
     }
 
     public boolean inBounds(int index){

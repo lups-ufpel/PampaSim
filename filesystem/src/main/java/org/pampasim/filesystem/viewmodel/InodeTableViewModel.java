@@ -15,16 +15,18 @@ import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.inode.Inode;
+import org.pampasim.filesystem.FileSystemSimulation;
 
 @Getter
 public class InodeTableViewModel implements ViewModel {
+    private final FileSystemSimulation fileSystemSimulation;
     private final FileSystem fileSystem;
-    // maybe listen to tick change instead of block change
     private final ObservableList<BlockRecord> observableBlockRecords;
     @Getter private final ObservableList<InodeBlockViewModel> inodeBlockViewModels = FXCollections.observableArrayList();
 
-    public InodeTableViewModel(FileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+    public InodeTableViewModel(FileSystemSimulation fileSystemSimulation) {
+        this.fileSystemSimulation = fileSystemSimulation;
+        this.fileSystem = fileSystemSimulation.getFileSystem();
         this.observableBlockRecords = fileSystem.getBlockRecordsReference();
 
         refreshViewModels();
@@ -34,11 +36,12 @@ public class InodeTableViewModel implements ViewModel {
     private void refreshViewModels() {
         inodeBlockViewModels.clear();
         for(int i = 0; i < fileSystem.getNumberOfInodes(); i++){
-            InodeBlockViewModel vm = new InodeBlockViewModel(fileSystem, i);
+            InodeBlockViewModel vm = new InodeBlockViewModel(fileSystemSimulation, i);
             inodeBlockViewModels.add(vm);
         }
     }
 
+    // listen to totalWrites instead of block change
     private void addListener(){
         observableBlockRecords.addListener((ListChangeListener<BlockRecord>) change -> {
             while (change.next()) {
