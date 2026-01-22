@@ -104,7 +104,9 @@ public class InodeView implements FxmlView<InodeViewModel> {
                 if (row.isMetadataRow()) {
                     setGraphic(button);
                 } else {
-                    setText(item == null ? "" : item.toString());
+                    String text = (item == null) ? "" : item.toString();
+                    text = (text.equals("0")) ? text + " (Vazio)" : text;
+                    setText(text);
                 }
             }
         });
