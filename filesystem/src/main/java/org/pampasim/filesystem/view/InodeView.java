@@ -58,13 +58,16 @@ public class InodeView implements FxmlView<InodeViewModel> {
             cell.getValue().labelProperty()
         );
 
+        valueColumn.setCellValueFactory(cell ->
+            cell.getValue().valueProperty().asObject()
+        );
+
         valueColumn.setCellFactory(col -> new TableCell<InodeTableRow, Integer>() {
         
             private final Button button = new Button("Expandir");
         
             {
                 button.setMaxWidth(Double.MAX_VALUE);
-        
                 button.setOnAction(e -> {
                     var viewTuple =
                         FluentViewLoader.fxmlView(MetadataView.class)
@@ -78,7 +81,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
         
                     Stage stage = new Stage();
                     stage.setScene(new Scene(viewTuple.getView(), 400, 150));
-                    stage.setTitle("Metadata");
+                    stage.setTitle("Metadados");
                     stage.show();
                 });
             }
@@ -87,20 +90,20 @@ public class InodeView implements FxmlView<InodeViewModel> {
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
         
+                setText(null);
+                setGraphic(null);
+        
                 if (empty) {
-                    setText(null);
-                    setGraphic(null);
                     return;
                 }
         
-                InodeTableRow row =
-                    getTableView().getItems().get(getIndex());
-        
+                InodeTableRow row = getTableRow().getItem();
+                if (row == null) {
+                    return;
+                }
                 if (row.isMetadataRow()) {
-                    setText(null);
                     setGraphic(button);
                 } else {
-                    setGraphic(null);
                     setText(item == null ? "" : item.toString());
                 }
             }
@@ -113,7 +116,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
 
         // metadata row
         table.getItems().add(
-            new InodeTableRow("Metadata")
+            new InodeTableRow("Metadados")
         );
 
         // direct addresses

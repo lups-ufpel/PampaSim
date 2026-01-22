@@ -2,6 +2,7 @@ package org.pampasim.filesystem.view;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
 
 public class InodeTableRow {
@@ -19,7 +20,7 @@ public class InodeTableRow {
     // metadata row constructor
     public InodeTableRow(String label) {
         this.label = new SimpleStringProperty(label);
-        this.value = null;
+        this.value = new SimpleIntegerProperty(0);
         this.metadataRow = true;
     }
 
