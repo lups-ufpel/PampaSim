@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.StackPane?>
 
-<GridPane fx:id="inodeLabelGrid"
-          xmlns="http://javafx.com/javafx/22.0.2"
-          xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="org.pampasim.filesystem.view.InodeView"
-          hgap="12"
-          vgap="8">
+<StackPane xmlns="http://javafx.com/javafx/22.0.2"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.pampasim.filesystem.view.InodeView"
+           stylesheets="@inode.css">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+    <TableView fx:id="table"
+               prefWidth="350"
+               editable="false">
 
-</GridPane>
+        <columns>
+            <TableColumn fx:id="fieldColumn" text="Campo"/>
+            <TableColumn fx:id="valueColumn" text="Valor"/>
+        </columns>
+
+    </TableView>
+
+</StackPane>

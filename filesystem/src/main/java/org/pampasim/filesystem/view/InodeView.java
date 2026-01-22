@@ -32,40 +32,45 @@ public class InodeView implements FxmlView<InodeViewModel> {
     @InjectViewModel
     private InodeViewModel viewModel;
 
-    @FXML private GridPane inodeLabelGrid;
+    @FXML private TableView<InodeTableRow> table;
+    @FXML private TableColumn<InodeTableRow, String> fieldColumn;
+    @FXML private TableColumn<InodeTableRow, Number> valueColumn;
 
     @FXML
     public void initialize() {
 
-      buildGrid();
-        
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        fieldColumn.setCellValueFactory(cell ->
+            cell.getValue().fieldProperty()
+        );
+
+        valueColumn.setCellValueFactory(cell ->
+            cell.getValue().valueProperty()
+        );
+
+        buildTable();
     }
-    private void buildGrid() {
-      inodeLabelGrid.getChildren().clear();
 
-      addDirectAddresses(inodeLabelGrid);
+    private void buildTable() {
+        table.getItems().clear();
 
-    }
+        // direct addresses
+        for (int i = 0; i < Inode.ADDRESSES_NUMBER; i++) {
+            table.getItems().add(
+                new InodeTableRow(
+                    "Endereço direto " + i,
+                    viewModel.directAddressProperty(i)
+                )
+            );
+        }
 
-    private void addDirectAddresses(GridPane grid){
-      for (int r = 0; r < Inode.ADDRESSES_NUMBER; r++) {
-          for (int c = 0; c < 2; c++) {
-              Label label = new Label();
-              //label.setMinSize(40, 40);
-              //label.setAlignment(Pos.CENTER);
-
-              if(c == 0){
-                label.setText("Endereço direto " + r + ":");
-              }  else{
-
-                label.textProperty().bind(
-                    viewModel.directAddressProperty(r).asString()
-                );
-
-              }
-              grid.add(label, c, r);
-          }
-      }
-
+        // singly indirect pointer
+        table.getItems().add(
+            new InodeTableRow(
+                "Ponteiro singularmente indireto",
+                viewModel.singlyIndirectPointerProperty()
+            )
+        );
     }
 }

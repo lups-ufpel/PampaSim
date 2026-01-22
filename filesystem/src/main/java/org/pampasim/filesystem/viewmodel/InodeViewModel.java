@@ -68,6 +68,10 @@ public class InodeViewModel implements ViewModel {
         return directAddresses[index];
     }
 
+    public IntegerProperty singlyIndirectPointerProperty() {
+        return singlyIndirectPointerProperty;
+    }
+
     public IntegerProperty indirectAddressProperty(int index) {
         return indirectAddresses[index];
     }
