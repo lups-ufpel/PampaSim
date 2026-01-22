@@ -14,7 +14,7 @@
                editable="false">
 
         <columns>
-            <TableColumn fx:id="fieldColumn" text="Campo"/>
+            <TableColumn fx:id="labelColumn" text="Campo"/>
             <TableColumn fx:id="valueColumn" text="Valor"/>
         </columns>
 

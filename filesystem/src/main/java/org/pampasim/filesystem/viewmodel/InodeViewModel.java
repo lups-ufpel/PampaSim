@@ -21,8 +21,8 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.FileSystemSimulation;
 
 public class InodeViewModel implements ViewModel {
-    private FileSystem fileSystem;
-    private final int index;
+    @Getter private FileSystem fileSystem;
+    @Getter private final int index;
     private IntegerProperty singlyIndirectPointerProperty;
     private IntegerProperty[] directAddresses = new IntegerProperty[Inode.ADDRESSES_NUMBER];
     private IntegerProperty[] indirectAddresses = new IntegerProperty[Inode.ADDRESSES_NUMBER];

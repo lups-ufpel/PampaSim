@@ -2,6 +2,8 @@ package org.pampasim.filesystem.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.FluentViewLoader;
+
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -22,10 +24,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.layout.GridPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.Button;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 import org.pampasim.filesystem.core.Partition;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.viewmodel.InodeViewModel;
+import org.pampasim.filesystem.viewmodel.MetadataViewModel;
 
 public class InodeView implements FxmlView<InodeViewModel> {
 
@@ -33,33 +40,87 @@ public class InodeView implements FxmlView<InodeViewModel> {
     private InodeViewModel viewModel;
 
     @FXML private TableView<InodeTableRow> table;
-    @FXML private TableColumn<InodeTableRow, String> fieldColumn;
-    @FXML private TableColumn<InodeTableRow, Number> valueColumn;
+    @FXML private TableColumn<InodeTableRow, String> labelColumn;
+    @FXML private TableColumn<InodeTableRow, Integer> valueColumn;
 
     @FXML
     public void initialize() {
 
+        setupColumns();
+        buildTable();
+    }
+
+    private void setupColumns(){
+
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        fieldColumn.setCellValueFactory(cell ->
-            cell.getValue().fieldProperty()
+        labelColumn.setCellValueFactory(cell ->
+            cell.getValue().labelProperty()
         );
 
-        valueColumn.setCellValueFactory(cell ->
-            cell.getValue().valueProperty()
-        );
+        valueColumn.setCellFactory(col -> new TableCell<InodeTableRow, Integer>() {
+        
+            private final Button button = new Button("Expand");
+        
+            {
+                button.setMaxWidth(Double.MAX_VALUE);
+        
+                button.setOnAction(e -> {
+                    var viewTuple =
+                        FluentViewLoader.fxmlView(MetadataView.class)
+                            .viewModel(
+                                new MetadataViewModel(
+                                    viewModel.getFileSystem(),
+                                    viewModel.getIndex()
+                                )
+                            )
+                            .load();
+        
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(viewTuple.getView(), 400, 150));
+                    stage.setTitle("Metadata");
+                    stage.show();
+                });
+            }
+        
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+        
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+        
+                InodeTableRow row =
+                    getTableView().getItems().get(getIndex());
+        
+                if (row.isMetadataRow()) {
+                    setText(null);
+                    setGraphic(button);
+                } else {
+                    setGraphic(null);
+                    setText(item == null ? "" : item.toString());
+                }
+            }
+        });
 
-        buildTable();
     }
 
     private void buildTable() {
         table.getItems().clear();
 
+        // metadata row
+        table.getItems().add(
+            new InodeTableRow("Metadata")
+        );
+
         // direct addresses
         for (int i = 0; i < Inode.ADDRESSES_NUMBER; i++) {
             table.getItems().add(
                 new InodeTableRow(
-                    "Endereço direto " + i,
+                    "Endereço Direto " + i,
                     viewModel.directAddressProperty(i)
                 )
             );
@@ -68,7 +129,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
         // singly indirect pointer
         table.getItems().add(
             new InodeTableRow(
-                "Ponteiro singularmente indireto",
+                "Ponteiro Singularmente Indireto",
                 viewModel.singlyIndirectPointerProperty()
             )
         );

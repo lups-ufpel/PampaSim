@@ -7,6 +7,7 @@ import java.time.Instant;
 
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.file.FileMetadata;
+import org.pampasim.filesystem.inode.Inode;
 
 public class MetadataViewModel implements ViewModel {
 
@@ -27,6 +28,15 @@ public class MetadataViewModel implements ViewModel {
 
     public MetadataViewModel(FileSystem fileSystem, String filePath){
       FileMetadata metadata = fileSystem.findMetadata(filePath);
+      setAttributes(metadata);
+    }
+
+    public MetadataViewModel(FileSystem fileSystem, int inodeIndex){
+      FileMetadata metadata = Inode.get(fileSystem, inodeIndex).getMetadata();
+      setAttributes(metadata);
+    }
+
+    public void setAttributes(FileMetadata metadata){
       currentSize.set(metadata.getCurrentSizeBytes());
       creationTime.set(metadata.getCreationTime());
       lastAccessTime.set(metadata.getLastAccess());

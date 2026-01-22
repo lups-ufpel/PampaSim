@@ -6,19 +6,32 @@ import javafx.beans.property.StringProperty;
 
 public class InodeTableRow {
 
-    private final StringProperty field;
+    private final StringProperty label;
     private final IntegerProperty value;
+    private final boolean metadataRow;
 
-    public InodeTableRow(String field, IntegerProperty value) {
-        this.field = new SimpleStringProperty(field);
+    public InodeTableRow(String label, IntegerProperty value) {
+        this.label = new SimpleStringProperty(label);
         this.value = value;
+        this.metadataRow = false;
     }
 
-    public StringProperty fieldProperty() {
-        return field;
+    // metadata row constructor
+    public InodeTableRow(String label) {
+        this.label = new SimpleStringProperty(label);
+        this.value = null;
+        this.metadataRow = true;
+    }
+
+    public StringProperty labelProperty() {
+        return label;
     }
 
     public IntegerProperty valueProperty() {
         return value;
+    }
+
+    public boolean isMetadataRow() {
+        return metadataRow;
     }
 }
