@@ -60,7 +60,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
 
         valueColumn.setCellFactory(col -> new TableCell<InodeTableRow, Integer>() {
         
-            private final Button button = new Button("Expand");
+            private final Button button = new Button("Expandir");
         
             {
                 button.setMaxWidth(Double.MAX_VALUE);
