@@ -48,7 +48,7 @@ public class Inode{
     int bitsInBytes = 8;
     int intSizeBytes = Integer.SIZE / bitsInBytes;
     int indirectPointers = 1;
-    return FileMetadata.sizeBytes() * intSizeBytes * (ADDRESSES_NUMBER + indirectPointers);
+    return FileMetadata.sizeBytes() + intSizeBytes * (ADDRESSES_NUMBER + indirectPointers);
   }
 
   public static int maxDataSizeBytes(FileSystem fileSystem){
