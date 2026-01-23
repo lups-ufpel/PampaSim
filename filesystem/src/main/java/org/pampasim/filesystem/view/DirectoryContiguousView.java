@@ -94,7 +94,12 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
 
         //changes dont propagate, whatever
         tableView.setItems(
-            FXCollections.observableArrayList(viewModel.getEntries())
+            FXCollections.observableArrayList(
+            viewModel.getEntries()
+            .stream()
+            .filter(item -> !item.isNull())
+            .toList()
+            )
         );
     }
 
