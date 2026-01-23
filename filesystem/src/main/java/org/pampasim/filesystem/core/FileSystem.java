@@ -798,38 +798,50 @@ public class FileSystem extends AbstractSimEntity {
 
   }
 
-  public DirectoryEntry findDirectoryEntryByInodeIndex(int index){
+  public String findNameByInodeIndex(int index){
     String path = "/";
-    return findDirectoryEntryByPath("/", index);
+    return findNameByPath("/", index);
   }
 
-  public DirectoryEntry findDirectoryEntryByPath(String path, int index){
-    String name;
+  public String findNameByPath(String path, int index){
+    String dirName;
     if(path.equals("/")){
-      name = "/";
+      dirName = "/";
     }  else{
       String[] segments = path.split("/");
-      name = segments[segments.length - 1];
+      dirName = segments[segments.length - 1];
     }
 
     Directory current = Directory.find(this, path);
     for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
+
+      String entryName = e.getName();
       if(((InodeMapping) e.getFileMapping()).getIndex() == index){
-        return e;
+        //prevents returning . which is not helpful
+        if(entryName.equals(".")){
+          return dirName;
+        }  else{
+          return entryName;
+        }
+      }
+
+      // prevents eternal loop
+      if(entryName.equals(".") || entryName.equals("..")){
+        continue;
       }
 
       boolean isDirectory = Inode.getMetadata(this, ((InodeMapping) e.getFileMapping()).getIndex()).isDirectory();
       if(isDirectory){
+
         String subDirectoryPath;
         if(path.equals("/")){
           subDirectoryPath = path + e.getName();
         }  else{
           subDirectoryPath = path + "/" + e.getName();
-
         }
-        DirectoryEntry dirEntry = findDirectoryEntryByPath(subDirectoryPath, index);
-        if(dirEntry != null){
-          return dirEntry;
+        String name = findNameByPath(subDirectoryPath, index);
+        if(name != null){
+          return name;
         }
       }
     }

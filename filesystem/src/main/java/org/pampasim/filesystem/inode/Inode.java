@@ -46,13 +46,13 @@ public class Inode{
 
   public static String getAssociatedFileText(FileSystem fileSystem, int index){
     Inode inode = Inode.get(fileSystem, index);
-    DirectoryEntry entryWithIndex = fileSystem.findDirectoryEntryByInodeIndex(index);
-    if(entryWithIndex == null){
+    String fileName = fileSystem.findNameByInodeIndex(index);
+    if(fileName == null){
       return ", livre";
     }
 
-    String output = "associado ao " + ((inode.getMetadata().isDirectory()) ? "diretório " : "arquivo ");
-    output += entryWithIndex.getName();
+    String output = ", associado ao " + ((inode.getMetadata().isDirectory()) ? "diretório " : "arquivo ");
+    output += fileName;
     return output;
   }
 
