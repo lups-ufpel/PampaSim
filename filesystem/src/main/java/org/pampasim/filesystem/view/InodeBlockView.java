@@ -25,6 +25,7 @@ import javafx.scene.Scene;
 import org.pampasim.filesystem.viewmodel.InodeBlockViewModel;
 import org.pampasim.filesystem.viewmodel.InodeViewModel;
 import org.pampasim.filesystem.FileSystemSimulation;
+import org.pampasim.filesystem.inode.Inode;
 
 public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
     @InjectViewModel
@@ -75,7 +76,7 @@ public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
 
         Stage stage = new Stage();
         stage.setScene(new Scene(viewTuple.getView(), 600, 600));
-        stage.setTitle("I-node " + index);
+        stage.setTitle("I-node " + index + Inode.getAssociatedFileText(sim.getFileSystem(), index));
         stage.show();
    
     }

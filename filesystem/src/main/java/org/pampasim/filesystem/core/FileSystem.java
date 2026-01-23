@@ -423,6 +423,10 @@ public class FileSystem extends AbstractSimEntity {
     return getDirectoryLegendEntries("/");
   }
 
+  public Directory getRootDirectory(){
+    return Directory.find(this, "/");
+  }
+
   public ArrayList<LegendEntry> getDirectoryLegendEntries(String path){
 
     var output = new ArrayList<LegendEntry>();
@@ -792,6 +796,45 @@ public class FileSystem extends AbstractSimEntity {
       }
     }
 
+  }
+
+  public DirectoryEntry findDirectoryEntryByInodeIndex(int index){
+    String path = "/";
+    return findDirectoryEntryByPath("/", index);
+  }
+
+  public DirectoryEntry findDirectoryEntryByPath(String path, int index){
+    String name;
+    if(path.equals("/")){
+      name = "/";
+    }  else{
+      String[] segments = path.split("/");
+      name = segments[segments.length - 1];
+    }
+
+    Directory current = Directory.find(this, path);
+    for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
+      if(((InodeMapping) e.getFileMapping()).getIndex() == index){
+        return e;
+      }
+
+      boolean isDirectory = Inode.getMetadata(this, ((InodeMapping) e.getFileMapping()).getIndex()).isDirectory();
+      if(isDirectory){
+        String subDirectoryPath;
+        if(path.equals("/")){
+          subDirectoryPath = path + e.getName();
+        }  else{
+          subDirectoryPath = path + "/" + e.getName();
+
+        }
+        DirectoryEntry dirEntry = findDirectoryEntryByPath(subDirectoryPath, index);
+        if(dirEntry != null){
+          return dirEntry;
+        }
+      }
+    }
+
+    return null;
   }
 
   public FileMetadata findMetadata(String filePath){

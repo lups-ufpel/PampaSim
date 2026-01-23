@@ -2,6 +2,7 @@ package org.pampasim.filesystem.inode;
 
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.file.FileMetadata;
+import org.pampasim.filesystem.directory.DirectoryEntry;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -41,6 +42,18 @@ public class Inode{
       buffer.putInt(i);
     }
     buffer.putInt(singlyIndirectPointer);
+  }
+
+  public static String getAssociatedFileText(FileSystem fileSystem, int index){
+    Inode inode = Inode.get(fileSystem, index);
+    DirectoryEntry entryWithIndex = fileSystem.findDirectoryEntryByInodeIndex(index);
+    if(entryWithIndex == null){
+      return ", livre";
+    }
+
+    String output = "associado ao " + ((inode.getMetadata().isDirectory()) ? "diretório " : "arquivo ");
+    output += entryWithIndex.getName();
+    return output;
   }
 
   // does not count indirect blocks, as they are not part of the main inode "head"
