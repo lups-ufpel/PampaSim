@@ -87,7 +87,7 @@
 
                             <Label text="Páginas file-backed (ex: 1,6,8,9-15)" GridPane.rowIndex="1"/>
                             <TextField fx:id="fileBackedPagesField" promptText="1,6,8,9-15" GridPane.columnIndex="1"
-                                       GridPane.rowIndex="1"/>
+                                       GridPane.rowIndex="1" maxWidth="172.0"/>
 
                             <columnConstraints>
                                 <ColumnConstraints hgrow="ALWAYS"/>
