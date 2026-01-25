@@ -612,6 +612,9 @@ public class PampaSimViewModel implements ViewModel {
     public void openCreateProcessDialog() {
         createProcessDialogService.setMemoryModulePresent(memoryModule != null);
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
+
+        createProcessDialogService.setFileSystemModulePresent(fileSystemModulePresent.get());
+
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
     }
 

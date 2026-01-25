@@ -8,6 +8,7 @@ import lombok.Getter;
 public class CreateProcessDialogViewModel implements ViewModel {
 
     private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
+    private final BooleanProperty fileSystemModulePresent = new SimpleBooleanProperty(false);
     @Getter
     private final IntegerProperty pageSize = new SimpleIntegerProperty(0);
 
@@ -55,6 +56,20 @@ public class CreateProcessDialogViewModel implements ViewModel {
         int b = (int) Math.round(col.getBlue() * 255);
         return String.format("#%02x%02x%02x", r, g, b);
     }
+
+
+    public BooleanProperty fileSystemModulePresentProperty() {
+        return fileSystemModulePresent;
+    }
+
+    public boolean isFileSystemModulePresent() {
+        return fileSystemModulePresent.get();
+    }
+
+    public void setFileSystemModulePresent(boolean present) {
+        fileSystemModulePresent.set(present);
+    }
+
 
     public BooleanProperty memoryModulePresentProperty() {
         return memoryModulePresent;

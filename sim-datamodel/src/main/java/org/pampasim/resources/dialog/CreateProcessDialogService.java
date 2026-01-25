@@ -21,6 +21,7 @@ import java.util.Optional;
 public class CreateProcessDialogService implements DialogService<CreateProcessRecord> {
 
 
+    private boolean fileSystemModulePresent = false;
     private boolean memoryModulePresent = false;
     private int memoryPageSize = 0;
 
@@ -28,6 +29,8 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
     public Optional<CreateProcessRecord> showDialog(Object ... args) {
         ViewTuple<CreateProcessDialogView, CreateProcessDialogViewModel> viewTuple =
                 FluentViewLoader.fxmlView(CreateProcessDialogView.class).load();
+
+        viewTuple.getViewModel().setFileSystemModulePresent(fileSystemModulePresent);
 
         viewTuple.getViewModel().setMemoryModulePresent(memoryModulePresent);
         viewTuple.getViewModel().setPageSize(memoryPageSize);

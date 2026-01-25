@@ -49,6 +49,9 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     @FXML
     private Button randomizeAccessesButton;
 
+    @FXML
+    public VBox fileSystemVBox;
+
 
 
     @FXML
@@ -75,6 +78,10 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
 
         addAccessButton.setOnAction(event -> tryAddMemoryAccess());
+
+        // File section visibility
+        fileSystemVBox.visibleProperty().bind(viewModel.fileSystemModulePresentProperty());
+        fileSystemVBox.managedProperty().bind(viewModel.fileSystemModulePresentProperty());
 
         Button okButtonNode = (Button) dialogPane.lookupButton(okButton);
         okButtonNode.setOnAction(event -> {

@@ -119,6 +119,17 @@
                             </VBox>
                         </VBox>
                     </VBox>
+
+                    <!-- File System Section -->
+                    <VBox fx:id="fileSystemVBox" alignment="CENTER" spacing="10">
+                        <Separator prefWidth="400.0"/>
+                        <Label alignment="CENTER" text="Sistema de Arquivos" textAlignment="CENTER">
+                            <font>
+                                <Font name="System Bold" size="16.0"/>
+                            </font>
+                        </Label>
+
+                    </VBox>
                 </VBox>
             </ScrollPane>
         </VBox>
