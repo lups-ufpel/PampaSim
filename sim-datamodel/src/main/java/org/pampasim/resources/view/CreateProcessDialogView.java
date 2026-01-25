@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.beans.binding.Bindings;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
 
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 
 public class CreateProcessDialogView implements FxmlView<CreateProcessDialogViewModel>, Initializable {
 
@@ -50,8 +52,11 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     private Button randomizeAccessesButton;
 
     @FXML
+    VBox fileSystemOperationsContainer;
+    @FXML
     public VBox fileSystemVBox;
-
+    @FXML
+    Button addOperationButton;
 
 
     @FXML
@@ -60,6 +65,14 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     private final List<MemoryAccessEntry> accessEntries = new ArrayList<>();
 
     private static class MemoryAccessEntry {
+        TextField addressField;
+        CheckBox modifiesCheck;
+        HBox container;
+    }
+
+    private final List<FileSystemOperationEntry> operationEntries = new ArrayList<>();
+
+    private static class FileSystemOperationEntry {
         TextField addressField;
         CheckBox modifiesCheck;
         HBox container;
@@ -82,6 +95,8 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         // File section visibility
         fileSystemVBox.visibleProperty().bind(viewModel.fileSystemModulePresentProperty());
         fileSystemVBox.managedProperty().bind(viewModel.fileSystemModulePresentProperty());
+
+        addOperationButton.setOnAction(event -> addFileSystemOperation());
 
         Button okButtonNode = (Button) dialogPane.lookupButton(okButton);
         okButtonNode.setOnAction(event -> {
@@ -138,6 +153,84 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             }
         });
         randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
+    }
+
+    private void addFileSystemOperation() {
+        FontIcon trashIcon = new FontIcon("bi-trash");
+        trashIcon.setIconColor(javafx.scene.paint.Color.RED);
+        trashIcon.setIconSize(16);
+
+        Button removeButton = new Button();
+        removeButton.setGraphic(trashIcon);
+        removeButton.setTooltip(new Tooltip("Remover Operação"));
+
+
+        Label timeLabel = new Label("Tempo:");
+
+        TextField numberField = new TextField();
+        numberField.setPromptText("0");
+        numberField.setPrefWidth(25.0);
+        
+        UnaryOperator<TextFormatter.Change> filterNonNumbers = change -> {
+            String newText = change.getControlNewText();
+            return newText.matches("\\d*") ? change : null;
+        };
+        
+        numberField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
+
+        ChoiceBox<String> operationChoiceBox = new ChoiceBox<>();
+        operationChoiceBox.getItems().addAll(
+            "Criar Arquivo",
+            "Abrir Arquivo",
+            "Fechar Arquivo",
+            "Ler Arquivo",
+            "Escrever (em) Arquivo",
+            "Criar Diretório",
+            "Apagar Diretório"
+        );
+        operationChoiceBox.setValue("Criar Arquivo");
+        
+        Label pathLabel = new Label("Caminho:");
+        TextField pathField = new TextField();
+        
+        pathField.promptTextProperty().bind(
+            Bindings.createStringBinding(
+                () -> {
+                    String op = operationChoiceBox.getValue();
+                    if (op == null) return "";
+        
+                    return switch (op) {
+                        case "Criar Arquivo"        -> "/novo_arquivo";
+                        case "Abrir Arquivo"        -> "/arquivo";
+                        case "Fechar Arquivo"       -> "/arquivo";
+                        case "Ler Arquivo"          -> "/arquivo";
+                        case "Escrever (em) Arquivo"-> "/arquivo";
+                        case "Criar Diretório"      -> "/novo_dir";
+                        case "Apagar Diretório"     -> "/dir";
+                        default -> "";
+                    };
+                },
+                operationChoiceBox.valueProperty()
+            )
+        );
+
+        HBox operationEntry = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
+
+        // Create and store the entry
+        //FileSystemOperationEntry entry = new FileSystemOperationEntry();
+        //entry.timeField = timeField;
+        //entry.container = operationEntry;
+        //operationEntries.add(entry); // maybe you can just use hbox operationEntry instead? maybe inconvenient
+
+        removeButton.setOnAction(e -> {
+            fileSystemOperationsContainer.getChildren().remove(operationEntry);
+            //operationEntries.remove(entry);
+            //updateAccessIndices();
+        });
+
+        fileSystemOperationsContainer.getChildren().add(operationEntry);
+        //updateAccessIndices();
+
     }
 
     private void tryAddMemoryAccess() {

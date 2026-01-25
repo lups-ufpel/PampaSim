@@ -131,7 +131,7 @@
                         <HBox alignment="TOP_LEFT">
                             <Button fx:id="addOperationButton" text="Adicionar Operação"/>
                         </HBox>
-                        <VBox fx:id="fileOperationsContainer" spacing="5.0"
+                        <VBox fx:id="fileSystemOperationsContainer" spacing="5.0"
                               style="-fx-border-color: lightgray; -fx-padding: 5" VBox.vgrow="ALWAYS">
                             <!-- Entries will be added here dynamically -->
                         </VBox>
