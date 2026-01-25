@@ -108,8 +108,8 @@
                             </Label>
 
                             <HBox spacing="10">
-                                <Button fx:id="addAccessButton" text="Adicionar Acesso"/>
-                                <Button fx:id="randomizeAccessesButton" text="Gerar Aleatórios"/>
+                                <Button fx:id="addAccessButton" text="Adicionar Acesso" prefWidth="147.0"/>
+                                <Button fx:id="randomizeAccessesButton" text="Gerar Aleatórios" prefWidth="147.0"/>
                                 <CheckBox fx:id="loopAccessCheckBox" text="Loop"/>
                             </HBox>
 
@@ -121,15 +121,22 @@
                     </VBox>
 
                     <!-- File System Section -->
-                    <VBox fx:id="fileSystemVBox" alignment="CENTER" spacing="10">
+                    <VBox fx:id="fileSystemVBox" alignment="CENTER" spacing="5.0">
                         <Separator prefWidth="400.0"/>
-                        <Label alignment="CENTER" text="Sistema de Arquivos" textAlignment="CENTER">
+                        <Label alignment="CENTER" text="Operações com Arquivos" textAlignment="CENTER">
                             <font>
                                 <Font name="System Bold" size="16.0"/>
                             </font>
                         </Label>
-
+                        <HBox alignment="TOP_LEFT">
+                            <Button fx:id="addOperationButton" text="Adicionar Operação"/>
+                        </HBox>
+                        <VBox fx:id="fileOperationsContainer" spacing="5.0"
+                              style="-fx-border-color: lightgray; -fx-padding: 5" VBox.vgrow="ALWAYS">
+                            <!-- Entries will be added here dynamically -->
+                        </VBox>
                     </VBox>
+
                 </VBox>
             </ScrollPane>
         </VBox>
