@@ -73,8 +73,6 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     private final List<FileSystemOperationEntry> operationEntries = new ArrayList<>();
 
     private static class FileSystemOperationEntry {
-        TextField addressField;
-        CheckBox modifiesCheck;
         HBox container;
     }
 
@@ -117,6 +115,12 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                     }
                 }
                 viewModel.getMemoryInfo().setLoopAccessList(loopAccessCheckBox.isSelected());
+            }
+            if (viewModel.isFileSystemModulePresent()){
+              //for(FileSystemOperationEntry op : operationEntries){
+
+              //}
+
             }
         });
 
@@ -184,11 +188,12 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             "Abrir Arquivo",
             "Fechar Arquivo",
             "Ler Arquivo",
-            "Escrever (em) Arquivo",
+            "Escrever Arquivo",
             "Criar Diretório",
             "Apagar Diretório"
         );
         operationChoiceBox.setValue("Criar Arquivo");
+        operationChoiceBox.setPrefWidth(150.0);
         
         Label pathLabel = new Label("Caminho:");
         TextField pathField = new TextField();
@@ -204,7 +209,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                         case "Abrir Arquivo"        -> "/arquivo";
                         case "Fechar Arquivo"       -> "/arquivo";
                         case "Ler Arquivo"          -> "/arquivo";
-                        case "Escrever (em) Arquivo"-> "/arquivo";
+                        case "Escrever Arquivo"     -> "/arquivo";
                         case "Criar Diretório"      -> "/novo_dir";
                         case "Apagar Diretório"     -> "/dir";
                         default -> "";
@@ -214,21 +219,20 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             )
         );
 
-        HBox operationEntry = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
+        HBox entryContainer = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
 
         // Create and store the entry
-        //FileSystemOperationEntry entry = new FileSystemOperationEntry();
-        //entry.timeField = timeField;
-        //entry.container = operationEntry;
-        //operationEntries.add(entry); // maybe you can just use hbox operationEntry instead? maybe inconvenient
+        FileSystemOperationEntry entry = new FileSystemOperationEntry();
+        entry.container = entryContainer; // missing actual info for now
+        operationEntries.add(entry);
 
         removeButton.setOnAction(e -> {
-            fileSystemOperationsContainer.getChildren().remove(operationEntry);
-            //operationEntries.remove(entry);
+            fileSystemOperationsContainer.getChildren().remove(entryContainer);
+            operationEntries.remove(entry);
             //updateAccessIndices();
         });
 
-        fileSystemOperationsContainer.getChildren().add(operationEntry);
+        fileSystemOperationsContainer.getChildren().add(entryContainer);
         //updateAccessIndices();
 
     }
