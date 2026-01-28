@@ -78,6 +78,7 @@ public class Processor extends AbstractSimEntity {
             LOGGER.debug("Fim do turno de execução do processo de identificador: {}", process.getPid());
         } else {
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
+            process.scheduleFileSystemOperationEvents(); // if any
         }
     }
     private void handleProcessPreemption(org.pampasim.events.Process.Preemption event) {

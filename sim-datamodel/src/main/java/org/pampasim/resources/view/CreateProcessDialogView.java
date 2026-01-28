@@ -9,8 +9,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.beans.binding.Bindings;
+import javafx.scene.Node;
 import org.kordamp.ikonli.javafx.FontIcon;
+
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
+import org.pampasim.resources.fileops.*;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -70,11 +73,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         HBox container;
     }
 
-    private final List<FileSystemOperationEntry> operationEntries = new ArrayList<>();
-
-    private static class FileSystemOperationEntry {
-        HBox container;
-    }
+    private final List<FileSystemOperation> operationEntries = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -116,11 +115,22 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                 }
                 viewModel.getMemoryInfo().setLoopAccessList(loopAccessCheckBox.isSelected());
             }
-            if (viewModel.isFileSystemModulePresent()){
-              //for(FileSystemOperationEntry op : operationEntries){
-
-              //}
-
+            for (Node node : fileSystemOperationsContainer.getChildren()) {
+                if (!(node instanceof HBox hbox)) continue;
+            
+                TextField timeField = (TextField) hbox.getChildren().get(2);
+                ChoiceBox<String> operationBox = (ChoiceBox<String>) hbox.getChildren().get(3);
+                TextField pathField = (TextField) hbox.getChildren().get(5);
+            
+                int time = timeField.getText().isEmpty()
+                        ? 0
+                        : Integer.parseInt(timeField.getText());
+            
+                String path = pathField.getText();
+                String opName = operationBox.getValue();
+            
+                FileSystemOperation op = createOperation(opName, time, path);
+                viewModel.getFileSystemOperations().add(op);
             }
         });
 
@@ -157,6 +167,19 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             }
         });
         randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
+    }
+
+    private FileSystemOperation createOperation(String op, int time, String path) {
+        return switch (op) {
+            case "Criar Arquivo"     -> new CreateFileOp(time, path);
+            case "Abrir Arquivo"     -> new OpenFileOp(time, path);
+            case "Fechar Arquivo"    -> new CloseFileOp(time, path);
+            case "Ler Arquivo"       -> new ReadFileOp(time, path);
+            case "Escrever Arquivo"  -> new WriteFileOp(time, path);
+            case "Criar Diretório"   -> new CreateDirectoryOp(time, path);
+            case "Apagar Diretório"  -> new DeleteDirectoryOp(time, path);
+            default -> throw new IllegalStateException("Unknown operation: " + op);
+        };
     }
 
     private void addFileSystemOperation() {
@@ -222,13 +245,13 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         HBox entryContainer = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
 
         // Create and store the entry
-        FileSystemOperationEntry entry = new FileSystemOperationEntry();
-        entry.container = entryContainer; // missing actual info for now
-        operationEntries.add(entry);
+        //FileSystemOperation entry = new FileSystemOperation();
+        //entry.container = entryContainer; // missing actual info for now
+        //operationEntries.add(entry);
 
         removeButton.setOnAction(e -> {
             fileSystemOperationsContainer.getChildren().remove(entryContainer);
-            operationEntries.remove(entry);
+            //operationEntries.remove(entry);
             //updateAccessIndices();
         });
 

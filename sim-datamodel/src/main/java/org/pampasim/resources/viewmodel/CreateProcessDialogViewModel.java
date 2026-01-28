@@ -4,6 +4,9 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import java.util.ArrayList;
+
+import org.pampasim.resources.fileops.FileSystemOperation;
 
 public class CreateProcessDialogViewModel implements ViewModel {
 
@@ -20,6 +23,8 @@ public class CreateProcessDialogViewModel implements ViewModel {
 
     @Getter
     private final ProcessMemoryInfoViewModel memoryInfo = new ProcessMemoryInfoViewModel();
+    @Getter
+    private final ArrayList<FileSystemOperation> fileSystemOperations = new ArrayList<>();
 
     public IntegerProperty processStartProperty() {
         return processStart;

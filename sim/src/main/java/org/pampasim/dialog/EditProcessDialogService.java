@@ -46,7 +46,7 @@ public class EditProcessDialogService implements DialogService<EditProcessRecord
                     viewTuple.getViewModel().getProcessStart(),
                     viewTuple.getViewModel().getProcessDuration(),
                     viewTuple.getViewModel().getProcessPriority(),
-                    viewTuple.getViewModel().convertColor(), null);
+                    viewTuple.getViewModel().convertColor(), null, null);
 
             boolean removable = result.get().getButtonData() == ButtonBar.ButtonData.LEFT;
             EditProcessRecord editProcessRecord = new EditProcessRecord(

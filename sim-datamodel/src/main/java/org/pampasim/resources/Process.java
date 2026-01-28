@@ -74,6 +74,10 @@ public class Process {
         this.burstTime -= 1;
     }
 
+    public void scheduleFileSystemOperationEvents(){
+
+    }
+
     public void forwardWaitingTime() {
         this.waitTime += 1;
     }

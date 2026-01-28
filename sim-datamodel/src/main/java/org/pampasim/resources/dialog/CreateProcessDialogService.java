@@ -8,10 +8,12 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.resources.view.CreateProcessDialogView;
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
 import org.pampasim.resources.viewmodel.ProcessMemoryInfoViewModel;
+import org.pampasim.resources.fileops.FileSystemOperation;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -46,6 +48,7 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
         if(result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
             CreateProcessDialogViewModel vm = viewTuple.getViewModel();
             ProcessMemoryInfoRecord memoryInfoRecord = null;
+            ArrayList<FileSystemOperation> fileSystemOperations = null;
 
             if (vm.isMemoryModulePresent()) {
                 ProcessMemoryInfoViewModel mem = vm.getMemoryInfo();
@@ -57,12 +60,17 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
                         mem.getLoopAccessList()
                 );
             }
+
+            if (vm.isFileSystemModulePresent()){
+                fileSystemOperations = vm.getFileSystemOperations();
+            }
             CreateProcessRecord userInput = new CreateProcessRecord(
                     viewTuple.getViewModel().getProcessStart(),
                     viewTuple.getViewModel().getProcessDuration(),
                     viewTuple.getViewModel().getProcessPriority(),
                     viewTuple.getViewModel().convertColor(),
-                    memoryInfoRecord);
+                    memoryInfoRecord,
+                    fileSystemOperations);
             return Optional.of(userInput);
         }
         return Optional.empty();
