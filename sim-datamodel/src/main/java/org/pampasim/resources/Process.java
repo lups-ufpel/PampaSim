@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
+import org.pampasim.resources.fileops.*;
+import org.pampasim.core.events.Event;
+import org.pampasim.events.Memory.*;
 
 import java.util.ArrayList;
 
@@ -23,6 +26,7 @@ public class Process {
         private final int durationTicks;
         private final int startPriority;
     }
+
     @Getter
     @EqualsAndHashCode.Include
     private final CreationData creationData;
@@ -74,8 +78,40 @@ public class Process {
         this.burstTime -= 1;
     }
 
-    public void scheduleFileSystemOperationEvents(){
+    public ArrayList<Event> scheduleFileSystemOperationEvents(){
 
+        ArrayList<Event> eventsToSchedule = new ArrayList<>(); 
+
+        if(getModuleInfo(ProcessFileSystemInfo.class).getOperations() != null){
+
+            for(FileSystemOperation op : getModuleInfo(ProcessFileSystemInfo.class).getOperations()){
+                if(op.execTime() == currExecTime){
+                    switch(op){
+                      case CreateFileOp crf:
+                      eventsToSchedule.add(new org.pampasim.events.FileSystem.CreateFile(null, "a"));
+                      break;
+                      case DeleteFileOp df:
+                      break;
+                      case OpenFileOp of:
+                      break;
+                      case CloseFileOp clf:
+                      break;
+                      case ReadFileOp rf:
+                      break;
+                      case WriteFileOp wf:
+                      break;
+                      case CreateDirectoryOp cd:
+                      break;
+                      case DeleteDirectoryOp dd:
+                      break;
+                    }
+                }
+
+            }
+
+        }
+
+        return eventsToSchedule;
     }
 
     public void forwardWaitingTime() {

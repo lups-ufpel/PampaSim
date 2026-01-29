@@ -8,6 +8,7 @@ module org.pampasim.resources {
     requires javafx.fxml;
     requires org.kordamp.ikonli.javafx;
     requires javafx.controls;
+    requires org.pampasim.events;
 
     opens org.pampasim.resources.view to de.saxsys.mvvmfx, javafx.fxml;
     opens org.pampasim.resources.viewmodel to de.saxsys.mvvmfx, javafx.fxml;

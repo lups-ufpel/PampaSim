@@ -48,7 +48,7 @@ public class SpecVisitor extends SpecFileBaseVisitor<Spec> {
         int start    = Integer.parseInt(ctx.getChild(1).getChild(2*1 - 1).getText());
         int duration = Integer.parseInt(ctx.getChild(1).getChild(2*2 - 1).getText());
         int priority = Integer.parseInt(ctx.getChild(1).getChild(2*3 - 1).getText());
-        var creationData = new Process.CreationData(start, duration, priority);
+        var creationData = new Process.CreationData(start, duration, priority, null);
         String clr = null;
         try {
             clr = ctx.getChild(1).getChild(2*4 - 1).getText();

@@ -6,6 +6,7 @@ public sealed interface FileSystemOperation
                 CloseFileOp,
                 ReadFileOp,
                 WriteFileOp,
+                DeleteFileOp,
                 CreateDirectoryOp,
                 DeleteDirectoryOp {
 

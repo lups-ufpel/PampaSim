@@ -75,6 +75,7 @@
             <arguments>
                 <argument>sim/refactor.ent</argument>
                 <argument>memory/desc.ent</argument>
+                <argument>filesystem/desc.ent</argument>
                 <argument>org.pampasim.events</argument>
                 <argument>events/target/generated-sources/events</argument>
             </arguments>

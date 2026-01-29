@@ -69,6 +69,7 @@ public class Processor extends AbstractSimEntity {
         Process process = event.getProcess();
 
         LOGGER.debug("Execução do processo de identificador: {}", process.getPid());
+        process.scheduleFileSystemOperationEvents(); // must happen before execute TODO: scheduleFileSystemOperationEvents really should happen inside process.forwardExecution(). Have core.execute return the events instead
         core.execute(process);
         busyTicks++;
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
@@ -78,7 +79,6 @@ public class Processor extends AbstractSimEntity {
             LOGGER.debug("Fim do turno de execução do processo de identificador: {}", process.getPid());
         } else {
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
-            process.scheduleFileSystemOperationEvents(); // if any
         }
     }
     private void handleProcessPreemption(org.pampasim.events.Process.Preemption event) {

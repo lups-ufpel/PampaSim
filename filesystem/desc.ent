@@ -1,0 +1,12 @@
+events {
+  FileSystem transmitting java.lang.String {
+    CreateFile;
+    DeleteFile;
+    OpenFile;
+    WriteFile;
+    ReadFile;
+    CloseFile;
+    CreateDirectory;
+    DeleteDirectory;
+  }
+}
