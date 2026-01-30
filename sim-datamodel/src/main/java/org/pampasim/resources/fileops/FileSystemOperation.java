@@ -11,4 +11,5 @@ public sealed interface FileSystemOperation
                 DeleteDirectoryOp {
 
     int execTime();
+    String path();
 }

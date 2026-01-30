@@ -88,29 +88,34 @@ public class Processor extends AbstractSimEntity {
     }
 
     public void scheduleProcessFileSystemOperations(Process process){
-        System.out.println(process.getFileSystemOperations().toString());
-        System.exit(0);
         if(process.getFileSystemOperations() != null){
             for(FileSystemOperation op : process.getFileSystemOperations()){
                 if(op.execTime() == process.getCurrExecTime()){
                     switch(op){
                       case CreateFileOp crf:
-                      scheduleToNextClock(new org.pampasim.events.FileSystem.CreateFile(null, "a"));
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.CreateFile(this, op.path()));
+                        break;
                       case DeleteFileOp df:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.DeleteFile(this, op.path()));
+                        break;
                       case OpenFileOp of:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.OpenFile(this, op.path()));
+                        break;
                       case CloseFileOp clf:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.CloseFile(this, op.path()));
+                        break;
                       case ReadFileOp rf:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.ReadFile(this, op.path()));
+                        break;
                       case WriteFileOp wf:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.WriteFile(this, op.path()));
+                        break;
                       case CreateDirectoryOp cd:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.CreateDirectory(this, op.path()));
+                        break;
                       case DeleteDirectoryOp dd:
-                      break;
+                        scheduleToNextClock(new org.pampasim.events.FileSystem.DeleteDirectory(this, op.path()));
+                        break;
                     }
                 }
 
