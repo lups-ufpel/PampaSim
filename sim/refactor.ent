@@ -1,5 +1,5 @@
 events {
-  External transmitting org.pampasim.resources.ProcessSpawnData {
+  External transmitting org.pampasim.resources.Process$CreationData {
     Arrival;
   }
   Process transmitting org.pampasim.resources.Process {

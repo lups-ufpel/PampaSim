@@ -8,6 +8,8 @@ import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ProcessorCore;
+import org.pampasim.resources.fileops.*;
+import org.pampasim.resources.ProcessFileSystemInfo;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -69,7 +71,6 @@ public class Processor extends AbstractSimEntity {
         // TODO: handle IO operation schedule
         Process process = event.getProcess();
 
-        new org.pampasim.events.FileSystem.createFile(this, "");
 
         LOGGER.debug("Execução do processo de identificador: {}", process.getPid());
 
@@ -89,8 +90,8 @@ public class Processor extends AbstractSimEntity {
 
     public void scheduleProcessFileSystemOperations(Process process){
         if(process.getModuleInfo(ProcessFileSystemInfo.class).getOperations() != null){
-            for(FileSystemOperation op : getModuleInfo(ProcessFileSystemInfo.class).getOperations()){
-                if(op.execTime() == currExecTime){
+            for(FileSystemOperation op : process.getModuleInfo(ProcessFileSystemInfo.class).getOperations()){
+                if(op.execTime() == process.getCurrExecTime()){
                     switch(op){
                       case CreateFileOp crf:
                       scheduleToNextClock(new org.pampasim.events.FileSystem.CreateFile(null, "a"));
