@@ -210,7 +210,7 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess(CreateProcessRecord userProcess) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority()/* , userProcess.fileSystemOperations() */ );
+        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), userProcess.fileSystemOperations());
         var spec = simulatedScenario.getSpec();
         spec.addProcessArrival(creationData);
         spec.getColorMap().put(creationData.getCreationId(), Color.web(userProcess.color()));

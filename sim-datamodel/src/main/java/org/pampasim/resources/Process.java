@@ -24,6 +24,7 @@ public class Process {
         private final int arrivalTick;
         private final int durationTicks;
         private final int startPriority;
+        private final ArrayList<FileSystemOperation> operations; // unfortunately or not by far the most convenient way to have this by process Arrival 
     }
 
     @Getter
@@ -83,6 +84,10 @@ public class Process {
 
     public boolean isFinished() {
         return getRemainingExecutionTime() <= 0;
+    }
+
+    public ArrayList<FileSystemOperation> getFileSystemOperations(){
+      return creationData.getOperations();
     }
 
     public void setState(Process.State state) {

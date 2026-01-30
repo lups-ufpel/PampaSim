@@ -9,7 +9,6 @@ import org.pampasim.core.events.Event;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ProcessorCore;
 import org.pampasim.resources.fileops.*;
-import org.pampasim.resources.ProcessFileSystemInfo;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -89,8 +88,10 @@ public class Processor extends AbstractSimEntity {
     }
 
     public void scheduleProcessFileSystemOperations(Process process){
-        if(process.getModuleInfo(ProcessFileSystemInfo.class).getOperations() != null){
-            for(FileSystemOperation op : process.getModuleInfo(ProcessFileSystemInfo.class).getOperations()){
+        System.out.println(process.getFileSystemOperations().toString());
+        System.exit(0);
+        if(process.getFileSystemOperations() != null){
+            for(FileSystemOperation op : process.getFileSystemOperations()){
                 if(op.execTime() == process.getCurrExecTime()){
                     switch(op){
                       case CreateFileOp crf:
