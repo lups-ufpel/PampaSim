@@ -64,12 +64,17 @@ public class Processor extends AbstractSimEntity {
         // core.execute(process);  // should only run a tick after loading the process' memory
         getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
     }
+
     private void handleProcessRun(org.pampasim.events.Process.Run event) {
         // TODO: handle IO operation schedule
         Process process = event.getProcess();
 
+        new org.pampasim.events.FileSystem.createFile(this, "");
+
         LOGGER.debug("Execução do processo de identificador: {}", process.getPid());
-        process.scheduleFileSystemOperationEvents(); // must happen before execute TODO: scheduleFileSystemOperationEvents really should happen inside process.forwardExecution(). Have core.execute return the events instead
+
+        scheduleProcessFileSystemOperations(process); // must happen before core.execute (is currExecTime sensitive)
+
         core.execute(process);
         busyTicks++;
         if (process.isFinished() || process.getBurstTime() <= 0 || preemption) {
@@ -79,6 +84,35 @@ public class Processor extends AbstractSimEntity {
             LOGGER.debug("Fim do turno de execução do processo de identificador: {}", process.getPid());
         } else {
             getSimulation().scheduleToNextClock(new org.pampasim.events.Process.Load(this, process));
+        }
+    }
+
+    public void scheduleProcessFileSystemOperations(Process process){
+        if(process.getModuleInfo(ProcessFileSystemInfo.class).getOperations() != null){
+            for(FileSystemOperation op : getModuleInfo(ProcessFileSystemInfo.class).getOperations()){
+                if(op.execTime() == currExecTime){
+                    switch(op){
+                      case CreateFileOp crf:
+                      scheduleToNextClock(new org.pampasim.events.FileSystem.CreateFile(null, "a"));
+                      break;
+                      case DeleteFileOp df:
+                      break;
+                      case OpenFileOp of:
+                      break;
+                      case CloseFileOp clf:
+                      break;
+                      case ReadFileOp rf:
+                      break;
+                      case WriteFileOp wf:
+                      break;
+                      case CreateDirectoryOp cd:
+                      break;
+                      case DeleteDirectoryOp dd:
+                      break;
+                    }
+                }
+
+            }
         }
     }
     private void handleProcessPreemption(org.pampasim.events.Process.Preemption event) {
