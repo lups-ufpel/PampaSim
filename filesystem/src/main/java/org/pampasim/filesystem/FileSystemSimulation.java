@@ -11,6 +11,9 @@ import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.Partition;
 import org.pampasim.filesystem.core.AllocationScheme;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.file.File;
+import org.pampasim.filesystem.FileSystemEventManager;
+import org.pampasim.events.FileSystem.*;
 
 @Getter
 public class FileSystemSimulation extends SimulationBase {
@@ -22,7 +25,9 @@ public class FileSystemSimulation extends SimulationBase {
     super(parent);
 
     // register handlers
-    
+    parent.getEventManager().addEventHandler(CreateFile.class, this);
+
+    this.setEventManager(new FileSystemEventManager(this));
 
     // initialize subsystems
     try{
@@ -44,14 +49,26 @@ public class FileSystemSimulation extends SimulationBase {
 
   }
 
-    public ObservableList<BlockRecord> getBlockRecordsReference(){
-      return disk.getBlockRecords();
-    }
+  public ObservableList<BlockRecord> getBlockRecordsReference(){
+    return disk.getBlockRecords();
+  }
 
-    @Override
-    public void acceptEvent(Event evt) {}
+  public void acceptEvent(Event event) {
+    super.acceptEvent(event);
+  }
 
-    public void incrementWaitingTimes() {}
+  public void processEvent(Event event) {
+      switch (event) {
+          case CreateFile e -> System.exit(31); //File.create(fileSystem,  ((CreateFile) event).getString(), 0, -1, false, false);
+          default -> throw new IllegalStateException(
+                  "[PhysicalMemory] Evento do tipo " + event.getClass().getSimpleName()
+                          + " não pode ser tratado, evento serial: " + event.getSerial()
+          );
+      }
+
+  }
+  
+  public void incrementWaitingTimes() {}
 
 
 }

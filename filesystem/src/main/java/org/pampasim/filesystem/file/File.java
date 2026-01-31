@@ -9,7 +9,6 @@ import org.pampasim.filesystem.directory.DirectoryEntry;
 import java.time.Instant;
 
 public class File{
-  // could have attributes fileSystem and path for ease of use?
 
   public static FileMapping create(FileSystem fileSystem, String path, int currentSizeBytes, int finalSizeBlocks, boolean isBinary, boolean isDirectory){
     if(finalSizeBlocks > fileSystem.freeBlocksCount()){

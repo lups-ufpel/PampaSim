@@ -87,6 +87,8 @@ public abstract class EventManager {
             logEvent("HANDLED", event.getClass(), event, null);
 
             handler = handlers.get(event.getClass());
+            System.out.println(handlers.toString());
+            System.out.println("\n");
             Event finalEvent = event;
             snoopers.entrySet()
                     .stream()
