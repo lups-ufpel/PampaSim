@@ -24,10 +24,10 @@ public class FileSystemSimulation extends SimulationBase {
   public FileSystemSimulation(SimulationBase parent){
     super(parent);
 
+    this.setEventManager(new FileSystemEventManager(this));
+
     // register handlers
     parent.getEventManager().addEventHandler(CreateFile.class, this);
-
-    this.setEventManager(new FileSystemEventManager(this));
 
     // initialize subsystems
     try{
@@ -57,16 +57,7 @@ public class FileSystemSimulation extends SimulationBase {
     super.acceptEvent(event);
   }
 
-  public void processEvent(Event event) {
-      switch (event) {
-          case CreateFile e -> System.exit(31); //File.create(fileSystem,  ((CreateFile) event).getString(), 0, -1, false, false);
-          default -> throw new IllegalStateException(
-                  "[PhysicalMemory] Evento do tipo " + event.getClass().getSimpleName()
-                          + " não pode ser tratado, evento serial: " + event.getSerial()
-          );
-      }
-
-  }
+  
   
   public void incrementWaitingTimes() {}
 

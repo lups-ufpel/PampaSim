@@ -93,7 +93,7 @@ public class Processor extends AbstractSimEntity {
                 if(op.execTime() == process.getCurrExecTime()){
                     switch(op){
                       case CreateFileOp crf:
-                        scheduleToNextClock(new org.pampasim.events.FileSystem.CreateFile(this, op.path()));
+                        getSimulation().scheduleToNextClock(new org.pampasim.events.FileSystem.CreateFile(this, op.path()));
                         break;
                       case DeleteFileOp df:
                         scheduleToNextClock(new org.pampasim.events.FileSystem.DeleteFile(this, op.path()));

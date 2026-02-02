@@ -8,6 +8,9 @@ import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.LegendEntry;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.Simulation;
+import org.pampasim.core.events.Event;
+import org.pampasim.filesystem.file.File;
+import org.pampasim.events.FileSystem.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -71,7 +74,23 @@ public class FileSystem extends AbstractSimEntity {
       }
 
 
+      // register handlers
+      simulation.getEventManager().addEventHandler(org.pampasim.events.FileSystem.CreateFile.class, this);
+
+
   }
+
+    @Override
+    public void processEvent(Event event) {
+          switch (event) {
+              case CreateFile e -> File.create(this,  ((CreateFile) event).getString(), 0, 20, false, false);
+              default -> throw new IllegalStateException(
+                      "[PhysicalMemory] Evento do tipo " + event.getClass().getSimpleName()
+                              + " não pode ser tratado, evento serial: " + event.getSerial()
+              );
+          }
+
+    }
 
   public int getNumberOfInodes(){
     return (int) Math.ceil(partition.size() * disk.getBlockSizeBytes() * INODES_TO_BYTES_RATIO);
