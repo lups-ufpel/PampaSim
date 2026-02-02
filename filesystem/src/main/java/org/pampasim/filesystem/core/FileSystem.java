@@ -75,22 +75,83 @@ public class FileSystem extends AbstractSimEntity {
 
 
       // register handlers
-      simulation.getEventManager().addEventHandler(org.pampasim.events.FileSystem.CreateFile.class, this);
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.CreateFile.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.DeleteFile.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.OpenFile.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.CloseFile.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.ReadFile.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.WriteFile.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.CreateDirectory.class, this);
+      
+      simulation.getEventManager().addEventHandler(
+              org.pampasim.events.FileSystem.DeleteDirectory.class, this);
 
 
   }
 
-    @Override
-    public void processEvent(Event event) {
-          switch (event) {
-              case CreateFile e -> File.create(this,  ((CreateFile) event).getString(), 0, 20, false, false);
-              default -> throw new IllegalStateException(
-                      "[PhysicalMemory] Evento do tipo " + event.getClass().getSimpleName()
-                              + " não pode ser tratado, evento serial: " + event.getSerial()
-              );
-          }
+  @Override
+  public void processEvent(Event event) {
+        switch (event) {
+            case CreateFile e        -> createFile( /* ((CreateFile) event).getString() */ );
+            case DeleteFile e        -> deleteFile();
+            case OpenFile e          -> openFile();
+            case CloseFile e         -> closeFile();
+            case ReadFile e          -> readFile();
+            case WriteFile e         -> writeFile();
+            case CreateDirectory e   -> createDirectory();
+            case DeleteDirectory e   -> deleteDirectory();
+            default -> throw new IllegalStateException(
+                    "[FileSystem] Evento do tipo " + event.getClass().getSimpleName()
+                            + " não pode ser tratado, evento serial: " + event.getSerial()
+            );
+        }
 
-    }
+  }
+
+  public void createFile(){
+    //File.create(this,  ((CreateFile) event).getString(), 0, 20, false, false);
+  }
+
+  public void deleteFile(){
+
+  }
+
+  public void openFile(){
+
+  }
+
+  public void closeFile(){
+
+  }
+
+  public void readFile(){
+
+  }
+
+  public void writeFile(){
+    
+  }
+
+  public void createDirectory(){
+
+  }
+
+  public void deleteDirectory(){
+
+  }
 
   public int getNumberOfInodes(){
     return (int) Math.ceil(partition.size() * disk.getBlockSizeBytes() * INODES_TO_BYTES_RATIO);

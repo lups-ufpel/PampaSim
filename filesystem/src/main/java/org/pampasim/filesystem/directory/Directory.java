@@ -285,36 +285,97 @@ public class Directory{
 
   }
 
-  // finalSizeBlocks is not used by file.create when not necessary
-  public static void create(FileSystem fileSystem, String path, int finalSizeBlocks){
-        int requiredEntries = 2;
-        int currentSizeBytes = DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * requiredEntries;
-        if(finalSizeBlocks != -1 && finalSizeBlocks < fileSystem.blocksRequiredFor(currentSizeBytes)){
+  public static void createContiguous(
+          FileSystem fileSystem,
+          String path,
+          int finalSizeBlocks
+  ) {
+      int requiredEntries = 2;
+      int currentSizeBytes =
+              DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * requiredEntries;
+  
+      if (finalSizeBlocks < fileSystem.blocksRequiredFor(currentSizeBytes)) {
           throw new Error("Directory " + path + " too small for essential entries.");
-        }
-        FileMapping dotMapping = File.create(fileSystem, path, currentSizeBytes, finalSizeBlocks, true, true);
-        ArrayList<DirectoryEntry> entries = new ArrayList<>();
-        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
-        entries.add(dot);
-
-        Directory dotdot = findParent(fileSystem, path);
-        DirectoryEntry dotdotEntry = dotdot.getEntries().get(DOT_ENTRY_INDEX);
-        dotdotEntry.setName("..");
-        entries.add(dotdotEntry);
-
-        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
-        Directory dir = new Directory(entries, fileSystem);
-        Directory.writeToBuffer(dir, buffer);
-
-        while(buffer.position() < buffer.limit()){
-          buffer.put((byte) 0);
-        }
-
-        File.write(fileSystem, path, buffer.array(), 0);
+      }
+  
+      FileMapping dotMapping =
+              File.createContiguous(
+                      fileSystem,
+                      path,
+                      currentSizeBytes,
+                      finalSizeBlocks,
+                      true,
+                      true
+              );
+  
+      writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
   }
 
-  public static void create(FileSystem fileSystem, String path){
-    create(fileSystem, path, -1);
+  public static void createInodes(
+          FileSystem fileSystem,
+          String path
+  ) {
+      int requiredEntries = 2;
+      int currentSizeBytes =
+              DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * requiredEntries;
+  
+      FileMapping dotMapping =
+              File.createInodes(
+                      fileSystem,
+                      path,
+                      currentSizeBytes,
+                      true,
+                      true
+              );
+  
+      writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
+  }
+
+  public static void createFAT(
+          FileSystem fileSystem,
+          String path
+  ) {
+      int requiredEntries = 2;
+      int currentSizeBytes =
+              DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * requiredEntries;
+  
+      FileMapping dotMapping =
+              File.createFAT(
+                      fileSystem,
+                      path,
+                      currentSizeBytes,
+                      true,
+                      true
+              );
+  
+      writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
+  }
+
+  private static void writeInitialDirectoryContents(
+          FileSystem fileSystem,
+          String path,
+          FileMapping dotMapping,
+          int currentSizeBytes
+  ) {
+      ArrayList<DirectoryEntry> entries = new ArrayList<>();
+  
+      DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+      entries.add(dot);
+  
+      Directory parent = findParent(fileSystem, path);
+      DirectoryEntry dotdotEntry = parent.getEntries().get(DOT_ENTRY_INDEX);
+      dotdotEntry.setName("..");
+      entries.add(dotdotEntry);
+  
+      ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
+      Directory dir = new Directory(entries, fileSystem);
+      Directory.writeToBuffer(dir, buffer);
+  
+      while (buffer.position() < buffer.limit()) {
+          buffer.put((byte) 0);
+      }
+  
+      File.write(fileSystem, path, buffer.array(), 0);
   }
 
   // maybe should interact with file system instead of disk?? we can be sure starts at block start

@@ -27,7 +27,29 @@ public class FileSystemSimulation extends SimulationBase {
     this.setEventManager(new FileSystemEventManager(this));
 
     // register handlers
-    parent.getEventManager().addEventHandler(CreateFile.class, this);
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.CreateFile.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.DeleteFile.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.OpenFile.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.CloseFile.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.ReadFile.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.WriteFile.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.CreateDirectory.class, this);
+    
+    parent.getEventManager().addEventHandler(
+            org.pampasim.events.FileSystem.DeleteDirectory.class, this);
 
     // initialize subsystems
     try{

@@ -10,57 +10,96 @@ import java.time.Instant;
 
 public class File{
 
-  public static FileMapping create(FileSystem fileSystem, String path, int currentSizeBytes, int finalSizeBlocks, boolean isBinary, boolean isDirectory){
-    if(finalSizeBlocks > fileSystem.freeBlocksCount()){
-      throw new Error("file is too big. File system has " + fileSystem.freeBlocksCount() + " free blocks.");
-    }
+  public static FileMapping createContiguous(
+          FileSystem fileSystem,
+          String path,
+          int currentSizeBytes,
+          int finalSizeBlocks,
+          boolean isBinary,
+          boolean isDirectory
+  ) {
+      if(fileSystem.getAllocationScheme != AllocationScheme.CONTIGUOUS){
+        throw new InvalidStateException("Wrong function called for creating file.");
 
-    FileMetadata metadata = new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
-    FileMapping mapping;
-    switch(fileSystem.getAllocationScheme()){
-      case CONTIGUOUS:
-      {
-        if(finalSizeBlocks == -1){
-          throw new Error("incorrect create function called for contiguous file.");
-        }
-        int firstBlockIndex = fileSystem.getFreeBlocksAndSetAllocated(finalSizeBlocks);
-        mapping = new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
-        break;
       }
-      case INODES:
-      {
-        mapping = new InodeMapping(fileSystem.nextFreeInode());
-        break;
+      if (finalSizeBlocks > fileSystem.freeBlocksCount()) {
+          throw new Error(
+                  "file is too big. File system has " +
+                  fileSystem.freeBlocksCount() + " free blocks."
+          );
       }
-      case FAT:
-      {
-        mapping = new FATMapping(FATMapping.FIRST_BLOCK_NOT_SET, metadata);
-        break;
-      }
-      default:
-        throw new Error("unhandled");
-    }
-
-    String[] segments = path.split("/");
-    String name = segments[segments.length - 1];
-    Directory dir = Directory.findParent(fileSystem, path);
-    DirectoryEntry fileEntry = new DirectoryEntry(name, mapping);
-    dir.addEntry(fileEntry);
-    if(fileSystem.getAllocationScheme() == AllocationScheme.INODES){
-        //needs to be done after addEntry
-        // metadata for others have to be written later
-        metadata.writeToDisk(fileSystem, path);
-    }
-
-    return mapping;
+  
+      FileMetadata metadata =
+              new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
+  
+      int firstBlockIndex =
+              fileSystem.getFreeBlocksAndSetAllocated(finalSizeBlocks);
+  
+      FileMapping mapping =
+              new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
+  
+      addToDirectory(fileSystem, path, mapping);
+  
+      return mapping;
   }
 
-  public static FileMapping create(FileSystem fileSystem, String path, int currentSizeBytes, boolean isBinary, boolean isDirectory){
-    return create(fileSystem, path, currentSizeBytes, -1, isBinary, isDirectory);
+  public static FileMapping createInodes(
+          FileSystem fileSystem,
+          String path,
+          int currentSizeBytes,
+          boolean isBinary,
+          boolean isDirectory
+  ) {
+
+      if(fileSystem.getAllocationScheme != AllocationScheme.INODES){
+        throw new InvalidStateException("Wrong function called for creating file.");
+      }
+
+      FileMetadata metadata =
+              new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
+  
+      FileMapping mapping =
+              new InodeMapping(fileSystem.nextFreeInode());
+  
+      addToDirectory(fileSystem, path, mapping);
+  
+      // must happen after directory entry exists
+      metadata.writeToDisk(fileSystem, path);
+  
+      return mapping;
   }
 
-  public static FileMapping create(FileSystem fileSystem, String path, boolean isBinary, boolean isDirectory){
-    return create(fileSystem, path, 0, -1, isBinary, isDirectory);
+  public static FileMapping createFAT(
+          FileSystem fileSystem,
+          String path,
+          int currentSizeBytes,
+          boolean isBinary,
+          boolean isDirectory
+  ) {
+
+      if(fileSystem.getAllocationScheme != AllocationScheme.FAT){
+        throw new InvalidStateException("Wrong function called for creating file.");
+      }
+      FileMetadata metadata =
+              new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
+  
+      FileMapping mapping =
+              new FATMapping(FATMapping.FIRST_BLOCK_NOT_SET, metadata);
+  
+      addToDirectory(fileSystem, path, mapping);
+  
+      return mapping;
+  }
+
+  private static void addToDirectory(
+          FileSystem fileSystem,
+          String path,
+          FileMapping mapping
+  ) {
+      String[] segments = path.split("/");
+      String name = segments[segments.length - 1];
+      Directory dir = Directory.findParent(fileSystem, path);
+      dir.addEntry(new DirectoryEntry(name, mapping));
   }
 
   public static void write(FileSystem fileSystem, String path, byte[] data, int position){
