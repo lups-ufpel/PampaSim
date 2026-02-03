@@ -13,7 +13,6 @@ public class File{
   public static FileMapping createContiguous(
           FileSystem fileSystem,
           String path,
-          int currentSizeBytes,
           int finalSizeBlocks,
           boolean isBinary,
           boolean isDirectory
@@ -30,7 +29,7 @@ public class File{
       }
   
       FileMetadata metadata =
-              new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
+              new FileMetadata(0, isBinary, isDirectory, Instant.now());
   
       int firstBlockIndex =
               fileSystem.getFreeBlocksAndSetAllocated(finalSizeBlocks);
@@ -46,7 +45,6 @@ public class File{
   public static FileMapping createInodes(
           FileSystem fileSystem,
           String path,
-          int currentSizeBytes,
           boolean isBinary,
           boolean isDirectory
   ) {
@@ -56,7 +54,7 @@ public class File{
       }
 
       FileMetadata metadata =
-              new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
+              new FileMetadata(0, isBinary, isDirectory, Instant.now());
   
       FileMapping mapping =
               new InodeMapping(fileSystem.nextFreeInode());
@@ -72,7 +70,6 @@ public class File{
   public static FileMapping createFAT(
           FileSystem fileSystem,
           String path,
-          int currentSizeBytes,
           boolean isBinary,
           boolean isDirectory
   ) {
@@ -81,7 +78,7 @@ public class File{
         throw new InvalidStateException("Wrong function called for creating file.");
       }
       FileMetadata metadata =
-              new FileMetadata(currentSizeBytes, isBinary, isDirectory, Instant.now());
+              new FileMetadata(0, isBinary, isDirectory, Instant.now());
   
       FileMapping mapping =
               new FATMapping(FATMapping.FIRST_BLOCK_NOT_SET, metadata);

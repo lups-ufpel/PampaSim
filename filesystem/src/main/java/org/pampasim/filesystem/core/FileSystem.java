@@ -11,6 +11,7 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
 import org.pampasim.filesystem.file.File;
 import org.pampasim.events.FileSystem.*;
+import org.pampasim.resources.fileops.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -105,7 +106,7 @@ public class FileSystem extends AbstractSimEntity {
   @Override
   public void processEvent(Event event) {
         switch (event) {
-            case CreateFile e        -> createFile( /* ((CreateFile) event).getString() */ );
+            case CreateFile e        -> createFile(e.getFileSystemOperation());
             case DeleteFile e        -> deleteFile();
             case OpenFile e          -> openFile();
             case CloseFile e         -> closeFile();
@@ -121,8 +122,34 @@ public class FileSystem extends AbstractSimEntity {
 
   }
 
-  public void createFile(){
-    //File.create(this,  ((CreateFile) event).getString(), 0, 20, false, false);
+  public void createFile(FileSystemOperation data){
+    switch (data) {
+    
+        case CreateFileContiguous d ->
+            File.createContiguous(
+                fileSystem,
+                d.path(),
+                d.finalSizeBlocks(),
+                d.isBinary(),
+                false
+            );
+    
+        case CreateFileFAT d ->
+            File.createFAT(
+                fileSystem,
+                d.path(),
+                d.isBinary(),
+                false
+            );
+    
+        case CreateFileInode d ->
+            File.createInodes(
+                fileSystem,
+                d.path(),
+                d.isBinary(),
+                false
+            );
+    };
   }
 
   public void deleteFile(){
@@ -146,7 +173,12 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public void createDirectory(){
-
+    switch(allocationScheme){
+      case CONTIGUOUS -> Directory.createContiguous();
+      case INODES -> Directory.createInodes();
+      case FAT -> Directory.createFAT();
+      default -> throw new Error("unhandled switch case");
+    }
   }
 
   public void deleteDirectory(){

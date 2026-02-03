@@ -1,5 +1,5 @@
 events {
-  FileSystem transmitting java.lang.String {
+  FileSystem transmitting org.pampasim.resources.fileops.FileSystemOperation {
     CreateFile;
     DeleteFile;
     OpenFile;

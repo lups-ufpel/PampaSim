@@ -1,6 +1,7 @@
 package org.pampasim.resources.fileops;
 
-public record CreateDirectoryOp(
+public record CreateFileInode(
         int execTime,
         String path
-) implements FileSystemOperation {}
+) implements CreateFile {}
+

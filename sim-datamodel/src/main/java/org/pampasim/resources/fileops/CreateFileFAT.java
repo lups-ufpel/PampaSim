@@ -1,6 +1,7 @@
 package org.pampasim.resources.fileops;
 
-public record DeleteFileOp(
+public record CreateFileFAT(
         int execTime,
         String path
-) implements FileSystemOperation {}
+) implements CreateFile {}
+
