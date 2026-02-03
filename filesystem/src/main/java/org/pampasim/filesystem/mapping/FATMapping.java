@@ -27,6 +27,10 @@ public final class FATMapping extends FileMapping {
     return metadata.getCurrentSizeBytes();
   }
 
+  public void setCurrentSizeBytes(int currentSizeBytes){
+    metadata.setCurrentSizeBytes(currentSizeBytes);
+  }
+
   public int getFirstBlockIndex(){
     return firstBlockIndex;
   }

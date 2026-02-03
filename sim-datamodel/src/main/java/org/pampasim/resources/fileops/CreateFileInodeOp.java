@@ -1,7 +1,7 @@
 package org.pampasim.resources.fileops;
 
-public record CreateFileFAT(
+public record CreateFileInodeOp(
         int execTime,
         String path
-) implements CreateFile {}
+) implements CreateFileOp {}
 

@@ -26,6 +26,10 @@ public final class InodeMapping extends FileMapping {
     return Inode.getMetadata(fileSystem, inodeIndex);
   }
 
+  public void setCurrentSizeBytes(FileSystem fileSystem, int currentSizeBytes){
+    getMetadata(fileSystem).setCurrentSizeBytes(currentSizeBytes);
+  }
+
   @Override
   public int sizeBytes(){
     int intSizeBytes = Integer.SIZE / 8;

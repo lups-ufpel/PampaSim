@@ -106,7 +106,7 @@ public class FileSystem extends AbstractSimEntity {
   @Override
   public void processEvent(Event event) {
         switch (event) {
-            case CreateFile e        -> createFile(e.getFileSystemOperation());
+            case CreateFile e        -> createFile((CreateFileOp) e.getFileSystemOperation());
             case DeleteFile e        -> deleteFile();
             case OpenFile e          -> openFile();
             case CloseFile e         -> closeFile();
@@ -122,31 +122,28 @@ public class FileSystem extends AbstractSimEntity {
 
   }
 
-  public void createFile(FileSystemOperation data){
+  public void createFile(CreateFileOp data){
     switch (data) {
     
-        case CreateFileContiguous d ->
+        case CreateFileContiguousOp d ->
             File.createContiguous(
-                fileSystem,
+                this,
                 d.path(),
                 d.finalSizeBlocks(),
-                d.isBinary(),
                 false
             );
     
-        case CreateFileFAT d ->
+        case CreateFileFATOp d ->
             File.createFAT(
-                fileSystem,
+                this,
                 d.path(),
-                d.isBinary(),
                 false
             );
     
-        case CreateFileInode d ->
+        case CreateFileInodeOp d ->
             File.createInodes(
-                fileSystem,
+                this,
                 d.path(),
-                d.isBinary(),
                 false
             );
     };
@@ -173,12 +170,14 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public void createDirectory(){
+    /*
     switch(allocationScheme){
       case CONTIGUOUS -> Directory.createContiguous();
       case INODES -> Directory.createInodes();
       case FAT -> Directory.createFAT();
       default -> throw new Error("unhandled switch case");
     }
+    */
   }
 
   public void deleteDirectory(){
@@ -397,12 +396,12 @@ public class FileSystem extends AbstractSimEntity {
         sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
-        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
         FileMapping dotMapping = new ContiguousMapping(starting_index, sizeBlocks, dotMetadata);
         DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
         dot.writeToBuffer(buffer);
 
-        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
         FileMapping dotdotMapping = new ContiguousMapping(starting_index, sizeBlocks, dotdotMetadata);
         DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
         dotdot.writeToBuffer(buffer);
@@ -428,12 +427,12 @@ public class FileSystem extends AbstractSimEntity {
         sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
-        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
         FileMapping dotMapping = new InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
         DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
         dot.writeToBuffer(buffer);
 
-        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
         FileMapping dotdotMapping = new InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
         DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
         dotdot.writeToBuffer(buffer);
@@ -460,12 +459,12 @@ public class FileSystem extends AbstractSimEntity {
         sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
-        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
         FileMapping dotMapping = new FATMapping(starting_index, dotMetadata);
         DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
         dot.writeToBuffer(buffer);
 
-        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, true, Instant.now());
+        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
         FileMapping dotdotMapping = new FATMapping(starting_index, dotdotMetadata);
         DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
         dotdot.writeToBuffer(buffer);

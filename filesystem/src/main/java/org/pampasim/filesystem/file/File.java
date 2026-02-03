@@ -14,11 +14,10 @@ public class File{
           FileSystem fileSystem,
           String path,
           int finalSizeBlocks,
-          boolean isBinary,
           boolean isDirectory
   ) {
-      if(fileSystem.getAllocationScheme != AllocationScheme.CONTIGUOUS){
-        throw new InvalidStateException("Wrong function called for creating file.");
+      if(fileSystem.getAllocationScheme() != AllocationScheme.CONTIGUOUS){
+        throw new IllegalStateException("Wrong function called for creating file.");
 
       }
       if (finalSizeBlocks > fileSystem.freeBlocksCount()) {
@@ -29,7 +28,7 @@ public class File{
       }
   
       FileMetadata metadata =
-              new FileMetadata(0, isBinary, isDirectory, Instant.now());
+              new FileMetadata(0, isDirectory, Instant.now());
   
       int firstBlockIndex =
               fileSystem.getFreeBlocksAndSetAllocated(finalSizeBlocks);
@@ -45,16 +44,15 @@ public class File{
   public static FileMapping createInodes(
           FileSystem fileSystem,
           String path,
-          boolean isBinary,
           boolean isDirectory
   ) {
 
-      if(fileSystem.getAllocationScheme != AllocationScheme.INODES){
-        throw new InvalidStateException("Wrong function called for creating file.");
+      if(fileSystem.getAllocationScheme() != AllocationScheme.INODES){
+        throw new IllegalStateException("Wrong function called for creating file.");
       }
 
       FileMetadata metadata =
-              new FileMetadata(0, isBinary, isDirectory, Instant.now());
+              new FileMetadata(0, isDirectory, Instant.now());
   
       FileMapping mapping =
               new InodeMapping(fileSystem.nextFreeInode());
@@ -70,15 +68,14 @@ public class File{
   public static FileMapping createFAT(
           FileSystem fileSystem,
           String path,
-          boolean isBinary,
           boolean isDirectory
   ) {
 
-      if(fileSystem.getAllocationScheme != AllocationScheme.FAT){
-        throw new InvalidStateException("Wrong function called for creating file.");
+      if(fileSystem.getAllocationScheme() != AllocationScheme.FAT){
+        throw new IllegalStateException("Wrong function called for creating file.");
       }
       FileMetadata metadata =
-              new FileMetadata(0, isBinary, isDirectory, Instant.now());
+              new FileMetadata(0, isDirectory, Instant.now());
   
       FileMapping mapping =
               new FATMapping(FATMapping.FIRST_BLOCK_NOT_SET, metadata);

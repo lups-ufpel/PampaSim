@@ -33,6 +33,10 @@ public final class ContiguousMapping extends FileMapping {
     return metadata.getCurrentSizeBytes();
   }
 
+  public void setCurrentSizeBytes(int currentSizeBytes){
+    metadata.setCurrentSizeBytes(currentSizeBytes);
+  }
+
   @Override
   public void writeToBuffer(ByteBuffer buffer){
     buffer.putInt(firstBlockIndex);

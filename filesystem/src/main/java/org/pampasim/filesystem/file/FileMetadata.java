@@ -19,14 +19,12 @@ public class FileMetadata{
   private Instant creationTime; // converts to epoch milli internally
   private Instant lastAccess;
   private Instant lastModified;
-  private boolean isBinary; // other option is ASCII, maybe remove this
   private boolean isDirectory;
   //private boolean isReadOnly; // maybe too scope too big 
   //private boolean isSystem; // maybe too scope too big 
   
-  public FileMetadata(int currentSizeBytes, boolean isBinary, boolean isDirectory, Instant creationTime){
+  public FileMetadata(int currentSizeBytes, boolean isDirectory, Instant creationTime){
     this.currentSizeBytes = currentSizeBytes;
-    this.isBinary = isBinary;
     this.isDirectory = isDirectory;
     this.creationTime = creationTime;
     this.lastAccess = creationTime;
@@ -34,10 +32,9 @@ public class FileMetadata{
   }
 
 
-  public FileMetadata(int currentSizeBytes, boolean isBinary, boolean isDirectory, Instant creationTime, 
+  public FileMetadata(int currentSizeBytes, boolean isDirectory, Instant creationTime, 
     Instant lastAccess, Instant lastModified){
     this.currentSizeBytes = currentSizeBytes;
-    this.isBinary = isBinary;
     this.isDirectory = isDirectory;
     this.creationTime = creationTime;
     this.lastAccess = creationTime;
@@ -176,8 +173,6 @@ public class FileMetadata{
     long lastModifiedEpochMilli = lastModified.toEpochMilli();
     buffer.putLong(lastModifiedEpochMilli);
 
-    buffer.put((byte) (isBinary ? 1 : 0));
-
     buffer.put((byte) (isDirectory ? 1 : 0));
   }
 
@@ -203,10 +198,9 @@ public class FileMetadata{
     Instant creationTime = Instant.ofEpochMilli(buffer.getLong());
     Instant lastAccessTime = Instant.ofEpochMilli(buffer.getLong());
     Instant lastModifiedTime = Instant.ofEpochMilli(buffer.getLong());
-    boolean isBinary = buffer.get() != 0; // converting byte to boolean
     boolean isDirectory = buffer.get() != 0; // converting byte to boolean
 
-    FileMetadata metadata = new FileMetadata(currentSizeBytes, isBinary, isDirectory, creationTime, 
+    FileMetadata metadata = new FileMetadata(currentSizeBytes, isDirectory, creationTime, 
                                             lastAccessTime, lastModifiedTime);
 
     return metadata;
@@ -237,17 +231,13 @@ public class FileMetadata{
       this.lastModified = Instant.now();
   }
 
-  public boolean isBinary() {
-      return isBinary;
-  }
-
   public boolean isDirectory(){
       return isDirectory;
   }
   
   @Override
   public String toString(){
-    return "FileMetadata [currentSizeBytes=" + currentSizeBytes + ", isBinary=" + isBinary + ", isDirectory=" + isDirectory + "]";
+    return "FileMetadata [currentSizeBytes=" + currentSizeBytes + ", isDirectory=" + isDirectory + "]";
   }
 
 }
