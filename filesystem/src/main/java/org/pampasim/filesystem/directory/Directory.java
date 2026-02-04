@@ -196,7 +196,7 @@ public class Directory{
 
   }
 
-  public void writeEntryData(ByteBuffer entryBuffer, int entryIndex){
+  public void writeEntryData(byte[] data, int entryIndex){
     int i = entryIndex;
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
@@ -207,7 +207,7 @@ public class Directory{
 
         int directoryFirstIndex = getIndex();
         // maybe write too file is too different from writing to dir to use that
-        fileSystemHandle.writeBytes(entryBuffer.array(), directoryFirstIndex, entryFirstByte);
+        fileSystemHandle.writeBytes(data, directoryFirstIndex, entryFirstByte);
 
         return;
       }
@@ -217,7 +217,7 @@ public class Directory{
         // TODO: not updating metadata (maybe it is inside write actually)
         int inodeIndex = getIndex();
         Inode current = Inode.get(fileSystemHandle, inodeIndex);
-        current.write(fileSystemHandle, entryBuffer.array(), entryFirstByte);
+        current.write(fileSystemHandle, data, entryFirstByte);
 
         return;
 
@@ -226,7 +226,7 @@ public class Directory{
         int[] fat = fileSystemHandle.getFileAllocationTable();
         
         int blockSizeBytes = fileSystemHandle.getBlockSizeBytes();
-        byte[] buffer = entryBuffer.array();
+        byte[] buffer = data;
         
         int currentIndex = directoryFirstIndex;
         int currentByte = 0;
@@ -287,7 +287,7 @@ public class Directory{
     ByteBuffer entryBuffer = ByteBuffer.allocate(newEntry.sizeBytes());
     newEntry.writeToBuffer(entryBuffer);
 
-    writeEntryData(entryBuffer, i);
+    writeEntryData(entryBuffer.array(), i);
   }
 
   public void deleteEntry(String name){
@@ -298,14 +298,14 @@ public class Directory{
       entries.set(i, blank);
     }
 
-    ByteBuffer blankBuffer = ByteBuffer.allocate(blank.sizeBytes());
-    blank.writeToBuffer(blankBuffer);
-
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
+    int sizeBytes = DirectoryEntry.sizeBytes(as);
     int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
 
+    byte[] blankArray = new byte[sizeBytes];
+
     // clears entry data
-    writeEntryData(blankBuffer, i);
+    writeEntryData(blankArray, i);
 
   }
 

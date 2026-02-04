@@ -103,7 +103,7 @@ public class Inode{
 
   }
 
-  private int[] allAddresses(){
+  public int[] allAddresses(){
     int[] result = new int[directAddresses.length + indirectAddresses.length];
     System.arraycopy(directAddresses, 0, result, 0, directAddresses.length);
     System.arraycopy(indirectAddresses, 0, result, directAddresses.length, indirectAddresses.length);

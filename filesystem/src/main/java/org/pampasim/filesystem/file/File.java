@@ -3,6 +3,7 @@ package org.pampasim.filesystem.file;
 import org.pampasim.filesystem.core.AllocationScheme;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
@@ -90,13 +91,66 @@ public class File{
       return mapping;
   }
 
+  public static void delete(FileSystem fileSystem, String path){
+    switch(fileSystem.getAllocationScheme()){
+      case CONTIGUOUS -> deleteContiguous(fileSystem, path);
+      case FAT -> deleteFAT(fileSystem, path);
+      case INODES -> deleteInode(fileSystem, path);
+      default -> throw new Error("unhandled switch case");
+    }
+  }
+
   public static void deleteContiguous(FileSystem fileSystem, String path){
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+
     ContiguousMapping mapping = (ContiguousMapping) fileSystem.getMapping(path);
-    mapping.getFirstBlockIndex();
-    mapping.getFinalSizeBlocks();
+    int firstBlockIndex = mapping.getFirstBlockIndex();
+    int lastBlockIndex = firstBlockIndex + mapping.getFinalSizeBlocks();
 
+    fileSystem.freeBlocks(firstBlockIndex, lastBlockIndex);
 
+    Directory.findParent(fileSystem, path).deleteEntry(name);
+  }
 
+  public static void deleteFAT(FileSystem fileSystem, String path){
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+
+    FATMapping mapping = (FATMapping) fileSystem.getMapping(path);
+
+    int[] fat = fileSystem.getFileAllocationTable();
+
+    int currentIndex = mapping.getFirstBlockIndex();
+    int nextIndex;
+
+    while(fat[currentIndex] != FileSystem.UNUSED){
+      fileSystem.freeBlock(currentIndex);
+
+      nextIndex = fat[currentIndex];
+      fat[currentIndex] = FileSystem.UNUSED;
+      currentIndex = nextIndex;
+    }
+
+    Directory.findParent(fileSystem, path).deleteEntry(name);
+  }
+
+  public static void deleteInode(FileSystem fileSystem, String path){
+    String[] segments = path.split("/");
+    String name = segments[segments.length - 1];
+
+    InodeMapping mapping = (InodeMapping) fileSystem.getMapping(path);
+
+    Inode inode = Inode.get(fileSystem, mapping.getIndex());
+    int[] addresses = inode.allAddresses();
+
+    for(int i = 0; i < addresses.length; i++){
+      fileSystem.freeBlock(addresses[i]);
+    }
+
+    fileSystem.freeBlock(inode.getSinglyIndirectPointer());
+
+    Directory.findParent(fileSystem, path).deleteEntry(name);
   }
 
   private static void addToDirectory(

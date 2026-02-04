@@ -107,7 +107,7 @@ public class FileSystem extends AbstractSimEntity {
   public void processEvent(Event event) {
         switch (event) {
             case CreateFile e        -> createFile((CreateFileOp) e.getFileSystemOperation());
-            case DeleteFile e        -> deleteFile();
+            case DeleteFile e        -> deleteFile((DeleteFileOp) e.getFileSystemOperation());
             case OpenFile e          -> openFile();
             case CloseFile e         -> closeFile();
             case ReadFile e          -> readFile();
@@ -149,8 +149,8 @@ public class FileSystem extends AbstractSimEntity {
     };
   }
 
-  public void deleteFile(){
-
+  public void deleteFile(DeleteFileOp op){
+    File.delete(this, op.path());
   }
 
   public void openFile(){
@@ -199,6 +199,22 @@ public class FileSystem extends AbstractSimEntity {
 
   public int getNumberOfInodes(){
     return (int) Math.ceil(partition.size() * disk.getBlockSizeBytes() * INODES_TO_BYTES_RATIO);
+  }
+
+  public void freeBlocks(int firstBlockIndex, int lastBlockIndex){
+    setBlockRecord(firstBlockIndex, lastBlockIndex, BlockType.EMPTY);
+    freeBlocksBitMap.setFree(firstBlockIndex, lastBlockIndex);
+
+  }
+
+  public void freeBlock(int blockIndex){
+    setBlockRecord(blockIndex, BlockType.EMPTY);
+    freeBlocksBitMap.setFree(blockIndex);
+
+  }
+
+  public void freeInode(int inodeIndex){
+    inodesBitMap.setFree(inodeIndex);
   }
 
   public int getRootDirectoryIndex(){
