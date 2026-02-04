@@ -11,7 +11,7 @@ import lombok.Setter;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.viewModel.SimulationSetupDialogViewModel;
-import org.pampasim.filesystem.FileSystemConfigSelectionRecord;
+import org.pampasim.resources.filesystem.config.FileSystemConfigSelectionRecord;
 
 import java.util.List;
 import java.util.Optional;

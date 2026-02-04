@@ -8,7 +8,7 @@ import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ProcessorCore;
-import org.pampasim.resources.fileops.*;
+import org.pampasim.resources.filesystem.fileops.*;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;

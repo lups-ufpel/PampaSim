@@ -1,7 +1,7 @@
 package org.pampasim.resources.dialog;
 
 import org.pampasim.resources.memory.ProcessMemoryInfo;
-import org.pampasim.resources.fileops.FileSystemOperation;
+import org.pampasim.resources.filesystem.fileops.FileSystemOperation;
 
 import java.util.List;
 import java.util.ArrayList;

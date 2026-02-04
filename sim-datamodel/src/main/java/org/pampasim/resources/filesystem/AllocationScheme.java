@@ -1,4 +1,4 @@
-package org.pampasim.filesystem.core;
+package org.pampasim.resources.filesystem;
 
 public enum AllocationScheme {
     CONTIGUOUS,

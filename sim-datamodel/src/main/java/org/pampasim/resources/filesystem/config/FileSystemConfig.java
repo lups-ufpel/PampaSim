@@ -1,4 +1,4 @@
-package org.pampasim.filesystem;
+package org.pampasim.resources.filesystem.config;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.pampasim.filesystem.FileSystemConfigSelectionRecord;
-import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.resources.filesystem.config.FileSystemConfigSelectionRecord;
+import org.pampasim.resources.filesystem.AllocationScheme;
 
 abstract public class FileSystemConfig {
   @Getter private static int numberOfBlocks;
