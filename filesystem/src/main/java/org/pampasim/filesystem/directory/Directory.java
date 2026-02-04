@@ -439,6 +439,7 @@ public class Directory{
 
         DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
         int sizeBlocks = ((ContiguousMapping) dot.getFileMapping()).getFinalSizeBlocks();
+        System.out.println("finalSize:" + sizeBlocks);
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
         directoryData = FileSystem.flatten(directoryBlocks);
         break;

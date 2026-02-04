@@ -112,7 +112,7 @@ public class FileSystem extends AbstractSimEntity {
             case CloseFile e         -> closeFile();
             case ReadFile e          -> readFile();
             case WriteFile e         -> writeFile();
-            case CreateDirectory e   -> createDirectory();
+            case CreateDirectory e   -> createDirectory((CreateDirectoryOp) e.getFileSystemOperation());
             case DeleteDirectory e   -> deleteDirectory();
             default -> throw new IllegalStateException(
                     "[FileSystem] Evento do tipo " + event.getClass().getSimpleName()
@@ -122,28 +122,28 @@ public class FileSystem extends AbstractSimEntity {
 
   }
 
-  public void createFile(CreateFileOp data){
-    switch (data) {
+  public void createFile(CreateFileOp op){
+    switch (op) {
     
-        case CreateFileContiguousOp d ->
+        case CreateFileContiguousOp o ->
             File.createContiguous(
                 this,
-                d.path(),
-                d.finalSizeBlocks(),
+                o.path(),
+                o.finalSizeBlocks(),
                 false
             );
     
-        case CreateFileFATOp d ->
+        case CreateFileFATOp o ->
             File.createFAT(
                 this,
-                d.path(),
+                o.path(),
                 false
             );
     
-        case CreateFileInodeOp d ->
+        case CreateFileInodeOp o ->
             File.createInodes(
                 this,
-                d.path(),
+                o.path(),
                 false
             );
     };
@@ -169,15 +169,28 @@ public class FileSystem extends AbstractSimEntity {
     
   }
 
-  public void createDirectory(){
-    /*
-    switch(allocationScheme){
-      case CONTIGUOUS -> Directory.createContiguous();
-      case INODES -> Directory.createInodes();
-      case FAT -> Directory.createFAT();
-      default -> throw new Error("unhandled switch case");
-    }
-    */
+  public void createDirectory(CreateDirectoryOp op){
+    switch (op) {
+    
+        case CreateDirectoryContiguousOp o ->
+            Directory.createContiguous(
+                this,
+                o.path(),
+                o.finalSizeBlocks()
+            );
+    
+        case CreateDirectoryFATOp o ->
+            Directory.createFAT(
+                this,
+                o.path()
+            );
+    
+        case CreateDirectoryInodeOp o ->
+            Directory.createInodes(
+                this,
+                o.path()
+            );
+    };
   }
 
   public void deleteDirectory(){

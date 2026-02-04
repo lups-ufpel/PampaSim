@@ -1,3 +1,7 @@
 package org.pampasim.resources.fileops;
 
-public record CreateDirectoryOp(int execTime, String path) implements FileSystemOperation {}
+public sealed interface CreateDirectoryOp extends FileSystemOperation
+    permits CreateDirectoryContiguousOp,
+            CreateDirectoryFATOp,
+            CreateDirectoryInodeOp {
+}

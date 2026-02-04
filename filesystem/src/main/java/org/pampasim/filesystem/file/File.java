@@ -9,6 +9,8 @@ import org.pampasim.filesystem.directory.DirectoryEntry;
 
 import java.time.Instant;
 
+// all of these methods could be on FS instead
+
 public class File{
 
   public static FileMapping createContiguous(

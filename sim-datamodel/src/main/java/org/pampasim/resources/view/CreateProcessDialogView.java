@@ -176,7 +176,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             case "Fechar Arquivo"    -> new CloseFileOp(time, path);
             case "Ler Arquivo"       -> new ReadFileOp(time, path);
             case "Escrever Arquivo"  -> new WriteFileOp(time, path);
-            case "Criar Diretório"   -> new CreateDirectoryOp(time, path);
+            case "Criar Diretório"   -> new CreateDirectoryContiguousOp(time, path, 100);
             case "Apagar Diretório"  -> new DeleteDirectoryOp(time, path);
             default -> throw new IllegalStateException("Unknown operation: " + op);
         };

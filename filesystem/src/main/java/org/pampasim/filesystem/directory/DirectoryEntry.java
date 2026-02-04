@@ -89,6 +89,7 @@ public class DirectoryEntry {
   //}
   //
   public static DirectoryEntry getFromBuffer(ByteBuffer buffer, AllocationScheme allocationScheme){
+    System.out.println(buffer.capacity());
     char[] nameArray = new char[Directory.FILE_NAME_LENGTH_CHARS];
     for(int i = 0; i < nameArray.length; i++){
       nameArray[i] = buffer.getChar();
