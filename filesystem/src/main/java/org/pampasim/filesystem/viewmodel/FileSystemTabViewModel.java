@@ -6,10 +6,11 @@ import java.util.Collections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
+import javafx.beans.InvalidationListener;
 
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.LegendEntry;
 
 
@@ -29,7 +30,7 @@ public class FileSystemTabViewModel implements ViewModel {
 
         createObservableViewModels();
         refreshLegendEntries();
-        addBlockRecordsListener();
+        addDiskWriteListeners(fileSystemSimulation.getDisk());
     }
 
     // similar to createFrameList on memorytabviewmodel
@@ -42,16 +43,11 @@ public class FileSystemTabViewModel implements ViewModel {
         }
     }
 
-    private void addBlockRecordsListener(){
-        observableBlockRecords.addListener((ListChangeListener<BlockRecord>) change -> {
-            while (change.next()) {
-                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
-                  refreshViewModels();
-                  refreshLegendEntries();
-                }
-            }
+    public void addDiskWriteListeners(Disk disk){
+        disk.getTotalWritesProperty().addListener((InvalidationListener) obs -> {
+            refreshViewModels();
+            refreshLegendEntries();
         });
-
     }
 
     private void refreshViewModels(){

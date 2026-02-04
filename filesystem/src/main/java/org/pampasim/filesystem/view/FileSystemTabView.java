@@ -17,6 +17,9 @@ import javafx.scene.paint.Paint;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
+import java.util.List;
+import java.util.ArrayList;
+import javafx.scene.Node;
 
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
@@ -50,20 +53,26 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       freeInodesBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_INODES_BITMAP));
       inodeTableRect.setFill(BlockType.getCorrespondingColor(BlockType.INODE_TABLE));
 
-      for(LegendEntry e : viewModel.getLegendEntries()){
-        addLegendEntry(e.isDirectory(), e.text(), e.color());
-      }
+      List<Node> snapshot = new ArrayList<>(legendBox.getChildren());
+
+      rebuildLegend(snapshot);
+
       viewModel.getLegendEntries().addListener(
           (ListChangeListener<LegendEntry>) change -> {
               while (change.next()) {
-                  if (change.wasAdded()) {
-                      for (LegendEntry e : change.getAddedSubList()) {
-                          addLegendEntry(e.isDirectory(), e.text(), e.color());
-                      }
-                  }
+                  rebuildLegend(snapshot);
               }
           }
       );
+    }
+
+    private void rebuildLegend(List<Node> snapshot) {
+        legendBox.getChildren().clear();
+        legendBox.getChildren().addAll(snapshot);
+
+        for (LegendEntry e : viewModel.getLegendEntries()) {
+            addLegendEntry(e.isDirectory(), e.text(), e.color());
+        }
     }
 
     // maybe listen to tick change instead of block change
