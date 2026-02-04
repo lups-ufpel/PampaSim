@@ -20,6 +20,8 @@ public class DirectoryEntry {
     this.fileMapping = fileMapping;
   }
 
+  public DirectoryEntry(){}
+
   public FileMapping getFileMapping(){
     return fileMapping;
   }

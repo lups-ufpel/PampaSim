@@ -196,18 +196,8 @@ public class Directory{
 
   }
 
-// only for contiguous for now, missing current size bytes increase
-  public void addEntry(DirectoryEntry newEntry){
-    int i = getFirstEmptyEntryIndex();
-    if(i < entries.size()){
-      entries.set(i, newEntry);
-    }  else{
-      entries.add(newEntry);
-    }
-
-    ByteBuffer entryBuffer = ByteBuffer.allocate(newEntry.sizeBytes());
-    newEntry.writeToBuffer(entryBuffer);
-
+  public void writeEntryData(ByteBuffer entryBuffer, int entryIndex){
+    int i = entryIndex;
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
 
@@ -282,6 +272,40 @@ public class Directory{
         throw new Error("unhandled switch case: " + fileSystemHandle.getAllocationScheme());
     }
 
+
+  }
+
+// only for contiguous for now, missing current size bytes increase
+  public void addEntry(DirectoryEntry newEntry){
+    int i = getFirstEmptyEntryIndex();
+    if(i < entries.size()){
+      entries.set(i, newEntry);
+    }  else{
+      entries.add(newEntry);
+    }
+
+    ByteBuffer entryBuffer = ByteBuffer.allocate(newEntry.sizeBytes());
+    newEntry.writeToBuffer(entryBuffer);
+
+    writeEntryData(entryBuffer, i);
+  }
+
+  public void deleteEntry(String name){
+    DirectoryEntry blank = new DirectoryEntry();
+
+    int i = getEntryPosition(name);
+    if(i < entries.size()){
+      entries.set(i, blank);
+    }
+
+    ByteBuffer blankBuffer = ByteBuffer.allocate(blank.sizeBytes());
+    blank.writeToBuffer(blankBuffer);
+
+    AllocationScheme as = fileSystemHandle.getAllocationScheme();
+    int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
+
+    // clears entry data
+    writeEntryData(blankBuffer, i);
 
   }
 

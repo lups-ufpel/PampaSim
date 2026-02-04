@@ -90,6 +90,15 @@ public class File{
       return mapping;
   }
 
+  public static void deleteContiguous(FileSystem fileSystem, String path){
+    ContiguousMapping mapping = (ContiguousMapping) fileSystem.getMapping(path);
+    mapping.getFirstBlockIndex();
+    mapping.getFinalSizeBlocks();
+
+
+
+  }
+
   private static void addToDirectory(
           FileSystem fileSystem,
           String path,

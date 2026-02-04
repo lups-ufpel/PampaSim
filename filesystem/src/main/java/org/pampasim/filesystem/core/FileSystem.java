@@ -721,6 +721,18 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public int getFileIndex(String path){
+      FileMapping mapping = getMapping(path);
+
+        return switch(allocationScheme){
+      case CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
+      case FAT -> ((FATMapping) mapping).getFirstBlockIndex();
+      case INODES -> ((InodeMapping) mapping).getIndex();
+      default -> throw new Error("not implemented");
+    };
+
+  }
+
+  public FileMapping getMapping(String path){
     String name;
     if(path.equals("/")){
       name = ".";
@@ -728,14 +740,7 @@ public class FileSystem extends AbstractSimEntity {
       String[] segments = path.split("/");
       name = segments[segments.length - 1];
     }
-    FileMapping mapping = Directory.findParent(this, path).findEntry(name).getFileMapping();
-    return switch(allocationScheme){
-      case CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
-      case FAT -> ((FATMapping) mapping).getFirstBlockIndex();
-      case INODES -> ((InodeMapping) mapping).getIndex();
-      default -> throw new Error("not implemented");
-    };
-
+    return Directory.findParent(this, path).findEntry(name).getFileMapping();
   }
 
   public byte[] readFromFile(String path, int byteNumber, int position){

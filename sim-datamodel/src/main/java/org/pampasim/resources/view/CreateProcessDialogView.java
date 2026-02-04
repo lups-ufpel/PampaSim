@@ -172,6 +172,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     private FileSystemOperation createOperation(String op, int time, String path) {
         return switch (op) {
             case "Criar Arquivo"     -> new CreateFileContiguousOp(time, path, 1);
+            case "Apagar Arquivo"    -> new DeleteFileOp(time, path);
             case "Abrir Arquivo"     -> new OpenFileOp(time, path);
             case "Fechar Arquivo"    -> new CloseFileOp(time, path);
             case "Ler Arquivo"       -> new ReadFileOp(time, path);
@@ -208,6 +209,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         ChoiceBox<String> operationChoiceBox = new ChoiceBox<>();
         operationChoiceBox.getItems().addAll(
             "Criar Arquivo",
+            "Apagar Arquivo",
             "Abrir Arquivo",
             "Fechar Arquivo",
             "Ler Arquivo",
@@ -229,6 +231,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         
                     return switch (op) {
                         case "Criar Arquivo"        -> "/novo_arquivo";
+                        case "Apagar Arquivo"       -> "/arquivo";
                         case "Abrir Arquivo"        -> "/arquivo";
                         case "Fechar Arquivo"       -> "/arquivo";
                         case "Ler Arquivo"          -> "/arquivo";
