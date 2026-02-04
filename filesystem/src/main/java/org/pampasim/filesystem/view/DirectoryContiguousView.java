@@ -69,7 +69,7 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
                 
                 button.setOnAction(e -> {
                 var viewTuple = FluentViewLoader.fxmlView(MetadataView.class)
-                                                .viewModel(new MetadataViewModel(viewModel.getFileSystem(),  viewModel.getFilePath(getIndex())))
+                                                .viewModel(new MetadataViewModel(viewModel.getFileSystemSimulation(),  viewModel.getFilePath(getIndex())))
                                                 .load();
 
                 Stage stage = new Stage();

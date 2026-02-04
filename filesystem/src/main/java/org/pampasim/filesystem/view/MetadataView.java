@@ -39,7 +39,6 @@ public class MetadataView implements FxmlView<MetadataViewModel> {
     @FXML
     public void initialize() {
 
-        //horrible code
         currentSizeLabel.textProperty().bind(
             viewModel.currentSizeProperty().asString()
         );

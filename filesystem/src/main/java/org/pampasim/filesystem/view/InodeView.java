@@ -73,7 +73,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
                         FluentViewLoader.fxmlView(MetadataView.class)
                             .viewModel(
                                 new MetadataViewModel(
-                                    viewModel.getFileSystem(),
+                                    viewModel.getFileSystemSimulation(),
                                     viewModel.getIndex()
                                 )
                             )

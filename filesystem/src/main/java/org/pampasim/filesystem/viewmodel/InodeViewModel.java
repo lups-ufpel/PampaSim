@@ -21,6 +21,7 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.FileSystemSimulation;
 
 public class InodeViewModel implements ViewModel {
+    @Getter private FileSystemSimulation fileSystemSimulation;
     @Getter private FileSystem fileSystem;
     @Getter private final int index;
     private IntegerProperty singlyIndirectPointerProperty;
@@ -29,6 +30,7 @@ public class InodeViewModel implements ViewModel {
 
     public InodeViewModel(FileSystemSimulation fileSystemSimulation, int index) {
         this.index = index;
+        this.fileSystemSimulation = fileSystemSimulation;
         this.fileSystem = fileSystemSimulation.getFileSystem();
 
         int size = Inode.ADDRESSES_NUMBER;

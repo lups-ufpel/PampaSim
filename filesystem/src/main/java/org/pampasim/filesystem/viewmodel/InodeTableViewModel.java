@@ -7,13 +7,14 @@ import lombok.Getter;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
+import javafx.beans.InvalidationListener;
 
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.FileSystemSimulation;
 
@@ -21,16 +22,14 @@ import org.pampasim.filesystem.FileSystemSimulation;
 public class InodeTableViewModel implements ViewModel {
     private final FileSystemSimulation fileSystemSimulation;
     private final FileSystem fileSystem;
-    private final ObservableList<BlockRecord> observableBlockRecords;
     @Getter private final ObservableList<InodeBlockViewModel> inodeBlockViewModels = FXCollections.observableArrayList();
 
     public InodeTableViewModel(FileSystemSimulation fileSystemSimulation) {
         this.fileSystemSimulation = fileSystemSimulation;
         this.fileSystem = fileSystemSimulation.getFileSystem();
-        this.observableBlockRecords = fileSystem.getBlockRecordsReference();
 
         refreshViewModels();
-        addListener();
+        addListener(fileSystemSimulation.getDisk());
     }
 
     private void refreshViewModels() {
@@ -41,16 +40,10 @@ public class InodeTableViewModel implements ViewModel {
         }
     }
 
-    // listen to totalWrites instead of block change
-    private void addListener(){
-        observableBlockRecords.addListener((ListChangeListener<BlockRecord>) change -> {
-            while (change.next()) {
-                if (change.wasPermutated() || change.wasUpdated() || change.wasReplaced() || change.wasRemoved() || change.wasAdded()) {
-                  refreshViewModels();
-                }
-            }
+    public void addListener(Disk disk){
+        disk.getTotalWritesProperty().addListener((InvalidationListener) obs -> {
+                refreshViewModels();
         });
-
     }
 
     public Inode[] getInodeTable(){

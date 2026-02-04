@@ -6,14 +6,17 @@ import lombok.Getter;
 
 import org.pampasim.filesystem.directory.*;
 import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.FileSystemSimulation;
 
 @Getter
 public class DirectoryViewModel implements ViewModel {
+  private FileSystemSimulation fileSystemSimulation;
   private FileSystem fileSystem;
   private String path;
 
-  public DirectoryViewModel(FileSystem fileSystem, String path){
-    this.fileSystem = fileSystem;
+  public DirectoryViewModel(FileSystemSimulation fileSystemSimulation, String path){
+    this.fileSystemSimulation = fileSystemSimulation;
+    this.fileSystem = fileSystemSimulation.getFileSystem();
     this.path = path;
   }
 

@@ -136,7 +136,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                                 directoryViewModel != null
                                     ? directoryViewModel
                                     : (directoryViewModel =
-                                        new DirectoryViewModel(fs, blockRecord.userString()))
+                                        new DirectoryViewModel(fileSystemSimulation, blockRecord.userString()))
                             )
                             .load();
             
@@ -148,7 +148,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                                 directoryViewModel != null
                                     ? directoryViewModel
                                     : (directoryViewModel =
-                                        new DirectoryViewModel(fs, blockRecord.userString()))
+                                        new DirectoryViewModel(fileSystemSimulation, blockRecord.userString()))
                             )
                             .load();
             
@@ -160,13 +160,13 @@ public class BlockView implements FxmlView<BlockViewModel> {
                                 directoryViewModel != null
                                     ? directoryViewModel
                                     : (directoryViewModel =
-                                        new DirectoryViewModel(fs, blockRecord.userString()))
+                                        new DirectoryViewModel(fileSystemSimulation, blockRecord.userString()))
                             )
                             .load();
                 };
             }
             case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
-                                .viewModel(new InodeTableViewModel(viewModel.getFileSystemSimulation()))
+                                .viewModel(new InodeTableViewModel(fileSystemSimulation))
                                 .load();
 
             default ->
