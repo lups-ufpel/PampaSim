@@ -2,6 +2,7 @@ package org.pampasim.filesystem.file;
 
 import org.pampasim.filesystem.core.AllocationScheme;
 import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
@@ -36,6 +37,8 @@ public class File{
       FileMapping mapping =
               new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
   
+      BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
+      fileSystem.setBlockRecord(firstBlockIndex, firstBlockIndex + finalSizeBlocks, type, path);
       addToDirectory(fileSystem, path, mapping);
   
       return mapping;

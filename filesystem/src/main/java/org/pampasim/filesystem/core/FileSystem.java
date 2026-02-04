@@ -576,7 +576,7 @@ public class FileSystem extends AbstractSimEntity {
         output.addAll(getDirectoryLegendEntries(subDirectoryPath));
 
       }  else{
-        output.add(new LegendEntry(false, path, BlockRecord.getCorrespondingColor(new BlockRecord(BlockType.FILE, path, -1)))); 
+        output.add(new LegendEntry(false, path + e.getName(), BlockRecord.getCorrespondingColor(new BlockRecord(BlockType.FILE, path + e.getName(), -1)))); 
       }
 
 
