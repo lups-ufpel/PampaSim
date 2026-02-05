@@ -19,7 +19,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<DialogPane fx:id="dialogPane" prefWidth="700.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.CreateProcessDialogView">
+<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.CreateProcessDialogView">
     <content>
         <VBox>
             <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="600">

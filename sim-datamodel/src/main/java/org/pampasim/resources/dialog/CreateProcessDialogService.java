@@ -43,6 +43,7 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
+        dialogPane.setPrefWidth(fileSystemModulePresent ? 1000.0 : 507.0);
         dialog.setDialogPane(dialogPane);
         Optional<ButtonType> result = dialog.showAndWait();
         if(result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
