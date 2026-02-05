@@ -1,9 +1,8 @@
 package org.pampasim.filesystem.directory;
 
-import org.pampasim.filesystem.mapping.FileMapping;
+import org.pampasim.filesystem.mapping.*;
 import org.pampasim.resources.filesystem.AllocationScheme;
-import org.pampasim.filesystem.mapping.ContiguousMapping;
-import org.pampasim.filesystem.mapping.FATMapping;
+import org.pampasim.filesystem.core.FileSystem;
 
 import java.nio.ByteBuffer;
 
@@ -28,6 +27,15 @@ public class DirectoryEntry {
 
   public String getName(){
     return name;
+  }
+
+  public boolean isDirectory(FileSystem fileSystem){
+      return switch(fileSystem.getAllocationScheme()){
+        case CONTIGUOUS -> ((ContiguousMapping) fileMapping).getMetadata().isDirectory();
+        case FAT -> ((FATMapping) fileMapping).getMetadata().isDirectory(); 
+        case INODES -> ((InodeMapping) fileMapping).getMetadata(fileSystem).isDirectory();
+        default -> throw new Error("unhandled switch case");
+      };
   }
 
   public void setName(String name){

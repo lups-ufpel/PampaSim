@@ -114,7 +114,7 @@ public class FileSystem extends AbstractSimEntity {
             case ReadFile e          -> readFile();
             case WriteFile e         -> writeFile();
             case CreateDirectory e   -> createDirectory((CreateDirectoryOp) e.getFileSystemOperation());
-            case DeleteDirectory e   -> deleteDirectory();
+            case DeleteDirectory e   -> deleteDirectory((DeleteDirectoryOp) e.getFileSystemOperation());
             default -> throw new IllegalStateException(
                     "[FileSystem] Evento do tipo " + event.getClass().getSimpleName()
                             + " não pode ser tratado, evento serial: " + event.getSerial()
@@ -194,8 +194,8 @@ public class FileSystem extends AbstractSimEntity {
     };
   }
 
-  public void deleteDirectory(){
-
+  public void deleteDirectory(DeleteDirectoryOp op){
+    Directory.delete(this, op.path());
   }
 
   public int getNumberOfInodes(){

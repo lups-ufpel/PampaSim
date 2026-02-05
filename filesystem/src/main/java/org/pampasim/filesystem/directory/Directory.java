@@ -158,6 +158,34 @@ public class Directory{
     throw new Error("no entry called " + name);
   }
 
+  public static void delete(FileSystem fileSystem, String path){
+    Directory dir = Directory.find(fileSystem, path);
+
+    // delete all files within
+    for(DirectoryEntry de : dir.getEntries()){
+      boolean isDirectory = de.isDirectory(fileSystem);
+      String optionalSlash = (isDirectory) ? "/" : "";
+      String entryPath = path + optionalSlash + de.getName();
+
+      if(de.getName().equals(".") || de.getName().equals("..")){
+        continue;
+      }
+
+      if(isDirectory){
+        delete(fileSystem, entryPath);
+
+      }  else{
+        File.delete(fileSystem, entryPath);
+
+      }
+
+    }
+
+    //delete now-empty dir
+    File.delete(fileSystem, path);
+
+  }
+
   public int getFirstEmptyEntryIndex(){
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     switch(as){
@@ -291,21 +319,25 @@ public class Directory{
   }
 
   public void deleteEntry(String name){
-    DirectoryEntry blank = new DirectoryEntry();
-
     int i = getEntryPosition(name);
-    if(i < entries.size()){
-      entries.set(i, blank);
+
+    deleteEntry(i);
+  }
+
+  public void deleteEntry(int index){
+    DirectoryEntry blank = new DirectoryEntry();
+    if(index < entries.size()){
+      entries.set(index, blank);
     }
 
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     int sizeBytes = DirectoryEntry.sizeBytes(as);
-    int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
+    int entryFirstByte = index * DirectoryEntry.sizeBytes(as);
 
     byte[] blankArray = new byte[sizeBytes];
 
     // clears entry data
-    writeEntryData(blankArray, i);
+    writeEntryData(blankArray, index);
 
   }
 
