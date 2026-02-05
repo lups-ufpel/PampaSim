@@ -13,7 +13,7 @@ import org.pampasim.core.dialog.DialogService;
 import org.pampasim.resources.view.CreateProcessDialogView;
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
 import org.pampasim.resources.viewmodel.ProcessMemoryInfoViewModel;
-import org.pampasim.resources.filesystem.fileops.FileSystemOperation;
+import org.pampasim.resources.fileops.FileSystemOperation;
 
 import java.util.ArrayList;
 import java.util.Optional;

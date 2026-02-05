@@ -11,8 +11,7 @@ import org.pampasim.core.Simulation;
 import org.pampasim.core.events.Event;
 import org.pampasim.filesystem.file.File;
 import org.pampasim.events.FileSystem.*;
-import org.pampasim.resources.filesystem.fileops.*;
-import org.pampasim.resources.filesystem.AllocationScheme;
+import org.pampasim.resources.fileops.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -130,7 +129,7 @@ public class FileSystem extends AbstractSimEntity {
             File.createContiguous(
                 this,
                 o.path(),
-                blocksRequiredFor(o.maxSizeBytes()),
+                o.finalSizeBlocks(),
                 false
             );
     
@@ -141,7 +140,7 @@ public class FileSystem extends AbstractSimEntity {
                 false
             );
     
-        case CreateFileInodesOp o ->
+        case CreateFileInodeOp o ->
             File.createInodes(
                 this,
                 o.path(),
@@ -186,7 +185,7 @@ public class FileSystem extends AbstractSimEntity {
                 o.path()
             );
     
-        case CreateDirectoryInodesOp o ->
+        case CreateDirectoryInodeOp o ->
             Directory.createInodes(
                 this,
                 o.path()

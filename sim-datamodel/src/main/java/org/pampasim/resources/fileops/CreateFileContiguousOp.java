@@ -1,8 +1,8 @@
-package org.pampasim.resources.filesystem.fileops;
+package org.pampasim.resources.fileops;
 
 public record CreateFileContiguousOp(
         int execTime,
         String path,
-        int maxSizeBytes
+        int finalSizeBlocks
 ) implements CreateFileOp {}
 

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
-import org.pampasim.resources.filesystem.fileops.*;
+import org.pampasim.resources.fileops.*;
 import org.pampasim.core.events.Event;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.pampasim.resources.filesystem.fileops;
+package org.pampasim.resources.fileops;
 
 public sealed interface FileSystemOperation
         permits CreateFileOp,

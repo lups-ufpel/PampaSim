@@ -1,7 +1,7 @@
 package org.pampasim.dialog;
 
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
-import org.pampasim.resources.filesystem.config.FileSystemConfigSelectionRecord;
+import org.pampasim.filesystem.FileSystemConfigSelectionRecord;
 
 public record SchedulerSelectionRecord(
         String schedulerName,

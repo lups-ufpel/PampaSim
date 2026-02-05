@@ -13,9 +13,7 @@ module org.pampasim.resources {
     opens org.pampasim.resources.viewmodel to de.saxsys.mvvmfx, javafx.fxml;
 
     exports org.pampasim.resources;
-    exports org.pampasim.resources.filesystem;
-    exports org.pampasim.resources.filesystem.fileops;
-    exports org.pampasim.resources.filesystem.config;
+    exports org.pampasim.resources.fileops;
     exports org.pampasim.resources.memory;
     exports org.pampasim.resources.viewmodel;
     exports org.pampasim.resources.view;

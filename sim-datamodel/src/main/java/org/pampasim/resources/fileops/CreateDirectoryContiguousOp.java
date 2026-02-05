@@ -1,4 +1,4 @@
-package org.pampasim.resources.filesystem.fileops;
+package org.pampasim.resources.fileops;
 
 public record CreateDirectoryContiguousOp(
         int execTime,

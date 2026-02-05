@@ -1,6 +1,6 @@
 package org.pampasim.filesystem.file;
 
-import org.pampasim.resources.filesystem.AllocationScheme;
+import org.pampasim.filesystem.core.AllocationScheme;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.inode.Inode;
