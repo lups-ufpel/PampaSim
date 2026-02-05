@@ -118,24 +118,34 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                 }
                 viewModel.getMemoryInfo().setLoopAccessList(loopAccessCheckBox.isSelected());
             }
-            for (Node node : fileSystemOperationsContainer.getChildren()) {
-                if (!(node instanceof HBox hbox)) continue;
-            
-                TextField timeField = (TextField) hbox.getChildren().get(2);
-                ChoiceBox<String> operationBox = (ChoiceBox<String>) hbox.getChildren().get(3);
-                TextField pathField = (TextField) hbox.getChildren().get(5);
-            
-                int time = timeField.getText().isEmpty()
-                        ? 0
-                        : Integer.parseInt(timeField.getText());
-            
-                String path = pathField.getText();
-                String opName = operationBox.getValue();
-            
-                int maxSizeBytes = 100;
-                FileSystemOperation op = createOperation(opName, time, path, maxSizeBytes);
-                viewModel.getFileSystemOperations().add(op);
-            }
+                for (Node node : fileSystemOperationsContainer.getChildren()) {
+                    if (!(node instanceof HBox hbox)) continue;
+                
+                    TextField timeField =
+                            (TextField) hbox.lookup("#timeField");
+                
+                    ChoiceBox<String> operationBox =
+                            (ChoiceBox<String>) hbox.lookup("#operationChoiceBox");
+                
+                    TextField pathField =
+                            (TextField) hbox.lookup("#pathField");
+                
+                    TextField maxSizeBytesField = (TextField) hbox.lookup("#maxSizeBytesField");
+
+                
+                    String opName = operationBox.getValue();
+                    int time = timeField.getText().isEmpty()
+                            ? 0
+                            : Integer.parseInt(timeField.getText());
+                    String path = pathField.getText();
+
+                    int maxSizeBytes = (maxSizeBytesField == null) ? -1 : Integer.parseInt(maxSizeBytesField.getText());
+                
+                    FileSystemOperation op =
+                            createOperation(opName, time, path, maxSizeBytes);
+                
+                    viewModel.getFileSystemOperations().add(op);
+                }
         });
 
         loopAccessCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
@@ -206,16 +216,17 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
         Label timeLabel = new Label("Tempo:");
 
-        TextField numberField = new TextField();
-        numberField.setPromptText("0");
-        numberField.setPrefWidth(25.0);
+        TextField timeField = new TextField();
+        timeField.setPromptText("0");
+        timeField.setPrefWidth(25.0);
+        timeField.setId("timeField");
         
         UnaryOperator<TextFormatter.Change> filterNonNumbers = change -> {
             String newText = change.getControlNewText();
             return newText.matches("\\d*") ? change : null;
         };
         
-        numberField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
+        timeField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
 
         ChoiceBox<String> operationChoiceBox = new ChoiceBox<>();
         operationChoiceBox.getItems().addAll(
@@ -230,9 +241,11 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         );
         operationChoiceBox.setValue("Criar Arquivo");
         operationChoiceBox.setPrefWidth(150.0);
+        operationChoiceBox.setId("operationChoiceBox");
         
         Label pathLabel = new Label("Caminho:");
         TextField pathField = new TextField();
+        pathField.setId("pathField");
         
         pathField.promptTextProperty().bind(
             Bindings.createStringBinding(
@@ -257,7 +270,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         );
 
 
-        HBox entryContainer = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
+        HBox entryContainer = new HBox(10, removeButton, timeLabel, timeField, operationChoiceBox, pathLabel, pathField);
 
         syncFileCreationInputs(entryContainer, operationChoiceBox);
 
@@ -302,7 +315,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
               TextField maxSizeBytesField = new TextField();
 
               maxSizeBytesField.setPromptText("0");
-              maxSizeBytesField.setPrefWidth(25.0);
+              maxSizeBytesField.setPrefWidth(100.0);
               maxSizeBytesField.visibleProperty();
               maxSizeBytesField.setId(fieldId);
               maxSizeBytesField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
