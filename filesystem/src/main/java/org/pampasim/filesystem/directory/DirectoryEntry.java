@@ -1,7 +1,7 @@
 package org.pampasim.filesystem.directory;
 
 import org.pampasim.filesystem.mapping.FileMapping;
-import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.mapping.ContiguousMapping;
 import org.pampasim.filesystem.mapping.FATMapping;
 

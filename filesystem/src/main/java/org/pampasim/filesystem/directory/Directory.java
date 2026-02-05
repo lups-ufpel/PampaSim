@@ -1,7 +1,7 @@
 package org.pampasim.filesystem.directory;
 
 import org.pampasim.filesystem.core.FileSystem;
-import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.file.File;

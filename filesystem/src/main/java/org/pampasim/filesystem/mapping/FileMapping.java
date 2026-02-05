@@ -1,6 +1,6 @@
 package org.pampasim.filesystem.mapping;
 
-import org.pampasim.filesystem.core.AllocationScheme;
+import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.file.FileMetadata;
 
 import java.nio.ByteBuffer;

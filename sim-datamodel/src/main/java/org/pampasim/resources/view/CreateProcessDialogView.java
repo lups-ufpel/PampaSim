@@ -13,7 +13,10 @@ import javafx.scene.Node;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
-import org.pampasim.resources.fileops.*;
+import org.pampasim.resources.filesystem.fileops.*;
+import org.pampasim.resources.filesystem.config.FileSystemConfig;
+import org.pampasim.resources.filesystem.AllocationScheme;
+import javafx.beans.InvalidationListener;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -129,7 +132,8 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                 String path = pathField.getText();
                 String opName = operationBox.getValue();
             
-                FileSystemOperation op = createOperation(opName, time, path);
+                int maxSizeBytes = 100;
+                FileSystemOperation op = createOperation(opName, time, path, maxSizeBytes);
                 viewModel.getFileSystemOperations().add(op);
             }
         });
@@ -169,9 +173,16 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
     }
 
-    private FileSystemOperation createOperation(String op, int time, String path) {
+    private FileSystemOperation createOperation(String op, int time, String path, int maxSizeBytes) {
         return switch (op) {
-            case "Criar Arquivo"     -> new CreateFileContiguousOp(time, path, 1);
+            case "Criar Arquivo"     -> 
+                switch(FileSystemConfig.getAllocationScheme()){
+                  case CONTIGUOUS -> new CreateFileContiguousOp(time, path, maxSizeBytes);
+                  case FAT -> new CreateFileFATOp(time, path);
+                  case INODES -> new CreateFileInodesOp(time, path);
+                  default -> throw new Error("unhandled switch case");
+
+                };
             case "Apagar Arquivo"    -> new DeleteFileOp(time, path);
             case "Abrir Arquivo"     -> new OpenFileOp(time, path);
             case "Fechar Arquivo"    -> new CloseFileOp(time, path);
@@ -245,7 +256,30 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             )
         );
 
+        TextField maxSizeBytesField = new TextField();
+
         HBox entryContainer = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
+
+        operationChoiceBox.valueProperty().addListener((InvalidationListener) obs -> {
+          String id = "maxSizeBytesField";
+          if(operationChoiceBox.getValue().equals("Criar Arquivo")){
+              if(FileSystemConfig.getAllocationScheme() == AllocationScheme.CONTIGUOUS){
+                  maxSizeBytesField.setPromptText("0");
+                  maxSizeBytesField.setPrefWidth(25.0);
+                  maxSizeBytesField.visibleProperty();
+                  maxSizeBytesField.setId(id);
+              }
+            
+              maxSizeBytesField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
+
+              entryContainer.getChildren().add(maxSizeBytesField);
+
+          }  else{
+              entryContainer.getChildren().removeIf(e -> e.getId().equals(id));
+          }
+        });
+
+        
 
         // Create and store the entry
         //FileSystemOperation entry = new FileSystemOperation();

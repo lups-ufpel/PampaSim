@@ -1,5 +1,5 @@
 events {
-  FileSystem transmitting org.pampasim.resources.fileops.FileSystemOperation {
+  FileSystem transmitting org.pampasim.resources.filesystem.fileops.FileSystemOperation {
     CreateFile;
     DeleteFile;
     OpenFile;

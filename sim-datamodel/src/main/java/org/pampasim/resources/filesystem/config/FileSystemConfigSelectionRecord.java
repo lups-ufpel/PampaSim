@@ -1,4 +1,4 @@
-package org.pampasim.filesystem;
+package org.pampasim.resources.filesystem.config;
 
 public record FileSystemConfigSelectionRecord(
         // disk stuff

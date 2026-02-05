@@ -1,4 +1,4 @@
-package org.pampasim.resources.fileops;
+package org.pampasim.resources.filesystem.fileops;
 
 public record CreateDirectoryFATOp(
         int execTime,

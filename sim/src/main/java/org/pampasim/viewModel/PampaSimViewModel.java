@@ -46,7 +46,7 @@ import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 
 import org.pampasim.filesystem.FileSystemSimulation;
-import org.pampasim.filesystem.FileSystemConfig;
+import org.pampasim.resources.filesystem.config.FileSystemConfig;
 import org.pampasim.filesystem.view.FileSystemTabView;
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 

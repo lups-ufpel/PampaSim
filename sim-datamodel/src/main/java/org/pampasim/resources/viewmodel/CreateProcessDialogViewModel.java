@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import java.util.ArrayList;
 
-import org.pampasim.resources.fileops.FileSystemOperation;
+import org.pampasim.resources.filesystem.fileops.FileSystemOperation;
 
 public class CreateProcessDialogViewModel implements ViewModel {
 
