@@ -136,7 +136,6 @@ public class Directory{
 
   public DirectoryEntry findEntry(String name){
     for(DirectoryEntry e : entries){
-      System.out.println("entry:" + e.getName());
       if(e.getName().equals(name)){
         return e;
       }
@@ -168,7 +167,7 @@ public class Directory{
       boolean isDirectory = de.isDirectory(fileSystem);
       String entryPath = path + "/" + de.getName();
 
-      if(de.getName().equals(".") || de.getName().equals("..")){
+      if(de.isNull() || de.getName().equals(".") || de.getName().equals("..")){
         continue;
       }
 
@@ -229,10 +228,6 @@ public class Directory{
     int i = entryIndex;
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
-
-    if(entryIndex == 2){
-      System.out.println(data.length);
-    }
 
     switch(as){
       case CONTIGUOUS:
@@ -317,17 +312,10 @@ public class Directory{
       entries.add(newEntry);
     }
 
-    if(newEntry.getName().equals("teste")){
-
-      System.out.println(entries.toString());
-      //System.exit(31);
-    }
-
     ByteBuffer entryBuffer = ByteBuffer.allocate(newEntry.sizeBytes());
     newEntry.writeToBuffer(entryBuffer);
 
     writeEntryData(entryBuffer.array(), i);
-    System.out.println("out");
   }
 
   public void deleteEntry(String name){
@@ -366,7 +354,6 @@ public class Directory{
           throw new Error("Directory " + path + " too small for essential entries.");
       }
   
-      System.out.println("before file write");
       FileMapping dotMapping =
               File.createContiguous(
                       fileSystem,
@@ -375,7 +362,6 @@ public class Directory{
                       finalSizeBlocks,
                       true
               );
-      System.out.println("after file write");
   
       writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
   }
@@ -509,8 +495,6 @@ public class Directory{
 
         DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
         int sizeBlocks = ((ContiguousMapping) dot.getFileMapping()).getFinalSizeBlocks();
-        System.out.println("name:" + dot.getName());
-        System.out.println("finalSize:" + sizeBlocks);
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
         directoryData = FileSystem.flatten(directoryBlocks);
         break;
@@ -559,12 +543,7 @@ public class Directory{
 
     while(buffer.position() + DirectoryEntry.sizeBytes(allocationScheme) <= buffer.limit()){
       entries.add(DirectoryEntry.getFromBuffer(buffer, allocationScheme));
-      //System.out.println("here, " + buffer.position());
     }
-    //System.out.println("side A: " + (buffer.position() + DirectoryEntry.sizeBytes(allocationScheme)));
-    //System.out.println("side B: " + buffer.limit());
-    //System.out.println("result: " + (buffer.position() + DirectoryEntry.sizeBytes(allocationScheme) < buffer.limit()));
-
 
     return new Directory(entries, fileSystem);
   }
