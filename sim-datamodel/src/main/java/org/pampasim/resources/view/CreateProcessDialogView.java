@@ -256,27 +256,13 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             )
         );
 
-        TextField maxSizeBytesField = new TextField();
 
         HBox entryContainer = new HBox(10, removeButton, timeLabel, numberField, operationChoiceBox, pathLabel, pathField);
 
+        syncFileCreationInputs(entryContainer, operationChoiceBox);
+
         operationChoiceBox.valueProperty().addListener((InvalidationListener) obs -> {
-          String id = "maxSizeBytesField";
-          if(operationChoiceBox.getValue().equals("Criar Arquivo")){
-              if(FileSystemConfig.getAllocationScheme() == AllocationScheme.CONTIGUOUS){
-                  maxSizeBytesField.setPromptText("0");
-                  maxSizeBytesField.setPrefWidth(25.0);
-                  maxSizeBytesField.visibleProperty();
-                  maxSizeBytesField.setId(id);
-              }
-            
-              maxSizeBytesField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
-
-              entryContainer.getChildren().add(maxSizeBytesField);
-
-          }  else{
-              entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(id) : false);
-          }
+            syncFileCreationInputs(entryContainer, operationChoiceBox);
         });
 
         
@@ -294,6 +280,40 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
         fileSystemOperationsContainer.getChildren().add(entryContainer);
         //updateAccessIndices();
+
+    }
+
+    private void syncFileCreationInputs(HBox entryContainer, ChoiceBox<String> operationChoiceBox){
+
+      UnaryOperator<TextFormatter.Change> filterNonNumbers = change -> {
+          String newText = change.getControlNewText();
+          return newText.matches("\\d*") ? change : null;
+      };
+
+      String fieldId = "maxSizeBytesField";
+      String labelId = "maxSizeBytesLabel";
+      if(operationChoiceBox.getValue().equals("Criar Arquivo")){
+          if(FileSystemConfig.getAllocationScheme() == AllocationScheme.CONTIGUOUS){
+              Label maxSizeBytesLabel = new Label("Tamanho Máximo (bytes):");
+              maxSizeBytesLabel.setId(labelId);
+
+              entryContainer.getChildren().add(maxSizeBytesLabel);
+
+              TextField maxSizeBytesField = new TextField();
+
+              maxSizeBytesField.setPromptText("0");
+              maxSizeBytesField.setPrefWidth(25.0);
+              maxSizeBytesField.visibleProperty();
+              maxSizeBytesField.setId(fieldId);
+              maxSizeBytesField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
+
+              entryContainer.getChildren().add(maxSizeBytesField);
+          }
+
+      }  else{
+          entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(labelId) : false);
+          entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(fieldId) : false);
+      }
 
     }
 
