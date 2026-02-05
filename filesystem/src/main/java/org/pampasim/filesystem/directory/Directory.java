@@ -358,10 +358,10 @@ public class Directory{
               File.createContiguous(
                       fileSystem,
                       path,
+                      currentSizeBytes,
                       finalSizeBlocks,
                       true
               );
-      ((ContiguousMapping) dotMapping).setCurrentSizeBytes(currentSizeBytes);
   
       writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
   }
@@ -378,9 +378,9 @@ public class Directory{
               File.createInodes(
                       fileSystem,
                       path,
+                      currentSizeBytes,
                       true
               );
-      ((InodeMapping) dotMapping).setCurrentSizeBytes(fileSystem, currentSizeBytes);
   
       writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
   }
@@ -397,9 +397,9 @@ public class Directory{
               File.createFAT(
                       fileSystem,
                       path,
+                      currentSizeBytes,
                       true
               );
-      ((FATMapping) dotMapping).setCurrentSizeBytes(currentSizeBytes);
   
       writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
   }

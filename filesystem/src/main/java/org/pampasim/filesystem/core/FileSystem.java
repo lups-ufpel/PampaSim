@@ -130,6 +130,7 @@ public class FileSystem extends AbstractSimEntity {
             File.createContiguous(
                 this,
                 o.path(),
+                0 /* currentSizeBytes */,
                 blocksRequiredFor(o.maxSizeBytes()),
                 false
             );
@@ -138,6 +139,7 @@ public class FileSystem extends AbstractSimEntity {
             File.createFAT(
                 this,
                 o.path(),
+                0 /* currentSizeBytes */,
                 false
             );
     
@@ -145,6 +147,7 @@ public class FileSystem extends AbstractSimEntity {
             File.createInodes(
                 this,
                 o.path(),
+                0 /* currentSizeBytes */,
                 false
             );
     };
