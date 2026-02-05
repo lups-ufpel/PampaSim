@@ -13,6 +13,7 @@ import org.pampasim.filesystem.file.File;
 import org.pampasim.events.FileSystem.*;
 import org.pampasim.resources.filesystem.fileops.*;
 import org.pampasim.resources.filesystem.AllocationScheme;
+import java.nio.BufferUnderflowException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -574,7 +575,16 @@ public class FileSystem extends AbstractSimEntity {
   public ArrayList<LegendEntry> getDirectoryLegendEntries(String path){
 
     var output = new ArrayList<LegendEntry>();
-    Directory current = Directory.find(this, path);
+
+    Directory current = null;
+    try{
+      current = Directory.find(this, path);
+
+    }  catch(BufferUnderflowException e){
+      // this function is sometimes called in the middle of the directory being created,
+      // since it being called is triggered by diskWrites. ignoring is fine
+      return output;
+    }
 
     String name;
     boolean isRoot = path.equals("/");

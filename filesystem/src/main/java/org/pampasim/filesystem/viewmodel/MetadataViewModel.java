@@ -10,9 +10,11 @@ import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.FileSystemSimulation;
 import javafx.beans.InvalidationListener;
+import java.util.NoSuchElementException;
 
 public class MetadataViewModel implements ViewModel {
 
+    private InvalidationListener totalWritesListener;
     private FileSystemSimulation fileSystemSimulation;
     private String filePath = ""; //one of these will be blank
     private int inodeIndex = 0;
@@ -60,10 +62,28 @@ public class MetadataViewModel implements ViewModel {
       directory.set(metadata.isDirectory());
     }
 
-    public void addListener(FileSystemSimulation fileSystemSimulation){
-        fileSystemSimulation.getDisk().getTotalWritesProperty().addListener((InvalidationListener) obs -> {
-                setAttributes(fileSystemSimulation.getFileSystem());
-        });
+    public void addListener(FileSystemSimulation sim) {
+        totalWritesListener = obs -> {
+            try {
+                setAttributes(sim.getFileSystem());
+            } catch (NoSuchElementException e) {
+                // when file this metadata refers to has been removed
+                removeListener(sim);
+            }
+        };
+
+        sim.getDisk()
+           .getTotalWritesProperty()
+           .addListener(totalWritesListener);
+    }
+
+    public void removeListener(FileSystemSimulation sim) {
+        if (totalWritesListener != null) {
+            sim.getDisk()
+               .getTotalWritesProperty()
+               .removeListener(totalWritesListener);
+            totalWritesListener = null;
+        }
     }
 
     public int getCurrentSize() {

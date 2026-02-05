@@ -5,6 +5,7 @@ import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.file.File;
+import java.util.NoSuchElementException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,12 +136,13 @@ public class Directory{
 
   public DirectoryEntry findEntry(String name){
     for(DirectoryEntry e : entries){
+      System.out.println("entry:" + e.getName());
       if(e.getName().equals(name)){
         return e;
       }
     }
 
-    throw new Error("no entry called " + name);
+    throw new NoSuchElementException("No entry called " + name);
   }
 
 
@@ -155,7 +157,7 @@ public class Directory{
       }
     }
 
-    throw new Error("no entry called " + name);
+    throw new NoSuchElementException("No entry called " + name);
   }
 
   public static void delete(FileSystem fileSystem, String path){
@@ -164,8 +166,7 @@ public class Directory{
     // delete all files within
     for(DirectoryEntry de : dir.getEntries()){
       boolean isDirectory = de.isDirectory(fileSystem);
-      String optionalSlash = (isDirectory) ? "/" : "";
-      String entryPath = path + optionalSlash + de.getName();
+      String entryPath = path + "/" + de.getName();
 
       if(de.getName().equals(".") || de.getName().equals("..")){
         continue;
@@ -228,6 +229,10 @@ public class Directory{
     int i = entryIndex;
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
+
+    if(entryIndex == 2){
+      System.out.println(data.length);
+    }
 
     switch(as){
       case CONTIGUOUS:
@@ -303,7 +308,7 @@ public class Directory{
 
   }
 
-// only for contiguous for now, missing current size bytes increase
+// only for contiguous for now (?), missing current size bytes increase (?)
   public void addEntry(DirectoryEntry newEntry){
     int i = getFirstEmptyEntryIndex();
     if(i < entries.size()){
@@ -312,10 +317,17 @@ public class Directory{
       entries.add(newEntry);
     }
 
+    if(newEntry.getName().equals("teste")){
+
+      System.out.println(entries.toString());
+      //System.exit(31);
+    }
+
     ByteBuffer entryBuffer = ByteBuffer.allocate(newEntry.sizeBytes());
     newEntry.writeToBuffer(entryBuffer);
 
     writeEntryData(entryBuffer.array(), i);
+    System.out.println("out");
   }
 
   public void deleteEntry(String name){
@@ -354,6 +366,7 @@ public class Directory{
           throw new Error("Directory " + path + " too small for essential entries.");
       }
   
+      System.out.println("before file write");
       FileMapping dotMapping =
               File.createContiguous(
                       fileSystem,
@@ -362,6 +375,7 @@ public class Directory{
                       finalSizeBlocks,
                       true
               );
+      System.out.println("after file write");
   
       writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
   }
@@ -495,6 +509,7 @@ public class Directory{
 
         DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
         int sizeBlocks = ((ContiguousMapping) dot.getFileMapping()).getFinalSizeBlocks();
+        System.out.println("name:" + dot.getName());
         System.out.println("finalSize:" + sizeBlocks);
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
         directoryData = FileSystem.flatten(directoryBlocks);
