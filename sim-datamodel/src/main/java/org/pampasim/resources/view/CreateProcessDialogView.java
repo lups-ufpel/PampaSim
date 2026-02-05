@@ -275,7 +275,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
               entryContainer.getChildren().add(maxSizeBytesField);
 
           }  else{
-              entryContainer.getChildren().removeIf(e -> e.getId().equals(id));
+              entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(id) : false);
           }
         });
 
