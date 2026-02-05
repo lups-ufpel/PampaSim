@@ -198,7 +198,15 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
             case "Fechar Arquivo"    -> new CloseFileOp(time, path);
             case "Ler Arquivo"       -> new ReadFileOp(time, path);
             case "Escrever Arquivo"  -> new WriteFileOp(time, path);
-            case "Criar Diretório"   -> new CreateDirectoryContiguousOp(time, path, 100);
+            case "Criar Diretório"   ->
+                switch(FileSystemConfig.getAllocationScheme()){
+                  case CONTIGUOUS -> new CreateDirectoryContiguousOp(time, path, maxSizeBytes);
+                  case FAT -> new CreateDirectoryFATOp(time, path);
+                  case INODES -> new CreateDirectoryInodesOp(time, path);
+                  default -> throw new Error("unhandled switch case");
+
+                };
+
             case "Apagar Diretório"  -> new DeleteDirectoryOp(time, path);
             default -> throw new IllegalStateException("Unknown operation: " + op);
         };
@@ -298,14 +306,20 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
     private void syncFileCreationInputs(HBox entryContainer, ChoiceBox<String> operationChoiceBox){
 
+      String fieldId = "maxSizeBytesField";
+      String labelId = "maxSizeBytesLabel";
+
+      //delete whatever was going on before
+      entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(labelId) : false);
+      entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(fieldId) : false);
+
+
       UnaryOperator<TextFormatter.Change> filterNonNumbers = change -> {
           String newText = change.getControlNewText();
           return newText.matches("\\d*") ? change : null;
       };
 
-      String fieldId = "maxSizeBytesField";
-      String labelId = "maxSizeBytesLabel";
-      if(operationChoiceBox.getValue().equals("Criar Arquivo")){
+      if(operationChoiceBox.getValue().equals("Criar Arquivo") || operationChoiceBox.getValue().equals("Criar Diretório")){
           if(FileSystemConfig.getAllocationScheme() == AllocationScheme.CONTIGUOUS){
               Label maxSizeBytesLabel = new Label("Tamanho Máximo (bytes):");
               maxSizeBytesLabel.setId(labelId);
@@ -315,7 +329,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
               TextField maxSizeBytesField = new TextField();
 
               maxSizeBytesField.setPromptText("0");
-              maxSizeBytesField.setPrefWidth(100.0);
+              maxSizeBytesField.setPrefWidth(85.0);
               maxSizeBytesField.visibleProperty();
               maxSizeBytesField.setId(fieldId);
               maxSizeBytesField.setTextFormatter(new TextFormatter<>(filterNonNumbers));
@@ -323,9 +337,6 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
               entryContainer.getChildren().add(maxSizeBytesField);
           }
 
-      }  else{
-          entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(labelId) : false);
-          entryContainer.getChildren().removeIf(e -> e.getId() != null ? e.getId().equals(fieldId) : false);
       }
 
     }
