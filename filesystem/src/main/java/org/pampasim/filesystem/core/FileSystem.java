@@ -254,10 +254,10 @@ public class FileSystem extends AbstractSimEntity {
 
   // not used (yet?)
   /*
-  public Filereference getRootDirectoryreference(){
+  public FileReference getRootDirectoryreference(){
     switch(allocationScheme){
       case AllocationScheme.CONTIGUOUS:
-      return Directory.getDotFromDisk(root_directory_starting_index, this).getFilereference();
+      return Directory.getDotFromDisk(root_directory_starting_index, this).getFileReference();
       case AllocationScheme.INODES:
         return Inodereference(ROOT_DIRECTORY_INODE_NUMBER);
       default:
@@ -603,9 +603,9 @@ public class FileSystem extends AbstractSimEntity {
       }
 
       boolean isDirectory = switch(allocationScheme){
-        case CONTIGUOUS -> ((ContiguousFileReference) e.getFilereference()).getMetadata().isDirectory();
-        case FAT -> ((FATFileReference) e.getFilereference()).getMetadata().isDirectory();
-        case INODES -> Inode.getMetadata(this, ((InodeFileReference) e.getFilereference()).getIndex()).isDirectory();
+        case CONTIGUOUS -> ((ContiguousFileReference) e.getFileReference()).getMetadata().isDirectory();
+        case FAT -> ((FATFileReference) e.getFileReference()).getMetadata().isDirectory();
+        case INODES -> Inode.getMetadata(this, ((InodeFileReference) e.getFileReference()).getIndex()).isDirectory();
         default -> throw new Error("unhandled switch case");
       };
       if(isDirectory){
@@ -770,7 +770,7 @@ public class FileSystem extends AbstractSimEntity {
       String[] segments = path.split("/");
       name = segments[segments.length - 1];
     }
-    return Directory.findParent(this, path).findEntry(name).getFilereference();
+    return Directory.findParent(this, path).findEntry(name).getFileReference();
   }
 
   public byte[] readFromFile(String path, int byteNumber, int position){
@@ -779,7 +779,7 @@ public class FileSystem extends AbstractSimEntity {
 
     Directory fileDirectory = Directory.findParent(this, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
-    FileReference reference = Directory.getFilereference(this, path);
+    FileReference reference = Directory.getFileReference(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
@@ -845,7 +845,7 @@ public class FileSystem extends AbstractSimEntity {
 
   public void writeToFile(String path, byte[] data, int position){
 
-    FileReference reference = Directory.getFilereference(this, path);
+    FileReference reference = Directory.getFileReference(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
@@ -975,7 +975,7 @@ public class FileSystem extends AbstractSimEntity {
     for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
 
       String entryName = e.getName();
-      if(((InodeFileReference) e.getFilereference()).getIndex() == index){
+      if(((InodeFileReference) e.getFileReference()).getIndex() == index){
         //prevents returning . which is not helpful
         if(entryName.equals(".")){
           return dirName;
@@ -989,7 +989,7 @@ public class FileSystem extends AbstractSimEntity {
         continue;
       }
 
-      boolean isDirectory = Inode.getMetadata(this, ((InodeFileReference) e.getFilereference()).getIndex()).isDirectory();
+      boolean isDirectory = Inode.getMetadata(this, ((InodeFileReference) e.getFileReference()).getIndex()).isDirectory();
       if(isDirectory){
 
         String subDirectoryPath;
@@ -1012,7 +1012,7 @@ public class FileSystem extends AbstractSimEntity {
     String[] segments = filePath.split("/");
     String name = segments[segments.length - 1];
 
-    FileReference m = Directory.findParent(this, filePath).findEntry(name).getFilereference(); 
+    FileReference m = Directory.findParent(this, filePath).findEntry(name).getFileReference(); 
 
     return switch(allocationScheme){
       case INODES -> ((InodeFileReference) m).getMetadata(this);

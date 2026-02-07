@@ -52,7 +52,7 @@ public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
         );
 
         firstBlockColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((FATFileReference) cell.getValue().getFilereference()).getFirstBlockIndex())
+            cell -> new ReadOnlyObjectWrapper<>(((FATFileReference) cell.getValue().getFileReference()).getFirstBlockIndex())
         );
         
         metadataColumn.setCellFactory(col -> new TableCell<>() {

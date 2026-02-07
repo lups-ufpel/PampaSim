@@ -9,20 +9,20 @@ import java.nio.ByteBuffer;
 public class DirectoryEntry {
 
   private String name;
-  private FileReference filereference; // the information kept to track the file (and maybe attributes as well)
+  private FileReference fileReference; // the information kept to track the file (and maybe attributes as well)
 
-  public DirectoryEntry(String name, FileReference filereference){
+  public DirectoryEntry(String name, FileReference fileReference){
     if(name.toCharArray().length > Directory.FILE_NAME_LENGTH_CHARS){
       throw new IllegalArgumentException("Directory entry with a name too large: " + name);
     }
     this.name = name;
-    this.filereference = filereference;
+    this.fileReference = fileReference;
   }
 
   public DirectoryEntry(){}
 
-  public FileReference getFilereference(){
-    return filereference;
+  public FileReference getFileReference(){
+    return fileReference;
   }
 
   public String getName(){
@@ -31,9 +31,9 @@ public class DirectoryEntry {
 
   public boolean isDirectory(FileSystem fileSystem){
       return switch(fileSystem.getAllocationScheme()){
-        case CONTIGUOUS -> ((ContiguousFileReference) filereference).getMetadata().isDirectory();
-        case FAT -> ((FATFileReference) filereference).getMetadata().isDirectory(); 
-        case INODES -> ((InodeFileReference) filereference).getMetadata(fileSystem).isDirectory();
+        case CONTIGUOUS -> ((ContiguousFileReference) fileReference).getMetadata().isDirectory();
+        case FAT -> ((FATFileReference) fileReference).getMetadata().isDirectory(); 
+        case INODES -> ((InodeFileReference) fileReference).getMetadata(fileSystem).isDirectory();
         default -> throw new Error("unhandled switch case");
       };
   }
@@ -48,9 +48,9 @@ public class DirectoryEntry {
   public int getFileCurrentSizeBytes(AllocationScheme allocationScheme){
     switch(allocationScheme){
       case AllocationScheme.CONTIGUOUS:
-        return ((ContiguousFileReference) filereference).getCurrentSizeBytes();
+        return ((ContiguousFileReference) fileReference).getCurrentSizeBytes();
       case AllocationScheme.FAT:
-        return ((FATFileReference) filereference).getCurrentSizeBytes();
+        return ((FATFileReference) fileReference).getCurrentSizeBytes();
       // Inodes are more complicated since metadata is stored in the inodes, not directory entry
       default:
         throw new Error("unhandled switch case");
@@ -65,13 +65,13 @@ public class DirectoryEntry {
     for(char c : nameArray){
       buffer.putChar(c);
     }
-    filereference.writeToBuffer(buffer);
+    fileReference.writeToBuffer(buffer);
   }
 
   public int sizeBytes(){
     int bitsInBytes = 8;
     int charSizeBytes = Character.SIZE / bitsInBytes;
-    return (Directory.FILE_NAME_LENGTH_CHARS * charSizeBytes) + filereference.sizeBytes();
+    return (Directory.FILE_NAME_LENGTH_CHARS * charSizeBytes) + fileReference.sizeBytes();
   }
 
   public boolean isNull(){
@@ -89,10 +89,10 @@ public class DirectoryEntry {
   }
   //public static DirectoryEntry getFromDisk(Disk disk, int starting_index, AllocationScheme allocationScheme){
     //String name = ;
-  //  Filereference filereference;
+  //  FileReference fileReference;
   //  switch(allocationScheme){
   //    case allocationScheme.CONTIGUOUS:
-        //filereference = Contiguousreference.getFromDisk(disk,);
+        //fileReference = Contiguousreference.getFromDisk(disk,);
   //  }
     
 
@@ -119,7 +119,7 @@ public class DirectoryEntry {
 
   @Override
   public String toString(){
-    return "DirectoryEntry [name=" + name + ", filereference=" + filereference + "]";
+    return "DirectoryEntry [name=" + name + ", fileReference=" + fileReference + "]";
   }
 
 }

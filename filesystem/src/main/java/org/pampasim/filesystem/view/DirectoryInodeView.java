@@ -46,7 +46,7 @@ public class DirectoryInodeView implements FxmlView<DirectoryViewModel> {
         );
 
         inodeIndexColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((InodeFileReference)cell.getValue().getFilereference()).getIndex())
+            cell -> new ReadOnlyObjectWrapper<>(((InodeFileReference)cell.getValue().getFileReference()).getIndex())
         );
 
         //changes dont propagate, whatever

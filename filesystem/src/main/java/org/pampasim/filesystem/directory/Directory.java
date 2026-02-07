@@ -46,21 +46,21 @@ public class Directory{
 
   public int getIndex(){
     return switch(fileSystemHandle.getAllocationScheme()){
-      case CONTIGUOUS -> ((ContiguousFileReference) getDot().getFilereference()).getFirstBlockIndex();
-      case FAT -> ((FATFileReference) getDot().getFilereference()).getFirstBlockIndex();
-      case INODES -> ((InodeFileReference) getDot().getFilereference()).getIndex();
+      case CONTIGUOUS -> ((ContiguousFileReference) getDot().getFileReference()).getFirstBlockIndex();
+      case FAT -> ((FATFileReference) getDot().getFileReference()).getFirstBlockIndex();
+      case INODES -> ((InodeFileReference) getDot().getFileReference()).getIndex();
       default -> throw new Error("unhandled switch case");
     };
   }
 
-  public static FileReference getFilereference(FileSystem fileSystem, String path){
+  public static FileReference getFileReference(FileSystem fileSystem, String path){
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
     Directory fileDirectory = Directory.findParent(fileSystem, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
 
-    return fileEntry.getFilereference();
+    return fileEntry.getFileReference();
   }
 
   //hacky
@@ -71,7 +71,7 @@ public class Directory{
     int entryFirstByte = entryPosition * DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme());
 
     DirectoryEntry newreferenceEntry = findEntry(name);
-    ((FATFileReference) newreferenceEntry.getFilereference()).setFirstBlockIndex(firstBlockIndex);
+    ((FATFileReference) newreferenceEntry.getFileReference()).setFirstBlockIndex(firstBlockIndex);
 
     ByteBuffer buffer = ByteBuffer.allocate(DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme()));
     newreferenceEntry.writeToBuffer(buffer);
@@ -92,7 +92,7 @@ public class Directory{
       boolean foundSegment = false;
       for(DirectoryEntry entry : currentDirectory.getEntries()){
         if(entry.getName().equals(s)){
-          FileReference reference = entry.getFilereference();
+          FileReference reference = entry.getFileReference();
           int entryIndex = switch(fileSystem.getAllocationScheme()){
             case INODES -> ((InodeFileReference) reference).getIndex();
             case CONTIGUOUS -> ((ContiguousFileReference) reference).getFirstBlockIndex();
@@ -495,7 +495,7 @@ public class Directory{
         
 
         DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
-        int sizeBlocks = ((ContiguousFileReference) dot.getFilereference()).getFinalSizeBlocks();
+        int sizeBlocks = ((ContiguousFileReference) dot.getFileReference()).getFinalSizeBlocks();
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
         directoryData = FileSystem.flatten(directoryBlocks);
         break;
@@ -513,7 +513,7 @@ public class Directory{
 
         DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
         // current size bytes rounded up to be divisible by blocks
-        int size = fileSystem.blocksRequiredFor(((FATFileReference) dot.getFilereference()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
+        int size = fileSystem.blocksRequiredFor(((FATFileReference) dot.getFileReference()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
         directoryData = new byte[size];
         int nextBlock = firstBlockIndex;
         int dataPosition = 0;

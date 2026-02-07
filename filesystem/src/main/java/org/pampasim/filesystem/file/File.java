@@ -9,6 +9,7 @@ import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.file.reference.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 // all of these methods could be on FS instead
 
@@ -169,8 +170,156 @@ abstract public class File{
       dir.addEntry(new DirectoryEntry(name, reference));
   }
 
-  public static void write(FileSystem fileSystem, String path, byte[] data, int position){
-    fileSystem.writeToFile(path, data, position);
+  public static void write(FileSystem fileSystem, String path, byte[] data, int position) {
+      FileReference reference =
+          Directory.getFileReference(fileSystem, path);
+  
+      switch (fileSystem.getAllocationScheme()) {
+          case CONTIGUOUS ->
+              writeToContiguousFile(fileSystem, path, reference, data, position);
+  
+          case INODES ->
+              writeToInodeFile(fileSystem, path, reference, data, position);
+  
+          case FAT ->
+              writeToFATFile(fileSystem, path, reference, data, position);
+      }
+  }
+
+  private static void writeToContiguousFile(
+          FileSystem fileSystem,
+          String path,
+          FileReference reference,
+          byte[] data,
+          int position
+  ) {
+      ContiguousFileReference cref =
+          (ContiguousFileReference) reference;
+  
+      int firstBlockIndex = cref.getFirstBlockIndex();
+      int finalSizeBlocks = cref.getFinalSizeBlocks();
+  
+      if (fileSystem.blocksRequiredFor(
+              position + data.length,
+              fileSystem.getBlockSizeBytes()
+          ) > finalSizeBlocks) {
+          throw new Error("write too large");
+      }
+  
+      fileSystem.writeBytes(data, firstBlockIndex, position);
+  
+      FileMetadata metadata = cref.getMetadata();
+      updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
+  }
+
+  private static void writeToInodeFile(
+          FileSystem fileSystem,
+          String path,
+          FileReference reference,
+          byte[] data,
+          int position
+  ) {
+      Inode inode = Inode.get(
+          fileSystem,
+          ((InodeFileReference) reference).getIndex()
+      );
+  
+      inode.write(fileSystem, data, position);
+  
+      FileMetadata metadata = inode.getMetadata();
+      updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
+  }
+
+  private static void writeToFATFile(
+          FileSystem fileSystem,
+          String path,
+          FileReference reference,
+          byte[] data,
+          int position
+  ) {
+
+      // needs to update FIRST_BLOCK_NOT_SET
+      FATFileReference freference = (FATFileReference) reference;
+      int[] fileAllocationTable = fileSystem.getFileAllocationTable();
+      
+      int blockSizeBytes = fileSystem.getBlockSizeBytes();
+      byte[] buffer = data;
+      
+      int currentIndex = freference.getFirstBlockIndex();
+      if (currentIndex == freference.FIRST_BLOCK_NOT_SET) {
+          currentIndex = fileSystem.nextFreeBlock();
+      }
+      
+      int currentByte = 0;
+      int bufferPointer = 0;
+      
+      while (bufferPointer < buffer.length) {
+      
+          int writeOffset = 0;
+          int writableBytes = blockSizeBytes;
+      
+          // First block offset handling
+          if (currentByte <= position &&
+              position < currentByte + blockSizeBytes) {
+      
+              writeOffset = position - currentByte;
+              writableBytes = blockSizeBytes - writeOffset;
+          }
+      
+          int bytesToWrite = Math.min(
+              writableBytes,
+              buffer.length - bufferPointer
+          );
+      
+          byte[] chunk = Arrays.copyOfRange(
+              buffer,
+              bufferPointer,
+              bufferPointer + bytesToWrite
+          );
+      
+          fileSystem.writeBytes(chunk, currentIndex, writeOffset);
+      
+          bufferPointer += bytesToWrite;
+          currentByte += blockSizeBytes;
+      
+          // Advance or extend FAT
+          if (fileAllocationTable[currentIndex] == FileSystem.UNUSED) {
+              fileAllocationTable[currentIndex] = fileSystem.nextFreeBlock();
+          }
+      
+          currentIndex = fileAllocationTable[currentIndex];
+      }
+      
+      FileMetadata metadata = freference.getMetadata();
+
+      if(data.length + position > metadata.getCurrentSizeBytes()){ 
+          metadata.setCurrentSizeBytes(data.length + position);
+      } 
+
+      if(data.length > 0){
+          metadata.updateLastModified();
+      }
+      // updates metadata 
+      metadata.writeToDisk(fileSystem, path);
+  }
+
+  private static void updateMetadataAfterWrite(
+          FileSystem fileSystem,
+          FileMetadata metadata,
+          String path,
+          int length,
+          int position
+  ) {
+      int newSize = position + length;
+      if (newSize > metadata.getCurrentSizeBytes()) {
+          metadata.setCurrentSizeBytes(newSize);
+      }
+  
+      if (length > 0) {
+          metadata.updateLastModified();
+      }
+  
+      metadata.writeToDisk(fileSystem, path);
   }
 
   public static byte[] read(FileSystem fileSystem, String path, int byteNumber, int position){
