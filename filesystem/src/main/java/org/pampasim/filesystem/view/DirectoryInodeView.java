@@ -26,7 +26,7 @@ import javafx.collections.FXCollections;
 
 import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
 import org.pampasim.filesystem.directory.DirectoryEntry;
-import org.pampasim.filesystem.mapping.InodeFileReference;
+import org.pampasim.filesystem.file.reference.InodeFileReference;
 
 public class DirectoryInodeView implements FxmlView<DirectoryViewModel> {
     @InjectViewModel
@@ -46,7 +46,7 @@ public class DirectoryInodeView implements FxmlView<DirectoryViewModel> {
         );
 
         inodeIndexColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((InodeFileReference)cell.getValue().getFileMapping()).getIndex())
+            cell -> new ReadOnlyObjectWrapper<>(((InodeFileReference)cell.getValue().getFilereference()).getIndex())
         );
 
         //changes dont propagate, whatever

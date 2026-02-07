@@ -1,28 +1,28 @@
 package org.pampasim.filesystem.directory;
 
-import org.pampasim.filesystem.mapping.*;
 import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.file.reference.*;
 
 import java.nio.ByteBuffer;
 
 public class DirectoryEntry {
 
   private String name;
-  private FileReference fileMapping; // the information kept to track the file (and maybe attributes as well)
+  private FileReference filereference; // the information kept to track the file (and maybe attributes as well)
 
-  public DirectoryEntry(String name, FileReference fileMapping){
+  public DirectoryEntry(String name, FileReference filereference){
     if(name.toCharArray().length > Directory.FILE_NAME_LENGTH_CHARS){
       throw new IllegalArgumentException("Directory entry with a name too large: " + name);
     }
     this.name = name;
-    this.fileMapping = fileMapping;
+    this.filereference = filereference;
   }
 
   public DirectoryEntry(){}
 
-  public FileReference getFileMapping(){
-    return fileMapping;
+  public FileReference getFilereference(){
+    return filereference;
   }
 
   public String getName(){
@@ -31,9 +31,9 @@ public class DirectoryEntry {
 
   public boolean isDirectory(FileSystem fileSystem){
       return switch(fileSystem.getAllocationScheme()){
-        case CONTIGUOUS -> ((ContiguousFileReference) fileMapping).getMetadata().isDirectory();
-        case FAT -> ((FATFileReference) fileMapping).getMetadata().isDirectory(); 
-        case INODES -> ((InodeFileReference) fileMapping).getMetadata(fileSystem).isDirectory();
+        case CONTIGUOUS -> ((ContiguousFileReference) filereference).getMetadata().isDirectory();
+        case FAT -> ((FATFileReference) filereference).getMetadata().isDirectory(); 
+        case INODES -> ((InodeFileReference) filereference).getMetadata(fileSystem).isDirectory();
         default -> throw new Error("unhandled switch case");
       };
   }
@@ -48,9 +48,9 @@ public class DirectoryEntry {
   public int getFileCurrentSizeBytes(AllocationScheme allocationScheme){
     switch(allocationScheme){
       case AllocationScheme.CONTIGUOUS:
-        return ((ContiguousFileReference) fileMapping).getCurrentSizeBytes();
+        return ((ContiguousFileReference) filereference).getCurrentSizeBytes();
       case AllocationScheme.FAT:
-        return ((FATFileReference) fileMapping).getCurrentSizeBytes();
+        return ((FATFileReference) filereference).getCurrentSizeBytes();
       // Inodes are more complicated since metadata is stored in the inodes, not directory entry
       default:
         throw new Error("unhandled switch case");
@@ -65,13 +65,13 @@ public class DirectoryEntry {
     for(char c : nameArray){
       buffer.putChar(c);
     }
-    fileMapping.writeToBuffer(buffer);
+    filereference.writeToBuffer(buffer);
   }
 
   public int sizeBytes(){
     int bitsInBytes = 8;
     int charSizeBytes = Character.SIZE / bitsInBytes;
-    return (Directory.FILE_NAME_LENGTH_CHARS * charSizeBytes) + fileMapping.sizeBytes();
+    return (Directory.FILE_NAME_LENGTH_CHARS * charSizeBytes) + filereference.sizeBytes();
   }
 
   public boolean isNull(){
@@ -89,10 +89,10 @@ public class DirectoryEntry {
   }
   //public static DirectoryEntry getFromDisk(Disk disk, int starting_index, AllocationScheme allocationScheme){
     //String name = ;
-  //  FileMapping fileMapping;
+  //  Filereference filereference;
   //  switch(allocationScheme){
   //    case allocationScheme.CONTIGUOUS:
-        //fileMapping = ContiguousMapping.getFromDisk(disk,);
+        //filereference = Contiguousreference.getFromDisk(disk,);
   //  }
     
 
@@ -104,22 +104,22 @@ public class DirectoryEntry {
       nameArray[i] = buffer.getChar();
     }
     String name = (new String(nameArray)).replace("\0", "");
-    FileReference mapping = FileReference.getFromBuffer(buffer, allocationScheme);
+    FileReference reference = FileReference.getFromBuffer(buffer, allocationScheme);
     /*
     switch(allocationScheme){
       case AllocationScheme.CONTIGUOUS:
-        mapping = ContiguousMapping.getFromBuffer(buffer);
+        reference = Contiguousreference.getFromBuffer(buffer);
       default:
-        mapping = ContiguousMapping.getFromBuffer(buffer);
+        reference = Contiguousreference.getFromBuffer(buffer);
     }
     */
 
-    return new DirectoryEntry(name, mapping);
+    return new DirectoryEntry(name, reference);
   }
 
   @Override
   public String toString(){
-    return "DirectoryEntry [name=" + name + ", fileMapping=" + fileMapping + "]";
+    return "DirectoryEntry [name=" + name + ", filereference=" + filereference + "]";
   }
 
 }

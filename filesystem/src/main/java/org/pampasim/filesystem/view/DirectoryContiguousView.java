@@ -30,7 +30,7 @@ import javafx.scene.Scene;
 import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
 import org.pampasim.filesystem.viewmodel.MetadataViewModel;
 import org.pampasim.filesystem.directory.DirectoryEntry;
-import org.pampasim.filesystem.mapping.ContiguousFileReference;
+import org.pampasim.filesystem.file.reference.ContiguousFileReference;
 
 public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
     @InjectViewModel
@@ -54,11 +54,11 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
         );
 
         firstBlockColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((ContiguousFileReference) cell.getValue().getFileMapping()).getFirstBlockIndex())
+            cell -> new ReadOnlyObjectWrapper<>(((ContiguousFileReference) cell.getValue().getFilereference()).getFirstBlockIndex())
         );
 
         finalSizeColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((ContiguousFileReference) cell.getValue().getFileMapping()).getFinalSizeBlocks())
+            cell -> new ReadOnlyObjectWrapper<>(((ContiguousFileReference) cell.getValue().getFilereference()).getFinalSizeBlocks())
         );
 
         metadataColumn.setCellFactory(col -> new TableCell<>() {

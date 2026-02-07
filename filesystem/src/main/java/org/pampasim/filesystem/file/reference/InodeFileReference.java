@@ -1,4 +1,4 @@
-package org.pampasim.filesystem.mapping;
+package org.pampasim.filesystem.file.reference;
 
 import java.nio.ByteBuffer;
 
@@ -37,6 +37,6 @@ public final class InodeFileReference extends FileReference {
   }
   @Override
   public String toString(){
-    return "InodeMapping [inodeIndex=" + inodeIndex +"]";
+    return "InodeFileReference [inodeIndex=" + inodeIndex +"]";
   }
 }

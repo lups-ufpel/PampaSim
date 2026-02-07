@@ -30,7 +30,7 @@ import javafx.scene.Scene;
 import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
 import org.pampasim.filesystem.viewmodel.MetadataViewModel;
 import org.pampasim.filesystem.directory.DirectoryEntry;
-import org.pampasim.filesystem.mapping.FATFileReference;
+import org.pampasim.filesystem.file.reference.FATFileReference;
 
 public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
     @InjectViewModel
@@ -52,7 +52,7 @@ public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
         );
 
         firstBlockColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((FATFileReference) cell.getValue().getFileMapping()).getFirstBlockIndex())
+            cell -> new ReadOnlyObjectWrapper<>(((FATFileReference) cell.getValue().getFilereference()).getFirstBlockIndex())
         );
         
         metadataColumn.setCellFactory(col -> new TableCell<>() {

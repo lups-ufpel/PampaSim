@@ -1,4 +1,4 @@
-package org.pampasim.filesystem.mapping;
+package org.pampasim.filesystem.file.reference;
 
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.resources.filesystem.AllocationScheme;
@@ -50,14 +50,14 @@ public final class ContiguousFileReference extends FileReference {
   }
 
 
-  // assumes relative position of buffer is on start of mapping
+  // assumes relative position of buffer is on start of reference
   public ContiguousFileReference getFromBuffer(ByteBuffer buffer){
     return (ContiguousFileReference) super.getFromBuffer(buffer, AllocationScheme.CONTIGUOUS);
   }
 
   @Override
   public String toString(){
-    return "ContiguousMapping [firstBlockIndex=" + firstBlockIndex + ", finalSizeBlocks=" + finalSizeBlocks + ", metadata=" + metadata + "]";
+    return "Contiguousreference [firstBlockIndex=" + firstBlockIndex + ", finalSizeBlocks=" + finalSizeBlocks + ", metadata=" + metadata + "]";
   }
 
 }

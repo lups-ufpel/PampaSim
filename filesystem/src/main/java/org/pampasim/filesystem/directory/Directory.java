@@ -2,9 +2,10 @@ package org.pampasim.filesystem.directory;
 
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.resources.filesystem.AllocationScheme;
-import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.file.File;
+import org.pampasim.filesystem.file.reference.*;
+
 import java.util.NoSuchElementException;
 
 import java.util.ArrayList;
@@ -45,21 +46,21 @@ public class Directory{
 
   public int getIndex(){
     return switch(fileSystemHandle.getAllocationScheme()){
-      case CONTIGUOUS -> ((ContiguousFileReference) getDot().getFileMapping()).getFirstBlockIndex();
-      case FAT -> ((FATFileReference) getDot().getFileMapping()).getFirstBlockIndex();
-      case INODES -> ((InodeFileReference) getDot().getFileMapping()).getIndex();
+      case CONTIGUOUS -> ((ContiguousFileReference) getDot().getFilereference()).getFirstBlockIndex();
+      case FAT -> ((FATFileReference) getDot().getFilereference()).getFirstBlockIndex();
+      case INODES -> ((InodeFileReference) getDot().getFilereference()).getIndex();
       default -> throw new Error("unhandled switch case");
     };
   }
 
-  public static FileReference getFileMapping(FileSystem fileSystem, String path){
+  public static FileReference getFilereference(FileSystem fileSystem, String path){
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
     Directory fileDirectory = Directory.findParent(fileSystem, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
 
-    return fileEntry.getFileMapping();
+    return fileEntry.getFilereference();
   }
 
   //hacky
@@ -69,11 +70,11 @@ public class Directory{
     int entryPosition = getEntryPosition(name);
     int entryFirstByte = entryPosition * DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme());
 
-    DirectoryEntry newMappingEntry = findEntry(name);
-    ((FATFileReference) newMappingEntry.getFileMapping()).setFirstBlockIndex(firstBlockIndex);
+    DirectoryEntry newreferenceEntry = findEntry(name);
+    ((FATFileReference) newreferenceEntry.getFilereference()).setFirstBlockIndex(firstBlockIndex);
 
     ByteBuffer buffer = ByteBuffer.allocate(DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme()));
-    newMappingEntry.writeToBuffer(buffer);
+    newreferenceEntry.writeToBuffer(buffer);
 
     fileSystemHandle.writeToFile(parentPath(path), buffer.array(), entryFirstByte);
   }
@@ -91,11 +92,11 @@ public class Directory{
       boolean foundSegment = false;
       for(DirectoryEntry entry : currentDirectory.getEntries()){
         if(entry.getName().equals(s)){
-          FileReference mapping = entry.getFileMapping();
+          FileReference reference = entry.getFilereference();
           int entryIndex = switch(fileSystem.getAllocationScheme()){
-            case INODES -> ((InodeFileReference) mapping).getIndex();
-            case CONTIGUOUS -> ((ContiguousFileReference) mapping).getFirstBlockIndex();
-            case FAT -> ((FATFileReference) mapping).getFirstBlockIndex();
+            case INODES -> ((InodeFileReference) reference).getIndex();
+            case CONTIGUOUS -> ((ContiguousFileReference) reference).getFirstBlockIndex();
+            case FAT -> ((FATFileReference) reference).getFirstBlockIndex();
             default -> throw new Error("Unhandled switch case");
           };
           currentDirectory = getFromDisk(entryIndex, fileSystem);
@@ -354,7 +355,7 @@ public class Directory{
           throw new Error("Directory " + path + " too small for essential entries.");
       }
   
-      FileReference dotMapping =
+      FileReference dotreference =
               File.createContiguous(
                       fileSystem,
                       path,
@@ -363,7 +364,7 @@ public class Directory{
                       true
               );
   
-      writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
+      writeInitialDirectoryContents(fileSystem, path, dotreference, currentSizeBytes);
   }
 
   public static void createInodes(
@@ -374,7 +375,7 @@ public class Directory{
       int currentSizeBytes =
               DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * requiredEntries;
   
-      FileReference dotMapping =
+      FileReference dotreference =
               File.createInodes(
                       fileSystem,
                       path,
@@ -382,7 +383,7 @@ public class Directory{
                       true
               );
   
-      writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
+      writeInitialDirectoryContents(fileSystem, path, dotreference, currentSizeBytes);
   }
 
   public static void createFAT(
@@ -393,7 +394,7 @@ public class Directory{
       int currentSizeBytes =
               DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * requiredEntries;
   
-      FileReference dotMapping =
+      FileReference dotreference =
               File.createFAT(
                       fileSystem,
                       path,
@@ -401,18 +402,18 @@ public class Directory{
                       true
               );
   
-      writeInitialDirectoryContents(fileSystem, path, dotMapping, currentSizeBytes);
+      writeInitialDirectoryContents(fileSystem, path, dotreference, currentSizeBytes);
   }
 
   private static void writeInitialDirectoryContents(
           FileSystem fileSystem,
           String path,
-          FileReference dotMapping,
+          FileReference dotreference,
           int currentSizeBytes
   ) {
       ArrayList<DirectoryEntry> entries = new ArrayList<>();
   
-      DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+      DirectoryEntry dot = new DirectoryEntry(".", dotreference);
       entries.add(dot);
   
       Directory parent = findParent(fileSystem, path);
@@ -494,7 +495,7 @@ public class Directory{
         
 
         DirectoryEntry dot = getDotFromDisk(relative_starting_index, fileSystem);
-        int sizeBlocks = ((ContiguousFileReference) dot.getFileMapping()).getFinalSizeBlocks();
+        int sizeBlocks = ((ContiguousFileReference) dot.getFilereference()).getFinalSizeBlocks();
         byte[][] directoryBlocks = fileSystem.readBlocks(relative_starting_index, sizeBlocks);
         directoryData = FileSystem.flatten(directoryBlocks);
         break;
@@ -512,7 +513,7 @@ public class Directory{
 
         DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
         // current size bytes rounded up to be divisible by blocks
-        int size = fileSystem.blocksRequiredFor(((FATFileReference) dot.getFileMapping()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
+        int size = fileSystem.blocksRequiredFor(((FATFileReference) dot.getFilereference()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
         directoryData = new byte[size];
         int nextBlock = firstBlockIndex;
         int dataPosition = 0;

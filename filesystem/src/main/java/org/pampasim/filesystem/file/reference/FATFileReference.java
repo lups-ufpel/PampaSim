@@ -1,4 +1,4 @@
-package org.pampasim.filesystem.mapping;
+package org.pampasim.filesystem.file.reference;
 
 import org.pampasim.filesystem.file.FileMetadata;
 

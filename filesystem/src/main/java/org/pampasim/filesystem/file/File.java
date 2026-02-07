@@ -4,9 +4,9 @@ import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.inode.Inode;
-import org.pampasim.filesystem.mapping.*;
 import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
+import org.pampasim.filesystem.file.reference.*;
 
 import java.time.Instant;
 
@@ -38,14 +38,14 @@ abstract public class File{
       int firstBlockIndex =
               fileSystem.getFreeBlocksAndSetAllocated(finalSizeBlocks);
   
-      FileReference mapping =
+      FileReference reference =
               new ContiguousFileReference(firstBlockIndex, finalSizeBlocks, metadata);
   
       BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
       fileSystem.setBlockRecord(firstBlockIndex, firstBlockIndex + finalSizeBlocks, type, path);
-      addToDirectory(fileSystem, path, mapping);
+      addToDirectory(fileSystem, path, reference);
   
-      return mapping;
+      return reference;
   }
 
   public static FileReference createInodes(
@@ -62,15 +62,15 @@ abstract public class File{
       FileMetadata metadata =
               new FileMetadata(currentSizeBytes, isDirectory, Instant.now());
   
-      FileReference mapping =
+      FileReference reference =
               new InodeFileReference(fileSystem.nextFreeInode());
   
-      addToDirectory(fileSystem, path, mapping);
+      addToDirectory(fileSystem, path, reference);
   
       // must happen after directory entry exists
       metadata.writeToDisk(fileSystem, path);
   
-      return mapping;
+      return reference;
   }
 
   public static FileReference createFAT(
@@ -86,12 +86,12 @@ abstract public class File{
       FileMetadata metadata =
               new FileMetadata(currentSizeBytes, isDirectory, Instant.now());
   
-      FileReference mapping =
+      FileReference reference =
               new FATFileReference(FATFileReference.FIRST_BLOCK_NOT_SET, metadata);
   
-      addToDirectory(fileSystem, path, mapping);
+      addToDirectory(fileSystem, path, reference);
   
-      return mapping;
+      return reference;
   }
 
   public static void delete(FileSystem fileSystem, String path){
@@ -107,9 +107,9 @@ abstract public class File{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    ContiguousFileReference mapping = (ContiguousFileReference) fileSystem.getMapping(path);
-    int firstBlockIndex = mapping.getFirstBlockIndex();
-    int lastBlockIndex = firstBlockIndex + mapping.getFinalSizeBlocks();
+    ContiguousFileReference reference = (ContiguousFileReference) fileSystem.getReference(path);
+    int firstBlockIndex = reference.getFirstBlockIndex();
+    int lastBlockIndex = firstBlockIndex + reference.getFinalSizeBlocks();
 
     fileSystem.freeBlocks(firstBlockIndex, lastBlockIndex);
 
@@ -120,11 +120,11 @@ abstract public class File{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    FATFileReference mapping = (FATFileReference) fileSystem.getMapping(path);
+    FATFileReference reference = (FATFileReference) fileSystem.getReference(path);
 
     int[] fat = fileSystem.getFileAllocationTable();
 
-    int currentIndex = mapping.getFirstBlockIndex();
+    int currentIndex = reference.getFirstBlockIndex();
     int nextIndex;
 
     while(fat[currentIndex] != FileSystem.UNUSED){
@@ -142,9 +142,9 @@ abstract public class File{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    InodeFileReference mapping = (InodeFileReference) fileSystem.getMapping(path);
+    InodeFileReference reference = (InodeFileReference) fileSystem.getReference(path);
 
-    Inode inode = Inode.get(fileSystem, mapping.getIndex());
+    Inode inode = Inode.get(fileSystem, reference.getIndex());
     int[] addresses = inode.allAddresses();
 
     for(int i = 0; i < addresses.length; i++){
@@ -155,18 +155,18 @@ abstract public class File{
 
     Directory.findParent(fileSystem, path).deleteEntry(name);
 
-    fileSystem.getFreeInodesBitMap().setFree(mapping.getIndex());
+    fileSystem.getFreeInodesBitMap().setFree(reference.getIndex());
   }
 
   private static void addToDirectory(
           FileSystem fileSystem,
           String path,
-          FileReference mapping
+          FileReference reference
   ) {
       String[] segments = path.split("/");
       String name = segments[segments.length - 1];
       Directory dir = Directory.findParent(fileSystem, path);
-      dir.addEntry(new DirectoryEntry(name, mapping));
+      dir.addEntry(new DirectoryEntry(name, reference));
   }
 
   public static void write(FileSystem fileSystem, String path, byte[] data, int position){

@@ -4,7 +4,7 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.file.FileMetadata;
-import org.pampasim.filesystem.mapping.*;
+import org.pampasim.filesystem.file.reference.*;
 import org.pampasim.filesystem.LegendEntry;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.core.Simulation;
@@ -254,12 +254,12 @@ public class FileSystem extends AbstractSimEntity {
 
   // not used (yet?)
   /*
-  public FileMapping getRootDirectoryMapping(){
+  public Filereference getRootDirectoryreference(){
     switch(allocationScheme){
       case AllocationScheme.CONTIGUOUS:
-      return Directory.getDotFromDisk(root_directory_starting_index, this).getFileMapping();
+      return Directory.getDotFromDisk(root_directory_starting_index, this).getFilereference();
       case AllocationScheme.INODES:
-        return InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
+        return Inodereference(ROOT_DIRECTORY_INODE_NUMBER);
       default:
         throw new Error("Not implemented");
     }
@@ -422,7 +422,7 @@ public class FileSystem extends AbstractSimEntity {
     Directory root;
     int sizeBlocks = 0;
     switch(allocationScheme) {
-      // maybe finer (for mapping only) switches would be better if FAT is similar too
+      // maybe finer (for reference only) switches would be better if FAT is similar too
       case CONTIGUOUS: 
       {
         int entries = 2;
@@ -431,13 +431,13 @@ public class FileSystem extends AbstractSimEntity {
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
         FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotMapping = new ContiguousFileReference(starting_index, sizeBlocks, dotMetadata);
-        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+        FileReference dotreference = new ContiguousFileReference(starting_index, sizeBlocks, dotMetadata);
+        DirectoryEntry dot = new DirectoryEntry(".", dotreference);
         dot.writeToBuffer(buffer);
 
         FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotdotMapping = new ContiguousFileReference(starting_index, sizeBlocks, dotdotMetadata);
-        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
+        FileReference dotdotreference = new ContiguousFileReference(starting_index, sizeBlocks, dotdotMetadata);
+        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotreference);
         dotdot.writeToBuffer(buffer);
 
         byte[] rootDirectoryData = buffer.array();
@@ -462,13 +462,13 @@ public class FileSystem extends AbstractSimEntity {
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
         FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotMapping = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
-        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+        FileReference dotreference = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
+        DirectoryEntry dot = new DirectoryEntry(".", dotreference);
         dot.writeToBuffer(buffer);
 
         FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotdotMapping = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
-        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
+        FileReference dotdotreference = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
+        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotreference);
         dotdot.writeToBuffer(buffer);
 
         byte[] rootDirectoryData = buffer.array();
@@ -494,13 +494,13 @@ public class FileSystem extends AbstractSimEntity {
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
         FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotMapping = new FATFileReference(starting_index, dotMetadata);
-        DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
+        FileReference dotreference = new FATFileReference(starting_index, dotMetadata);
+        DirectoryEntry dot = new DirectoryEntry(".", dotreference);
         dot.writeToBuffer(buffer);
 
         FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotdotMapping = new FATFileReference(starting_index, dotdotMetadata);
-        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
+        FileReference dotdotreference = new FATFileReference(starting_index, dotdotMetadata);
+        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotreference);
         dotdot.writeToBuffer(buffer);
 
         byte[] rootDirectoryData = buffer.array();
@@ -603,9 +603,9 @@ public class FileSystem extends AbstractSimEntity {
       }
 
       boolean isDirectory = switch(allocationScheme){
-        case CONTIGUOUS -> ((ContiguousFileReference) e.getFileMapping()).getMetadata().isDirectory();
-        case FAT -> ((FATFileReference) e.getFileMapping()).getMetadata().isDirectory();
-        case INODES -> Inode.getMetadata(this, ((InodeFileReference) e.getFileMapping()).getIndex()).isDirectory();
+        case CONTIGUOUS -> ((ContiguousFileReference) e.getFilereference()).getMetadata().isDirectory();
+        case FAT -> ((FATFileReference) e.getFilereference()).getMetadata().isDirectory();
+        case INODES -> Inode.getMetadata(this, ((InodeFileReference) e.getFilereference()).getIndex()).isDirectory();
         default -> throw new Error("unhandled switch case");
       };
       if(isDirectory){
@@ -751,18 +751,18 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public int getFileIndex(String path){
-      FileReference mapping = getMapping(path);
+      FileReference reference = getReference(path);
 
         return switch(allocationScheme){
-      case CONTIGUOUS -> ((ContiguousFileReference) mapping).getFirstBlockIndex();
-      case FAT -> ((FATFileReference) mapping).getFirstBlockIndex();
-      case INODES -> ((InodeFileReference) mapping).getIndex();
+      case CONTIGUOUS -> ((ContiguousFileReference) reference).getFirstBlockIndex();
+      case FAT -> ((FATFileReference) reference).getFirstBlockIndex();
+      case INODES -> ((InodeFileReference) reference).getIndex();
       default -> throw new Error("not implemented");
     };
 
   }
 
-  public FileReference getMapping(String path){
+  public FileReference getReference(String path){
     String name;
     if(path.equals("/")){
       name = ".";
@@ -770,7 +770,7 @@ public class FileSystem extends AbstractSimEntity {
       String[] segments = path.split("/");
       name = segments[segments.length - 1];
     }
-    return Directory.findParent(this, path).findEntry(name).getFileMapping();
+    return Directory.findParent(this, path).findEntry(name).getFilereference();
   }
 
   public byte[] readFromFile(String path, int byteNumber, int position){
@@ -779,19 +779,19 @@ public class FileSystem extends AbstractSimEntity {
 
     Directory fileDirectory = Directory.findParent(this, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
-    FileReference mapping = Directory.getFileMapping(this, path);
+    FileReference reference = Directory.getFilereference(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
       {
-        ContiguousFileReference cmapping = (ContiguousFileReference) mapping;
-        int firstBlockIndex = cmapping.getFirstBlockIndex();
-        int finalSizeBlocks = cmapping.getFinalSizeBlocks();
+        ContiguousFileReference creference = (ContiguousFileReference) reference;
+        int firstBlockIndex = creference.getFirstBlockIndex();
+        int finalSizeBlocks = creference.getFinalSizeBlocks();
         if(blocksRequiredFor(position + byteNumber, getBlockSizeBytes()) > finalSizeBlocks){
           throw new Error("read too large");
         }
         byte[] data = readBytes(byteNumber, firstBlockIndex, position);
-        FileMetadata metadata = cmapping.getMetadata();
+        FileMetadata metadata = creference.getMetadata();
         metadata.updateLastAccess();
 
         // updates metadata, should be write To disk method on metadata?
@@ -800,8 +800,8 @@ public class FileSystem extends AbstractSimEntity {
       }
       case FAT:
       {
-        FATFileReference fmapping = (FATFileReference) mapping;
-        int firstBlockIndex = fmapping.getFirstBlockIndex();
+        FATFileReference freference = (FATFileReference) reference;
+        int firstBlockIndex = freference.getFirstBlockIndex();
 
         int nextBlock = firstBlockIndex;
         byte[] data = new byte[byteNumber];
@@ -820,7 +820,7 @@ public class FileSystem extends AbstractSimEntity {
           nextBlock = fileAllocationTable[nextBlock];
         }
 
-        FileMetadata metadata = fmapping.getMetadata();
+        FileMetadata metadata = freference.getMetadata();
         metadata.updateLastAccess();
         metadata.writeToDisk(this, path);
 
@@ -829,7 +829,7 @@ public class FileSystem extends AbstractSimEntity {
       
       case INODES:
       {
-        Inode fileInode = Inode.get(this, ((InodeFileReference) mapping).getIndex());
+        Inode fileInode = Inode.get(this, ((InodeFileReference) reference).getIndex());
         byte[] data = fileInode.read(this, byteNumber, position);
         FileMetadata metadata = fileInode.getMetadata();
         
@@ -845,20 +845,20 @@ public class FileSystem extends AbstractSimEntity {
 
   public void writeToFile(String path, byte[] data, int position){
 
-    FileReference mapping = Directory.getFileMapping(this, path);
+    FileReference reference = Directory.getFilereference(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
       {
-        ContiguousFileReference cmapping = (ContiguousFileReference) mapping;
-        int firstBlockIndex = cmapping.getFirstBlockIndex();
-        int finalSizeBlocks = cmapping.getFinalSizeBlocks();
+        ContiguousFileReference creference = (ContiguousFileReference) reference;
+        int firstBlockIndex = creference.getFirstBlockIndex();
+        int finalSizeBlocks = creference.getFinalSizeBlocks();
         if(blocksRequiredFor(position + data.length, getBlockSizeBytes()) > finalSizeBlocks){
           throw new Error("write too large");
         }
         writeBytes(data, firstBlockIndex, position);
 
-        FileMetadata metadata = cmapping.getMetadata();
+        FileMetadata metadata = creference.getMetadata();
         // no shrinking?
         if(data.length + position > metadata.getCurrentSizeBytes()){
           metadata.setCurrentSizeBytes(data.length + position);
@@ -875,7 +875,7 @@ public class FileSystem extends AbstractSimEntity {
 
       case INODES:
       {
-        Inode fileInode = Inode.get(this, ((InodeFileReference) mapping).getIndex());
+        Inode fileInode = Inode.get(this, ((InodeFileReference) reference).getIndex());
         fileInode.write(this, data, position);
         FileMetadata metadata = fileInode.getMetadata();
         // no shrinking?
@@ -893,12 +893,12 @@ public class FileSystem extends AbstractSimEntity {
       case FAT:
       {
         // needs to update FIRST_BLOCK_NOT_SET
-        FATFileReference fmapping = (FATFileReference) mapping;
+        FATFileReference freference = (FATFileReference) reference;
         int blockSizeBytes = getBlockSizeBytes();
         byte[] buffer = data;
         
-        int currentIndex = fmapping.getFirstBlockIndex();
-        if(currentIndex == fmapping.FIRST_BLOCK_NOT_SET){
+        int currentIndex = freference.getFirstBlockIndex();
+        if(currentIndex == freference.FIRST_BLOCK_NOT_SET){
           currentIndex = nextFreeBlock();
         }
         int currentByte = 0;
@@ -938,7 +938,7 @@ public class FileSystem extends AbstractSimEntity {
             currentIndex = fileAllocationTable[currentIndex];
 
         }
-        FileMetadata metadata = fmapping.getMetadata();
+        FileMetadata metadata = freference.getMetadata();
         // no shrinking?
         if(data.length + position > metadata.getCurrentSizeBytes()){
           metadata.setCurrentSizeBytes(data.length + position);
@@ -975,7 +975,7 @@ public class FileSystem extends AbstractSimEntity {
     for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
 
       String entryName = e.getName();
-      if(((InodeFileReference) e.getFileMapping()).getIndex() == index){
+      if(((InodeFileReference) e.getFilereference()).getIndex() == index){
         //prevents returning . which is not helpful
         if(entryName.equals(".")){
           return dirName;
@@ -989,7 +989,7 @@ public class FileSystem extends AbstractSimEntity {
         continue;
       }
 
-      boolean isDirectory = Inode.getMetadata(this, ((InodeFileReference) e.getFileMapping()).getIndex()).isDirectory();
+      boolean isDirectory = Inode.getMetadata(this, ((InodeFileReference) e.getFilereference()).getIndex()).isDirectory();
       if(isDirectory){
 
         String subDirectoryPath;
@@ -1012,7 +1012,7 @@ public class FileSystem extends AbstractSimEntity {
     String[] segments = filePath.split("/");
     String name = segments[segments.length - 1];
 
-    FileReference m = Directory.findParent(this, filePath).findEntry(name).getFileMapping(); 
+    FileReference m = Directory.findParent(this, filePath).findEntry(name).getFilereference(); 
 
     return switch(allocationScheme){
       case INODES -> ((InodeFileReference) m).getMetadata(this);
