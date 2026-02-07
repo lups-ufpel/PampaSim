@@ -22,13 +22,13 @@ public class InodeBlockViewModel implements ViewModel {
     }
 
     public Color getCorrespondingColor(int index){
-      return fileSystem.isInodeEmpty(index)
+      return fileSystem.isInodeFree(index)
               ? Color.web("#B0BEC5")    // light gray
               : Color.web("#4CAF50");   // soft green
     }
 
-    public boolean isInodeEmpty(){
-      return fileSystem.isInodeEmpty(index);
+    public boolean isInodeFree(){
+      return fileSystem.isInodeFree(index);
     }
 
 }

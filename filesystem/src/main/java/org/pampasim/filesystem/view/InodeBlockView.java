@@ -39,7 +39,7 @@ public class InodeBlockView implements FxmlView<InodeBlockViewModel>{
     private InodeViewModel inodeViewModel = null;
 
     public void initialize() {
-        if(!viewModel.isInodeEmpty()){
+        if(!viewModel.isInodeFree()){
           blockVBox.setCursor(Cursor.HAND);
         }
         blockVBox.setOnMouseClicked(e -> {
