@@ -12,7 +12,7 @@ import java.time.Instant;
 
 // all of these methods could be on FS instead
 
-public class File{
+abstract public class File{
 
   public static FileMapping createContiguous(
           FileSystem fileSystem,
@@ -154,6 +154,8 @@ public class File{
     fileSystem.freeBlock(inode.getSinglyIndirectPointer());
 
     Directory.findParent(fileSystem, path).deleteEntry(name);
+
+    fileSystem.getFreeInodesBitMap().setFree(mapping.getIndex());
   }
 
   private static void addToDirectory(
