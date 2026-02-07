@@ -14,7 +14,7 @@ import java.time.Instant;
 
 abstract public class File{
 
-  public static FileMapping createContiguous(
+  public static FileReference createContiguous(
           FileSystem fileSystem,
           String path,
           int currentSizeBytes,
@@ -38,8 +38,8 @@ abstract public class File{
       int firstBlockIndex =
               fileSystem.getFreeBlocksAndSetAllocated(finalSizeBlocks);
   
-      FileMapping mapping =
-              new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
+      FileReference mapping =
+              new ContiguousFileReference(firstBlockIndex, finalSizeBlocks, metadata);
   
       BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
       fileSystem.setBlockRecord(firstBlockIndex, firstBlockIndex + finalSizeBlocks, type, path);
@@ -48,7 +48,7 @@ abstract public class File{
       return mapping;
   }
 
-  public static FileMapping createInodes(
+  public static FileReference createInodes(
           FileSystem fileSystem,
           String path,
           int currentSizeBytes,
@@ -62,8 +62,8 @@ abstract public class File{
       FileMetadata metadata =
               new FileMetadata(currentSizeBytes, isDirectory, Instant.now());
   
-      FileMapping mapping =
-              new InodeMapping(fileSystem.nextFreeInode());
+      FileReference mapping =
+              new InodeFileReference(fileSystem.nextFreeInode());
   
       addToDirectory(fileSystem, path, mapping);
   
@@ -73,7 +73,7 @@ abstract public class File{
       return mapping;
   }
 
-  public static FileMapping createFAT(
+  public static FileReference createFAT(
           FileSystem fileSystem,
           String path,
           int currentSizeBytes,
@@ -86,8 +86,8 @@ abstract public class File{
       FileMetadata metadata =
               new FileMetadata(currentSizeBytes, isDirectory, Instant.now());
   
-      FileMapping mapping =
-              new FATMapping(FATMapping.FIRST_BLOCK_NOT_SET, metadata);
+      FileReference mapping =
+              new FATFileReference(FATFileReference.FIRST_BLOCK_NOT_SET, metadata);
   
       addToDirectory(fileSystem, path, mapping);
   
@@ -107,7 +107,7 @@ abstract public class File{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    ContiguousMapping mapping = (ContiguousMapping) fileSystem.getMapping(path);
+    ContiguousFileReference mapping = (ContiguousFileReference) fileSystem.getMapping(path);
     int firstBlockIndex = mapping.getFirstBlockIndex();
     int lastBlockIndex = firstBlockIndex + mapping.getFinalSizeBlocks();
 
@@ -120,7 +120,7 @@ abstract public class File{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    FATMapping mapping = (FATMapping) fileSystem.getMapping(path);
+    FATFileReference mapping = (FATFileReference) fileSystem.getMapping(path);
 
     int[] fat = fileSystem.getFileAllocationTable();
 
@@ -142,7 +142,7 @@ abstract public class File{
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
 
-    InodeMapping mapping = (InodeMapping) fileSystem.getMapping(path);
+    InodeFileReference mapping = (InodeFileReference) fileSystem.getMapping(path);
 
     Inode inode = Inode.get(fileSystem, mapping.getIndex());
     int[] addresses = inode.allAddresses();
@@ -161,7 +161,7 @@ abstract public class File{
   private static void addToDirectory(
           FileSystem fileSystem,
           String path,
-          FileMapping mapping
+          FileReference mapping
   ) {
       String[] segments = path.split("/");
       String name = segments[segments.length - 1];

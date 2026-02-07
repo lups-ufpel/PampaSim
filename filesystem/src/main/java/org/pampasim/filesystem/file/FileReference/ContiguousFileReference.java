@@ -5,13 +5,13 @@ import org.pampasim.resources.filesystem.AllocationScheme;
 
 import java.nio.ByteBuffer;
 
-public final class ContiguousMapping extends FileMapping {
+public final class ContiguousFileReference extends FileReference {
   private int firstBlockIndex;
   private int finalSizeBlocks;
   private FileMetadata metadata;
 
 
-  public ContiguousMapping(int firstBlockIndex, int finalSizeBlocks, FileMetadata metadata){
+  public ContiguousFileReference(int firstBlockIndex, int finalSizeBlocks, FileMetadata metadata){
     this.firstBlockIndex = firstBlockIndex;
     this.finalSizeBlocks = finalSizeBlocks;
     this.metadata = metadata;
@@ -51,8 +51,8 @@ public final class ContiguousMapping extends FileMapping {
 
 
   // assumes relative position of buffer is on start of mapping
-  public ContiguousMapping getFromBuffer(ByteBuffer buffer){
-    return (ContiguousMapping) super.getFromBuffer(buffer, AllocationScheme.CONTIGUOUS);
+  public ContiguousFileReference getFromBuffer(ByteBuffer buffer){
+    return (ContiguousFileReference) super.getFromBuffer(buffer, AllocationScheme.CONTIGUOUS);
   }
 
   @Override

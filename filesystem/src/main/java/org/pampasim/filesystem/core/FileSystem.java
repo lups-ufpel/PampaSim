@@ -431,12 +431,12 @@ public class FileSystem extends AbstractSimEntity {
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
         FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileMapping dotMapping = new ContiguousMapping(starting_index, sizeBlocks, dotMetadata);
+        FileReference dotMapping = new ContiguousFileReference(starting_index, sizeBlocks, dotMetadata);
         DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
         dot.writeToBuffer(buffer);
 
         FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileMapping dotdotMapping = new ContiguousMapping(starting_index, sizeBlocks, dotdotMetadata);
+        FileReference dotdotMapping = new ContiguousFileReference(starting_index, sizeBlocks, dotdotMetadata);
         DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
         dotdot.writeToBuffer(buffer);
 
@@ -462,12 +462,12 @@ public class FileSystem extends AbstractSimEntity {
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
         FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileMapping dotMapping = new InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
+        FileReference dotMapping = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
         DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
         dot.writeToBuffer(buffer);
 
         FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileMapping dotdotMapping = new InodeMapping(ROOT_DIRECTORY_INODE_NUMBER);
+        FileReference dotdotMapping = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
         DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
         dotdot.writeToBuffer(buffer);
 
@@ -494,12 +494,12 @@ public class FileSystem extends AbstractSimEntity {
         ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
         FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileMapping dotMapping = new FATMapping(starting_index, dotMetadata);
+        FileReference dotMapping = new FATFileReference(starting_index, dotMetadata);
         DirectoryEntry dot = new DirectoryEntry(".", dotMapping);
         dot.writeToBuffer(buffer);
 
         FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileMapping dotdotMapping = new FATMapping(starting_index, dotdotMetadata);
+        FileReference dotdotMapping = new FATFileReference(starting_index, dotdotMetadata);
         DirectoryEntry dotdot = new DirectoryEntry("..", dotdotMapping);
         dotdot.writeToBuffer(buffer);
 
@@ -603,9 +603,9 @@ public class FileSystem extends AbstractSimEntity {
       }
 
       boolean isDirectory = switch(allocationScheme){
-        case CONTIGUOUS -> ((ContiguousMapping) e.getFileMapping()).getMetadata().isDirectory();
-        case FAT -> ((FATMapping) e.getFileMapping()).getMetadata().isDirectory();
-        case INODES -> Inode.getMetadata(this, ((InodeMapping) e.getFileMapping()).getIndex()).isDirectory();
+        case CONTIGUOUS -> ((ContiguousFileReference) e.getFileMapping()).getMetadata().isDirectory();
+        case FAT -> ((FATFileReference) e.getFileMapping()).getMetadata().isDirectory();
+        case INODES -> Inode.getMetadata(this, ((InodeFileReference) e.getFileMapping()).getIndex()).isDirectory();
         default -> throw new Error("unhandled switch case");
       };
       if(isDirectory){
@@ -751,18 +751,18 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public int getFileIndex(String path){
-      FileMapping mapping = getMapping(path);
+      FileReference mapping = getMapping(path);
 
         return switch(allocationScheme){
-      case CONTIGUOUS -> ((ContiguousMapping) mapping).getFirstBlockIndex();
-      case FAT -> ((FATMapping) mapping).getFirstBlockIndex();
-      case INODES -> ((InodeMapping) mapping).getIndex();
+      case CONTIGUOUS -> ((ContiguousFileReference) mapping).getFirstBlockIndex();
+      case FAT -> ((FATFileReference) mapping).getFirstBlockIndex();
+      case INODES -> ((InodeFileReference) mapping).getIndex();
       default -> throw new Error("not implemented");
     };
 
   }
 
-  public FileMapping getMapping(String path){
+  public FileReference getMapping(String path){
     String name;
     if(path.equals("/")){
       name = ".";
@@ -779,12 +779,12 @@ public class FileSystem extends AbstractSimEntity {
 
     Directory fileDirectory = Directory.findParent(this, path);
     DirectoryEntry fileEntry = fileDirectory.findEntry(name);
-    FileMapping mapping = Directory.getFileMapping(this, path);
+    FileReference mapping = Directory.getFileMapping(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
       {
-        ContiguousMapping cmapping = (ContiguousMapping) mapping;
+        ContiguousFileReference cmapping = (ContiguousFileReference) mapping;
         int firstBlockIndex = cmapping.getFirstBlockIndex();
         int finalSizeBlocks = cmapping.getFinalSizeBlocks();
         if(blocksRequiredFor(position + byteNumber, getBlockSizeBytes()) > finalSizeBlocks){
@@ -800,7 +800,7 @@ public class FileSystem extends AbstractSimEntity {
       }
       case FAT:
       {
-        FATMapping fmapping = (FATMapping) mapping;
+        FATFileReference fmapping = (FATFileReference) mapping;
         int firstBlockIndex = fmapping.getFirstBlockIndex();
 
         int nextBlock = firstBlockIndex;
@@ -829,7 +829,7 @@ public class FileSystem extends AbstractSimEntity {
       
       case INODES:
       {
-        Inode fileInode = Inode.get(this, ((InodeMapping) mapping).getIndex());
+        Inode fileInode = Inode.get(this, ((InodeFileReference) mapping).getIndex());
         byte[] data = fileInode.read(this, byteNumber, position);
         FileMetadata metadata = fileInode.getMetadata();
         
@@ -845,12 +845,12 @@ public class FileSystem extends AbstractSimEntity {
 
   public void writeToFile(String path, byte[] data, int position){
 
-    FileMapping mapping = Directory.getFileMapping(this, path);
+    FileReference mapping = Directory.getFileMapping(this, path);
 
     switch(allocationScheme){
       case CONTIGUOUS:
       {
-        ContiguousMapping cmapping = (ContiguousMapping) mapping;
+        ContiguousFileReference cmapping = (ContiguousFileReference) mapping;
         int firstBlockIndex = cmapping.getFirstBlockIndex();
         int finalSizeBlocks = cmapping.getFinalSizeBlocks();
         if(blocksRequiredFor(position + data.length, getBlockSizeBytes()) > finalSizeBlocks){
@@ -875,7 +875,7 @@ public class FileSystem extends AbstractSimEntity {
 
       case INODES:
       {
-        Inode fileInode = Inode.get(this, ((InodeMapping) mapping).getIndex());
+        Inode fileInode = Inode.get(this, ((InodeFileReference) mapping).getIndex());
         fileInode.write(this, data, position);
         FileMetadata metadata = fileInode.getMetadata();
         // no shrinking?
@@ -893,7 +893,7 @@ public class FileSystem extends AbstractSimEntity {
       case FAT:
       {
         // needs to update FIRST_BLOCK_NOT_SET
-        FATMapping fmapping = (FATMapping) mapping;
+        FATFileReference fmapping = (FATFileReference) mapping;
         int blockSizeBytes = getBlockSizeBytes();
         byte[] buffer = data;
         
@@ -975,7 +975,7 @@ public class FileSystem extends AbstractSimEntity {
     for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
 
       String entryName = e.getName();
-      if(((InodeMapping) e.getFileMapping()).getIndex() == index){
+      if(((InodeFileReference) e.getFileMapping()).getIndex() == index){
         //prevents returning . which is not helpful
         if(entryName.equals(".")){
           return dirName;
@@ -989,7 +989,7 @@ public class FileSystem extends AbstractSimEntity {
         continue;
       }
 
-      boolean isDirectory = Inode.getMetadata(this, ((InodeMapping) e.getFileMapping()).getIndex()).isDirectory();
+      boolean isDirectory = Inode.getMetadata(this, ((InodeFileReference) e.getFileMapping()).getIndex()).isDirectory();
       if(isDirectory){
 
         String subDirectoryPath;
@@ -1012,12 +1012,12 @@ public class FileSystem extends AbstractSimEntity {
     String[] segments = filePath.split("/");
     String name = segments[segments.length - 1];
 
-    FileMapping m = Directory.findParent(this, filePath).findEntry(name).getFileMapping(); 
+    FileReference m = Directory.findParent(this, filePath).findEntry(name).getFileMapping(); 
 
     return switch(allocationScheme){
-      case INODES -> ((InodeMapping) m).getMetadata(this);
-      case FAT -> ((FATMapping) m).getMetadata();
-      case CONTIGUOUS -> ((ContiguousMapping) m).getMetadata();
+      case INODES -> ((InodeFileReference) m).getMetadata(this);
+      case FAT -> ((FATFileReference) m).getMetadata();
+      case CONTIGUOUS -> ((ContiguousFileReference) m).getMetadata();
       default -> throw new Error("unhandled switch");
     };
   }

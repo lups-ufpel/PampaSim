@@ -6,10 +6,10 @@ import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.inode.Inode;
 
-public final class InodeMapping extends FileMapping {
+public final class InodeFileReference extends FileReference {
   private int inodeIndex;
 
-  public InodeMapping(int inodeIndex){
+  public InodeFileReference(int inodeIndex){
     this.inodeIndex = inodeIndex;
   }
 

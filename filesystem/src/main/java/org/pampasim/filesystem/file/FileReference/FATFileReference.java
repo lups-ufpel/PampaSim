@@ -4,13 +4,13 @@ import org.pampasim.filesystem.file.FileMetadata;
 
 import java.nio.ByteBuffer;
 
-public final class FATMapping extends FileMapping {
+public final class FATFileReference extends FileReference {
   public static final int FIRST_BLOCK_NOT_SET = 0;
   private int firstBlockIndex;
   private FileMetadata metadata;
 
 
-  public FATMapping(int firstBlockIndex, FileMetadata metadata){
+  public FATFileReference(int firstBlockIndex, FileMetadata metadata){
     this.firstBlockIndex = firstBlockIndex;
     this.metadata = metadata;
   }

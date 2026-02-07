@@ -4,7 +4,7 @@ import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.file.FileMetadata;
 
 import java.nio.ByteBuffer;
-abstract public class FileMapping {
+abstract public class FileReference {
 
   abstract public void writeToBuffer(ByteBuffer buffer);
   abstract public int sizeBytes();
@@ -30,7 +30,7 @@ abstract public class FileMapping {
     }
   }
 
-  public static FileMapping getFromBuffer(ByteBuffer buffer, AllocationScheme allocationScheme){
+  public static FileReference getFromBuffer(ByteBuffer buffer, AllocationScheme allocationScheme){
 
     switch(allocationScheme){
       case CONTIGUOUS:
@@ -39,7 +39,7 @@ abstract public class FileMapping {
         int finalSizeBlocks = buffer.getInt();
         FileMetadata metadata = FileMetadata.getFromBuffer(buffer);
 
-        return new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
+        return new ContiguousFileReference(firstBlockIndex, finalSizeBlocks, metadata);
       }
 
       case FAT:
@@ -47,12 +47,12 @@ abstract public class FileMapping {
         int firstBlockIndex = buffer.getInt();
         FileMetadata metadata = FileMetadata.getFromBuffer(buffer);
 
-        return new FATMapping(firstBlockIndex, metadata);
+        return new FATFileReference(firstBlockIndex, metadata);
       }
 
       case INODES:
       {
-        return new InodeMapping(buffer.getInt());
+        return new InodeFileReference(buffer.getInt());
       }
 
 
@@ -62,7 +62,7 @@ abstract public class FileMapping {
         int finalSizeBlocks = buffer.getInt();
         FileMetadata metadata = FileMetadata.getFromBuffer(buffer);
 
-        return new ContiguousMapping(firstBlockIndex, finalSizeBlocks, metadata);
+        return new ContiguousFileReference(firstBlockIndex, finalSizeBlocks, metadata);
         }
 
     }
