@@ -834,7 +834,7 @@ public class FileSystem extends AbstractSimEntity {
     String[] segments = filePath.split("/");
     String name = segments[segments.length - 1];
 
-    FileReference m = Directory.findParent(this, filePath).findEntry(name).getFileReference(); 
+    FileReference m = getReference(filePath);
 
     return switch(allocationScheme){
       case INODES -> ((InodeFileReference) m).getMetadata(this);

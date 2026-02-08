@@ -867,3 +867,112 @@
 [TICK 0][MemoryEventManager] HANDLED: Memory.DiskOperation - Event DiskOperation #11
 [TICK 0][MemoryEventManager] HANDLED: Memory.DiskOperation - Event DiskOperation #12
 [TICK 0][MemoryEventManager] HANDLED: Memory.DiskOperationFinished - Event DiskOperationFinished #13
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][InterimEventManager] TRANSLATED: Process.Allocate -> Process.Ready - Event Allocate #0
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #1
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #2
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #3
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #4
+[TICK 0][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #4
+[TICK 0][InterimEventManager] HANDLED: Process.Run - Event Run #5
+[TICK 1][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.RunPaused - Event RunPaused #7
+[TICK 1][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.End - Event End #8
+[TICK 1][InterimEventManager] TRANSLATED: Process.End -> Process.Kill - Event End #8
+[TICK 1][InterimEventManager] HANDLED: Process.Kill - Event Kill #9
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][InterimEventManager] TRANSLATED: Process.Allocate -> Process.Ready - Event Allocate #0
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #1
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #2
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #3
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #4
+[TICK 0][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #4
+[TICK 0][InterimEventManager] HANDLED: Process.Run - Event Run #5
+[TICK 1][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.RunPaused - Event RunPaused #7
+[TICK 1][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.End - Event End #8
+[TICK 1][InterimEventManager] TRANSLATED: Process.End -> Process.Kill - Event End #8
+[TICK 1][InterimEventManager] HANDLED: Process.Kill - Event Kill #9
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][InterimEventManager] TRANSLATED: Process.Allocate -> Process.Ready - Event Allocate #0
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #1
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #2
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #3
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #4
+[TICK 0][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #4
+[TICK 0][InterimEventManager] HANDLED: Process.Run - Event Run #5
+[TICK 1][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.RunPaused - Event RunPaused #7
+[TICK 1][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.End - Event End #8
+[TICK 1][InterimEventManager] TRANSLATED: Process.End -> Process.Kill - Event End #8
+[TICK 1][InterimEventManager] HANDLED: Process.Kill - Event Kill #9
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][InterimEventManager] TRANSLATED: Process.Allocate -> Process.Ready - Event Allocate #0
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #1
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #2
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #3
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #4
+[TICK 0][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #4
+[TICK 0][InterimEventManager] HANDLED: Process.Run - Event Run #5
+[TICK 1][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.RunPaused - Event RunPaused #7
+[TICK 1][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.End - Event End #8
+[TICK 1][InterimEventManager] TRANSLATED: Process.End -> Process.Kill - Event End #8
+[TICK 1][InterimEventManager] HANDLED: Process.Kill - Event Kill #9
+[TICK 0][InterimEventManager] HANDLED: External.Arrival - Event Arrival #-1
+[TICK 0][InterimEventManager] HANDLED: Process.Allocate - Event Allocate #0
+[TICK 0][InterimEventManager] TRANSLATED: Process.Allocate -> Process.Ready - Event Allocate #0
+[TICK 0][InterimEventManager] HANDLED: Process.Ready - Event Ready #1
+[TICK 0][InterimEventManager] HANDLED: Process.Schedule - Event Schedule #2
+[TICK 0][InterimEventManager] HANDLED: Process.Dispatch - Event Dispatch #3
+[TICK 0][InterimEventManager] HANDLED: Process.Load - Event Load #4
+[TICK 0][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #4
+[TICK 0][InterimEventManager] HANDLED: Process.Run - Event Run #5
+[TICK 1][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 1][InterimEventManager] HANDLED: Process.Load - Event Load #7
+[TICK 1][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #7
+[TICK 1][InterimEventManager] HANDLED: Process.Run - Event Run #8
+[TICK 1][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #6
+[TICK 2][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #9
+[TICK 2][InterimEventManager] HANDLED: Process.Load - Event Load #10
+[TICK 2][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #10
+[TICK 2][InterimEventManager] HANDLED: Process.Run - Event Run #11
+[TICK 2][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #9
+[TICK 3][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #12
+[TICK 3][InterimEventManager] HANDLED: Process.Load - Event Load #13
+[TICK 3][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #13
+[TICK 3][InterimEventManager] HANDLED: Process.Run - Event Run #14
+[TICK 3][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #12
+[TICK 4][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #15
+[TICK 4][InterimEventManager] HANDLED: Process.Load - Event Load #16
+[TICK 4][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #16
+[TICK 4][InterimEventManager] HANDLED: Process.Run - Event Run #17
+[TICK 4][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #15
+[TICK 5][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #18
+[TICK 5][InterimEventManager] HANDLED: Process.Load - Event Load #19
+[TICK 5][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #19
+[TICK 5][InterimEventManager] HANDLED: Process.Run - Event Run #20
+[TICK 5][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #18
+[TICK 6][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #21
+[TICK 6][InterimEventManager] HANDLED: Process.Load - Event Load #22
+[TICK 6][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #22
+[TICK 6][InterimEventManager] HANDLED: Process.Run - Event Run #23
+[TICK 6][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #21
+[TICK 7][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #24
+[TICK 7][InterimEventManager] HANDLED: Process.Load - Event Load #25
+[TICK 7][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #25
+[TICK 7][InterimEventManager] HANDLED: Process.Run - Event Run #26
+[TICK 7][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #24
+[TICK 8][InterimEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #27
+[TICK 8][InterimEventManager] HANDLED: Process.Load - Event Load #28
+[TICK 8][InterimEventManager] TRANSLATED: Process.Load -> Process.Run - Event Load #28
+[TICK 8][InterimEventManager] HANDLED: Process.Run - Event Run #29
+[TICK 8][FileSystemEventManager] HANDLED: FileSystem.CreateFile - Event CreateFile #27
