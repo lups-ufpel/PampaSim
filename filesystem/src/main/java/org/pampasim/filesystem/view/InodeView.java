@@ -41,7 +41,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
 
     @FXML private TableView<InodeTableRow> table;
     @FXML private TableColumn<InodeTableRow, String> labelColumn;
-    @FXML private TableColumn<InodeTableRow, Integer> valueColumn;
+    @FXML private TableColumn<InodeTableRow, Number> valueColumn;
 
     @FXML
     public void initialize() {
@@ -58,11 +58,14 @@ public class InodeView implements FxmlView<InodeViewModel> {
             cell.getValue().labelProperty()
         );
 
-        valueColumn.setCellValueFactory(cell ->
-            cell.getValue().valueProperty().asObject()
-        );
+        valueColumn.setCellValueFactory(cell -> {
+            InodeTableRow row = cell.getValue();
+            return row.isMetadataRow()
+                ? null
+                : row.valueProperty();
+        });
 
-        valueColumn.setCellFactory(col -> new TableCell<InodeTableRow, Integer>() {
+        valueColumn.setCellFactory(col -> new TableCell<InodeTableRow, Number>() {
         
             private final Button button = new Button("Expandir");
         
@@ -87,7 +90,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
             }
         
             @Override
-            protected void updateItem(Integer item, boolean empty) {
+            protected void updateItem(Number item, boolean empty) {
                 super.updateItem(item, empty);
         
                 setText(null);
@@ -126,7 +129,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
             table.getItems().add(
                 new InodeTableRow(
                     "Endereço Direto " + i,
-                    viewModel.directAddressProperty(i)
+                    viewModel.directAddressDisplayProperty(i)
                 )
             );
         }

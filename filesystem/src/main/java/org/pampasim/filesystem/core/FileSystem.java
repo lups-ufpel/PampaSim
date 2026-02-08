@@ -530,6 +530,12 @@ public class FileSystem extends AbstractSimEntity {
     return sizeBlocks;
   }
 
+
+  public int absoluteAddressOf(int relativeAddress){
+    return relativeAddress + partition.getFirstBlockIndex();
+  }
+
+
   // relative to partition. Checks bounds
   public void writeBlock(int relativeBlockIndex, byte[] data){
     if(relativeBlockIndex + partition.getFirstBlockIndex() > partition.getLastBlockIndex() || relativeBlockIndex < 0){

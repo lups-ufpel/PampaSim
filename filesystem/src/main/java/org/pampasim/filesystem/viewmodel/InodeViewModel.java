@@ -10,6 +10,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.binding.Bindings;
 
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
@@ -64,6 +66,17 @@ public class InodeViewModel implements ViewModel {
       }
       singlyIndirectPointerProperty.set(self.getSinglyIndirectPointer()); 
 
+    }
+
+    public ObservableValue<Number> directAddressDisplayProperty(int index) {
+        return Bindings.createIntegerBinding(
+            () -> {
+                int value = directAddresses[index].get();
+                // keeps empty addresses the same
+                return (value == 0) ? 0 : fileSystem.absoluteAddressOf(value);
+            },
+            directAddresses[index]
+        );
     }
 
     public IntegerProperty directAddressProperty(int index) {

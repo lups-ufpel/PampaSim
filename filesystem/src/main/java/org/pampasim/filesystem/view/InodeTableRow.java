@@ -4,14 +4,15 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 
 public class InodeTableRow {
 
     private final StringProperty label;
-    private final IntegerProperty value;
+    private final ObservableValue<Number> value;
     private final boolean metadataRow;
 
-    public InodeTableRow(String label, IntegerProperty value) {
+    public InodeTableRow(String label, ObservableValue<Number> value) {
         this.label = new SimpleStringProperty(label);
         this.value = value;
         this.metadataRow = false;
@@ -20,7 +21,7 @@ public class InodeTableRow {
     // metadata row constructor
     public InodeTableRow(String label) {
         this.label = new SimpleStringProperty(label);
-        this.value = new SimpleIntegerProperty(0);
+        this.value = null;
         this.metadataRow = true;
     }
 
@@ -28,7 +29,7 @@ public class InodeTableRow {
         return label;
     }
 
-    public IntegerProperty valueProperty() {
+    public ObservableValue<Number> valueProperty() {
         return value;
     }
 
