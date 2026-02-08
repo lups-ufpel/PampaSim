@@ -21,19 +21,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.Cursor;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.function.Supplier;
 
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
-import org.pampasim.filesystem.viewmodel.BlockViewModel;
-import org.pampasim.filesystem.viewmodel.MbrViewModel;
-import org.pampasim.filesystem.viewmodel.InitializationViewModel;
-import org.pampasim.filesystem.viewmodel.SuperblockViewModel;
-import org.pampasim.filesystem.viewmodel.FreeBlocksViewModel;
-import org.pampasim.filesystem.viewmodel.FreeInodesViewModel;
-import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
-import org.pampasim.filesystem.viewmodel.FileViewModel;
-import org.pampasim.filesystem.viewmodel.InodeTableViewModel;
+import org.pampasim.filesystem.viewmodel.*;
 
 public class BlockView implements FxmlView<BlockViewModel> {
     @InjectViewModel
@@ -46,12 +41,14 @@ public class BlockView implements FxmlView<BlockViewModel> {
     @FXML
     public Label blockLabel;
 
-    private MbrViewModel mbrViewModel = null;
-    private InitializationViewModel initializationViewModel = null;
-    private SuperblockViewModel superblockViewModel = null;
-    private FreeBlocksViewModel freeBlocksViewModel = null;
-    private FreeInodesViewModel freeInodesViewModel = null;
-    private DirectoryViewModel directoryViewModel = null;
+    // used to create a viewModel if not created before
+    private final Map<Class<?>, Object> viewModelCache = new HashMap<>();
+    
+    @SuppressWarnings("unchecked")
+    private <T> T cached(Class<T> type, Supplier<T> factory) {
+        return (T) viewModelCache.computeIfAbsent(type, k -> factory.get());
+    }
+    //
 
     public void initialize() {
         number.setText(Integer.toString(viewModel.getNumber()));
@@ -91,107 +88,117 @@ public class BlockView implements FxmlView<BlockViewModel> {
         );
     }
 
-  // probably dont create a new viewmodel every single time
-    public void openWindow(BlockRecord blockRecord, FileSystemSimulation fileSystemSimulation){
+    // probably dont create a new viewmodel every single time
+    public void openWindow(BlockRecord blockRecord, FileSystemSimulation fsSim) {
         int width = 600;
         int height = 600;
-
+    
         var viewTuple = switch (blockRecord.type()) {
             case EMPTY -> null;
-
+    
             case MBR -> FluentViewLoader.fxmlView(MbrView.class)
-                    .viewModel((mbrViewModel == null) ? new MbrViewModel(fileSystemSimulation.getDisk().getPartitions()) : mbrViewModel)
-                    .load();
-        
+                .viewModel(
+                    cached(
+                        MbrViewModel.class,
+                        () -> new MbrViewModel(fsSim.getDisk().getPartitions())
+                    )
+                )
+                .load();
+    
             case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)
-                    .viewModel((initializationViewModel == null) ? new InitializationViewModel() : initializationViewModel)
-                    .load();
-        
+                .viewModel(
+                    cached(InitializationViewModel.class, InitializationViewModel::new)
+                )
+                .load();
+    
             case SUPERBLOCK -> FluentViewLoader.fxmlView(SuperblockView.class)
-                    .viewModel((superblockViewModel == null) ? new SuperblockViewModel() : superblockViewModel)
-                    .load();
-        
+                .viewModel(
+                    cached(SuperblockViewModel.class, SuperblockViewModel::new)
+                )
+                .load();
+    
             case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksView.class)
-                    .viewModel((freeBlocksViewModel == null) ? new FreeBlocksViewModel(fileSystemSimulation.getFileSystem(), fileSystemSimulation.getFileSystem().getFreeBlocksBitMap()) : freeBlocksViewModel)
-                    .load();
-        
+                .viewModel(
+                    cached(
+                        FreeBlocksViewModel.class,
+                        () -> new FreeBlocksViewModel(
+                            fsSim.getFileSystem(),
+                            fsSim.getFileSystem().getFreeBlocksBitMap()
+                        )
+                    )
+                )
+                .load();
+    
             case FREE_INODES_BITMAP -> FluentViewLoader.fxmlView(FreeInodesView.class)
-                    .viewModel((freeInodesViewModel == null) ? new FreeInodesViewModel(fileSystemSimulation.getFileSystem().getFreeInodesBitMap()) : freeInodesViewModel)
-                    .load();
-
+                .viewModel(
+                    cached(
+                        FreeInodesViewModel.class,
+                        () -> new FreeInodesViewModel(
+                            fsSim.getFileSystem().getFreeInodesBitMap()
+                        )
+                    )
+                )
+                .load();
+    
             case FILE -> FluentViewLoader.fxmlView(FileView.class)
-                    .viewModel(new FileViewModel())
-                    .load();
-        
-            case DIRECTORY -> { // userString = path
-                var fs = fileSystemSimulation.getFileSystem();
-            
+                .viewModel(
+                    cached(FileViewModel.class, FileViewModel::new)
+                )
+                .load();
+    
+            case DIRECTORY -> {
+                var fs = fsSim.getFileSystem();
+                String path = blockRecord.userString();
+    
+                DirectoryViewModel dirVm =
+                    cached(
+                        DirectoryViewModel.class,
+                        () -> new DirectoryViewModel(fsSim, path)
+                    );
+    
                 yield switch (fs.getAllocationScheme()) {
-            
-                    case INODES: 
+                    case INODES -> {
                         width = 280;
                         height = 550;
                         yield FluentViewLoader.fxmlView(DirectoryInodeView.class)
-                            .viewModel(
-                                directoryViewModel != null
-                                    ? directoryViewModel
-                                    : (directoryViewModel =
-                                        new DirectoryViewModel(fileSystemSimulation, blockRecord.userString()))
-                            )
+                            .viewModel(dirVm)
                             .load();
-            
-                    case FAT:
+                    }
+                    case FAT -> {
                         width = 420;
                         height = 400;
                         yield FluentViewLoader.fxmlView(DirectoryFATView.class)
-                            .viewModel(
-                                directoryViewModel != null
-                                    ? directoryViewModel
-                                    : (directoryViewModel =
-                                        new DirectoryViewModel(fileSystemSimulation, blockRecord.userString()))
-                            )
+                            .viewModel(dirVm)
                             .load();
-            
-                    case CONTIGUOUS:
+                    }
+                    case CONTIGUOUS -> {
                         width = 600;
                         height = 400;
                         yield FluentViewLoader.fxmlView(DirectoryContiguousView.class)
-                            .viewModel(
-                                directoryViewModel != null
-                                    ? directoryViewModel
-                                    : (directoryViewModel =
-                                        new DirectoryViewModel(fileSystemSimulation, blockRecord.userString()))
-                            )
+                            .viewModel(dirVm)
                             .load();
+                    }
                 };
             }
+    
             case INODE_TABLE -> FluentViewLoader.fxmlView(InodeTableView.class)
-                                .viewModel(new InodeTableViewModel(fileSystemSimulation))
-                                .load();
-
-            default ->
-              throw new Error("unhandled");
-
-            };
-                    
-      /*
-            case INODE -> FluentViewLoader.fxmlView(InodeView.class)
-                    .viewModel(new InodeViewModel())
-                    .load();
-      */
-        
-        if(viewTuple != null){
-          Stage stage = new Stage();
-          stage.setScene(new Scene(viewTuple.getView(), width, height));
-          stage.setTitle(getCorrespondingWindowTitle(blockRecord));
-          stage.show();
+                .viewModel(
+                    cached(
+                        InodeTableViewModel.class,
+                        () -> new InodeTableViewModel(fsSim)
+                    )
+                )
+                .load();
+    
+            default -> throw new Error("unhandled");
+        };
+    
+        if (viewTuple != null) {
+            Stage stage = new Stage();
+            stage.setScene(new Scene(viewTuple.getView(), width, height));
+            stage.setTitle(getCorrespondingWindowTitle(blockRecord));
+            stage.show();
         }
-        /*
-        Dialog<ButtonType> dialog = new Dialog<>();
-        DialogPane dialogPane = (DialogPane) viewTuple.getView();
-        dialog.setDialogPane(dialogPane);
-        Optional<ButtonType> result = dialog.showAndWait();
-        */
     }
 
     public String getCorrespondingWindowTitle(BlockRecord blockRecord){
