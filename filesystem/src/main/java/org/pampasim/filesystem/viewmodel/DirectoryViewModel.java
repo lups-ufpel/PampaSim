@@ -45,6 +45,10 @@ public class DirectoryViewModel implements ViewModel {
     return observableEntries;
   }
 
+  public FileSystem getFileSystem() {
+      return fileSystem;
+  }
+
   public String getFilePath(int index){
     String filePath = "";
     if(path.equals("/")){

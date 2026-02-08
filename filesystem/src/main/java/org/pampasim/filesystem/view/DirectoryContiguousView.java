@@ -55,8 +55,14 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
             cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getName())
         );
 
-        firstBlockColumn.setCellValueFactory(
-            cell -> new ReadOnlyObjectWrapper<>(((ContiguousFileReference) cell.getValue().getFileReference()).getFirstBlockIndex())
+        firstBlockColumn.setCellValueFactory(cell ->
+            new ReadOnlyObjectWrapper<>(
+                viewModel.getFileSystem()
+                         .absoluteAddressOf(
+                             ((ContiguousFileReference) cell.getValue().getFileReference())
+                                 .getFirstBlockIndex()
+                         )
+            )
         );
 
         finalSizeColumn.setCellValueFactory(
