@@ -26,6 +26,8 @@ import javafx.scene.control.Button;
 import javafx.collections.FXCollections;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.collections.transformation.FilteredList;
+import javafx.beans.Observable;
 
 import org.pampasim.filesystem.viewmodel.DirectoryViewModel;
 import org.pampasim.filesystem.viewmodel.MetadataViewModel;
@@ -92,15 +94,15 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
             }
         });
 
-        //changes dont propagate, whatever
-        tableView.setItems(
-            FXCollections.observableArrayList(
-            viewModel.getEntries()
-            .stream()
-            .filter(item -> !item.isNull())
-            .toList()
-            )
-        );
+        FilteredList<DirectoryEntry> filtered =
+            new FilteredList<>(viewModel.getEntries(), entry -> !entry.isNull());
+        
+        tableView.setItems(filtered);
+
+        // refresh table when the underlying entries list is invalidated
+        viewModel.getEntries().addListener((Observable obs) -> {
+            tableView.refresh();
+        });
     }
 
 }
