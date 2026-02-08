@@ -76,7 +76,7 @@ public class Directory{
     ByteBuffer buffer = ByteBuffer.allocate(DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme()));
     newreferenceEntry.writeToBuffer(buffer);
 
-    fileSystemHandle.writeToFile(parentPath(path), buffer.array(), entryFirstByte);
+    File.write(fileSystemHandle, parentPath(path), buffer.array(), entryFirstByte);
   }
 
   public static Directory find(FileSystem fileSystem, String path){

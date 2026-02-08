@@ -88,7 +88,6 @@ public class BlockView implements FxmlView<BlockViewModel> {
         );
     }
 
-    // probably dont create a new viewmodel every single time
     public void openWindow(BlockRecord blockRecord, FileSystemSimulation fsSim) {
         int width = 600;
         int height = 600;

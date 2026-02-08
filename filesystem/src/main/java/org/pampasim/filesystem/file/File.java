@@ -96,6 +96,7 @@ abstract public class File{
   }
 
   public static void delete(FileSystem fileSystem, String path){
+
     switch(fileSystem.getAllocationScheme()){
       case CONTIGUOUS -> deleteContiguous(fileSystem, path);
       case FAT -> deleteFAT(fileSystem, path);
@@ -172,32 +173,32 @@ abstract public class File{
 
   public static void write(FileSystem fileSystem, String path, byte[] data, int position) {
       FileReference reference =
-          Directory.getFileReference(fileSystem, path);
+          fileSystem.getReference(path);
   
       switch (fileSystem.getAllocationScheme()) {
           case CONTIGUOUS ->
-              writeToContiguousFile(fileSystem, path, reference, data, position);
+              writeToContiguousFile(fileSystem, path, (ContiguousFileReference) reference, data, position);
   
           case INODES ->
-              writeToInodeFile(fileSystem, path, reference, data, position);
+              writeToInodeFile(fileSystem, path, (InodeFileReference) reference, data, position);
   
           case FAT ->
-              writeToFATFile(fileSystem, path, reference, data, position);
+              writeToFATFile(fileSystem, path, (FATFileReference) reference, data, position);
+
+          default -> throw new Error("unhandled switch case");
       }
   }
 
   private static void writeToContiguousFile(
           FileSystem fileSystem,
           String path,
-          FileReference reference,
+          ContiguousFileReference reference,
           byte[] data,
           int position
   ) {
-      ContiguousFileReference cref =
-          (ContiguousFileReference) reference;
   
-      int firstBlockIndex = cref.getFirstBlockIndex();
-      int finalSizeBlocks = cref.getFinalSizeBlocks();
+      int firstBlockIndex = reference.getFirstBlockIndex();
+      int finalSizeBlocks = reference.getFinalSizeBlocks();
   
       if (fileSystem.blocksRequiredFor(
               position + data.length,
@@ -208,20 +209,20 @@ abstract public class File{
   
       fileSystem.writeBytes(data, firstBlockIndex, position);
   
-      FileMetadata metadata = cref.getMetadata();
+      FileMetadata metadata = reference.getMetadata();
       updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
   }
 
   private static void writeToInodeFile(
           FileSystem fileSystem,
           String path,
-          FileReference reference,
+          InodeFileReference reference,
           byte[] data,
           int position
   ) {
       Inode inode = Inode.get(
           fileSystem,
-          ((InodeFileReference) reference).getIndex()
+          reference.getIndex()
       );
   
       inode.write(fileSystem, data, position);
@@ -233,20 +234,19 @@ abstract public class File{
   private static void writeToFATFile(
           FileSystem fileSystem,
           String path,
-          FileReference reference,
+          FATFileReference reference,
           byte[] data,
           int position
   ) {
 
       // needs to update FIRST_BLOCK_NOT_SET
-      FATFileReference freference = (FATFileReference) reference;
       int[] fileAllocationTable = fileSystem.getFileAllocationTable();
       
       int blockSizeBytes = fileSystem.getBlockSizeBytes();
       byte[] buffer = data;
       
-      int currentIndex = freference.getFirstBlockIndex();
-      if (currentIndex == freference.FIRST_BLOCK_NOT_SET) {
+      int currentIndex = reference.getFirstBlockIndex();
+      if (currentIndex == reference.FIRST_BLOCK_NOT_SET) {
           currentIndex = fileSystem.nextFreeBlock();
       }
       
@@ -290,7 +290,7 @@ abstract public class File{
           currentIndex = fileAllocationTable[currentIndex];
       }
       
-      FileMetadata metadata = freference.getMetadata();
+      FileMetadata metadata = reference.getMetadata();
 
       if(data.length + position > metadata.getCurrentSizeBytes()){ 
           metadata.setCurrentSizeBytes(data.length + position);
@@ -323,7 +323,67 @@ abstract public class File{
   }
 
   public static byte[] read(FileSystem fileSystem, String path, int byteNumber, int position){
-    return fileSystem.readFromFile(path, byteNumber, position);
+
+    FileReference reference = fileSystem.getReference(path);
+  
+    return switch(fileSystem.getAllocationScheme()){
+      case CONTIGUOUS -> readContiguous(fileSystem, (ContiguousFileReference) reference, byteNumber, position, path);
+      case FAT -> readFAT(fileSystem, (FATFileReference) reference, byteNumber, position, path);
+      case INODES -> readInodes(fileSystem, (InodeFileReference) reference, byteNumber, position);
+      default -> throw new Error("unhandled switch case");
+    };
+  }
+
+  public static byte[] readContiguous(FileSystem fileSystem, ContiguousFileReference reference, int byteNumber, int position, String path){
+    int firstBlockIndex = reference.getFirstBlockIndex();
+    int finalSizeBlocks = reference.getFinalSizeBlocks();
+    if(fileSystem.blocksRequiredFor(position + byteNumber, fileSystem.getBlockSizeBytes()) > finalSizeBlocks){
+      throw new Error("read too large");
+    }
+    byte[] data = fileSystem.readBytes(byteNumber, firstBlockIndex, position);
+    FileMetadata metadata = reference.getMetadata();
+    metadata.updateLastAccess();
+
+    // updates metadata, should be write To disk method on metadata?
+    metadata.writeToDisk(fileSystem, path);
+    return data;
+  }
+
+  public static byte[] readFAT(FileSystem fileSystem, FATFileReference reference, int byteNumber, int position, String path){
+    int firstBlockIndex = reference.getFirstBlockIndex();
+
+    int nextBlock = firstBlockIndex;
+    byte[] data = new byte[byteNumber];
+    int dataPosition = 0;
+    int copyAmount = fileSystem.getBlockSizeBytes();
+    while(nextBlock != fileSystem.UNUSED){
+
+      boolean willCopyTooMuch = dataPosition + copyAmount > byteNumber;
+      if(willCopyTooMuch){
+        int missingUntilByteNumber = byteNumber - dataPosition;
+        copyAmount = missingUntilByteNumber;
+      }
+
+      System.arraycopy(fileSystem.readBlock(nextBlock), 0, data, dataPosition, fileSystem.getBlockSizeBytes());
+      position += fileSystem.getBlockSizeBytes();
+      nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
+    }
+
+    FileMetadata metadata = reference.getMetadata();
+    metadata.updateLastAccess();
+    metadata.writeToDisk(fileSystem, path);
+
+    return data;
+  }
+
+  public static byte[] readInodes(FileSystem fileSystem, InodeFileReference reference, int byteNumber, int position){
+    Inode fileInode = Inode.get(fileSystem, reference.getIndex());
+    byte[] data = fileInode.read(fileSystem, byteNumber, position);
+    FileMetadata metadata = fileInode.getMetadata();
+    
+    metadata.updateLastAccess();
+
+    return data;
   }
 
 }
