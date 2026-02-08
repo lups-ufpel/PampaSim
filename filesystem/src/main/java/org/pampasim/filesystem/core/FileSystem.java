@@ -417,7 +417,7 @@ public class FileSystem extends AbstractSimEntity {
   public int nextFreeInode(){
     return getNextAndAllocate(inodesBitMap, 1, FREE_INODES_BITMAP_INDEX);
   }
-  // not tested, returns size of root dir
+  // returns size of root dir
   private int writeRootDirectory(int starting_index){
     Directory root;
     int sizeBlocks = 0;
