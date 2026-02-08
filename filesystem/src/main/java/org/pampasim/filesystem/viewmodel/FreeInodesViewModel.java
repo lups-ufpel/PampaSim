@@ -18,7 +18,7 @@ public class FreeInodesViewModel implements ViewModel {
 
     for(int i = 0; i < freeInodesBitMap.length(); i++){
       Boolean entry = freeInodesBitMap.get(i);
-      BitViewModel vm = new BitViewModel(i, entry);
+      BitViewModel vm = new BitViewModel(i, entry, 0);
 
       bitViewModels.add(vm);
     }

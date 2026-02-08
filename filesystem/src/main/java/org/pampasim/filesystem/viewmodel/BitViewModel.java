@@ -8,26 +8,45 @@ import javafx.beans.property.SimpleStringProperty;
 
 @Getter
 public class BitViewModel implements ViewModel {
+
     private final int number;
-    @Getter private final SimpleStringProperty circleLabel = new SimpleStringProperty("");
+
+    private final SimpleStringProperty circleLabel = new SimpleStringProperty("");
     private final BooleanProperty bitProperty = new SimpleBooleanProperty(false);
 
-    // labels are for development purposes
-    public BitViewModel(int number, boolean bit) {
+    private final ReadOnlyIntegerWrapper displayNumber =
+        new ReadOnlyIntegerWrapper();
+
+    public BitViewModel(int number, boolean bit, int numberOffset) {
         this.number = number;
-        this.bitProperty.setValue(bit);
+        this.bitProperty.set(bit);
+
+        displayNumber.set(number + numberOffset);
     }
 
-    public Boolean getBit(){
-      return bitProperty.get();
+    // internal value
+    public int getNumber() {
+        return number;
     }
 
-    public void setBit(Boolean bit){
-      this.bitProperty.set(bit);
+    // display value
+    public ReadOnlyIntegerProperty displayNumberProperty() {
+        return displayNumber.getReadOnlyProperty();
     }
 
-    public BooleanProperty bitProperty(){
-      return bitProperty;
+    public int getDisplayNumber() {
+        return displayNumber.get();
     }
 
+    public BooleanProperty bitProperty() {
+        return bitProperty;
+    }
+
+    public Boolean getBit() {
+        return bitProperty.get();
+    }
+
+    public void setBit(Boolean bit) {
+        this.bitProperty.set(bit);
+    }
 }

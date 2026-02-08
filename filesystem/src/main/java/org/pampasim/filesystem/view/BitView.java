@@ -35,7 +35,7 @@ public class BitView implements FxmlView<BitViewModel> {
     public Label number;
 
     public void initialize() {
-        number.setText(Integer.toString(viewModel.getNumber()));
+        number.setText(Integer.toString(viewModel.getDisplayNumber()));
 
         blockVBox.backgroundProperty().bind(
             Bindings.createObjectBinding(
