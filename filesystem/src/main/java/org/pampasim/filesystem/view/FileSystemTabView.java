@@ -26,6 +26,8 @@ import org.pampasim.filesystem.viewmodel.BlockViewModel;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.LegendEntry;
+import org.pampasim.resources.filesystem.AllocationScheme;
+import org.pampasim.resources.filesystem.config.FileSystemConfig;
 
 public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Initializable {
 
@@ -39,6 +41,8 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     @FXML private Rectangle freeBlocksBitMapRect;
     @FXML private Rectangle freeInodesBitMapRect;
     @FXML private Rectangle inodeTableRect;
+    @FXML private HBox freeInodesLegend;
+    @FXML private HBox inodeTableLegend;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
@@ -52,6 +56,13 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       freeBlocksBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_BLOCKS_BITMAP));
       freeInodesBitMapRect.setFill(BlockType.getCorrespondingColor(BlockType.FREE_INODES_BITMAP));
       inodeTableRect.setFill(BlockType.getCorrespondingColor(BlockType.INODE_TABLE));
+
+      if (FileSystemConfig.getAllocationScheme() != AllocationScheme.INODES) {
+          legendBox.getChildren().removeAll(
+              freeInodesLegend,
+              inodeTableLegend
+          );
+      }
 
       List<Node> snapshot = new ArrayList<>(legendBox.getChildren());
 

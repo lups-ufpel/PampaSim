@@ -10,6 +10,7 @@ import javafx.beans.InvalidationListener;
 
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockRecord;
+import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.LegendEntry;
 
@@ -60,6 +61,10 @@ public class FileSystemTabViewModel implements ViewModel {
       legendEntries.clear();
       legendEntries.addAll(fileSystemSimulation.getFileSystem().getFileTreeLegendEntries());
 
+    }
+
+    public FileSystem getFileSystem(){
+      return fileSystemSimulation.getFileSystem();
     }
 
     public ObservableList<LegendEntry> getLegendEntries() {
