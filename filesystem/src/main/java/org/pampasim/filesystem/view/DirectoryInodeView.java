@@ -21,6 +21,7 @@ import javafx.scene.control.TableColumn;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Button;
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 
 
@@ -49,10 +50,11 @@ public class DirectoryInodeView implements FxmlView<DirectoryViewModel> {
             cell -> new ReadOnlyObjectWrapper<>(((InodeFileReference)cell.getValue().getFileReference()).getIndex())
         );
 
-        //changes dont propagate, whatever
-        tableView.setItems(
-            FXCollections.observableArrayList(viewModel.getEntries())
-        );
+
+        tableView.setItems(viewModel.getEntries());
+        viewModel.getEntries().addListener((Observable obs) -> {
+            tableView.refresh();
+        });
     }
 
 }

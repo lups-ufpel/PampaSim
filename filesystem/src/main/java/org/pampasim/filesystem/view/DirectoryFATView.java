@@ -24,6 +24,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Button;
 import javafx.collections.FXCollections;
+import javafx.beans.Observable;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
@@ -85,10 +86,11 @@ public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
                 }
             }
         });
-        //changes dont propagate, whatever
-        tableView.setItems(
-            FXCollections.observableArrayList(viewModel.getEntries())
-        );
+
+        tableView.setItems(viewModel.getEntries());
+        viewModel.getEntries().addListener((Observable obs) -> {
+            tableView.refresh();
+        });
     }
 
 }
