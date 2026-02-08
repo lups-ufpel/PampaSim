@@ -138,7 +138,7 @@ public class InodeView implements FxmlView<InodeViewModel> {
         table.getItems().add(
             new InodeTableRow(
                 "Ponteiro Singularmente Indireto",
-                viewModel.singlyIndirectPointerProperty()
+                viewModel.singlyIndirectPointerDisplayProperty()
             )
         );
     }

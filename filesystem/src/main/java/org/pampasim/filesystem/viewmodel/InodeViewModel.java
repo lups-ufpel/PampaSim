@@ -87,7 +87,27 @@ public class InodeViewModel implements ViewModel {
         return singlyIndirectPointerProperty;
     }
 
+    public ObservableValue<Number> singlyIndirectPointerDisplayProperty() {
+        return Bindings.createIntegerBinding(
+            () -> {
+                int value = singlyIndirectPointerProperty.get();
+                return (value == 0) ? 0 : fileSystem.absoluteAddressOf(value);
+            },
+            singlyIndirectPointerProperty
+        );
+    }
+
     public IntegerProperty indirectAddressProperty(int index) {
         return indirectAddresses[index];
+    }
+
+    public ObservableValue<Number> indirectAddressDisplayProperty(int index) {
+        return Bindings.createIntegerBinding(
+            () -> {
+                int value = indirectAddresses[index].get();
+                return (value == 0) ? 0 : fileSystem.absoluteAddressOf(value);
+            },
+            indirectAddresses[index]
+        );
     }
 }
