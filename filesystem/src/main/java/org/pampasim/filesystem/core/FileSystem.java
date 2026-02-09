@@ -181,7 +181,7 @@ public class FileSystem extends AbstractSimEntity {
             Directory.createContiguous(
                 this,
                 o.path(),
-                o.finalSizeBlocks()
+                blocksRequiredFor(o.maxSizeBytes())
             );
     
         case CreateDirectoryFATOp o ->
