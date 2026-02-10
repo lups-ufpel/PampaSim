@@ -421,27 +421,46 @@ public class FileSystem extends AbstractSimEntity {
   private int writeRootDirectory(int starting_index){
     Directory root;
     int sizeBlocks = 0;
+
+    int entries = 2;
+    int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
+    sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
+    ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
+
+    FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
+
+    FileReference dotReference = switch(allocationScheme){
+      case CONTIGUOUS -> new ContiguousFileReference(starting_index, sizeBlocks, dotMetadata);
+      case INODES -> new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
+      case FAT -> new FATFileReference(starting_index, dotMetadata);
+      default -> throw new Error("Unhandled switch case");
+
+    };
+
+    DirectoryEntry dot = new DirectoryEntry(".", dotReference);
+    dot.writeToBuffer(buffer);
+
+    FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
+    FileReference dotdotReference = switch(allocationScheme){
+      case CONTIGUOUS -> new ContiguousFileReference(starting_index, sizeBlocks, dotMetadata);
+      case INODES -> new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
+      case FAT -> new FATFileReference(starting_index, dotMetadata);
+      default -> throw new Error("Unhandled switch case");
+
+    };
+
+    DirectoryEntry dotdot = new DirectoryEntry("..", dotdotReference);
+    dotdot.writeToBuffer(buffer);
+
+    byte[] rootDirectoryData = buffer.array();
+    byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
+
+
     switch(allocationScheme) {
+
       // maybe finer (for reference only) switches would be better if FAT is similar too
       case CONTIGUOUS: 
       {
-        int entries = 2;
-        int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
-        sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
-        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
-
-        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotreference = new ContiguousFileReference(starting_index, sizeBlocks, dotMetadata);
-        DirectoryEntry dot = new DirectoryEntry(".", dotreference);
-        dot.writeToBuffer(buffer);
-
-        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotdotreference = new ContiguousFileReference(starting_index, sizeBlocks, dotdotMetadata);
-        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotreference);
-        dotdot.writeToBuffer(buffer);
-
-        byte[] rootDirectoryData = buffer.array();
-        byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
         try{
           for(int i = 0; i < rootDirectoryBlocks.length; i++){
             writeBlock(starting_index + i, rootDirectoryBlocks[i]);
@@ -450,29 +469,10 @@ public class FileSystem extends AbstractSimEntity {
           throw new Error("partition is too small for root directory");
         }
 
-        buffer.rewind();
-
         break;
       }
       case INODES: 
       {
-        int entries = 2;
-        int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
-        sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
-        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
-
-        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotreference = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
-        DirectoryEntry dot = new DirectoryEntry(".", dotreference);
-        dot.writeToBuffer(buffer);
-
-        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotdotreference = new InodeFileReference(ROOT_DIRECTORY_INODE_NUMBER);
-        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotreference);
-        dotdot.writeToBuffer(buffer);
-
-        byte[] rootDirectoryData = buffer.array();
-        byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
         Inode rootInode = new Inode(this, dotMetadata);
 
         for(int i = 0; i < rootDirectoryBlocks.length; i++){
@@ -482,29 +482,11 @@ public class FileSystem extends AbstractSimEntity {
         }
 
         rootInode.writeToDisk();
-        buffer.rewind();
         break;
 
       }
       case FAT:
       {
-        int entries = 2;
-        int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
-        sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
-        ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
-
-        FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotreference = new FATFileReference(starting_index, dotMetadata);
-        DirectoryEntry dot = new DirectoryEntry(".", dotreference);
-        dot.writeToBuffer(buffer);
-
-        FileMetadata dotdotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
-        FileReference dotdotreference = new FATFileReference(starting_index, dotdotMetadata);
-        DirectoryEntry dotdot = new DirectoryEntry("..", dotdotreference);
-        dotdot.writeToBuffer(buffer);
-
-        byte[] rootDirectoryData = buffer.array();
-        byte[][] rootDirectoryBlocks = splitInBlocks(rootDirectoryData, disk.getBlockSizeBytes());
         try{
           for(int i = 0; i < rootDirectoryBlocks.length; i++){
             writeBlock(starting_index + i, rootDirectoryBlocks[i]);
@@ -516,9 +498,6 @@ public class FileSystem extends AbstractSimEntity {
         } catch(Exception e){
           throw new Error("partition is too small for root directory");
         }
-
-        buffer.rewind();
-
         break;
 
       }
@@ -526,6 +505,8 @@ public class FileSystem extends AbstractSimEntity {
         throw new Error("unhandled switch case.");
 
     }
+
+    buffer.rewind();
 
     return sizeBlocks;
   }
