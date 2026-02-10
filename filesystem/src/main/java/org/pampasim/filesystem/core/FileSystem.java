@@ -458,7 +458,6 @@ public class FileSystem extends AbstractSimEntity {
 
     switch(allocationScheme) {
 
-      // maybe finer (for reference only) switches would be better if FAT is similar too
       case CONTIGUOUS: 
       {
         try{
