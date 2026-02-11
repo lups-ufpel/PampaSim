@@ -104,17 +104,25 @@ public class BlockView implements FxmlView<BlockViewModel> {
                 )
                 .load();
     
-            case INITIALIZATION -> FluentViewLoader.fxmlView(InitializationView.class)
+            case INITIALIZATION -> {
+                width = 600;
+                height = 200;
+            yield FluentViewLoader.fxmlView(InitializationView.class)
                 .viewModel(
                     cached(InitializationViewModel.class, InitializationViewModel::new)
                 )
                 .load();
-    
-            case SUPERBLOCK -> FluentViewLoader.fxmlView(SuperblockView.class)
-                .viewModel(
-                    cached(SuperblockViewModel.class, SuperblockViewModel::new)
-                )
-                .load();
+
+            }    
+            case SUPERBLOCK -> {
+                width = 600;
+                height = 200;
+                yield FluentViewLoader.fxmlView(SuperblockView.class)
+                    .viewModel(
+                        cached(SuperblockViewModel.class, SuperblockViewModel::new)
+                    )
+                    .load();
+            }
     
             case FREE_BLOCKS_BITMAP -> FluentViewLoader.fxmlView(FreeBlocksView.class)
                 .viewModel(
