@@ -550,7 +550,29 @@ public class FileSystem extends AbstractSimEntity {
     setBlockRecord(relativeBlockIndex, type, "", -1);
   }
 
-  public ArrayList<BlockRecord> getFileTreeLegendEntries(){
+  public ArrayList<LegendEntry> getAllLegendEntries(){
+    var output = new ArrayList<LegendEntry>();
+
+    output.addAll(getFileTreeLegendEntries());
+    output.addAll(getIndirectBlockLegendEntries());
+
+    return output;
+  }
+
+  public ArrayList<LegendEntry> getIndirectBlockLegendEntries(){
+    var output = new ArrayList<LegendEntry>();
+
+    for(BlockRecord b : disk.getBlockRecords()){
+      if(b.type() == BlockType.INODE_INDIRECT_BLOCK){
+        output.add(new LegendEntry(b));
+      }
+    }
+
+    return output;
+    
+  }
+
+  public ArrayList<LegendEntry> getFileTreeLegendEntries(){
     return getDirectoryLegendEntries("/");
   }
 
@@ -558,9 +580,9 @@ public class FileSystem extends AbstractSimEntity {
     return Directory.find(this, "/");
   }
 
-  public ArrayList<BlockRecord> getDirectoryLegendEntries(String path){
+  public ArrayList<LegendEntry> getDirectoryLegendEntries(String path){
 
-    var output = new ArrayList<BlockRecord>();
+    var output = new ArrayList<LegendEntry>();
 
     Directory current = null;
     try{
@@ -581,7 +603,7 @@ public class FileSystem extends AbstractSimEntity {
       name = segments[segments.length - 1];
     }
 
-    output.add(new BlockRecord(BlockType.DIRECTORY, path, -1)); 
+    output.add(new LegendEntry(new BlockRecord(BlockType.DIRECTORY, path, -1))); 
     for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
       if(e.getName().equals(".") || e.getName().equals(".."))
       {
@@ -605,7 +627,7 @@ public class FileSystem extends AbstractSimEntity {
         output.addAll(getDirectoryLegendEntries(subDirectoryPath));
 
       }  else{
-        output.add(new BlockRecord(BlockType.FILE, path + e.getName(), -1)); 
+        output.add(new LegendEntry (new BlockRecord(BlockType.FILE, path + e.getName(), -1))); 
       }
 
 

@@ -1,5 +1,6 @@
 package org.pampasim.filesystem;
 
 import javafx.scene.paint.Paint;
+import org.pampasim.filesystem.core.BlockRecord;
 
-public record LegendEntry(Boolean isDirectory, String text, Paint color) {}
+public record LegendEntry(BlockRecord blockRecord) {}

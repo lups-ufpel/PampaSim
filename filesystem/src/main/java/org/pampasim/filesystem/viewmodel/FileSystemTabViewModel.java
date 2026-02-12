@@ -19,7 +19,7 @@ public class FileSystemTabViewModel implements ViewModel {
   private FileSystemSimulation fileSystemSimulation;
   private final ObservableList<BlockRecord> observableBlockRecords;
   @Getter private final ObservableList<BlockViewModel> observableBlockViewModels = FXCollections.observableArrayList();
-  private final ObservableList<BlockRecord> legendEntries = FXCollections.observableArrayList();
+  private final ObservableList<LegendEntry> legendEntries = FXCollections.observableArrayList();
 
       public FileSystemTabViewModel(
             FileSystemSimulation fileSystemSimulation
@@ -59,7 +59,7 @@ public class FileSystemTabViewModel implements ViewModel {
 
     public void refreshLegendEntries(){
       legendEntries.clear();
-      legendEntries.addAll(fileSystemSimulation.getFileSystem().getFileTreeLegendEntries());
+      legendEntries.addAll(fileSystemSimulation.getFileSystem().getAllLegendEntries());
 
     }
 
@@ -67,7 +67,7 @@ public class FileSystemTabViewModel implements ViewModel {
       return fileSystemSimulation.getFileSystem();
     }
 
-    public ObservableList<BlockRecord> getLegendEntries() {
+    public ObservableList<LegendEntry> getLegendEntries() {
         return legendEntries;
     }
 

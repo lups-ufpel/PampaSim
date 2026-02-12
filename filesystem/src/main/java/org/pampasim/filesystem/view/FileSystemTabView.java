@@ -69,7 +69,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       rebuildLegend(snapshot);
 
       viewModel.getLegendEntries().addListener(
-          (ListChangeListener<BlockRecord>) change -> {
+          (ListChangeListener<LegendEntry>) change -> {
               while (change.next()) {
                   rebuildLegend(snapshot);
               }
@@ -81,8 +81,8 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
         legendBox.getChildren().clear();
         legendBox.getChildren().addAll(snapshot);
 
-        for (BlockRecord e : viewModel.getLegendEntries()) {
-            addLegendEntry(e);
+        for (LegendEntry e : viewModel.getLegendEntries()) {
+            addLegendEntry(e.blockRecord());
         }
     }
 
@@ -112,8 +112,8 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     private void addLegendEntry(BlockRecord blockRecord) {
         String labelText = switch (blockRecord.type()){
           case DIRECTORY -> "Diretório: " + blockRecord.userString();
-          case FILE -> "Arquivo:" + blockRecord.userString();
-          case INODE_INDIRECT_BLOCK -> "Bloco Indireto (i-node " + blockRecord.userInt() + ")";
+          case FILE -> "Arquivo: " + blockRecord.userString();
+          case INODE_INDIRECT_BLOCK -> "Bloco Indireto (i-node " + blockRecord.userInt() + "):";
           default -> throw new Error("unhandled switch case");
         };
 
