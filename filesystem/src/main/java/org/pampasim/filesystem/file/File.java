@@ -95,6 +95,17 @@ abstract public class File{
       return reference;
   }
 
+  public static void setFileBlockRecords(
+        FileSystem fileSystem,
+        int currentSizeBytes,
+        boolean isDirectory
+  ) {
+    if(currentSizeBytes == 0){
+      return;
+    }
+
+  }
+
   public static void delete(FileSystem fileSystem, String path){
 
     switch(fileSystem.getAllocationScheme()){

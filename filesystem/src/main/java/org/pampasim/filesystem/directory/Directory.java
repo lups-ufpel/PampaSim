@@ -190,16 +190,29 @@ public class Directory{
   public int getFirstEmptyEntryIndex(){
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     switch(as){
-      case FAT: // fall-through
-      case CONTIGUOUS:
+      case FAT:
+      {
+        int i = 0;
+        for(i = 0; i < entries.size(); i++){
+          if(entries.get(i).isNull()){
+            return i;
+          }
+        }
+        return i + 1; 
+      }
 
-        for(int i = 0; i < entries.size(); i++){
+      case CONTIGUOUS:
+      {
+
+        int i = 0;
+        for(i = 0; i < entries.size(); i++){
           if(entries.get(i).isNull()){
             return i;
           }
         }
 
-        throw new Error("Trying to add entry to full directroy");
+        throw new Error("Trying to add entry to full directory");
+      }
 
       case INODES:
         // for ... 
@@ -226,9 +239,8 @@ public class Directory{
   }
 
   public void writeEntryData(byte[] data, int entryIndex){
-    int i = entryIndex;
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
-    int entryFirstByte = i * DirectoryEntry.sizeBytes(as);
+    int entryFirstByte = entryIndex * DirectoryEntry.sizeBytes(as);
 
     switch(as){
       case CONTIGUOUS:
@@ -251,6 +263,7 @@ public class Directory{
         return;
 
       case FAT:
+      /*
         int directoryFirstIndex = getIndex();
         int[] fat = fileSystemHandle.getFileAllocationTable();
         
@@ -294,6 +307,57 @@ public class Directory{
         
             currentIndex = fat[currentIndex];
         }
+      */
+        int directoryFirstIndex = getIndex();
+        int startByte = entryFirstByte;
+        
+        int[] fat = fileSystemHandle.getFileAllocationTable();
+        int blockSize = fileSystemHandle.getBlockSizeBytes();
+        
+        int bufferPointer = 0;
+        
+        while (bufferPointer < data.length) {
+        
+            // Absolute logical position inside the file
+            int logicalPos = startByte + bufferPointer;
+        
+            // Determine which block in the FAT chain we need
+            int blockOffset = logicalPos / blockSize;
+            int writeOffset = logicalPos % blockSize;
+        
+            // Traverse FAT chain to reach that block
+            int currentIndex = directoryFirstIndex;
+            for (int i = 0; i < blockOffset; i++) {
+                if (fat[currentIndex] == FileSystem.UNUSED) {
+                    fat[currentIndex] = fileSystemHandle.nextFreeBlock();
+                }
+                currentIndex = fat[currentIndex];
+            }
+        
+            int writableBytes = blockSize - writeOffset;
+            int bytesToWrite = Math.min(
+                    writableBytes,
+                    data.length - bufferPointer
+            );
+        
+            System.out.println("before");
+            fileSystemHandle.writeBytes(
+                    Arrays.copyOfRange(
+                            data,
+                            bufferPointer,
+                            bufferPointer + bytesToWrite
+                    ),
+                    currentIndex,
+                    writeOffset
+            );
+            System.out.println("after");
+        
+            bufferPointer += bytesToWrite;
+        }
+
+    
+        //return startByte + data.length;
+        return;
 
 
 
@@ -508,25 +572,44 @@ public class Directory{
         break;
 
       case FAT:
-        {
-        int firstBlockIndex = fileIndex;
-
-        DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
-        // current size bytes rounded up to be divisible by blocks
-        int size = fileSystem.blocksRequiredFor(((FATFileReference) dot.getFileReference()).getCurrentSizeBytes()) * fileSystem.getBlockSizeBytes();
-        directoryData = new byte[size];
-        int nextBlock = firstBlockIndex;
-        int dataPosition = 0;
-        int copyAmount = fileSystem.getBlockSizeBytes();
-        while(nextBlock != FileSystem.UNUSED){
-
-          System.arraycopy(fileSystem.readBlock(nextBlock), 0, directoryData, dataPosition, fileSystem.getBlockSizeBytes());
-          dataPosition += fileSystem.getBlockSizeBytes();
-          nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
-        }
-
-        break;
-        }
+      {
+          int firstBlockIndex = fileIndex;
+      
+          DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
+      
+          int currentSizeBytes =
+                  ((FATFileReference) dot.getFileReference()).getCurrentSizeBytes();
+      
+          int blockSize = fileSystem.getBlockSizeBytes();
+      
+          directoryData = new byte[currentSizeBytes];
+      
+          int nextBlock = firstBlockIndex;
+          int dataPosition = 0;
+      
+          while (nextBlock != FileSystem.UNUSED && dataPosition < currentSizeBytes) {
+      
+              byte[] block = fileSystem.readBlock(nextBlock);
+      
+              int bytesToCopy = Math.min(
+                      blockSize,
+                      currentSizeBytes - dataPosition
+              );
+      
+              System.arraycopy(
+                      block,
+                      0,
+                      directoryData,
+                      dataPosition,
+                      bytesToCopy
+              );
+      
+              dataPosition += bytesToCopy;
+              nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
+          }
+      
+          break;
+      }
 
       default:
         throw new Error("unhandled switch case");
@@ -539,10 +622,8 @@ public class Directory{
   public static Directory getFromBuffer(ByteBuffer buffer, FileSystem fileSystem){
     AllocationScheme allocationScheme = fileSystem.getAllocationScheme();
     ArrayList<DirectoryEntry> entries = new ArrayList<>();
-    DirectoryEntry dot = DirectoryEntry.getFromBuffer(buffer, allocationScheme);
-    entries.add(dot);
 
-    while(buffer.position() + DirectoryEntry.sizeBytes(allocationScheme) <= buffer.limit()){
+    while(buffer.remaining() >= DirectoryEntry.sizeBytes(allocationScheme)){
       entries.add(DirectoryEntry.getFromBuffer(buffer, allocationScheme));
     }
 

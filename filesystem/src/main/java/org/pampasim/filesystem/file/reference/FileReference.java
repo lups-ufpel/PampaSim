@@ -18,7 +18,7 @@ abstract public class FileReference {
       case CONTIGUOUS:
         totalInts = 2;
         return (intSizeBytes * totalInts) + FileMetadata.sizeBytes();
-      case FAT: // fall-through
+      case FAT:
         totalInts = 1;
         return (intSizeBytes * totalInts) + FileMetadata.sizeBytes();
       case INODES:

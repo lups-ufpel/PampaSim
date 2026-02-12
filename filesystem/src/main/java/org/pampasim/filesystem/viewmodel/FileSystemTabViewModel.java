@@ -45,7 +45,7 @@ public class FileSystemTabViewModel implements ViewModel {
     }
 
     public void addDiskWriteListeners(Disk disk){
-        disk.getTotalWritesProperty().addListener((InvalidationListener) obs -> {
+        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
             refreshViewModels();
             refreshLegendEntries();
         });

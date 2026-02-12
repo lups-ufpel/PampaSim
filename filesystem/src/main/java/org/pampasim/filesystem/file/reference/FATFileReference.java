@@ -1,6 +1,7 @@
 package org.pampasim.filesystem.file.reference;
 
 import org.pampasim.filesystem.file.FileMetadata;
+import org.pampasim.resources.filesystem.AllocationScheme;
 
 import java.nio.ByteBuffer;
 
@@ -43,6 +44,6 @@ public final class FATFileReference extends FileReference {
 
   @Override
   public int sizeBytes(){
-    throw new Error("not implemented");
+    return super.sizeBytes(AllocationScheme.FAT);
   }
 }

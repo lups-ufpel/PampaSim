@@ -3,6 +3,7 @@ package org.pampasim.filesystem;
 import lombok.Getter;
 import java.util.List;
 import javafx.collections.ObservableList;
+import javafx.beans.property.IntegerProperty;
 
 import org.pampasim.core.SimulationBase;
 import org.pampasim.core.events.Event;
@@ -78,6 +79,10 @@ public class FileSystemSimulation extends SimulationBase {
 
   public void acceptEvent(Event event) {
     super.acceptEvent(event);
+  }
+
+  public IntegerProperty getSimulationClock(){
+    return simulationClock;
   }
 
   
