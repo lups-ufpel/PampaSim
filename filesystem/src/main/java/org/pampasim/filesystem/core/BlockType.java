@@ -19,18 +19,18 @@ public enum BlockType{
             return switch (type) {
                 case EMPTY ->
                     Color.web("#f8f9f3");
-    
+
+                case MBR ->
+                    Color.web("#8ecae6");   
+
                 case INITIALIZATION ->
+                    Color.web("#219ebc");
+
+                case SUPERBLOCK ->
                     Color.web("#fff1c1");
     
-                case MBR ->
-                    Color.web("#8ecae6");
-    
-                case SUPERBLOCK ->
-                    Color.web("#219ebc");
-    
                 case FREE_BLOCKS_BITMAP ->
-                    Color.web("#b7e4c7");
+                    Color.web("#b7f1a0");
     
                 case FREE_INODES_BITMAP ->
                     Color.web("#95d5b2");
@@ -42,7 +42,7 @@ public enum BlockType{
                     Color.web("#f4a261");
 
                 case INODE_INDIRECT_BLOCK ->
-                    Color.web("#e9c46a");
+                    Color.web("#e8844a");
     
                 case FILE ->
                     Color.web("#e76f51");
