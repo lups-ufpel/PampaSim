@@ -11,6 +11,7 @@ public enum BlockType{
     FREE_INODES_BITMAP,
     INODE_TABLE,
     INODE,
+    INODE_INDIRECT_BLOCK,
     FILE,
     DIRECTORY;
 
@@ -39,6 +40,9 @@ public enum BlockType{
     
                 case INODE ->
                     Color.web("#f4a261");
+
+                case INODE_INDIRECT_BLOCK ->
+                    Color.web("#e9c46a");
     
                 case FILE ->
                     Color.web("#e76f51");

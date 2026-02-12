@@ -196,6 +196,15 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     )
                 )
                 .load();
+
+            case INODE_INDIRECT_BLOCK -> FluentViewLoader.fxmlView(InodeIndirectBlockView.class)
+                .viewModel(
+                    cached(
+                        InodeViewModel.class,
+                        () -> new InodeViewModel(fsSim, blockRecord.userInt()) // userInt == inodeIndex
+                    )
+                )
+                .load();
     
             default -> throw new Error("unhandled");
         };

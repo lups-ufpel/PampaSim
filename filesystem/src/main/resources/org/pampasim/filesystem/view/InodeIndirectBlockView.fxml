@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane xmlns="http://javafx.com/javafx/22.0.2"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.pampasim.filesystem.view.InodeIndirectBlockView"
+           stylesheets="@inode.css">
+
+    <TableView fx:id="table"
+               prefWidth="350"
+               editable="false">
+
+        <columns>
+            <TableColumn fx:id="labelColumn" text="Campo"/>
+            <TableColumn fx:id="valueColumn" text="Valor"/>
+        </columns>
+
+    </TableView>
+
+</StackPane>
