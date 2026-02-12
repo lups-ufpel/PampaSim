@@ -225,8 +225,8 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         Label timeLabel = new Label("Tempo:");
 
         TextField timeField = new TextField();
-        timeField.setPromptText("0");
-        timeField.setPrefWidth(25.0);
+        timeField.setPromptText("00");
+        timeField.setPrefWidth(32.5);
         timeField.setId("timeField");
         
         UnaryOperator<TextFormatter.Change> filterNonNumbers = change -> {
