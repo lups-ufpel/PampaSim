@@ -550,7 +550,7 @@ public class FileSystem extends AbstractSimEntity {
     setBlockRecord(relativeBlockIndex, type, "", -1);
   }
 
-  public ArrayList<LegendEntry> getFileTreeLegendEntries(){
+  public ArrayList<BlockRecord> getFileTreeLegendEntries(){
     return getDirectoryLegendEntries("/");
   }
 
@@ -558,9 +558,9 @@ public class FileSystem extends AbstractSimEntity {
     return Directory.find(this, "/");
   }
 
-  public ArrayList<LegendEntry> getDirectoryLegendEntries(String path){
+  public ArrayList<BlockRecord> getDirectoryLegendEntries(String path){
 
-    var output = new ArrayList<LegendEntry>();
+    var output = new ArrayList<BlockRecord>();
 
     Directory current = null;
     try{
@@ -581,7 +581,7 @@ public class FileSystem extends AbstractSimEntity {
       name = segments[segments.length - 1];
     }
 
-    output.add(new LegendEntry(true, path, BlockRecord.getCorrespondingColor(new BlockRecord(BlockType.DIRECTORY, path, -1)))); 
+    output.add(new BlockRecord(BlockType.DIRECTORY, path, -1)); 
     for(DirectoryEntry e : current.getEntries().stream().filter(item -> !item.isNull()).toList()){
       if(e.getName().equals(".") || e.getName().equals(".."))
       {
@@ -605,7 +605,7 @@ public class FileSystem extends AbstractSimEntity {
         output.addAll(getDirectoryLegendEntries(subDirectoryPath));
 
       }  else{
-        output.add(new LegendEntry(false, path + e.getName(), BlockRecord.getCorrespondingColor(new BlockRecord(BlockType.FILE, path + e.getName(), -1)))); 
+        output.add(new BlockRecord(BlockType.FILE, path + e.getName(), -1)); 
       }
 
 

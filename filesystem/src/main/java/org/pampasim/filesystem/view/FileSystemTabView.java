@@ -69,7 +69,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
       rebuildLegend(snapshot);
 
       viewModel.getLegendEntries().addListener(
-          (ListChangeListener<LegendEntry>) change -> {
+          (ListChangeListener<BlockRecord>) change -> {
               while (change.next()) {
                   rebuildLegend(snapshot);
               }
@@ -81,8 +81,8 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
         legendBox.getChildren().clear();
         legendBox.getChildren().addAll(snapshot);
 
-        for (LegendEntry e : viewModel.getLegendEntries()) {
-            addLegendEntry(e.isDirectory(), e.text(), e.color());
+        for (BlockRecord e : viewModel.getLegendEntries()) {
+            addLegendEntry(e);
         }
     }
 
@@ -109,14 +109,20 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
     }
 
-    private void addLegendEntry(Boolean isDirectory, String text, Paint color) {
-        String labelText = ((isDirectory) ? "Diretório: " : "Arquivo: ") + text;
+    private void addLegendEntry(BlockRecord blockRecord) {
+        String labelText = switch (blockRecord.type()){
+          case DIRECTORY -> "Diretório: " + blockRecord.userString();
+          case FILE -> "Arquivo:" + blockRecord.userString();
+          case INODE_INDIRECT_BLOCK -> "Bloco Indireto (i-node " + blockRecord.userInt() + ")";
+          default -> throw new Error("unhandled switch case");
+        };
+
         Label label = new Label(labelText);
         label.setStyle("-fx-font-weight: bold; -fx-font-size: 15;");
         label.setPrefWidth(250);
     
         Rectangle rect = new Rectangle(16, 16);
-        rect.setFill(color);
+        rect.setFill(BlockRecord.getCorrespondingColor(blockRecord));
     
         HBox row = new HBox(0);
         row.getChildren().addAll(label, rect);

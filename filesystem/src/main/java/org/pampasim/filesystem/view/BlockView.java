@@ -236,6 +236,8 @@ public class BlockView implements FxmlView<BlockViewModel> {
             case DIRECTORY -> "Diretório " + "\"" + blockRecord.userString() + "\"";
 
             case INODE_TABLE -> "Tabela de I-nodes";
+            
+            case INODE_INDIRECT_BLOCK -> "Bloco de Endereços Indiretos do I-node " + blockRecord.userInt();
 
             default ->
               throw new Error("unhandled");

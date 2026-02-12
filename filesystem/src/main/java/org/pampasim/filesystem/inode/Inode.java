@@ -3,6 +3,7 @@ package org.pampasim.filesystem.inode;
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.directory.DirectoryEntry;
+import org.pampasim.filesystem.core.BlockType;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -174,7 +175,7 @@ public class Inode{
     for(int i = blockOffset; i < blocks.length; i++){
       int blockToWriteIndex = i - blockOffset;
       byte[] blockToWrite = blocks[blockToWriteIndex];
-      if(blockToWriteIndex < ADDRESSES_NUMBER){
+      if(i < ADDRESSES_NUMBER){
         writeToAddressArray(directAddresses, i, blockToWrite);
       }  else {
         if(singlyIndirectPointer == EMPTY){
@@ -202,6 +203,7 @@ public class Inode{
     int indirectPointer = fileSystem.nextFreeBlock();
 
     fileSystem.writeBlock(indirectPointer, indirectBlock.array());
+    fileSystem.setBlockRecord(indirectPointer, BlockType.INODE_INDIRECT_BLOCK, index);
 
     return indirectPointer;
   }
