@@ -261,75 +261,7 @@ abstract public class File{
   ) {
 
       int firstBlock = ((FATFileReference) reference).getFirstBlockIndex();
-      int[] fat = fileSystem.getFileAllocationTable();
-      int blockSize = fileSystem.getBlockSizeBytes();
-      
-      int logicalPos = position;
-      int bufferPointer = 0;
-      
-      // Find starting block and offset
-      int blockOffset = logicalPos / blockSize;
-      int writeOffset = logicalPos % blockSize;
-      
-      int currentBlock = firstBlock;
-      
-      /* ===============================
-         ENSURE FIRST BLOCK EXISTS
-         =============================== */
-      if (currentBlock == FileAllocationTable.EOF) {
-          currentBlock = fileSystem.nextFreeBlock();
-          ((FATFileReference) reference).setFirstBlockIndex(currentBlock);
-      }
-      
-      /* ===============================
-         TRAVERSE TO STARTING BLOCK
-         =============================== */
-      for (int i = 0; i < blockOffset; i++) {
-      
-          if (fat[currentBlock] == FileAllocationTable.EOF) {
-              // need to extend chain
-              int newBlock = fileSystem.nextFreeBlock();
-              fat[newBlock] = FileAllocationTable.EOF;   // reserve
-              fat[currentBlock] = newBlock;     // link
-          }
-      
-          currentBlock = fat[currentBlock];
-      }
-      
-      /* ===============================
-         WRITE LOOP
-         =============================== */
-      while (bufferPointer < data.length) {
-      
-          int writableBytes = blockSize - writeOffset;
-          int bytesToWrite = Math.min(
-                  writableBytes,
-                  data.length - bufferPointer
-          );
-      
-          fileSystem.writeBytes(
-                  Arrays.copyOfRange(
-                          data,
-                          bufferPointer,
-                          bufferPointer + bytesToWrite
-                  ),
-                  currentBlock,
-                  writeOffset
-          );
-      
-          bufferPointer += bytesToWrite;
-          writeOffset = 0;
-      
-          if (bufferPointer < data.length) {
-              if (fat[currentBlock] == FileAllocationTable.EOF) {
-                  int newBlock = fileSystem.nextFreeBlock();
-                  fat[newBlock] = FileAllocationTable.EOF;   // reserve immediately
-                  fat[currentBlock] = newBlock;     // link
-              }
-
-              currentBlock = fat[currentBlock];
-          }
-      }
+      FileAllocationTable.writeIntoFAT(fileSystem, data, firstBlock, position);
       
       FileMetadata metadata = reference.getMetadata();
       if(updateMetadata){
