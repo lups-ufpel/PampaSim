@@ -13,8 +13,9 @@ import org.pampasim.filesystem.file.File;
 import org.pampasim.events.FileSystem.*;
 import org.pampasim.resources.filesystem.fileops.*;
 import org.pampasim.resources.filesystem.AllocationScheme;
-import java.nio.BufferUnderflowException;
+import org.pampasim.filesystem.fat.FileAllocationTable;
 
+import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -37,8 +38,6 @@ public class FileSystem extends AbstractSimEntity {
   private int[] fileAllocationTable;
   private Random random = new Random();
 
-  public static final int UNUSED = -1;
-  public static final int EOF = -2;
   public static final int ROOT_DIRECTORY_INODE_NUMBER = 0;
   public static final float INODES_TO_BYTES_RATIO = (float) (15.0/10000.0);
   public static int INODES_INDEX;
@@ -334,8 +333,8 @@ public class FileSystem extends AbstractSimEntity {
 
     if(allocationScheme == AllocationScheme.FAT){
       this.fileAllocationTable = new int[disk.getNumberOfBlocks()]; 
-      Arrays.fill(this.fileAllocationTable, UNUSED);
-      Arrays.fill(fileAllocationTable, 0, currentBlock, FileSystem.EOF); // prevents from being used by nextFreeBlock
+      Arrays.fill(this.fileAllocationTable, FileAllocationTable.UNUSED);
+      Arrays.fill(fileAllocationTable, 0, currentBlock, FileAllocationTable.EOF); // prevents from being used by nextFreeBlock
     }  else {
 
       // needs to be updated for root dir
@@ -413,8 +412,8 @@ public class FileSystem extends AbstractSimEntity {
     switch(allocationScheme){
       case FAT:
         for (int i = 0; i < fileAllocationTable.length; i++) {
-            if (fileAllocationTable[i] == FileSystem.UNUSED) {
-                fileAllocationTable[i] = FileSystem.EOF;
+            if (fileAllocationTable[i] == FileAllocationTable.UNUSED) {
+                fileAllocationTable[i] = FileAllocationTable.EOF;
                 return i;
             }
         }
@@ -512,7 +511,7 @@ public class FileSystem extends AbstractSimEntity {
               fileAllocationTable[starting_index + (i - 1)] = starting_index + i;
             }
           }
-          fileAllocationTable[starting_index + (i - 1)] = FileSystem.EOF;
+          fileAllocationTable[starting_index + (i - 1)] = FileAllocationTable.EOF;
         } catch(Exception e){
           throw new Error("partition is too small for root directory");
         }

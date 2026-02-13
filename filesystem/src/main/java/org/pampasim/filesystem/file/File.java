@@ -7,6 +7,7 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.directory.Directory;
 import org.pampasim.filesystem.directory.DirectoryEntry;
 import org.pampasim.filesystem.file.reference.*;
+import org.pampasim.filesystem.fat.FileAllocationTable;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -88,7 +89,7 @@ abstract public class File{
               new FileMetadata(currentSizeBytes, isDirectory, Instant.now());
   
       FileReference reference =
-              new FATFileReference(FileSystem.EOF, metadata);
+              new FATFileReference(FileAllocationTable.EOF, metadata);
   
       addToDirectory(fileSystem, path, reference);
   
@@ -140,15 +141,15 @@ abstract public class File{
     int currentIndex = reference.getFirstBlockIndex();
     int nextIndex;
 
-    while(fat[currentIndex] != FileSystem.EOF){
+    while(fat[currentIndex] != FileAllocationTable.EOF){
       fileSystem.freeBlock(currentIndex);
 
       nextIndex = fat[currentIndex];
-      fat[currentIndex] = FileSystem.UNUSED;
+      fat[currentIndex] = FileAllocationTable.UNUSED;
       currentIndex = nextIndex;
     }
 
-    fat[currentIndex] = FileSystem.UNUSED;
+    fat[currentIndex] = FileAllocationTable.UNUSED;
 
     Directory.findParent(fileSystem, path).deleteEntry(name, Directory.parentPath(path));
   }
@@ -275,7 +276,7 @@ abstract public class File{
       /* ===============================
          ENSURE FIRST BLOCK EXISTS
          =============================== */
-      if (currentBlock == FileSystem.EOF) {
+      if (currentBlock == FileAllocationTable.EOF) {
           currentBlock = fileSystem.nextFreeBlock();
           ((FATFileReference) reference).setFirstBlockIndex(currentBlock);
       }
@@ -285,10 +286,10 @@ abstract public class File{
          =============================== */
       for (int i = 0; i < blockOffset; i++) {
       
-          if (fat[currentBlock] == FileSystem.EOF) {
+          if (fat[currentBlock] == FileAllocationTable.EOF) {
               // need to extend chain
               int newBlock = fileSystem.nextFreeBlock();
-              fat[newBlock] = FileSystem.EOF;   // reserve
+              fat[newBlock] = FileAllocationTable.EOF;   // reserve
               fat[currentBlock] = newBlock;     // link
           }
       
@@ -320,9 +321,9 @@ abstract public class File{
           writeOffset = 0;
       
           if (bufferPointer < data.length) {
-              if (fat[currentBlock] == FileSystem.EOF) {
+              if (fat[currentBlock] == FileAllocationTable.EOF) {
                   int newBlock = fileSystem.nextFreeBlock();
-                  fat[newBlock] = FileSystem.EOF;   // reserve immediately
+                  fat[newBlock] = FileAllocationTable.EOF;   // reserve immediately
                   fat[currentBlock] = newBlock;     // link
               }
 
@@ -389,7 +390,7 @@ abstract public class File{
     byte[] data = new byte[byteNumber];
     int dataPosition = 0;
     int copyAmount = fileSystem.getBlockSizeBytes();
-    while(nextBlock != fileSystem.UNUSED){
+    while(nextBlock != FileAllocationTable.UNUSED){
 
       boolean willCopyTooMuch = dataPosition + copyAmount > byteNumber;
       if(willCopyTooMuch){

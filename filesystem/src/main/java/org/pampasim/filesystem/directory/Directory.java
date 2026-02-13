@@ -6,6 +6,7 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.file.File;
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.file.reference.*;
+import org.pampasim.filesystem.fat.FileAllocationTable;
 
 import java.util.NoSuchElementException;
 
@@ -421,7 +422,7 @@ public class Directory{
         byte[] dotData = new byte[fileSystem.blocksRequiredFor(DirectoryEntry.sizeBytes(as)) * fileSystem.getBlockSizeBytes()];
         int nextBlock = relative_starting_index;
         int dataPosition = 0;
-        while(dataPosition < dotData.length && nextBlock != FileSystem.EOF){
+        while(dataPosition < dotData.length && nextBlock != FileAllocationTable.EOF){
           System.arraycopy(fileSystem.readBlock(nextBlock), 0, dotData, dataPosition, fileSystem.getBlockSizeBytes());
           dataPosition += fileSystem.getBlockSizeBytes();
           nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
@@ -471,7 +472,7 @@ public class Directory{
           int nextBlock = firstBlockIndex;
           int dataPosition = 0;
       
-          while (nextBlock != FileSystem.EOF && dataPosition < currentSizeBytes) {
+          while (nextBlock != FileAllocationTable.EOF && dataPosition < currentSizeBytes) {
       
               byte[] block = fileSystem.readBlock(nextBlock);
       
