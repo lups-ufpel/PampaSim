@@ -6,16 +6,32 @@ import java.util.Arrays;
 
 public class FileAllocationTable {
     private FileSystem fileSystem;
-    private int[] fat2;
+    private int[] fat;
     public static final int UNUSED = -1;
     public static final int EOF = -2;
 
     public FileAllocationTable(FileSystem fileSystem, int numberOfBlocks){
         this.fileSystem = fileSystem;
-        this.fat2 = new int[numberOfBlocks];
+        this.fat = new int[numberOfBlocks];
+        Arrays.fill(this.fat, FileAllocationTable.UNUSED);
     }
 
-    public static void writeIntoFAT(FileSystem fileSystem, byte[] data, int firstBlock, int position){
+    public int[] getFAT(){
+      return fat;
+    }
+
+    public int nextFreeBlock(){
+       for (int i = 0; i < fat.length; i++) {
+            if (fat[i] == FileAllocationTable.UNUSED) {
+                fat[i] = FileAllocationTable.EOF;
+                return i;
+            }
+       }
+       throw new Error("no free blocks");
+        
+    }
+
+    public void writeIntoFAT(byte[] data, int firstBlock, int position){
       int[] fat = fileSystem.getFileAllocationTable();
       int blockSize = fileSystem.getBlockSizeBytes();
       

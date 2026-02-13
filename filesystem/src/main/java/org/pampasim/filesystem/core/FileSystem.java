@@ -35,7 +35,7 @@ public class FileSystem extends AbstractSimEntity {
   private AllocationBitMap inodesBitMap;
   //private Operation[] journal; // needs an inode for itself
   private AllocationScheme allocationScheme;
-  private int[] fileAllocationTable;
+  private FileAllocationTable fileAllocationTable;
   private Random random = new Random();
 
   public static final int ROOT_DIRECTORY_INODE_NUMBER = 0;
@@ -58,6 +58,10 @@ public class FileSystem extends AbstractSimEntity {
 
       int totalPartitionBlocks = partition.size(); 
       this.freeBlocksBitMap = new AllocationBitMap(totalPartitionBlocks);
+      if(allocationScheme == AllocationScheme.FAT){
+        fileAllocationTable = new FileAllocationTable(this, totalPartitionBlocks);
+      }
+
       // maybe too granular. 
       switch(allocationScheme) { // not well thought-out... if inconvenient, delete this
         case INODES:
@@ -231,6 +235,10 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public int[] getFileAllocationTable(){
+    return fileAllocationTable.getFAT();
+  }
+
+  public FileAllocationTable getBigFileAllocationTable(){
     return fileAllocationTable;
   }
 
@@ -332,9 +340,7 @@ public class FileSystem extends AbstractSimEntity {
     }
 
     if(allocationScheme == AllocationScheme.FAT){
-      this.fileAllocationTable = new int[disk.getNumberOfBlocks()]; 
-      Arrays.fill(this.fileAllocationTable, FileAllocationTable.UNUSED);
-      Arrays.fill(fileAllocationTable, 0, currentBlock, FileAllocationTable.EOF); // prevents from being used by nextFreeBlock
+      Arrays.fill(fileAllocationTable.getFAT(), 0, currentBlock, FileAllocationTable.EOF); // prevents from being used by nextFreeBlock
     }  else {
 
       // needs to be updated for root dir
@@ -411,14 +417,8 @@ public class FileSystem extends AbstractSimEntity {
   public int nextFreeBlock(){
     switch(allocationScheme){
       case FAT:
-        for (int i = 0; i < fileAllocationTable.length; i++) {
-            if (fileAllocationTable[i] == FileAllocationTable.UNUSED) {
-                fileAllocationTable[i] = FileAllocationTable.EOF;
-                return i;
-            }
-        }
-        throw new Error("no free blocks");
-        
+        return fileAllocationTable.nextFreeBlock();
+                
       case INODES: //fall-through
       case CONTIGUOUS:
         return getFreeBlocksAndSetAllocated(1);
@@ -508,10 +508,10 @@ public class FileSystem extends AbstractSimEntity {
             writeBlock(starting_index + i, rootDirectoryBlocks[i]);
             if(i != 0){
               // previous block points to new block
-              fileAllocationTable[starting_index + (i - 1)] = starting_index + i;
+              fileAllocationTable.getFAT()[starting_index + (i - 1)] = starting_index + i;
             }
           }
-          fileAllocationTable[starting_index + (i - 1)] = FileAllocationTable.EOF;
+          fileAllocationTable.getFAT()[starting_index + (i - 1)] = FileAllocationTable.EOF;
         } catch(Exception e){
           throw new Error("partition is too small for root directory");
         }
