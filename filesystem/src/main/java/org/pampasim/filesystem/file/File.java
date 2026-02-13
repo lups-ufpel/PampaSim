@@ -88,7 +88,7 @@ abstract public class File{
               new FileMetadata(currentSizeBytes, isDirectory, Instant.now());
   
       FileReference reference =
-              new FATFileReference(FATFileReference.FIRST_BLOCK_NOT_SET, metadata);
+              new FATFileReference(FileSystem.EOF, metadata);
   
       addToDirectory(fileSystem, path, reference);
   
@@ -126,7 +126,7 @@ abstract public class File{
 
     fileSystem.freeBlocks(firstBlockIndex, lastBlockIndex);
 
-    Directory.findParent(fileSystem, path).deleteEntry(name);
+    Directory.findParent(fileSystem, path).deleteEntry(name, Directory.parentPath(path));
   }
 
   public static void deleteFAT(FileSystem fileSystem, String path){
@@ -140,7 +140,7 @@ abstract public class File{
     int currentIndex = reference.getFirstBlockIndex();
     int nextIndex;
 
-    while(fat[currentIndex] != FileSystem.UNUSED){
+    while(fat[currentIndex] != FileSystem.EOF){
       fileSystem.freeBlock(currentIndex);
 
       nextIndex = fat[currentIndex];
@@ -148,7 +148,9 @@ abstract public class File{
       currentIndex = nextIndex;
     }
 
-    Directory.findParent(fileSystem, path).deleteEntry(name);
+    fat[currentIndex] = FileSystem.UNUSED;
+
+    Directory.findParent(fileSystem, path).deleteEntry(name, Directory.parentPath(path));
   }
 
   public static void deleteInode(FileSystem fileSystem, String path){
@@ -166,7 +168,7 @@ abstract public class File{
 
     fileSystem.freeBlock(inode.getSinglyIndirectPointer());
 
-    Directory.findParent(fileSystem, path).deleteEntry(name);
+    Directory.findParent(fileSystem, path).deleteEntry(name, Directory.parentPath(path));
 
     fileSystem.getFreeInodesBitMap().setFree(reference.getIndex());
   }
@@ -179,22 +181,22 @@ abstract public class File{
       String[] segments = path.split("/");
       String name = segments[segments.length - 1];
       Directory dir = Directory.findParent(fileSystem, path);
-      dir.addEntry(new DirectoryEntry(name, reference));
+      dir.addEntry(new DirectoryEntry(name, reference), Directory.parentPath(path));
   }
 
-  public static void write(FileSystem fileSystem, String path, byte[] data, int position) {
+  public static void write(FileSystem fileSystem, String path, byte[] data, int position, boolean updateMetadata) {
       FileReference reference =
           fileSystem.getReference(path);
   
       switch (fileSystem.getAllocationScheme()) {
           case CONTIGUOUS ->
-              writeToContiguousFile(fileSystem, path, (ContiguousFileReference) reference, data, position);
+              writeToContiguousFile(fileSystem, path, (ContiguousFileReference) reference, data, position, updateMetadata);
   
           case INODES ->
-              writeToInodeFile(fileSystem, path, (InodeFileReference) reference, data, position);
+              writeToInodeFile(fileSystem, path, (InodeFileReference) reference, data, position, updateMetadata);
   
           case FAT ->
-              writeToFATFile(fileSystem, path, (FATFileReference) reference, data, position);
+              writeToFATFile(fileSystem, path, (FATFileReference) reference, data, position, updateMetadata);
 
           default -> throw new Error("unhandled switch case");
       }
@@ -205,7 +207,8 @@ abstract public class File{
           String path,
           ContiguousFileReference reference,
           byte[] data,
-          int position
+          int position,
+          boolean updateMetadata
   ) {
   
       int firstBlockIndex = reference.getFirstBlockIndex();
@@ -221,7 +224,9 @@ abstract public class File{
       fileSystem.writeBytes(data, firstBlockIndex, position);
   
       FileMetadata metadata = reference.getMetadata();
-      updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
+      if(updateMetadata){
+        updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
+      }
   }
 
   private static void writeToInodeFile(
@@ -229,7 +234,8 @@ abstract public class File{
           String path,
           InodeFileReference reference,
           byte[] data,
-          int position
+          int position,
+          boolean updateMetadata
   ) {
       Inode inode = Inode.get(
           fileSystem,
@@ -239,7 +245,9 @@ abstract public class File{
       inode.write(fileSystem, data, position);
   
       FileMetadata metadata = inode.getMetadata();
-      updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
+      if(updateMetadata){
+        updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
+      }
   }
 
   private static void writeToFATFile(
@@ -247,71 +255,85 @@ abstract public class File{
           String path,
           FATFileReference reference,
           byte[] data,
-          int position
+          int position,
+          boolean updateMetadata
   ) {
 
-      // needs to update FIRST_BLOCK_NOT_SET
-      int[] fileAllocationTable = fileSystem.getFileAllocationTable();
+      int firstBlock = ((FATFileReference) reference).getFirstBlockIndex();
+      int[] fat = fileSystem.getFileAllocationTable();
+      int blockSize = fileSystem.getBlockSizeBytes();
       
-      int blockSizeBytes = fileSystem.getBlockSizeBytes();
-      byte[] buffer = data;
-      
-      int currentIndex = reference.getFirstBlockIndex();
-      if (currentIndex == reference.FIRST_BLOCK_NOT_SET) {
-          currentIndex = fileSystem.nextFreeBlock();
-      }
-      
-      int currentByte = 0;
+      int logicalPos = position;
       int bufferPointer = 0;
       
-      while (bufferPointer < buffer.length) {
+      // Find starting block and offset
+      int blockOffset = logicalPos / blockSize;
+      int writeOffset = logicalPos % blockSize;
       
-          int writeOffset = 0;
-          int writableBytes = blockSizeBytes;
+      int currentBlock = firstBlock;
       
-          // First block offset handling
-          if (currentByte <= position &&
-              position < currentByte + blockSizeBytes) {
+      /* ===============================
+         ENSURE FIRST BLOCK EXISTS
+         =============================== */
+      if (currentBlock == FileSystem.EOF) {
+          currentBlock = fileSystem.nextFreeBlock();
+          ((FATFileReference) reference).setFirstBlockIndex(currentBlock);
+      }
       
-              writeOffset = position - currentByte;
-              writableBytes = blockSizeBytes - writeOffset;
+      /* ===============================
+         TRAVERSE TO STARTING BLOCK
+         =============================== */
+      for (int i = 0; i < blockOffset; i++) {
+      
+          if (fat[currentBlock] == FileSystem.EOF) {
+              // need to extend chain
+              int newBlock = fileSystem.nextFreeBlock();
+              fat[newBlock] = FileSystem.EOF;   // reserve
+              fat[currentBlock] = newBlock;     // link
           }
       
+          currentBlock = fat[currentBlock];
+      }
+      
+      /* ===============================
+         WRITE LOOP
+         =============================== */
+      while (bufferPointer < data.length) {
+      
+          int writableBytes = blockSize - writeOffset;
           int bytesToWrite = Math.min(
-              writableBytes,
-              buffer.length - bufferPointer
+                  writableBytes,
+                  data.length - bufferPointer
           );
       
-          byte[] chunk = Arrays.copyOfRange(
-              buffer,
-              bufferPointer,
-              bufferPointer + bytesToWrite
+          fileSystem.writeBytes(
+                  Arrays.copyOfRange(
+                          data,
+                          bufferPointer,
+                          bufferPointer + bytesToWrite
+                  ),
+                  currentBlock,
+                  writeOffset
           );
-      
-          fileSystem.writeBytes(chunk, currentIndex, writeOffset);
       
           bufferPointer += bytesToWrite;
-          currentByte += blockSizeBytes;
+          writeOffset = 0;
       
-          // Advance or extend FAT
-          if (fileAllocationTable[currentIndex] == FileSystem.UNUSED) {
-              fileAllocationTable[currentIndex] = fileSystem.nextFreeBlock();
+          if (bufferPointer < data.length) {
+              if (fat[currentBlock] == FileSystem.EOF) {
+                  int newBlock = fileSystem.nextFreeBlock();
+                  fat[newBlock] = FileSystem.EOF;   // reserve immediately
+                  fat[currentBlock] = newBlock;     // link
+              }
+
+              currentBlock = fat[currentBlock];
           }
-      
-          currentIndex = fileAllocationTable[currentIndex];
       }
       
       FileMetadata metadata = reference.getMetadata();
-
-      if(data.length + position > metadata.getCurrentSizeBytes()){ 
-          metadata.setCurrentSizeBytes(data.length + position);
-      } 
-
-      if(data.length > 0){
-          metadata.updateLastModified();
+      if(updateMetadata){
+        updateMetadataAfterWrite(fileSystem, metadata, path, data.length, position);
       }
-      // updates metadata 
-      metadata.writeToDisk(fileSystem, path);
   }
 
   private static void updateMetadataAfterWrite(

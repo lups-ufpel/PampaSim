@@ -2,12 +2,14 @@ package org.pampasim.filesystem.file.reference;
 
 import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.file.FileMetadata;
+import org.pampasim.filesystem.core.FileSystem;
 
 import java.nio.ByteBuffer;
 abstract public class FileReference {
 
   abstract public void writeToBuffer(ByteBuffer buffer);
   abstract public int sizeBytes();
+  public abstract FileMetadata getMetadata(FileSystem fileSystem);
 
   public static int sizeBytes(AllocationScheme allocationScheme){
     int bitsInBytes = 8;

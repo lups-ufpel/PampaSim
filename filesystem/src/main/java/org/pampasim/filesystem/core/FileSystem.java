@@ -38,6 +38,7 @@ public class FileSystem extends AbstractSimEntity {
   private Random random = new Random();
 
   public static final int UNUSED = -1;
+  public static final int EOF = -2;
   public static final int ROOT_DIRECTORY_INODE_NUMBER = 0;
   public static final float INODES_TO_BYTES_RATIO = (float) (15.0/10000.0);
   public static int INODES_INDEX;
@@ -284,7 +285,17 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public void setAllocated(int fromIndex, int toIndex){
-    freeBlocksBitMap.setAllocated(fromIndex, toIndex);
+    switch(allocationScheme){
+      case INODES: // fall-through
+      case CONTIGUOUS:
+        freeBlocksBitMap.setAllocated(fromIndex, toIndex);
+        break;
+      case FAT: // fat doesnt need this
+        break;
+      default:
+        throw new Error("Unhandled switch case");
+
+    }
   }
   
   // missing bound checks
@@ -324,19 +335,23 @@ public class FileSystem extends AbstractSimEntity {
     if(allocationScheme == AllocationScheme.FAT){
       this.fileAllocationTable = new int[disk.getNumberOfBlocks()]; 
       Arrays.fill(this.fileAllocationTable, UNUSED);
+      Arrays.fill(fileAllocationTable, 0, currentBlock, FileSystem.EOF); // prevents from being used by nextFreeBlock
+    }  else {
+
+      // needs to be updated for root dir
+      freeBlocksBitMap.setAllocated(0, currentBlock);
+      writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
     }
     
-    // needs to be updated for root dir
-    freeBlocksBitMap.setAllocated(0, currentBlock);
-    writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
-
     root_directory_starting_index = currentBlock;
     sizeBlocks = writeRootDirectory(currentBlock);
     setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.DIRECTORY, "/");
     currentBlock+= sizeBlocks;
 
-    freeBlocksBitMap.setAllocated(0, currentBlock);
-    writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+    if(allocationScheme != AllocationScheme.FAT){
+      freeBlocksBitMap.setAllocated(0, currentBlock);
+      writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+    }
       
   }
 
@@ -397,11 +412,13 @@ public class FileSystem extends AbstractSimEntity {
   public int nextFreeBlock(){
     switch(allocationScheme){
       case FAT:
-        int i = 0;
-        while(fileAllocationTable[i] == -1){
-          i++;
+        for (int i = 0; i < fileAllocationTable.length; i++) {
+            if (fileAllocationTable[i] == FileSystem.UNUSED) {
+                fileAllocationTable[i] = FileSystem.EOF;
+                return i;
+            }
         }
-        return i;
+        throw new Error("no free blocks");
         
       case INODES: //fall-through
       case CONTIGUOUS:
@@ -487,13 +504,15 @@ public class FileSystem extends AbstractSimEntity {
       case FAT:
       {
         try{
-          for(int i = 0; i < rootDirectoryBlocks.length; i++){
+          int i = 0;
+          for(i = 0; i < rootDirectoryBlocks.length; i++){
             writeBlock(starting_index + i, rootDirectoryBlocks[i]);
             if(i != 0){
               // previous block points to new block
               fileAllocationTable[starting_index + (i - 1)] = starting_index + i;
             }
           }
+          fileAllocationTable[starting_index + (i - 1)] = FileSystem.EOF;
         } catch(Exception e){
           throw new Error("partition is too small for root directory");
         }
@@ -610,12 +629,7 @@ public class FileSystem extends AbstractSimEntity {
         continue;
       }
 
-      boolean isDirectory = switch(allocationScheme){
-        case CONTIGUOUS -> ((ContiguousFileReference) e.getFileReference()).getMetadata().isDirectory();
-        case FAT -> ((FATFileReference) e.getFileReference()).getMetadata().isDirectory();
-        case INODES -> Inode.getMetadata(this, ((InodeFileReference) e.getFileReference()).getIndex()).isDirectory();
-        default -> throw new Error("unhandled switch case");
-      };
+      boolean isDirectory = e.getFileReference().getMetadata(this).isDirectory();
       if(isDirectory){
         String subDirectoryPath;
         if(isRoot){

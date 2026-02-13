@@ -4,6 +4,7 @@ import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.resources.filesystem.AllocationScheme;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.file.File;
+import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.filesystem.file.reference.*;
 
 import java.util.NoSuchElementException;
@@ -76,7 +77,7 @@ public class Directory{
     ByteBuffer buffer = ByteBuffer.allocate(DirectoryEntry.sizeBytes(fileSystemHandle.getAllocationScheme()));
     newreferenceEntry.writeToBuffer(buffer);
 
-    File.write(fileSystemHandle, parentPath(path), buffer.array(), entryFirstByte);
+    File.write(fileSystemHandle, parentPath(path), buffer.array(), entryFirstByte, false);
   }
 
   public static Directory find(FileSystem fileSystem, String path){
@@ -119,20 +120,27 @@ public class Directory{
     return Directory.find(fileSystem, parentPath(path));
   }
 
-  public static String parentPath(String path){
-    if(path.equals("/")){
-      return path; // parent of root is root
-    }
-
-    String[] segments = path.split("/");
-    String newPath = "";
-    //removes file name
-    for(int i = 0; i < segments.length - 1; i++)
-    {
-      newPath += segments[i] + "/";
-    }
-
-    return newPath.substring(0, newPath.length() - 1);
+  public static String parentPath(String path) {
+      if (path == null || path.isEmpty()) {
+          throw new IllegalArgumentException("Path cannot be null or empty");
+      }
+  
+      if (path.equals("/")) {
+          return "/"; // parent of root is root
+      }
+  
+      // Remove trailing slash (except for root)
+      if (path.endsWith("/") && path.length() > 1) {
+          path = path.substring(0, path.length() - 1);
+      }
+  
+      int lastSlash = path.lastIndexOf('/');
+  
+      if (lastSlash <= 0) {
+          return "/"; // parent of "/a" is "/"
+      }
+  
+      return path.substring(0, lastSlash);
   }
 
   public DirectoryEntry findEntry(String name){
@@ -198,7 +206,7 @@ public class Directory{
             return i;
           }
         }
-        return i + 1; 
+        return i; // i will be 1 more than entries.size() 
       }
 
       case CONTIGUOUS:
@@ -238,138 +246,14 @@ public class Directory{
 
   }
 
-  public void writeEntryData(byte[] data, int entryIndex){
+  public void writeEntryData(byte[] data, int entryIndex, String dirPath){
     AllocationScheme as = fileSystemHandle.getAllocationScheme();
     int entryFirstByte = entryIndex * DirectoryEntry.sizeBytes(as);
 
-    switch(as){
-      case CONTIGUOUS:
-      {
-
-        int directoryFirstIndex = getIndex();
-        // maybe write too file is too different from writing to dir to use that
-        fileSystemHandle.writeBytes(data, directoryFirstIndex, entryFirstByte);
-
-        return;
-      }
-
-      case INODES:
-
-        // TODO: not updating metadata (maybe it is inside write actually)
-        int inodeIndex = getIndex();
-        Inode current = Inode.get(fileSystemHandle, inodeIndex);
-        current.write(fileSystemHandle, data, entryFirstByte);
-
-        return;
-
-      case FAT:
-      /*
-        int directoryFirstIndex = getIndex();
-        int[] fat = fileSystemHandle.getFileAllocationTable();
-        
-        int blockSizeBytes = fileSystemHandle.getBlockSizeBytes();
-        byte[] buffer = data;
-        
-        int currentIndex = directoryFirstIndex;
-        int currentByte = 0;
-        int bufferPointer = 0;
-        
-        while (bufferPointer < buffer.length) {
-        
-            int writeOffset = 0;
-            int writableBytes = blockSizeBytes;
-        
-            // First block offset handling
-            if (currentByte <= entryFirstByte &&
-                entryFirstByte < currentByte + blockSizeBytes) {
-        
-                writeOffset = entryFirstByte - currentByte;
-                writableBytes = blockSizeBytes - writeOffset;
-            }
-        
-            int bytesToWrite = Math.min(writableBytes, buffer.length - bufferPointer);
-        
-            byte[] chunk = Arrays.copyOfRange(
-                buffer,
-                bufferPointer,
-                bufferPointer + bytesToWrite
-            );
-        
-            fileSystemHandle.writeBytes(chunk, currentIndex, writeOffset);
-        
-            bufferPointer += bytesToWrite;
-            currentByte += blockSizeBytes;
-        
-            // Advance or extend FAT
-            if (fat[currentIndex] == FileSystem.UNUSED) {
-                fat[currentIndex] = fileSystemHandle.nextFreeBlock();
-            }
-        
-            currentIndex = fat[currentIndex];
-        }
-      */
-        int directoryFirstIndex = getIndex();
-        int startByte = entryFirstByte;
-        
-        int[] fat = fileSystemHandle.getFileAllocationTable();
-        int blockSize = fileSystemHandle.getBlockSizeBytes();
-        
-        int bufferPointer = 0;
-        
-        while (bufferPointer < data.length) {
-        
-            // Absolute logical position inside the file
-            int logicalPos = startByte + bufferPointer;
-        
-            // Determine which block in the FAT chain we need
-            int blockOffset = logicalPos / blockSize;
-            int writeOffset = logicalPos % blockSize;
-        
-            // Traverse FAT chain to reach that block
-            int currentIndex = directoryFirstIndex;
-            for (int i = 0; i < blockOffset; i++) {
-                if (fat[currentIndex] == FileSystem.UNUSED) {
-                    fat[currentIndex] = fileSystemHandle.nextFreeBlock();
-                }
-                currentIndex = fat[currentIndex];
-            }
-        
-            int writableBytes = blockSize - writeOffset;
-            int bytesToWrite = Math.min(
-                    writableBytes,
-                    data.length - bufferPointer
-            );
-        
-            System.out.println("before");
-            fileSystemHandle.writeBytes(
-                    Arrays.copyOfRange(
-                            data,
-                            bufferPointer,
-                            bufferPointer + bytesToWrite
-                    ),
-                    currentIndex,
-                    writeOffset
-            );
-            System.out.println("after");
-        
-            bufferPointer += bytesToWrite;
-        }
-
-    
-        //return startByte + data.length;
-        return;
-
-
-
-      default:
-        throw new Error("unhandled switch case: " + fileSystemHandle.getAllocationScheme());
-    }
-
-
+    File.write(fileSystemHandle, dirPath, data, entryFirstByte, true);
   }
 
-// only for contiguous for now (?), missing current size bytes increase (?)
-  public void addEntry(DirectoryEntry newEntry){
+  public void addEntry(DirectoryEntry newEntry, String dirPath){
     int i = getFirstEmptyEntryIndex();
     if(i < entries.size()){
       entries.set(i, newEntry);
@@ -380,16 +264,17 @@ public class Directory{
     ByteBuffer entryBuffer = ByteBuffer.allocate(newEntry.sizeBytes());
     newEntry.writeToBuffer(entryBuffer);
 
-    writeEntryData(entryBuffer.array(), i);
+    int entryFirstByte = i * newEntry.sizeBytes();
+    writeEntryData(entryBuffer.array(), i, dirPath);
   }
 
-  public void deleteEntry(String name){
+  public void deleteEntry(String name, String dirPath){
     int i = getEntryPosition(name);
 
-    deleteEntry(i);
+    deleteEntry(i, dirPath);
   }
 
-  public void deleteEntry(int index){
+  public void deleteEntry(int index, String dirPath){
     DirectoryEntry blank = new DirectoryEntry();
     if(index < entries.size()){
       entries.set(index, blank);
@@ -402,7 +287,7 @@ public class Directory{
     byte[] blankArray = new byte[sizeBytes];
 
     // clears entry data
-    writeEntryData(blankArray, index);
+    writeEntryData(blankArray, index, dirPath);
 
   }
 
@@ -493,7 +378,7 @@ public class Directory{
           buffer.put((byte) 0);
       }
   
-      File.write(fileSystem, path, buffer.array(), 0);
+      File.write(fileSystem, path, buffer.array(), 0, true);
   }
 
   // maybe should interact with file system instead of disk?? we can be sure starts at block start
@@ -536,8 +421,7 @@ public class Directory{
         byte[] dotData = new byte[fileSystem.blocksRequiredFor(DirectoryEntry.sizeBytes(as)) * fileSystem.getBlockSizeBytes()];
         int nextBlock = relative_starting_index;
         int dataPosition = 0;
-        while(dataPosition < dotData.length){
-
+        while(dataPosition < dotData.length && nextBlock != FileSystem.EOF){
           System.arraycopy(fileSystem.readBlock(nextBlock), 0, dotData, dataPosition, fileSystem.getBlockSizeBytes());
           dataPosition += fileSystem.getBlockSizeBytes();
           nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
@@ -587,7 +471,7 @@ public class Directory{
           int nextBlock = firstBlockIndex;
           int dataPosition = 0;
       
-          while (nextBlock != FileSystem.UNUSED && dataPosition < currentSizeBytes) {
+          while (nextBlock != FileSystem.EOF && dataPosition < currentSizeBytes) {
       
               byte[] block = fileSystem.readBlock(nextBlock);
       

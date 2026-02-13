@@ -86,44 +86,55 @@ public class FileMetadata{
     return totalSizeBytes;
   }
 
+  // maybe doesnt work for directories correctly
   public void writeToDisk(FileSystem fileSystem, String path){
 
 
-    int firstBlock;
-    int offset;
     switch(fileSystem.getAllocationScheme()){
       case INODES:
+      {
         int index = fileSystem.getFileIndex(path);
         int inodePosition = Inode.sizeBytes() * index; // metadata is at beggining
 
-        firstBlock = fileSystem.INODES_INDEX; 
-        offset = inodePosition;
+        int firstBlock = fileSystem.INODES_INDEX; 
+        int offset = inodePosition;
+
+        ByteBuffer buffer = ByteBuffer.allocate(this.sizeBytes());
+        this.writeToBuffer(buffer);
+
+        fileSystem.writeBytes(buffer.array(), firstBlock, offset); // writes directly in inode
         break;
+      }
 
       case FAT: // fall-thorugh, is equal
       case CONTIGUOUS:
-        String[] segments = path.split("/");
-        String name = segments[segments.length - 1];
+        int lastSlash = path.lastIndexOf('/');
+        String name = path.substring(lastSlash + 1);
+        if(name.equals("")){ // root dir
+          name = ".";
+        }
 
         Directory fileDirectory = Directory.findParent(fileSystem, path);
         int entryPosition = fileDirectory.getEntryPosition(name);
         int entryBytePosition = (DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme()) * entryPosition);
-        int metadataBytePosition = entryBytePosition + Directory.FILE_NAME_LENGTH_CHARS * (Character.SIZE / 8);
-        int firstBlockIndex = fileSystem.getFileIndex(path);
-        
-        firstBlock = firstBlockIndex;
-        offset = metadataBytePosition;
+        int referenceBytePosition = entryBytePosition + Directory.FILE_NAME_LENGTH_CHARS * (Character.SIZE / 8);
+        int intSizeBytes = Integer.SIZE / 8;
+        int metadataBytePosition = switch(fileSystem.getAllocationScheme()){
+          case FAT -> referenceBytePosition + intSizeBytes;
+          case CONTIGUOUS -> referenceBytePosition + (intSizeBytes * 2);
+          case INODES -> throw new Error("unreachable");
+
+        };
+
+        ByteBuffer buffer = ByteBuffer.allocate(this.sizeBytes());
+        this.writeToBuffer(buffer);
+        File.write(fileSystem, Directory.parentPath(path), buffer.array(), metadataBytePosition, false);
 
         break;
       default:
         throw new Error("unhandled switch case");
     }
 
-    ByteBuffer buffer = ByteBuffer.allocate(this.sizeBytes());
-    this.writeToBuffer(buffer);
-
-    //TODO: no checks? maybe does not need it because metadata will always fit
-    fileSystem.writeBytes(buffer.array(), firstBlock, offset);
   }
 
 /*

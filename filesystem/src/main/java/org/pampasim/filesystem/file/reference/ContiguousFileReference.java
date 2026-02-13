@@ -2,6 +2,7 @@ package org.pampasim.filesystem.file.reference;
 
 import org.pampasim.filesystem.file.FileMetadata;
 import org.pampasim.resources.filesystem.AllocationScheme;
+import org.pampasim.filesystem.core.FileSystem;
 
 import java.nio.ByteBuffer;
 
@@ -18,6 +19,10 @@ public final class ContiguousFileReference extends FileReference {
   }
 
   public FileMetadata getMetadata(){
+    return metadata;
+  }
+
+  public FileMetadata getMetadata(FileSystem fileSystem){
     return metadata;
   }
 
