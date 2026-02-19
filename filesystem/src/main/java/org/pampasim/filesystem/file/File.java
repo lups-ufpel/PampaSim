@@ -45,6 +45,7 @@ abstract public class File{
   
       BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
       fileSystem.setBlockRecord(firstBlockIndex, firstBlockIndex + finalSizeBlocks, type, path);
+      fileSystem.setAllocated(firstBlockIndex, firstBlockIndex + finalSizeBlocks);
       addToDirectory(fileSystem, path, reference);
   
       return reference;
