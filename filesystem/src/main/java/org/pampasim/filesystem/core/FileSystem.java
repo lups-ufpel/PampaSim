@@ -320,10 +320,13 @@ public class FileSystem extends AbstractSimEntity {
     currentBlock++;
 
 
+    int sizeBlocks = 0;
     // add to journal: writing freeBlocksBitMap 
-    int sizeBlocks = writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
-    setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.FREE_BLOCKS_BITMAP);
-    currentBlock+= sizeBlocks;
+    if(allocationScheme != AllocationScheme.FAT){
+      sizeBlocks = writeBitMap(freeBlocksBitMap, FREE_BLOCKS_BITMAP_INDEX);
+      setBlockRecord(currentBlock, currentBlock + sizeBlocks, BlockType.FREE_BLOCKS_BITMAP);
+      currentBlock+= sizeBlocks;
+    }
     
     if(allocationScheme == AllocationScheme.INODES){
       // i-nodes bitmap

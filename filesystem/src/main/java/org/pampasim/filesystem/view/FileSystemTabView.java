@@ -47,6 +47,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     @FXML private Rectangle inodeTableRect;
     @FXML private HBox freeInodesLegend;
     @FXML private HBox inodeTableLegend;
+    @FXML private HBox freeBlocksLegend;
     @FXML private Button openFATButton;
 
     @Override
@@ -71,6 +72,10 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
       if (FileSystemConfig.getAllocationScheme() != AllocationScheme.FAT) {
           openFATButton.setVisible(false);
+      }  else {
+          legendBox.getChildren().removeAll(
+              freeBlocksLegend
+          );
       }
 
       List<Node> snapshot = new ArrayList<>(legendBox.getChildren());

@@ -53,7 +53,7 @@
               <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " prefWidth="250"/>
               <Rectangle fx:id="superBlockRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
             </HBox>
-            <HBox>
+            <HBox fx:id="freeBlocksLegend">
               <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de blocos livres: " prefWidth="250"/>
               <Rectangle fx:id="freeBlocksBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
             </HBox>
