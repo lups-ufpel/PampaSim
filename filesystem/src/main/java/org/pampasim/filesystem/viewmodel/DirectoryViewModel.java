@@ -25,7 +25,7 @@ public class DirectoryViewModel implements ViewModel {
     this.path = path;
     this.observableEntries = FXCollections.observableArrayList(Directory.find(fileSystem, path).getEntries());
     refreshEntries();
-    addDiskWriteListener(fileSystemSimulation.getDisk());
+    addSimulationClockListener();
   }
 
   public void refreshEntries() {
@@ -34,12 +34,11 @@ public class DirectoryViewModel implements ViewModel {
       );
   }
 
-  public void addDiskWriteListener(Disk disk){
-      disk.getTotalWritesProperty().addListener((InvalidationListener) obs -> {
-        refreshEntries();
+  public void addSimulationClockListener(){
+      fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
+          refreshEntries();
       });
   }
-
 
   public ObservableList<DirectoryEntry> getEntries(){
     return observableEntries;

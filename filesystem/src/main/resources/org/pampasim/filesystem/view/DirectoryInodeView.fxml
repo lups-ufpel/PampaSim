@@ -9,11 +9,11 @@
 <VBox spacing="14"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.pampasim.filesystem.view.DirectoryInodeView
-      stylesheets="@mbr.css"
+      fx:controller="org.pampasim.filesystem.view.DirectoryInodeView"
+      stylesheets="@mbr.css">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding
+    </padding>
 
     <!-- Description -->
     <Label text="Entradas do diretório:"

@@ -45,16 +45,16 @@ public class InodeViewModel implements ViewModel {
         singlyIndirectPointerProperty = new SimpleIntegerProperty(0);
 
         setAttributes(index);
-        addDiskWriteListeners(fileSystemSimulation.getDisk());
+        addSimulationClockListener();
     }
 
-    public void addDiskWriteListeners(Disk disk){
-        disk.getTotalWritesProperty().addListener((InvalidationListener) obs -> {
-          setAttributes(index);
+    public void addSimulationClockListener(){
+        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
+            setAttributes(index);
         });
     }
 
-    //TODO: missing metadata for now
+    //TODO: missing metadata for now (is this still a TODO?)
     public void setAttributes(int index){
       Inode self = Inode.get(fileSystem, index);
 

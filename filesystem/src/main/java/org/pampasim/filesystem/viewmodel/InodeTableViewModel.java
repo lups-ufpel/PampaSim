@@ -29,7 +29,7 @@ public class InodeTableViewModel implements ViewModel {
         this.fileSystem = fileSystemSimulation.getFileSystem();
 
         refreshViewModels();
-        addListener(fileSystemSimulation.getDisk());
+        addSimulationClockListener();
     }
 
     private void refreshViewModels() {
@@ -40,9 +40,9 @@ public class InodeTableViewModel implements ViewModel {
         }
     }
 
-    public void addListener(Disk disk){
-        disk.getTotalWritesProperty().addListener((InvalidationListener) obs -> {
-                refreshViewModels();
+    public void addSimulationClockListener(){
+        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
+          refreshViewModels();
         });
     }
 

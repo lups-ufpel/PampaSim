@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 
 public class MetadataViewModel implements ViewModel {
 
-    private InvalidationListener totalWritesListener;
+    private InvalidationListener simulationClockListener;
     private FileSystemSimulation fileSystemSimulation;
     private String filePath = ""; //one of these will be blank
     private int inodeIndex = 0;
@@ -63,7 +63,7 @@ public class MetadataViewModel implements ViewModel {
     }
 
     public void addListener(FileSystemSimulation sim) {
-        totalWritesListener = obs -> {
+        simulationClockListener = obs -> {
             try {
                 setAttributes(sim.getFileSystem());
             } catch (NoSuchElementException e) {
@@ -72,17 +72,13 @@ public class MetadataViewModel implements ViewModel {
             }
         };
 
-        sim.getDisk()
-           .getTotalWritesProperty()
-           .addListener(totalWritesListener);
+        fileSystemSimulation.getSimulationClock().addListener(simulationClockListener);
     }
 
     public void removeListener(FileSystemSimulation sim) {
-        if (totalWritesListener != null) {
-            sim.getDisk()
-               .getTotalWritesProperty()
-               .removeListener(totalWritesListener);
-            totalWritesListener = null;
+        if (simulationClockListener != null) {
+            fileSystemSimulation.getSimulationClock().removeListener(simulationClockListener);
+            simulationClockListener = null;
         }
     }
 

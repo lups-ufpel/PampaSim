@@ -18,10 +18,10 @@ public class FATViewModel implements ViewModel {
       this.fileSystemSimulation = fileSystemSimulation;
 
       loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
-      addSimulationClickListener();
+      addSimulationClockListener();
     }
 
-    public void addSimulationClickListener(){
+    public void addSimulationClockListener(){
         fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
             loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
         });
