@@ -440,7 +440,10 @@ public class FileSystem extends AbstractSimEntity {
 
     int entries = 2;
     int currentSizeBytes = DirectoryEntry.sizeBytes(allocationScheme) * entries;
-    sizeBlocks = blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
+    sizeBlocks = switch(allocationScheme) {
+        case CONTIGUOUS -> blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * ROOT_DIRECTORY_ENTRIES_NUMBER, disk.getBlockSizeBytes());
+        case FAT, INODES -> blocksRequiredFor(DirectoryEntry.sizeBytes(allocationScheme) * entries, disk.getBlockSizeBytes());
+    };
     ByteBuffer buffer = ByteBuffer.allocate(currentSizeBytes);
 
     FileMetadata dotMetadata = new FileMetadata(currentSizeBytes, true, Instant.now());
