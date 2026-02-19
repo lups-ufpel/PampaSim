@@ -19,6 +19,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.Button?>
 
 <AnchorPane prefHeight="621.0" prefWidth="929.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.filesystem.view.FileSystemTabView">
     <SplitPane dividerPositions="0.5, 0.95" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -38,31 +39,40 @@
         </VBox>
 
         <!-- Color descriptions -->
-        <VBox fx:id="legendBox" alignment="TOP_CENTER">
-          <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Master Boot Record: " prefWidth="250"/>
-            <Rectangle fx:id="mbrRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
-          </HBox>
-          <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Bloco de Inicialização:" prefWidth="250"/>
-            <Rectangle fx:id="initializationRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
-          </HBox>
-          <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " prefWidth="250"/>
-            <Rectangle fx:id="superBlockRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
-          </HBox>
-          <HBox>
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de blocos livres: " prefWidth="250"/>
-            <Rectangle fx:id="freeBlocksBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
-          </HBox>
-          <HBox fx:id="freeInodesLegend">
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de inodes livres: " prefWidth="250"/>
-            <Rectangle fx:id="freeInodesBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
-          </HBox>
-          <HBox fx:id="inodeTableLegend">
-            <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Tabela de I-nodes: " prefWidth="250"/>
-            <Rectangle fx:id="inodeTableRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
-          </HBox>
+        <VBox spacing="20">
+          <VBox fx:id="legendBox" alignment="TOP_CENTER">
+            <HBox>
+              <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Master Boot Record: " prefWidth="250"/>
+              <Rectangle fx:id="mbrRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            </HBox>
+            <HBox>
+              <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Bloco de Inicialização:" prefWidth="250"/>
+              <Rectangle fx:id="initializationRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            </HBox>
+            <HBox>
+              <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="SuperBloco: " prefWidth="250"/>
+              <Rectangle fx:id="superBlockRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            </HBox>
+            <HBox>
+              <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de blocos livres: " prefWidth="250"/>
+              <Rectangle fx:id="freeBlocksBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            </HBox>
+            <HBox fx:id="freeInodesLegend">
+              <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Mapa de inodes livres: " prefWidth="250"/>
+              <Rectangle fx:id="freeInodesBitMapRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            </HBox>
+            <HBox fx:id="inodeTableLegend">
+              <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Tabela de I-nodes: " prefWidth="250"/>
+              <Rectangle fx:id="inodeTableRect" layoutX="50.0" layoutY="50.0" width="16.0" height="16.0" />
+            </HBox>
+          </VBox>
+
+          <VBox xmlns:fx="http://javafx.com/fxml"
+                spacing="10" alignment="CENTER">
+          
+              <Button fx:id="openFATButton" text="Visualizar FAT"
+                      onAction="#handleOpenFAT"/>
+          </VBox>
         </VBox>
 
     </SplitPane>

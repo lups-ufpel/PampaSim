@@ -20,9 +20,13 @@ import javafx.scene.control.Label;
 import java.util.List;
 import java.util.ArrayList;
 import javafx.scene.Node;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 
 import org.pampasim.filesystem.viewmodel.FileSystemTabViewModel;
 import org.pampasim.filesystem.viewmodel.BlockViewModel;
+import org.pampasim.filesystem.viewmodel.FATViewModel;
 import org.pampasim.filesystem.core.BlockType;
 import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.LegendEntry;
@@ -43,6 +47,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     @FXML private Rectangle inodeTableRect;
     @FXML private HBox freeInodesLegend;
     @FXML private HBox inodeTableLegend;
+    @FXML private Button openFATButton;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
@@ -62,6 +67,10 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
               freeInodesLegend,
               inodeTableLegend
           );
+      }
+
+      if (FileSystemConfig.getAllocationScheme() != AllocationScheme.FAT) {
+          openFATButton.setVisible(false);
       }
 
       List<Node> snapshot = new ArrayList<>(legendBox.getChildren());
@@ -128,6 +137,23 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
         row.getChildren().addAll(label, rect);
     
         legendBox.getChildren().add(row);
+    }
+
+    @FXML
+    private void handleOpenFAT() {
+        int width = 250;
+        int height = 600;
+    
+        var viewTuple = FluentViewLoader.fxmlView(FATView.class)
+                .viewModel(
+                  new FATViewModel(viewModel.getFileSystemSimulation())
+                )
+                .load();
+    
+        Stage stage = new Stage();
+        stage.setScene(new Scene(viewTuple.getView(), width, height));
+        stage.setTitle("Tabela FAT");
+        stage.show();
     }
 
 }

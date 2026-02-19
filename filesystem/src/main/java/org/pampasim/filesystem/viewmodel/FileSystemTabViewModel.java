@@ -16,7 +16,7 @@ import org.pampasim.filesystem.LegendEntry;
 
 
 public class FileSystemTabViewModel implements ViewModel {
-  private FileSystemSimulation fileSystemSimulation;
+  @Getter private FileSystemSimulation fileSystemSimulation;
   private final ObservableList<BlockRecord> observableBlockRecords;
   @Getter private final ObservableList<BlockViewModel> observableBlockViewModels = FXCollections.observableArrayList();
   private final ObservableList<LegendEntry> legendEntries = FXCollections.observableArrayList();
@@ -31,7 +31,7 @@ public class FileSystemTabViewModel implements ViewModel {
 
         createObservableViewModels();
         refreshLegendEntries();
-        addDiskWriteListeners(fileSystemSimulation.getDisk());
+        addSimulationClickListener();
     }
 
     // similar to createFrameList on memorytabviewmodel
@@ -44,7 +44,7 @@ public class FileSystemTabViewModel implements ViewModel {
         }
     }
 
-    public void addDiskWriteListeners(Disk disk){
+    public void addSimulationClickListener(){
         fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
             refreshViewModels();
             refreshLegendEntries();
