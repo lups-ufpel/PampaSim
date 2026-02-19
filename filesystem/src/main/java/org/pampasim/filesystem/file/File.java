@@ -316,32 +316,36 @@ abstract public class File{
     return data;
   }
 
-  public static byte[] readFAT(FileSystem fileSystem, FATFileReference reference, int byteNumber, int position, String path){
-    int firstBlockIndex = reference.getFirstBlockIndex();
 
-    int nextBlock = firstBlockIndex;
-    byte[] data = new byte[byteNumber];
-    int dataPosition = 0;
-    int copyAmount = fileSystem.getBlockSizeBytes();
-    while(nextBlock != FileAllocationTable.UNUSED){
+  public static byte[] readFAT(
+          FileSystem fileSystem,
+          FATFileReference reference,
+          int byteNumber,
+          int position,
+          String path
+  ) {
+      int fileSize = reference.getCurrentSizeBytes();
 
-      boolean willCopyTooMuch = dataPosition + copyAmount > byteNumber;
-      if(willCopyTooMuch){
-        int missingUntilByteNumber = byteNumber - dataPosition;
-        copyAmount = missingUntilByteNumber;
+      // Clamp read size to file bounds
+      if (position >= fileSize) {
+          return new byte[0];
       }
 
-      System.arraycopy(fileSystem.readBlock(nextBlock), 0, data, dataPosition, fileSystem.getBlockSizeBytes());
-      position += fileSystem.getBlockSizeBytes();
-      nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
-    }
+      int readableBytes = Math.min(byteNumber, fileSize - position);
 
-    FileMetadata metadata = reference.getMetadata();
-    metadata.updateLastAccess();
-    metadata.writeToDisk(fileSystem, path);
+      byte[] data = fileSystem.getBigFileAllocationTable().readFromFAT(
+              reference.getFirstBlockIndex(),
+              readableBytes,
+              position
+      );
 
-    return data;
+      FileMetadata metadata = reference.getMetadata();
+      metadata.updateLastAccess();
+      metadata.writeToDisk(fileSystem, path);
+
+      return data;
   }
+
 
   public static byte[] readInodes(FileSystem fileSystem, InodeFileReference reference, int byteNumber, int position){
     Inode fileInode = Inode.get(fileSystem, reference.getIndex());

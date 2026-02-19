@@ -424,7 +424,8 @@ public class Directory{
 
           byte[] dotData = fileSystem.getBigFileAllocationTable().readFromFAT(
                   relative_starting_index,
-                  requiredBytes
+                  requiredBytes,
+                  0
           );
 
           yield DirectoryEntry.getFromBuffer(
@@ -471,7 +472,8 @@ public class Directory{
 
         directoryData = fileSystem.getBigFileAllocationTable().readFromFAT(
                 firstBlockIndex,
-                currentSizeBytes
+                currentSizeBytes,
+                0
         );
 
         break;

@@ -32,35 +32,49 @@ public class FileAllocationTable {
     }
 
 
+
     public byte[] readFromFAT(
             int firstBlockIndex,
-            int maxBytes // how many logical bytes you actually want
+            int maxBytes,
+            int position
     ) {
         int blockSize = fileSystem.getBlockSizeBytes();
         byte[] result = new byte[maxBytes];
 
-        int[] fat = fileSystem.getFileAllocationTable();
         int nextBlock = firstBlockIndex;
+
+        // Determine which block to start from
+        int blockOffset = position / blockSize;
+        int offsetInsideBlock = position % blockSize;
+
+        // Advance through FAT chain to the starting block
+        for (int i = 0; i < blockOffset && nextBlock != FileAllocationTable.EOF; i++) {
+            nextBlock = fat[nextBlock];
+        }
+
         int dataPosition = 0;
 
         while (nextBlock != FileAllocationTable.EOF && dataPosition < maxBytes) {
 
             byte[] block = fileSystem.readBlock(nextBlock);
 
-            int bytesToCopy = Math.min(
-                    blockSize,
-                    maxBytes - dataPosition
-            );
+            int readableFromBlock = blockSize - offsetInsideBlock;
+            int remainingToRead = maxBytes - dataPosition;
+
+            int bytesToCopy = Math.min(readableFromBlock, remainingToRead);
 
             System.arraycopy(
                     block,
-                    0,
+                    offsetInsideBlock,
                     result,
                     dataPosition,
                     bytesToCopy
             );
 
             dataPosition += bytesToCopy;
+
+            // After first block, always start at offset 0
+            offsetInsideBlock = 0;
             nextBlock = fat[nextBlock];
         }
 
@@ -68,7 +82,6 @@ public class FileAllocationTable {
     }
 
     public void writeIntoFAT(byte[] data, int firstBlock, int position){
-      int[] fat = fileSystem.getFileAllocationTable();
       int blockSize = fileSystem.getBlockSizeBytes();
       
       int bufferPointer = 0;
