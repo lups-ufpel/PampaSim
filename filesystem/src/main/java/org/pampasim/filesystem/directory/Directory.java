@@ -416,19 +416,23 @@ public class Directory{
         byte[] dotEntryBytes = fileSystem.readBytes(DirectoryEntry.sizeBytes(as), relative_starting_index, 0);
         yield DirectoryEntry.getFromBuffer(ByteBuffer.wrap(dotEntryBytes), as);
 
-      case FAT:
-        
-        //rounded up to fit blocks
-        byte[] dotData = new byte[fileSystem.blocksRequiredFor(DirectoryEntry.sizeBytes(as)) * fileSystem.getBlockSizeBytes()];
-        int nextBlock = relative_starting_index;
-        int dataPosition = 0;
-        while(dataPosition < dotData.length && nextBlock != FileAllocationTable.EOF){
-          System.arraycopy(fileSystem.readBlock(nextBlock), 0, dotData, dataPosition, fileSystem.getBlockSizeBytes());
-          dataPosition += fileSystem.getBlockSizeBytes();
-          nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
-        }
 
-        yield DirectoryEntry.getFromBuffer(ByteBuffer.wrap(dotData), as);
+      case FAT: {
+          int requiredBytes =
+                  fileSystem.blocksRequiredFor(DirectoryEntry.sizeBytes(as))
+                  * fileSystem.getBlockSizeBytes();
+
+          byte[] dotData = fileSystem.getBigFileAllocationTable().readFromFAT(
+                  relative_starting_index,
+                  requiredBytes
+          );
+
+          yield DirectoryEntry.getFromBuffer(
+                  ByteBuffer.wrap(dotData),
+                  as
+          );
+      }
+
 
       default:
         throw new Error("Not implemented");
@@ -456,46 +460,22 @@ public class Directory{
         directoryData = Inode.read(fileSystem, inode_index, Inode.getMetadata(fileSystem, inode_index).getCurrentSizeBytes(), 0);
         break;
 
-      case FAT:
-      {
-          int firstBlockIndex = fileIndex;
-      
-          DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
-      
-          int currentSizeBytes =
-                  ((FATFileReference) dot.getFileReference()).getCurrentSizeBytes();
-      
-          int blockSize = fileSystem.getBlockSizeBytes();
-      
-          directoryData = new byte[currentSizeBytes];
-      
-          int nextBlock = firstBlockIndex;
-          int dataPosition = 0;
-      
-          while (nextBlock != FileAllocationTable.EOF && dataPosition < currentSizeBytes) {
-      
-              byte[] block = fileSystem.readBlock(nextBlock);
-      
-              int bytesToCopy = Math.min(
-                      blockSize,
-                      currentSizeBytes - dataPosition
-              );
-      
-              System.arraycopy(
-                      block,
-                      0,
-                      directoryData,
-                      dataPosition,
-                      bytesToCopy
-              );
-      
-              dataPosition += bytesToCopy;
-              nextBlock = fileSystem.getFileAllocationTable()[nextBlock];
-          }
-      
-          break;
-      }
+  
+    case FAT: {
+        int firstBlockIndex = fileIndex;
 
+        DirectoryEntry dot = getDotFromDisk(fileIndex, fileSystem);
+
+        int currentSizeBytes =
+                ((FATFileReference) dot.getFileReference()).getCurrentSizeBytes();
+
+        directoryData = fileSystem.getBigFileAllocationTable().readFromFAT(
+                firstBlockIndex,
+                currentSizeBytes
+        );
+
+        break;
+    }
       default:
         throw new Error("unhandled switch case");
     }

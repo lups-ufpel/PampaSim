@@ -31,6 +31,42 @@ public class FileAllocationTable {
         
     }
 
+
+    public byte[] readFromFAT(
+            int firstBlockIndex,
+            int maxBytes // how many logical bytes you actually want
+    ) {
+        int blockSize = fileSystem.getBlockSizeBytes();
+        byte[] result = new byte[maxBytes];
+
+        int[] fat = fileSystem.getFileAllocationTable();
+        int nextBlock = firstBlockIndex;
+        int dataPosition = 0;
+
+        while (nextBlock != FileAllocationTable.EOF && dataPosition < maxBytes) {
+
+            byte[] block = fileSystem.readBlock(nextBlock);
+
+            int bytesToCopy = Math.min(
+                    blockSize,
+                    maxBytes - dataPosition
+            );
+
+            System.arraycopy(
+                    block,
+                    0,
+                    result,
+                    dataPosition,
+                    bytesToCopy
+            );
+
+            dataPosition += bytesToCopy;
+            nextBlock = fat[nextBlock];
+        }
+
+        return result;
+    }
+
     public void writeIntoFAT(byte[] data, int firstBlock, int position){
       int[] fat = fileSystem.getFileAllocationTable();
       int blockSize = fileSystem.getBlockSizeBytes();
