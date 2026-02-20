@@ -146,7 +146,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
     @FXML
     private void handleOpenFAT() {
-        int width = 250;
+        int width = 320;
         int height = 600;
     
         var viewTuple = FluentViewLoader.fxmlView(FATView.class)
@@ -157,7 +157,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     
         Stage stage = new Stage();
         stage.setScene(new Scene(viewTuple.getView(), width, height));
-        stage.setTitle("Tabela FAT");
+        stage.setTitle("File Allocation Table (FAT)");
         stage.show();
     }
 

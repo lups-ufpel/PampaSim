@@ -28,10 +28,10 @@ import javafx.scene.paint.Color;
 
 public class FileSystem extends AbstractSimEntity {
 
-  private Disk disk; // does it make sense for this to be here?
+  private Disk disk;
   private Partition partition;
   // addresses on the bit map are relative to partition
-  private AllocationBitMap freeBlocksBitMap; // note: little-endian, i.e. backwards; create class for this to have update method
+  private AllocationBitMap freeBlocksBitMap; // note: little-endian
   private AllocationBitMap inodesBitMap;
   //private Operation[] journal; // needs an inode for itself
   private AllocationScheme allocationScheme;

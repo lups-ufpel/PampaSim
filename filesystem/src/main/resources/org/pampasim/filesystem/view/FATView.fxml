@@ -10,8 +10,8 @@
     <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
 
         <columns>
-            <TableColumn fx:id="indexColumn" text="Block" prefWidth="100"/>
-            <TableColumn fx:id="valueColumn" text="Value" prefWidth="200"/>
+            <TableColumn fx:id="indexColumn" text="Bloco" prefWidth="100"/>
+            <TableColumn fx:id="valueColumn" text="Próximo" prefWidth="200"/>
         </columns>
 
     </TableView>

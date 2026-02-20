@@ -10,7 +10,6 @@ public class FileSystemEventManager extends EventManager {
         super(s);
     }
 
-
     @Override
     public void setupHandlers() {}
 
