@@ -1,4 +1,4 @@
 package org.pampasim.resources.filesystem.fileops;
 
-public record WriteFileOp(int execTime, String path) implements FileSystemOperation {}
+public record WriteFileOp(int execTime, String path, int byteNumber, int position) implements FileSystemOperation {}
 

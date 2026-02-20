@@ -1,4 +1,4 @@
 package org.pampasim.resources.filesystem.fileops;
 
-public record ReadFileOp(int execTime, String path) implements FileSystemOperation {}
+public record ReadFileOp(int execTime, String path, int byteNumber, int position) implements FileSystemOperation {}
 

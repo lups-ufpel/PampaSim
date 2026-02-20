@@ -114,10 +114,10 @@ public class FileSystem extends AbstractSimEntity {
         switch (event) {
             case CreateFile e        -> createFile((CreateFileOp) e.getFileSystemOperation());
             case DeleteFile e        -> deleteFile((DeleteFileOp) e.getFileSystemOperation());
-            case OpenFile e          -> openFile();
-            case CloseFile e         -> closeFile();
-            case ReadFile e          -> readFile();
-            case WriteFile e         -> writeFile();
+            case OpenFile e          -> openFile((OpenFileOp) e.getFileSystemOperation());
+            case CloseFile e         -> closeFile((CloseFileOp) e.getFileSystemOperation());
+            case ReadFile e          -> readFile((ReadFileOp) e.getFileSystemOperation());
+            case WriteFile e         -> writeFile((WriteFileOp) e.getFileSystemOperation());
             case CreateDirectory e   -> createDirectory((CreateDirectoryOp) e.getFileSystemOperation());
             case DeleteDirectory e   -> deleteDirectory((DeleteDirectoryOp) e.getFileSystemOperation());
             default -> throw new IllegalStateException(
@@ -162,20 +162,23 @@ public class FileSystem extends AbstractSimEntity {
     File.delete(this, op.path());
   }
 
-  public void openFile(){
+  public void openFile(OpenFileOp op){
 
   }
 
-  public void closeFile(){
+  public void closeFile(CloseFileOp op){
 
   }
 
-  public void readFile(){
+  public void readFile(ReadFileOp op){
+    File.read(this, op.path(), op.byteNumber(), op.position());
 
   }
 
-  public void writeFile(){
-    
+  public void writeFile(WriteFileOp op){
+    var data = new byte[op.byteNumber()];
+    fillWithRandomData(data);
+    File.write(this, op.path(), data, op.position(), true);
   }
 
   public void createDirectory(CreateDirectoryOp op){
