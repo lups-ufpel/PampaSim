@@ -146,6 +146,7 @@ public class Directory{
 
   public DirectoryEntry findEntry(String name){
     for(DirectoryEntry e : entries){
+      System.out.println(e);
       if(e.getName().equals(name)){
         return e;
       }

@@ -31,6 +31,16 @@ public class FileAllocationTable {
         
     }
 
+    public int freeCount(){
+        int count = 0;
+        for (int value : fat) {
+            if (value == UNUSED) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 
 
     public byte[] readFromFAT(

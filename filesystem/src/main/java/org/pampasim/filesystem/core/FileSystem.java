@@ -156,6 +156,7 @@ public class FileSystem extends AbstractSimEntity {
                 false
             );
     };
+    System.out.println(Directory.find(this, "/"));
   }
 
   public void deleteFile(DeleteFileOp op){
@@ -287,7 +288,11 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public int freeBlocksCount(){
-    return freeBlocksBitMap.freeCount();
+    if(allocationScheme == AllocationScheme.FAT){
+      return fileAllocationTable.freeCount();
+    }  else{
+      return freeBlocksBitMap.freeCount();
+    }
   }
 
   public AllocationScheme getAllocationScheme(){
@@ -805,6 +810,7 @@ public class FileSystem extends AbstractSimEntity {
       String[] segments = path.split("/");
       name = segments[segments.length - 1];
     }
+    System.out.println(path);
     return Directory.findParent(this, path).findEntry(name).getFileReference();
   }
 

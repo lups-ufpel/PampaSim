@@ -68,6 +68,8 @@ abstract public class File{
       FileReference reference =
               new InodeFileReference(fileSystem.nextFreeInode());
   
+    System.out.println("Before");
+    System.out.println(Directory.find(fileSystem, "/"));
       addToDirectory(fileSystem, path, reference);
   
       // must happen after directory entry exists
