@@ -572,6 +572,11 @@ public class FileSystem extends AbstractSimEntity {
     setBlockRecord(relativeBlockIndex, type, "", userInt);
   }
 
+
+  public void setBlockRecord(int relativeBlockIndex, BlockType type, String userString){
+    setBlockRecord(relativeBlockIndex, type, userString, -1);
+  }
+
   // relative to partition
   public void setBlockRecord(int relativeBlockIndex, BlockType type){
     setBlockRecord(relativeBlockIndex, type, "", -1);

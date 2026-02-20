@@ -73,6 +73,7 @@ public class Inode{
     return index;
   }
 
+  // not the same as being free, check freeInodesBitmap for that
   public boolean isEmpty(){
     return directAddresses[0] == EMPTY;
   }
@@ -146,7 +147,7 @@ public class Inode{
     return get(fileSystem, inode_index).read(fileSystem, byteNumber, position);
   }
 
-  public void write(FileSystem fileSystem, byte[] data, int position){
+  public void write(FileSystem fileSystem, String path, byte[] data, int position){
 
     if(position + data.length > metadata.getCurrentSizeBytes()){
       metadata.setCurrentSizeBytes(position + data.length);
@@ -176,13 +177,13 @@ public class Inode{
       int blockToWriteIndex = i - blockOffset;
       byte[] blockToWrite = blocks[blockToWriteIndex];
       if(i < ADDRESSES_NUMBER){
-        writeToAddressArray(directAddresses, i, blockToWrite);
+        writeToAddressArray(path, directAddresses, i, blockToWrite);
       }  else {
         if(singlyIndirectPointer == EMPTY){
           singlyIndirectPointer = createIndirectBlock();
         }
         int indirectIndex = i - ADDRESSES_NUMBER;
-        writeToAddressArray(indirectAddresses, indirectIndex, blockToWrite);
+        writeToAddressArray(path, indirectAddresses, indirectIndex, blockToWrite);
         }
     }
 
@@ -190,9 +191,12 @@ public class Inode{
   }
 
 
-  private void writeToAddressArray(int[] array, int index, byte[] block){
+  private void writeToAddressArray(String path, int[] array, int index, byte[] block){
       if(array[index] == EMPTY){
         array[index] = fileSystem.nextFreeBlock();
+        boolean isDirectory = fileSystem.getReference(path).getMetadata(fileSystem).isDirectory();
+        BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
+        fileSystem.setBlockRecord(array[index], type, path);
       }
       fileSystem.writeBlock(array[index], block);
   }

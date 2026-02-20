@@ -244,7 +244,7 @@ abstract public class File{
           reference.getIndex()
       );
   
-      inode.write(fileSystem, data, position);
+      inode.write(fileSystem, path, data, position);
   
       FileMetadata metadata = inode.getMetadata();
       if(updateMetadata){
