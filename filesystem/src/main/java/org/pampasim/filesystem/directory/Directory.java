@@ -65,7 +65,7 @@ public class Directory{
     return fileEntry.getFileReference();
   }
 
-  //hacky
+  //hacky //not even used (?)
   public void setFATFirstBlockIndex(String path, int firstBlockIndex){
     String[] segments = path.split("/");
     String name = segments[segments.length - 1];
@@ -146,7 +146,6 @@ public class Directory{
 
   public DirectoryEntry findEntry(String name){
     for(DirectoryEntry e : entries){
-      System.out.println(e);
       if(e.getName().equals(name)){
         return e;
       }

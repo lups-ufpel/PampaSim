@@ -156,7 +156,6 @@ public class FileSystem extends AbstractSimEntity {
                 false
             );
     };
-    System.out.println(Directory.find(this, "/"));
   }
 
   public void deleteFile(DeleteFileOp op){

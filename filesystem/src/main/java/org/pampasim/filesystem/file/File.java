@@ -170,7 +170,9 @@ abstract public class File{
       fileSystem.freeBlock(addresses[i]);
     }
 
-    fileSystem.freeBlock(inode.getSinglyIndirectPointer());
+    if(!inode.isSinglyIndirectPointerEmpty()){
+      fileSystem.freeBlock(inode.getSinglyIndirectPointer());
+    }
 
     Directory.findParent(fileSystem, path).deleteEntry(name, Directory.parentPath(path));
 

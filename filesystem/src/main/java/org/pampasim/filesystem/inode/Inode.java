@@ -112,6 +112,10 @@ public class Inode{
     return result;
   }
 
+  public boolean isSinglyIndirectPointerEmpty(){
+    return singlyIndirectPointer == EMPTY;
+  }
+
   public byte[] read(FileSystem fileSystem, int byteNumber, int position){
     int blockOffset = 0;
     int blockSizeBytes = fileSystem.getBlockSizeBytes();
