@@ -112,14 +112,14 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     }
 
     private void updateTilepaneChildren() {
-    blockTilepane.getChildren().clear();
-    viewModel.getObservableBlockViewModels().forEach(vm -> {
-        Parent view = FluentViewLoader.fxmlView(BlockView.class)
-                .viewModel(vm)
-                .load()
-                .getView();
-        blockTilepane.getChildren().add(view);
-    });
+        blockTilepane.getChildren().clear();
+        viewModel.getObservableBlockViewModels().forEach(vm -> {
+            Parent view = FluentViewLoader.fxmlView(BlockView.class)
+                    .viewModel(vm)
+                    .load()
+                    .getView();
+            blockTilepane.getChildren().add(view);
+        });
 
     }
 

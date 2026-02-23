@@ -129,7 +129,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     cached(
                         FreeBlocksViewModel.class,
                         () -> new FreeBlocksViewModel(
-                            fsSim.getFileSystem(),
+                            fsSim,
                             fsSim.getFileSystem().getFreeBlocksBitMap()
                         )
                     )

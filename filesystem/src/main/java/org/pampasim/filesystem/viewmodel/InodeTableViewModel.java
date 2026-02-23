@@ -7,7 +7,7 @@ import lombok.Getter;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
-import javafx.beans.InvalidationListener;
+import org.pampasim.filesystem.viewmodel.SimulationClockListener;
 
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
@@ -19,7 +19,7 @@ import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.FileSystemSimulation;
 
 @Getter
-public class InodeTableViewModel implements ViewModel {
+public class InodeTableViewModel extends SimulationClockListener implements ViewModel {
     private final FileSystemSimulation fileSystemSimulation;
     private final FileSystem fileSystem;
     @Getter private final ObservableList<InodeBlockViewModel> inodeBlockViewModels = FXCollections.observableArrayList();
@@ -29,7 +29,7 @@ public class InodeTableViewModel implements ViewModel {
         this.fileSystem = fileSystemSimulation.getFileSystem();
 
         refreshViewModels();
-        addSimulationClockListener();
+        addSimulationClockListener(fileSystemSimulation);
     }
 
     private void refreshViewModels() {
@@ -40,10 +40,9 @@ public class InodeTableViewModel implements ViewModel {
         }
     }
 
-    public void addSimulationClockListener(){
-        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
+    @Override
+    protected void onSimulationTick(){
           refreshViewModels();
-        });
     }
 
     public Inode[] getInodeTable(){

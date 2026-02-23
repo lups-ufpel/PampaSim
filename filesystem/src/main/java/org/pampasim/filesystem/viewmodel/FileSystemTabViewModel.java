@@ -6,7 +6,6 @@ import java.util.Collections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
 import javafx.collections.FXCollections;
-import javafx.beans.InvalidationListener;
 
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.core.BlockRecord;
@@ -15,7 +14,7 @@ import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.LegendEntry;
 
 
-public class FileSystemTabViewModel implements ViewModel {
+public class FileSystemTabViewModel extends SimulationClockListener implements ViewModel {
   @Getter private FileSystemSimulation fileSystemSimulation;
   private final ObservableList<BlockRecord> observableBlockRecords;
   @Getter private final ObservableList<BlockViewModel> observableBlockViewModels = FXCollections.observableArrayList();
@@ -23,7 +22,6 @@ public class FileSystemTabViewModel implements ViewModel {
 
       public FileSystemTabViewModel(
             FileSystemSimulation fileSystemSimulation
-            //ObservableList<ProcessViewModel> observableProcessList,
             ) {
 
         this.fileSystemSimulation = fileSystemSimulation;
@@ -31,7 +29,7 @@ public class FileSystemTabViewModel implements ViewModel {
 
         createObservableViewModels();
         refreshLegendEntries();
-        addSimulationClickListener();
+        addSimulationClockListener(fileSystemSimulation);
     }
 
     // similar to createFrameList on memorytabviewmodel
@@ -44,12 +42,12 @@ public class FileSystemTabViewModel implements ViewModel {
         }
     }
 
-    public void addSimulationClickListener(){
-        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
-            refreshViewModels();
-            refreshLegendEntries();
-        });
-    }
+
+    @Override
+    protected void onSimulationTick(){
+      refreshViewModels();
+      refreshLegendEntries();
+    } 
 
     private void refreshViewModels(){
       for(int i = 0; i < observableBlockViewModels.size(); i++){

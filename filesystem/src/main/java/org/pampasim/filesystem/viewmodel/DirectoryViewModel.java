@@ -10,10 +10,10 @@ import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.FileSystemSimulation;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
-import javafx.beans.InvalidationListener;
+import org.pampasim.filesystem.viewmodel.SimulationClockListener;
 
 @Getter
-public class DirectoryViewModel implements ViewModel {
+public class DirectoryViewModel extends SimulationClockListener implements ViewModel {
   private FileSystemSimulation fileSystemSimulation;
   private FileSystem fileSystem;
   private ObservableList<DirectoryEntry> observableEntries;
@@ -25,7 +25,7 @@ public class DirectoryViewModel implements ViewModel {
     this.path = path;
     this.observableEntries = FXCollections.observableArrayList(Directory.find(fileSystem, path).getEntries());
     refreshEntries();
-    addSimulationClockListener();
+    addSimulationClockListener(fileSystemSimulation);
   }
 
   public void refreshEntries() {
@@ -34,10 +34,9 @@ public class DirectoryViewModel implements ViewModel {
       );
   }
 
-  public void addSimulationClockListener(){
-      fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
-          refreshEntries();
-      });
+  @Override
+  protected void onSimulationTick(){
+    refreshEntries();
   }
 
   public ObservableList<DirectoryEntry> getEntries(){

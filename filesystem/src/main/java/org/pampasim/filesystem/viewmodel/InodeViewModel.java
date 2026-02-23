@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.binding.Bindings;
@@ -21,8 +20,9 @@ import org.pampasim.filesystem.core.BlockRecord;
 import org.pampasim.filesystem.core.Disk;
 import org.pampasim.filesystem.inode.Inode;
 import org.pampasim.filesystem.FileSystemSimulation;
+import org.pampasim.filesystem.viewmodel.SimulationClockListener;
 
-public class InodeViewModel implements ViewModel {
+public class InodeViewModel extends SimulationClockListener implements ViewModel {
     @Getter private FileSystemSimulation fileSystemSimulation;
     @Getter private FileSystem fileSystem;
     @Getter private final int index;
@@ -45,13 +45,11 @@ public class InodeViewModel implements ViewModel {
         singlyIndirectPointerProperty = new SimpleIntegerProperty(0);
 
         setAttributes(index);
-        addSimulationClockListener();
+        addSimulationClockListener(fileSystemSimulation);
     }
-
-    public void addSimulationClockListener(){
-        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
-            setAttributes(index);
-        });
+    @Override
+    protected void onSimulationTick(){
+        setAttributes(index);
     }
 
     //TODO: missing metadata for now (is this still a TODO?)

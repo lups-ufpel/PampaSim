@@ -5,9 +5,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.pampasim.filesystem.FileSystemSimulation;
 import org.pampasim.filesystem.view.FATEntry;
-import javafx.beans.InvalidationListener;
+import org.pampasim.filesystem.viewmodel.SimulationClockListener;
 
-public class FATViewModel implements ViewModel {
+public class FATViewModel extends SimulationClockListener implements ViewModel {
 
     private FileSystemSimulation fileSystemSimulation;
 
@@ -18,13 +18,12 @@ public class FATViewModel implements ViewModel {
       this.fileSystemSimulation = fileSystemSimulation;
 
       loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
-      addSimulationClockListener();
+      addSimulationClockListener(fileSystemSimulation);
     }
 
-    public void addSimulationClockListener(){
-        fileSystemSimulation.getSimulationClock().addListener((InvalidationListener) obs -> {
-            loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
-        });
+    @Override
+    protected void onSimulationTick(){
+      loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
     }
 
     public FileSystemSimulation getFileSystemSimulation(){

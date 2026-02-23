@@ -110,7 +110,8 @@ public class FileMetadata{
       case CONTIGUOUS:
         int lastSlash = path.lastIndexOf('/');
         String name = path.substring(lastSlash + 1);
-        if(name.equals("")){ // root dir
+        boolean isRootDir = name.equals("");
+        if(isRootDir){ // root dir
           name = ".";
         }
 
@@ -129,6 +130,13 @@ public class FileMetadata{
         ByteBuffer buffer = ByteBuffer.allocate(this.sizeBytes());
         this.writeToBuffer(buffer);
         File.write(fileSystem, Directory.parentPath(path), buffer.array(), metadataBytePosition, false);
+
+        if(isRootDir){
+          // write dotdot too
+          metadataBytePosition += FileMetadata.sizeBytes();
+          File.write(fileSystem, Directory.parentPath(path), buffer.array(), metadataBytePosition, false);
+
+        }
 
         break;
       default:
