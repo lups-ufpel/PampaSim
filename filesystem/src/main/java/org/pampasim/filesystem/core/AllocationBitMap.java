@@ -3,23 +3,15 @@ package org.pampasim.filesystem.core;
 
 import java.util.BitSet;
 import javafx.scene.paint.Color;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 
 public class AllocationBitMap {
   private BitSet bitMap; // note: little-endian, i.e. backwards;
   public static final boolean allocated = false;
   public static final boolean free = true;
-  private final IntegerProperty version = new SimpleIntegerProperty(0); // for observability
   
   public AllocationBitMap(int sizeBits){
     this.bitMap = new BitSet(sizeBits);
     bitMap.set(0, sizeBits, free);
-  }
-
-  public ReadOnlyIntegerProperty versionProperty() {
-      return version;
   }
 
   public static Color getCorrespondingColor(boolean bit) {
@@ -33,22 +25,18 @@ public class AllocationBitMap {
   }
 
   public void setFree(int index){
-    version.set(version.get() + 1);
     bitMap.set(index, free);
   }
 
   public void setFree(int fromIndex, int toIndex){
-    version.set(version.get() + 1);
     bitMap.set(fromIndex, toIndex, free);
   }
 
   public void setAllocated(int index){
-    version.set(version.get() + 1);
     bitMap.set(index, allocated);
   }
 
   public void setAllocated(int fromIndex, int toIndex){
-    version.set(version.get() + 1);
     bitMap.set(fromIndex, toIndex, allocated);
   }
 

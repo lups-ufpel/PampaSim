@@ -141,7 +141,7 @@ public class BlockView implements FxmlView<BlockViewModel> {
                     cached(
                         FreeInodesViewModel.class,
                         () -> new FreeInodesViewModel(
-                            fsSim.getFileSystem().getFreeInodesBitMap()
+                            fsSim, fsSim.getFileSystem().getFreeInodesBitMap()
                         )
                     )
                 )
