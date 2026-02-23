@@ -14,7 +14,7 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-     <Label text=" 'Ele' (o superbloco) 'contém todos os parâmetros-chave a respeito do sistema de arquivos e é lido
+     <Label text=" O superbloco 'contém todos os parâmetros-chave a respeito do sistema de arquivos e é lido
 para a memória quando o computador é inicializado ou
 o sistema de arquivos é tocado pela primeira vez. Informações típicas no superbloco incluem um número
 mágico para identificar o tipo de sistema de arquivos,
