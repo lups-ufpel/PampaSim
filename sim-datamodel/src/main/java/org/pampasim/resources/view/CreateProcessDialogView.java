@@ -123,7 +123,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                         boolean modifies = entry.modifiesCheck.isSelected();
                         viewModel.getMemoryInfo().addAccess(address, modifies);
                     } catch (NumberFormatException e) {
-                        //FIXME: not working properly
+                        //FIXME: not working properly (should use addEventFilter like fileOpenErrors)
                         // Handle invalid input
                         showAlert("Acesso Inválido", "Acesso " + entry + "é inválido, informe um endereço válido");
                         return; // Prevent dialog from closing
