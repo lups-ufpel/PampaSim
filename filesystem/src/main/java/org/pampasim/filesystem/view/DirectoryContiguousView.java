@@ -100,14 +100,16 @@ public class DirectoryContiguousView implements FxmlView<DirectoryViewModel> {
             }
         });
 
+        // contiguous has some empty entries in creation since size is fixed
         FilteredList<DirectoryEntry> filtered =
             new FilteredList<>(viewModel.getEntries(), entry -> !entry.isNull());
-        
         tableView.setItems(filtered);
 
         // refresh table when the underlying entries list is invalidated
         viewModel.getEntries().addListener((Observable obs) -> {
-            tableView.refresh();
+            var newFiltered =
+                new FilteredList<>(viewModel.getEntries(), entry -> !entry.isNull());
+            tableView.setItems(filtered);
         });
     }
 
