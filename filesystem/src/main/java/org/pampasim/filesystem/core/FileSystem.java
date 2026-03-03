@@ -809,7 +809,7 @@ public class FileSystem extends AbstractSimEntity {
       String[] segments = path.split("/");
       name = segments[segments.length - 1];
     }
-    System.out.println(path);
+
     return Directory.findParent(this, path).findEntry(name).getFileReference();
   }
 

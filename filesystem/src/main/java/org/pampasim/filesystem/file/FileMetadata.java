@@ -133,8 +133,8 @@ public class FileMetadata{
 
         if(isRootDir){
           // write dotdot too
-          metadataBytePosition += FileMetadata.sizeBytes();
-          File.write(fileSystem, Directory.parentPath(path), buffer.array(), metadataBytePosition, false);
+          int dotdotMetadataBytePosition = metadataBytePosition + DirectoryEntry.sizeBytes(fileSystem.getAllocationScheme());
+          File.write(fileSystem, Directory.parentPath(path), buffer.array(), dotdotMetadataBytePosition, false);
 
         }
 
