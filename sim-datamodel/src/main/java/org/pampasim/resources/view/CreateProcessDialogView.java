@@ -9,20 +9,24 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.beans.binding.Bindings;
+import javafx.beans.InvalidationListener;
 import javafx.scene.Node;
+import javafx.event.ActionEvent;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
 import org.pampasim.resources.filesystem.fileops.*;
 import org.pampasim.resources.filesystem.config.FileSystemConfig;
 import org.pampasim.resources.filesystem.AllocationScheme;
-import javafx.beans.InvalidationListener;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Comparator;
 
 public class CreateProcessDialogView implements FxmlView<CreateProcessDialogViewModel>, Initializable {
 
@@ -63,6 +67,15 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     public VBox fileSystemVBox;
     @FXML
     Button addOperationButton;
+
+    private final String criarArquivo =  "Criar Arquivo";
+    private final String apagarArquivo = "Apagar Arquivo";
+    private final String abrirArquivo = "Abrir Arquivo";
+    private final String fecharArquivo = "Fechar Arquivo";
+    private final String lerArquivo = "Ler Arquivo";
+    private final String escreverArquivo = "Escrever Arquivo";
+    private final String criarDiretorio = "Criar Diretório";
+    private final String apagarDiretorio = "Apagar Diretório";
 
 
     @FXML
@@ -118,41 +131,24 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                 }
                 viewModel.getMemoryInfo().setLoopAccessList(loopAccessCheckBox.isSelected());
             }
-                for (Node node : fileSystemOperationsContainer.getChildren()) {
-                    if (!(node instanceof HBox hbox)) continue;
-                
-                    TextField timeField =
-                            (TextField) hbox.lookup("#timeField");
-                
-                    ChoiceBox<String> operationBox =
-                            (ChoiceBox<String>) hbox.lookup("#operationChoiceBox");
-                
-                    TextField pathField =
-                            (TextField) hbox.lookup("#pathField");
-                
-                    TextField maxSizeBytesField = (TextField) hbox.lookup("#maxSizeBytesField");
-                    TextField numBytesField = (TextField) hbox.lookup("#numBytesField");
-                    TextField positionField = (TextField) hbox.lookup("#positionField");
-                    
-                    int numBytes = (numBytesField == null || numBytesField.getText().isEmpty())
-                            ? -1 : Integer.parseInt(numBytesField.getText());
-                    
-                    int position = (positionField == null || positionField.getText().isEmpty())
-                            ? -1 : Integer.parseInt(positionField.getText());
-                
-                    String opName = operationBox.getValue();
-                    int time = timeField.getText().isEmpty()
-                            ? 0
-                            : Integer.parseInt(timeField.getText());
-                    String path = pathField.getText();
 
-                    int maxSizeBytes = (maxSizeBytesField == null) ? -1 : Integer.parseInt(maxSizeBytesField.getText());
+            // file system section
+            var ops = createFileSystemOperationsFromInputs();
+            viewModel.getFileSystemOperations().addAll(ops);
                 
-                    FileSystemOperation op =
-                            createOperation(opName, time, path, maxSizeBytes, numBytes, position);
-                
-                    viewModel.getFileSystemOperations().add(op);
-                }
+        });
+        okButtonNode.addEventFilter(ActionEvent.ACTION, event -> {
+
+            String invalidFileOpPath = checkFileOpenErrors(); 
+            if (!invalidFileOpPath.isEmpty()) {
+
+                showAlert("Leitura/Escrita em Arquivo Fechado", 
+                          "Erro: Operação de Leitura/Escrita no arquivo de caminho " 
+                          + invalidFileOpPath 
+                          + ", que não está aberto");
+
+                event.consume();
+            }
         });
 
         loopAccessCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
@@ -190,9 +186,69 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
     }
 
+
+    private ArrayList<FileSystemOperation> createFileSystemOperationsFromInputs(){
+      var operations = new ArrayList<FileSystemOperation>();
+      for (Node node : fileSystemOperationsContainer.getChildren()) {
+          if (!(node instanceof HBox hbox)) continue;
+      
+          TextField timeField =
+                  (TextField) hbox.lookup("#timeField");
+      
+          ChoiceBox<String> operationBox =
+                  (ChoiceBox<String>) hbox.lookup("#operationChoiceBox");
+
+      
+          TextField pathField =
+                  (TextField) hbox.lookup("#pathField");
+      
+          TextField maxSizeBytesField = (TextField) hbox.lookup("#maxSizeBytesField");
+          TextField numBytesField = (TextField) hbox.lookup("#numBytesField");
+          TextField positionField = (TextField) hbox.lookup("#positionField");
+          
+          int numBytes = (numBytesField == null || numBytesField.getText().isEmpty())
+                  ? -1 : Integer.parseInt(numBytesField.getText());
+          
+          int position = (positionField == null || positionField.getText().isEmpty())
+                  ? -1 : Integer.parseInt(positionField.getText());
+      
+          String opName = operationBox.getValue();
+          int time = timeField.getText().isEmpty()
+                  ? 0
+                  : Integer.parseInt(timeField.getText());
+          String path = pathField.getText();
+
+          int maxSizeBytes = (maxSizeBytesField == null) ? -1 : Integer.parseInt(maxSizeBytesField.getText());
+
+          
+          operations.add(createOperation(opName, time, path, maxSizeBytes, numBytes, position));
+      }
+
+      return operations;
+    }
+
+    private String checkFileOpenErrors(){
+        Set<String> openFiles = new HashSet<>();
+
+        var ops = createFileSystemOperationsFromInputs();
+        ops.sort(Comparator.comparing(FileSystemOperation::execTime)); // order by execTime
+        
+        for(FileSystemOperation op : ops){
+            if(op instanceof OpenFileOp){
+              openFiles.add(op.path());
+            }  else if (op instanceof CloseFileOp){
+              openFiles.remove(op.path());
+            }  else if ((op instanceof WriteFileOp || op instanceof ReadFileOp) && !openFiles.contains(op.path())){
+                return op.path();
+            }
+        }
+
+        return "";
+    }
+
     private FileSystemOperation createOperation(String op, int time, String path, int maxSizeBytes, int numBytes, int position) {
         return switch (op) {
-            case "Criar Arquivo"     -> 
+            case criarArquivo     -> 
                 switch(FileSystemConfig.getAllocationScheme()){
                   case CONTIGUOUS -> new CreateFileContiguousOp(time, path, maxSizeBytes);
                   case FAT -> new CreateFileFATOp(time, path);
@@ -200,12 +256,12 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                   default -> throw new Error("unhandled switch case");
 
                 };
-            case "Apagar Arquivo"    -> new DeleteFileOp(time, path);
-            case "Abrir Arquivo"     -> new OpenFileOp(time, path);
-            case "Fechar Arquivo"    -> new CloseFileOp(time, path);
-            case "Ler Arquivo"       -> new ReadFileOp(time, path, numBytes, position);
-            case "Escrever Arquivo"  -> new WriteFileOp(time, path, numBytes, position);
-            case "Criar Diretório"   ->
+            case apagarArquivo    -> new DeleteFileOp(time, path);
+            case abrirArquivo     -> new OpenFileOp(time, path);
+            case fecharArquivo    -> new CloseFileOp(time, path);
+            case lerArquivo       -> new ReadFileOp(time, path, numBytes, position);
+            case escreverArquivo  -> new WriteFileOp(time, path, numBytes, position);
+            case criarDiretorio   ->
                 switch(FileSystemConfig.getAllocationScheme()){
                   case CONTIGUOUS -> new CreateDirectoryContiguousOp(time, path, maxSizeBytes);
                   case FAT -> new CreateDirectoryFATOp(time, path);
@@ -214,7 +270,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
                 };
 
-            case "Apagar Diretório"  -> new DeleteDirectoryOp(time, path);
+            case apagarDiretorio  -> new DeleteDirectoryOp(time, path);
             default -> throw new IllegalStateException("Unknown operation: " + op);
         };
     }
@@ -245,16 +301,16 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
         ChoiceBox<String> operationChoiceBox = new ChoiceBox<>();
         operationChoiceBox.getItems().addAll(
-            "Criar Arquivo",
-            "Apagar Arquivo",
-            "Abrir Arquivo",
-            "Fechar Arquivo",
-            "Ler Arquivo",
-            "Escrever Arquivo",
-            "Criar Diretório",
-            "Apagar Diretório"
+            criarArquivo,
+            apagarArquivo,
+            abrirArquivo,
+            fecharArquivo,
+            lerArquivo,
+            escreverArquivo,
+            criarDiretorio,
+            apagarDiretorio
         );
-        operationChoiceBox.setValue("Criar Arquivo");
+        operationChoiceBox.setValue(criarArquivo);
         operationChoiceBox.setPrefWidth(150.0);
         operationChoiceBox.setId("operationChoiceBox");
         
@@ -269,14 +325,14 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
                     if (op == null) return "";
         
                     return switch (op) {
-                        case "Criar Arquivo"        -> "/novo_arquivo";
-                        case "Apagar Arquivo"       -> "/arquivo";
-                        case "Abrir Arquivo"        -> "/arquivo";
-                        case "Fechar Arquivo"       -> "/arquivo";
-                        case "Ler Arquivo"          -> "/arquivo";
-                        case "Escrever Arquivo"     -> "/arquivo";
-                        case "Criar Diretório"      -> "/novo_dir";
-                        case "Apagar Diretório"     -> "/dir";
+                        case criarArquivo        -> "/novo_arquivo";
+                        case apagarArquivo       -> "/arquivo";
+                        case abrirArquivo        -> "/arquivo";
+                        case fecharArquivo       -> "/arquivo";
+                        case lerArquivo          -> "/arquivo";
+                        case escreverArquivo     -> "/arquivo";
+                        case criarDiretorio      -> "/novo_dir";
+                        case apagarDiretorio     -> "/dir";
                         default -> "";
                     };
                 },
@@ -287,31 +343,20 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
 
         HBox entryContainer = new HBox(10, removeButton, timeLabel, timeField, operationChoiceBox, pathLabel, pathField);
 
-        syncFileCreationInputs(entryContainer, operationChoiceBox);
-
+        syncFileSystemInputFields(entryContainer, operationChoiceBox);
         operationChoiceBox.valueProperty().addListener((InvalidationListener) obs -> {
-            syncFileCreationInputs(entryContainer, operationChoiceBox);
+            syncFileSystemInputFields(entryContainer, operationChoiceBox);
         });
 
-        
-
-        // Create and store the entry
-        //FileSystemOperation entry = new FileSystemOperation();
-        //entry.container = entryContainer; // missing actual info for now
-        //operationEntries.add(entry);
 
         removeButton.setOnAction(e -> {
             fileSystemOperationsContainer.getChildren().remove(entryContainer);
-            //operationEntries.remove(entry);
-            //updateAccessIndices();
         });
-
         fileSystemOperationsContainer.getChildren().add(entryContainer);
-        //updateAccessIndices();
 
     }
 
-    private void syncFileCreationInputs(HBox entryContainer, ChoiceBox<String> operationChoiceBox){
+    private void syncFileSystemInputFields(HBox entryContainer, ChoiceBox<String> operationChoiceBox){
     
         String maxSizeFieldId = "maxSizeBytesField";
         String maxSizeLabelId = "maxSizeBytesLabel";
@@ -342,7 +387,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         String op = operationChoiceBox.getValue();
     
         // ---- Criar Arquivo / Diretório (Contiguous only) ----
-        if ((op.equals("Criar Arquivo") || op.equals("Criar Diretório"))
+        if ((op.equals(criarArquivo) || op.equals(criarDiretorio))
                 && FileSystemConfig.getAllocationScheme() == AllocationScheme.CONTIGUOUS) {
     
             Label maxSizeBytesLabel = new Label("Tamanho Máximo (bytes):");
@@ -358,7 +403,7 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
         }
     
         // ---- Ler / Escrever Arquivo ----
-        if (op.equals("Ler Arquivo") || op.equals("Escrever Arquivo")) {
+        if (op.equals(lerArquivo) || op.equals(escreverArquivo)) {
     
             Label numBytesLabel = new Label("Num Bytes:");
             numBytesLabel.setId(numBytesLabelId);

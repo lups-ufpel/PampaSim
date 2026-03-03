@@ -163,10 +163,12 @@ public class FileSystem extends AbstractSimEntity {
   }
 
   public void openFile(OpenFileOp op){
+    // for now implemented directly in CreateProcessDialogView.java
 
   }
 
   public void closeFile(CloseFileOp op){
+    // for now implemented directly in CreateProcessDialogView.java
 
   }
 
