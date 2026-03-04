@@ -37,6 +37,7 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
 
     @InjectViewModel
     private FileSystemTabViewModel viewModel;
+    private FATViewModel fatViewModel = null;
     @FXML public TilePane blockTilepane;
     @FXML private VBox legendBox;
     @FXML private Rectangle mbrRect;
@@ -148,11 +149,13 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     private void handleOpenFAT() {
         int width = 320;
         int height = 600;
+        System.out.println(viewModel.getFileSystemSimulation());
     
+        if(fatViewModel == null){
+          fatViewModel = new FATViewModel(viewModel.getFileSystemSimulation());
+        }
         var viewTuple = FluentViewLoader.fxmlView(FATView.class)
-                .viewModel(
-                  new FATViewModel(viewModel.getFileSystemSimulation())
-                )
+                .viewModel(fatViewModel)
                 .load();
     
         Stage stage = new Stage();

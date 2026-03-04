@@ -7,7 +7,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.pampasim.filesystem.viewmodel.FATViewModel;
 import javafx.scene.control.TableCell;
-import javafx.beans.Observable;
 
 public class FATView implements FxmlView<FATViewModel> {
 
@@ -66,9 +65,6 @@ public class FATView implements FxmlView<FATViewModel> {
         });
 
         tableView.setItems(viewModel.getFatEntries());
-        viewModel.getFatEntries().addListener((Observable obs) -> {
-            tableView.refresh();
-        });
 
     }
 }
