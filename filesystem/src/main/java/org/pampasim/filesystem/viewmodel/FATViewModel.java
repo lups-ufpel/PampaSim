@@ -18,14 +18,12 @@ public class FATViewModel extends SimulationClockListener implements ViewModel {
     public FATViewModel(FileSystemSimulation fileSystemSimulation) {
       this.fileSystemSimulation = fileSystemSimulation;
 
-      System.out.println("Created");
       loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
       addSimulationClockListener(fileSystemSimulation);
     }
 
     @Override
     protected void onSimulationTick(){
-      System.out.println("tick");
       loadFAT(fileSystemSimulation.getFileSystem().getFileAllocationTable());
     }
 
