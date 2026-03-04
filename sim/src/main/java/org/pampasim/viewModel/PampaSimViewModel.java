@@ -295,6 +295,8 @@ public class PampaSimViewModel implements ViewModel {
         if (userSelection.modules().contains("filesystem")) { 
             // is initialized on PampaSimViewModel
             fileSystemModulePresent.set(true);
+            //System.out.println("FileSystemInitialized");
+            //initializeFileSystemSimulation(sim);
         }
     }
 
@@ -680,17 +682,6 @@ public class PampaSimViewModel implements ViewModel {
 
         tabPane.getTabs().add(fileSystemTab);
 
-        /* // dont know whats all of this
-        MemoryManagement simMemoryModule = simulationBase.getEntity(MemoryManagement.class);
-
-        if (simMemoryModule != null) {
-            simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
-        }
-
-        if (memoryModule != null) {
-            memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getColorMap());
-            memoryModule.refreshFrameList();
-        } */
     }
 
 }

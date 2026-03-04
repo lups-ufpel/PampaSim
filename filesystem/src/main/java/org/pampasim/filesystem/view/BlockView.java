@@ -92,7 +92,6 @@ public class BlockView implements FxmlView<BlockViewModel> {
         int width = 600;
         int height = 600;
 
-        System.out.println("Block simulation: " + fsSim);
     
         var viewTuple = switch (blockRecord.type()) {
             case EMPTY -> null;
