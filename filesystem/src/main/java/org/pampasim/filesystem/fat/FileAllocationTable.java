@@ -2,6 +2,7 @@ package org.pampasim.filesystem.fat;
 
 import org.pampasim.filesystem.core.FileSystem;
 import org.pampasim.filesystem.core.BlockType;
+import org.pampasim.filesystem.directory.Directory;
 
 import java.util.Arrays;
 
@@ -112,9 +113,11 @@ public class FileAllocationTable {
       /* ===============================
          ENSURE FIRST BLOCK EXISTS
          =============================== */
-      if (currentBlock == FileAllocationTable.EOF) { // have to update reference?
+      if (currentBlock == FileAllocationTable.EOF) {
           currentBlock = fileSystem.nextFreeBlock();
+          Directory.findParent(fileSystem, path).setFATFirstBlockIndex(path, currentBlock); // updates EOF in directory entry
           setBlockType(currentBlock, path);
+          fat[currentBlock] = FileAllocationTable.EOF;   // reserve
       }
       
       /* ===============================
@@ -153,6 +156,7 @@ public class FileAllocationTable {
                   currentBlock,
                   writeOffset
           );
+          
       
           bufferPointer += bytesToWrite;
           writeOffset = 0;
