@@ -149,7 +149,6 @@ public class FileSystemTabView implements FxmlView<FileSystemTabViewModel>, Init
     private void handleOpenFAT() {
         int width = 320;
         int height = 600;
-        System.out.println(viewModel.getFileSystemSimulation());
     
         if(fatViewModel == null){
           fatViewModel = new FATViewModel(viewModel.getFileSystemSimulation());

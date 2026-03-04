@@ -25,6 +25,7 @@ fileIndex = either first block for FAT and CONTIGUOUS or inodeIndex for inode
 
 things to do better which I didn't have the time (TODO:):
 
+views only update (without closing and opening again) if you've opened them after creating a process for some reason
 checking if theres time for all operations when creating process
 no way to view process operations after creation
 trocar para bloco indireto do i-node usar o bloco inteiro ao invés de só 12 endereços
