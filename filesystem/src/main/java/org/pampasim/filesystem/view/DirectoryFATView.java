@@ -41,7 +41,7 @@ public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
     @FXML
     private TableColumn<DirectoryEntry, String> fileNameColumn;
     @FXML
-    private TableColumn<DirectoryEntry, Integer> firstBlockColumn;
+    private TableColumn<DirectoryEntry, String> firstBlockColumn;
     @FXML
     private TableColumn<DirectoryEntry, Void> metadataColumn = new TableColumn<>("Metadados");
 
@@ -52,16 +52,20 @@ public class DirectoryFATView implements FxmlView<DirectoryViewModel> {
             cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getName())
         );
 
-        firstBlockColumn.setCellValueFactory(cell ->
-            new ReadOnlyObjectWrapper<>(
-                viewModel.getFileSystem()
-                         .absoluteAddressOf(
-                             ((FATFileReference) cell.getValue().getFileReference())
-                                 .getFirstBlockIndex()
-                         )
-            )
-        );
+        firstBlockColumn.setCellValueFactory(cell -> {
+            int firstBlock = ((FATFileReference)
+                    cell.getValue().getFileReference())
+                    .getFirstBlockIndex();
         
+            return new ReadOnlyObjectWrapper<>(
+                firstBlock == -2
+                    ? "-2 (EOF)"
+                    : String.valueOf(
+                        viewModel.getFileSystem().absoluteAddressOf(firstBlock)
+                    )
+            );
+        });    
+
         metadataColumn.setCellFactory(col -> new TableCell<>() {
         
             private final Button button = new Button("Expandir");
