@@ -264,7 +264,7 @@ abstract public class File{
   ) {
 
       int firstBlock = ((FATFileReference) reference).getFirstBlockIndex();
-      fileSystem.getBigFileAllocationTable().writeIntoFAT(data, firstBlock, position);
+      fileSystem.getBigFileAllocationTable().writeIntoFAT(data, firstBlock, position, path);
       
       FileMetadata metadata = reference.getMetadata();
       if(updateMetadata){

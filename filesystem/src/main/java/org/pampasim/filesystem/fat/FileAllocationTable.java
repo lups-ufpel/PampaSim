@@ -1,6 +1,7 @@
 package org.pampasim.filesystem.fat;
 
 import org.pampasim.filesystem.core.FileSystem;
+import org.pampasim.filesystem.core.BlockType;
 
 import java.util.Arrays;
 
@@ -91,7 +92,13 @@ public class FileAllocationTable {
         return result;
     }
 
-    public void writeIntoFAT(byte[] data, int firstBlock, int position){
+    private void setBlockType(int blockIndex, String path){
+      boolean isDirectory = fileSystem.isDirectory(path);
+      BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
+      fileSystem.setBlockRecord(blockIndex, type, path);
+    }
+
+    public void writeIntoFAT(byte[] data, int firstBlock, int position, String path){
       int blockSize = fileSystem.getBlockSizeBytes();
       
       int bufferPointer = 0;
@@ -107,6 +114,7 @@ public class FileAllocationTable {
          =============================== */
       if (currentBlock == FileAllocationTable.EOF) { // have to update reference?
           currentBlock = fileSystem.nextFreeBlock();
+          setBlockType(currentBlock, path);
       }
       
       /* ===============================
@@ -117,6 +125,7 @@ public class FileAllocationTable {
           if (fat[currentBlock] == FileAllocationTable.EOF) {
               // need to extend chain
               int newBlock = fileSystem.nextFreeBlock();
+              setBlockType(newBlock, path);
               fat[newBlock] = FileAllocationTable.EOF;   // reserve
               fat[currentBlock] = newBlock;     // link
           }
@@ -151,6 +160,7 @@ public class FileAllocationTable {
           if (bufferPointer < data.length) {
               if (fat[currentBlock] == FileAllocationTable.EOF) {
                   int newBlock = fileSystem.nextFreeBlock();
+                  setBlockType(newBlock, path);
                   fat[newBlock] = FileAllocationTable.EOF;   // reserve immediately
                   fat[currentBlock] = newBlock;     // link
               }

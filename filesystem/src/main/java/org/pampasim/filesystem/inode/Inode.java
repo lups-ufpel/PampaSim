@@ -198,7 +198,7 @@ public class Inode{
   private void writeToAddressArray(String path, int[] array, int index, byte[] block){
       if(array[index] == EMPTY){
         array[index] = fileSystem.nextFreeBlock();
-        boolean isDirectory = fileSystem.getReference(path).getMetadata(fileSystem).isDirectory();
+        boolean isDirectory = fileSystem.isDirectory(path);
         BlockType type = (isDirectory) ? BlockType.DIRECTORY : BlockType.FILE;
         fileSystem.setBlockRecord(array[index], type, path);
       }

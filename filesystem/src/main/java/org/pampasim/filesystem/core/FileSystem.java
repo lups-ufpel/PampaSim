@@ -669,6 +669,10 @@ public class FileSystem extends AbstractSimEntity {
     return output;
   }
 
+  public boolean isDirectory(String path){
+    return getReference(path).getMetadata(this).isDirectory();
+  }
+
   // relative to partition. Checks bounds
   public byte[] readBlock(int relativeBlockIndex){
     if(relativeBlockIndex + partition.getFirstBlockIndex() > partition.getLastBlockIndex() || relativeBlockIndex < 0){
