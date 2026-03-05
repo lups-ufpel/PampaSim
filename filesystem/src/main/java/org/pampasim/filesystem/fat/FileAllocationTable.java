@@ -33,6 +33,15 @@ public class FileAllocationTable {
         
     }
 
+    public int nextFreeBlockWithoutAllocating(){
+       for (int i = 0; i < fat.length; i++) {
+            if (fat[i] == FileAllocationTable.UNUSED) {
+                return i;
+            }
+       }
+       throw new Error("no free blocks");
+    }
+
     public int freeCount(){
         int count = 0;
         for (int value : fat) {
@@ -109,13 +118,14 @@ public class FileAllocationTable {
       int writeOffset = position % blockSize;
       
       int currentBlock = firstBlock;
+      boolean wasEmpty = (currentBlock == FileAllocationTable.EOF);
       
       /* ===============================
          ENSURE FIRST BLOCK EXISTS
          =============================== */
-      if (currentBlock == FileAllocationTable.EOF) {
+      if (wasEmpty) {
           currentBlock = fileSystem.nextFreeBlock();
-          Directory.findParent(fileSystem, path).setFATFirstBlockIndex(path, currentBlock); // updates EOF in directory entry
+          Directory.findParent(fileSystem, path).setFATFirstBlockIndex(path, currentBlock); // updates EOF in parents directory entry
           setBlockType(currentBlock, path);
           fat[currentBlock] = FileAllocationTable.EOF;   // reserve
       }

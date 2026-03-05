@@ -351,6 +351,7 @@ public class Directory{
                       currentSizeBytes,
                       true
               );
+      ((FATFileReference) dotreference).setFirstBlockIndex(fileSystem.getBigFileAllocationTable().nextFreeBlockWithoutAllocating()); // assumes a File.write happens immediately afterwards, so that next free block, allocated there, actually is the first block index
   
       writeInitialDirectoryContents(fileSystem, path, dotreference, currentSizeBytes);
   }
