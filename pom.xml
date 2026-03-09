@@ -12,6 +12,7 @@
     <maven.compiler.release>21</maven.compiler.release>
     <antlr4.plugin.version>4.13.2</antlr4.plugin.version>
     <antlr4.version>4.13.2</antlr4.version>
+    <javafx.version>23.0.2</javafx.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -25,22 +26,22 @@
       <dependency>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-controls</artifactId>
-        <version>22.0.2</version>
+        <version>${javafx.version}</version>
       </dependency>
       <dependency>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-fxml</artifactId>
-        <version>22.0.2</version>
+        <version>${javafx.version}</version>
       </dependency>
       <dependency>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-graphics</artifactId>
-        <version>22.0.2</version>
+        <version>${javafx.version}</version>
       </dependency>
       <dependency>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-base</artifactId>
-        <version>22.0.2</version>
+        <version>${javafx.version}</version>
       </dependency>
       <dependency>
         <groupId>org.projectlombok</groupId>
@@ -117,12 +118,6 @@
         <artifactId>log4j-slf4j2-impl</artifactId>
         <version>2.25.2</version>
         <scope>runtime</scope>
-      </dependency>
-      <!-- https://mvnrepository.com/artifact/com.jfoenix/jfoenix -->
-      <dependency>
-          <groupId>org.rationalityfrontline.workaround</groupId>
-          <artifactId>jfoenix</artifactId>
-          <version>21.0.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

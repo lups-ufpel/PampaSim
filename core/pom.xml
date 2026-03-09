@@ -59,7 +59,7 @@
       <artifactId>antlr4-maven-plugin</artifactId>
     </dependency>
 
-    <!-- these two are here just for the Color definition, we use it in the Spec -->
+    <!-- these two are here for the Color definition and the observable classes-->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-base</artifactId>
@@ -68,10 +68,11 @@
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-graphics</artifactId>
     </dependency>
-      <dependency>
-          <groupId>de.saxsys</groupId>
-          <artifactId>mvvmfx</artifactId>
-      </dependency>
+    <!-- this one may not be needed -->
+    <dependency>
+      <groupId>de.saxsys</groupId>
+      <artifactId>mvvmfx</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

@@ -37,10 +37,6 @@
           <groupId>org.kordamp.ikonli</groupId>
           <artifactId>ikonli-javafx</artifactId>
       </dependency>
-      <dependency>
-          <groupId>org.rationalityfrontline.workaround</groupId>
-          <artifactId>jfoenix</artifactId>
-      </dependency>
   </dependencies>
   <build>
   </build>

@@ -1,7 +1,6 @@
 module org.pampasim.core {
-    requires javafx.graphics;
-    requires javafx.base;
     requires static lombok;
+    requires javafx.base; // we need javafx.beans for the observables
     requires guru.nidi.graphviz;
     requires org.antlr.antlr4.runtime;
     requires org.apache.logging.log4j;
