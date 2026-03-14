@@ -92,6 +92,7 @@ public class PampaSimViewModel implements ViewModel {
 
     @Getter
     private ObservableMap<PidAllocator.Pid, ObservableMap<Integer, Process.State>> ganttData = FXCollections.observableHashMap();
+    @Getter
     private final Map<Process.State, Character> stateChar = Map.of(
             Process.State.NEW, 'n',
             Process.State.READY, 'r',

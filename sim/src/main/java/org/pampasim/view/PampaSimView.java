@@ -2,6 +2,7 @@ package org.pampasim.view;
 
 import de.saxsys.mvvmfx.*;
 import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -99,14 +100,14 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button statisticsBtn;
     @FXML
     public Button addModuleBtn;
-    public record GanttLine(PidAllocator.Pid pid, ObservableMap<Integer, Process.State> stateMap) {};
+    public record GanttLine(PidAllocator.Pid pid, ObservableMap<Integer, Process.State> stateMap, ObservableValue<Color> color) {};
     @FXML
     public TableView<ObservableValue<GanttLine>> ganttChart;
     @FXML
     public TableColumn<ObservableValue<GanttLine>, PidAllocator.Pid> ganttPidCol;
     private ObservableList<ObservableValue<GanttLine>> ganttLines;
 
-    private javafx.animation.Timeline animation;
+    private Timeline animation;
     private ProcessViewModel editedProcessViewModel = null;
 
     @FXML
@@ -122,7 +123,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
             LOGGER.debug("started animation");
             animation.play();
         }
-        lastStepT = java.time.Instant.now();
+        lastStepT = Instant.now();
     }
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
@@ -199,9 +200,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         );
 
         var keyframe = new KeyFrame(Duration.seconds(1), e -> pampaSimViewModel.runSimulation(false));
-        this.animation = new javafx.animation.Timeline(keyframe);
+        this.animation = new Timeline(keyframe);
         this.animation.setDelay(Duration.ZERO);
-        this.animation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+        this.animation.setCycleCount(Timeline.INDEFINITE);
         bindTimeLineProperty();
         bindStepFreqSlider();
         bindButtons();
@@ -369,9 +370,13 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
             public void onChanged(Change<? extends PidAllocator.Pid, ? extends ObservableMap<Integer, Process.State>> change) {
                 if (change.wasAdded()) {
                     var val = Bindings.valueAt(pampaSimViewModel.getGanttData(), change.getKey());
+                    var pid = change.getKey();
+                    var pvm = pampaSimViewModel.getAllProcesses().filtered(p -> p.getPid().get() == pid).getFirst();
                     var observableLine = val.flatMap(
                             stateMap -> Bindings.createObjectBinding(
-                                    () -> new GanttLine(change.getKey(), stateMap), val));
+                                    () -> new GanttLine(
+                                            pid, stateMap,
+                                            pvm.getColorProperty()), val));
                     ganttLines.add(observableLine);
                     LOGGER.debug("added gantt info for PID {} = {}", change.getKey(), observableLine.toString());
                 } else if (change.wasRemoved()) {
@@ -394,9 +399,46 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                                     if (number.intValue() < ganttChart.getColumns().size()-1) { return; } // don't rollback
                                     var col = new TableColumn<ObservableValue<GanttLine>, Process.State>(number.toString());
                                     col.setCellValueFactory(cellData ->
-                                            Bindings.valueAt(cellData.getValue().getValue().stateMap, number.intValue())
-                                    );
+                                            ganttValueFactory(cellData.getValue(), number.intValue()));
+                                    col.setCellFactory( column -> new TableCell<>() {
+                                                @Override
+                                                protected void updateItem(Process.State item, boolean empty) {
+                                                    super.updateItem(item, empty);
+                                                    if (item == null || empty) { setText(null); setStyle(""); }
+                                                    else {
+                                                        setText(String.valueOf(pampaSimViewModel.getStateChar().get(item)));
+                                                        var staticColorMap = Map.of(
+                                                                Process.State.NEW, "#00000010", // dark tint
+                                                                Process.State.TERMINATED, "#00000000" // nothing
+                                                        );
+                                                        String hexColor = staticColorMap.get(item);
+                                                        if (hexColor == null) {
+                                                            // then it's a dynamic color, calculate it
+                                                            var procClr = getTableRow().getItem().getValue().color.getValue();
+                                                            byte alpha = (byte) switch (item) {
+                                                                case Process.State.NEW, Process.State.TERMINATED -> 0; // exhaustive compliance, never reached
+                                                                case Process.State.IO_RUNNING, Process.State.WAITING, Process.State.IO_WAITING -> 127; // half-bright
+                                                                case Process.State.READY -> 80; // faint
+                                                                case Process.State.SCHEDULED -> 32; // really faint
+                                                                case Process.State.RUNNING -> 255; // full bright
+                                                            };
+                                                           hexColor = "#" + HexFormat.of().formatHex(new byte[]{
+                                                                   ((byte) (procClr.getRed() * 255)),
+                                                                   ((byte) (procClr.getGreen() * 255)),
+                                                                   ((byte) (procClr.getBlue() * 255)),
+                                                                   alpha});
+                                                        }
+                                                        setStyle("-fx-background-color: " + hexColor);
+                                                    }
+                                                }
+                                            });
                                     ganttChart.getColumns().add(col);
                                 }));
+    }
+
+    protected ObservableValue<Process.State> ganttValueFactory(
+           ObservableValue<GanttLine> line, int idx)
+    {
+        return Bindings.valueAt(line.getValue().stateMap, idx);
     }
 }
