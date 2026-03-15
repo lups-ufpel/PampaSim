@@ -235,9 +235,8 @@
                                              <content>
                                                 <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                                                    <content>
-                                                      <TableView fx:id="ganttChart" minHeight="300.0" minWidth="800.0">
+                                                      <TableView fx:id="ganttChart" minHeight="300.0" minWidth="800.0" >
                                                         <columns>
-                                                          <TableColumn fx:id="ganttPidCol" editable="false" prefWidth="100.0" text="PID" />
                                                         </columns>
                                                       </TableView>
                                                    </content>

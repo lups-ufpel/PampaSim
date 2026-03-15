@@ -20,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.Level;
@@ -312,12 +313,12 @@ public class PampaSimViewModel implements ViewModel {
             throw new RuntimeException("tried to start a simulation without the correct setup");
         }
         setSimulationRunning(true);
-        this.asciiReportClock = 0;
-        this.ganttData.clear();
     }
 
     public void syncWithSpec() {
         allProcesses.clear();
+        this.asciiReportClock = 0;
+        this.ganttData.clear();
         simulatedScenario.resetToSpec();
         updateProps();
     }
@@ -327,6 +328,7 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void runSimulation(boolean fullStep) {
+        assert(simulationRunning.get());
         boolean blockedTick;
         Simulation sim = simulatedScenario.getSimulation().get();
         if (sim.getState() == SimEntity.EntityState.Blocked) {
