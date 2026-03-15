@@ -5,9 +5,20 @@ import org.pampasim.resources.Process;
 
 import java.util.Comparator;
 
+@SuppressWarnings("unused")
 public class FCFS extends RankingScheduler {
     public FCFS(Simulation simulation) {
         super(simulation);
+    }
+
+    @Override
+    public String shortDescription() {
+        return "first-come, first-served";
+    }
+
+    @Override
+    public String longDescription() {
+        return "Scheduler that follows a simple queue: the earlier you get in line, the earlier you get fulfilled. Not preemptive, simple solution for batched jobs.";
     }
 
     @Override
@@ -15,14 +26,15 @@ public class FCFS extends RankingScheduler {
         return new Comparator<Process>() {
             @Override
             public int compare(Process lhs, Process rhs) {
-                // lhs < rhs -> -return
-                // lhs = rhs -> 0 return
-                // lhs > rhs -> +return
-                if(lhs.getCreationData().getArrivalTick() == rhs.getCreationData().getArrivalTick()){
+                // smaller values come earlier
+                // lhs -> -
+                // lhs = rhs -> 0
+                // rhs -> +
+                var order = lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
+                if(order == 0) { // creation id is the tiebreaker
                   return (int) (lhs.getCreationData().getCreationId() - rhs.getCreationData().getCreationId());
-                }  else{
-                  return lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
                 }
+                return order;
             }
         };
     }

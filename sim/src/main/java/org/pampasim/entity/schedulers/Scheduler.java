@@ -11,6 +11,14 @@ import org.pampasim.resources.Process;
 
 import java.util.Collection;
 
+// TODO: write a suite of tests that assert the invariants as described below to validate foreign schedulers
+
+/// Provides a managedRun() override that schedules the next process when appropriate,
+/// a shouldRunNextTick() that respects the queue and
+/// handles process state transitions and event bindings for the core simulation.
+/// Expects concrete Process.Schedule handler and nextProcessToSchedule(),
+/// short and long descriptions, as well as both a correctly implemented incrementWaitingTimes()
+/// and overwritten shouldRunNextTick() if one chooses to forego the processQueue collection.
 public abstract class Scheduler extends AbstractSimEntity {
     private final Logger LOGGER = LogManager.getLogger(Scheduler.class);
     protected Process lastRunProcess;
@@ -43,9 +51,18 @@ public abstract class Scheduler extends AbstractSimEntity {
         }
     }
 
+    @Override
+    public boolean shouldRunNextTick() {
+        return super.shouldRunNextTick()
+                || (this.lastProcessFinished() && !this.processQueue.isEmpty());
+    }
+
     protected abstract void handleProcessSchedule(org.pampasim.events.Process.Schedule event);
 
     protected abstract Process nextProcessToSchedule();
+
+    public abstract String shortDescription();
+    public abstract String longDescription();
 
     // kept private so we are sure the books are up to date
     private void scheduleNextProcess() {

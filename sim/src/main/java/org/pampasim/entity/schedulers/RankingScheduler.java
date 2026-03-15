@@ -7,21 +7,14 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 // WARN: tightly coupled with baseclass thru the processEnRoute flag
+/// Abstracts away the queue semantics of strategies that only differ by how they order the queue (non-preemptive)
 public abstract class RankingScheduler extends Scheduler {
-    PriorityQueue<Process> readyList;
-
     public RankingScheduler(Simulation simulation) {
         super(simulation);
         this.processQueue = new PriorityQueue<>(processRankingAlgorithm());
     }
 
     public abstract Comparator<Process> processRankingAlgorithm();
-
-    @Override
-    public boolean shouldRunNextTick() {
-        return super.shouldRunNextTick()
-                || (this.lastProcessFinished() && !this.processQueue.isEmpty());
-    }
 
     @Override
     protected Process nextProcessToSchedule() {

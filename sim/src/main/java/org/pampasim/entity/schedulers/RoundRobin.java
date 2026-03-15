@@ -10,6 +10,7 @@ import java.util.Queue;
 
 // Doesn't respect priorities! FIXME
 // making it do so is nontrivial
+@SuppressWarnings("unused")
 public class RoundRobin extends Scheduler implements RespectsQuantum {
     @Getter
     @Setter
@@ -18,6 +19,16 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     public RoundRobin(Simulation simulation) {
         super(simulation);
         processQueue = new ArrayDeque<>();
+    }
+
+    @Override
+    public String shortDescription() {
+        return "round-robin";
+    }
+
+    @Override
+    public String longDescription() {
+        return "Preemptive scheduler that enforces a hard time limit for the running process, the quantum. Otherwise behaves as first-come, first-served.";
     }
 
     @Override
@@ -30,12 +41,6 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
             // Preempt!
             scheduleToNextClock(new org.pampasim.events.Process.Preemption(this, lastRunProcess));
         }
-    }
-
-    @Override
-    public boolean shouldRunNextTick() {
-        return super.shouldRunNextTick()
-                || (this.lastProcessFinished() && !processQueue.isEmpty());
     }
 
     @Override
