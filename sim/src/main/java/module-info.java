@@ -1,7 +1,6 @@
 module org.pampasim {
     requires javafx.fxml;
     requires de.saxsys.mvvmfx;
-    requires slf4j.api;
     requires java.desktop;
     requires org.pampasim.core;
     requires org.pampasim.resources;
@@ -21,6 +20,7 @@ module org.pampasim {
 
     requires org.pampasim.events;
     requires org.pampasim.memory;
+    requires org.apache.logging.log4j.core;
 
     opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx, info.picocli;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;

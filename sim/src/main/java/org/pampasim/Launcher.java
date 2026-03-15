@@ -4,14 +4,11 @@ import lombok.Getter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.apache.logging.log4j.core.config.Configurator;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * The main entry point for PampaSim application.
@@ -29,7 +26,7 @@ public class Launcher implements Runnable {
     @Getter
     @Option(names = {"-s", "--spec"},
             paramLabel = "<ARQUIVO-SPEC>",
-            description = "especificação à ser carregada")
+            description = "especificação a ser carregada")
     private static Path autoloadSpec = null;
 
     @Getter
