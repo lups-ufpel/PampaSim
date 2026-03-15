@@ -445,6 +445,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                                                     super.updateItem(item, empty);
                                                     if (item == null || empty) { setText(null); setStyle(""); return; }
                                                     setText(String.valueOf(pampaSimViewModel.getStateChar().get(item)));
+                                                    setTooltip(new Tooltip(item.toString())); // FIXME: localization?
                                                     var staticColorMap = Map.of(
                                                             Process.State.NEW, "#00000010", // dark tint
                                                             Process.State.TERMINATED, "#00000000" // nothing
