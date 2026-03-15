@@ -400,17 +400,18 @@ public class PampaSimViewModel implements ViewModel {
 
         // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
-            Queue<Process> processQueue = (Queue<Process>) simulatedScenario.getSimulation().get()
+            Stream<Process> processStream = simulatedScenario.getSimulation().get()
                     .getEntity(Scheduler.class)
-                    .getProcessQueue();
+                    .getScheduledProcesses();
 
-            for (Process queuedProc : processQueue) {
-                long queuedId = queuedProc.getCreationData().getCreationId();
+            // FIXME: allProcesses should be a hashMap over (creationId, pvm) at this point
+            processStream.forEach(scheduledProc -> {
+                long pCid = scheduledProc.getCreationData().getCreationId();
                 allProcesses.stream()
-                        .filter(pvm -> pvm.getCreationId() == queuedId)
+                        .filter(pvm -> pvm.getCreationId() == pCid)
                         .findFirst()
-                        .ifPresent(pvm -> pvm.getReadyWaitingTime().set(queuedProc.getWaitTime()));
-            }
+                        .ifPresent(pvm -> pvm.getReadyWaitingTime().set(scheduledProc.getWaitTime()));
+            });
         }
         simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation().get(), allProcesses);
 

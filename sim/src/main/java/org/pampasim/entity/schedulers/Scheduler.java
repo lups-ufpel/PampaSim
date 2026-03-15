@@ -10,6 +10,8 @@ import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.resources.Process;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 // TODO: write a suite of tests that assert the invariants as described below to validate foreign schedulers
 
@@ -17,12 +19,11 @@ import java.util.Collection;
 /// a shouldRunNextTick() that respects the queue and
 /// handles process state transitions and event bindings for the core simulation.
 /// Expects concrete Process.Schedule handler and nextProcessToSchedule(),
-/// short and long descriptions, as well as both a correctly implemented incrementWaitingTimes()
-/// and overwritten shouldRunNextTick() if one chooses to forego the processQueue collection.
+/// short and long descriptions, and if you decide to forego the default processQueue,
+/// a correctly implemented incrementWaitingTimes(), shouldRunNextTick(), and getScheduledProcesses().
 public abstract class Scheduler extends AbstractSimEntity {
     private final Logger LOGGER = LogManager.getLogger(Scheduler.class);
     protected Process lastRunProcess;
-    @Getter
     protected Collection<Process> processQueue;
 
     public Scheduler(Simulation simulation) {
@@ -54,7 +55,8 @@ public abstract class Scheduler extends AbstractSimEntity {
     @Override
     public boolean shouldRunNextTick() {
         return super.shouldRunNextTick()
-                || (this.lastProcessFinished() && !this.processQueue.isEmpty());
+                || (this.lastProcessFinished()
+                    && (this.processQueue != null && !this.processQueue.isEmpty()));
     }
 
     protected abstract void handleProcessSchedule(org.pampasim.events.Process.Schedule event);
@@ -71,7 +73,10 @@ public abstract class Scheduler extends AbstractSimEntity {
         proc.setState(Process.State.SCHEDULED);
         lastRunProcess = proc;
         scheduleToNextClock(new org.pampasim.events.Process.Dispatch(this, proc));
+    }
 
+    public Stream<Process> getScheduledProcesses() {
+        return this.processQueue.stream();
     }
 
     protected boolean lastProcessFinished() {

@@ -15,10 +15,12 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
     @Getter
     @Setter
     int quantum;
+    ArrayDeque<Process> processDeque;
 
     public RoundRobin(Simulation simulation) {
         super(simulation);
-        processQueue = new ArrayDeque<>();
+        processDeque = new ArrayDeque<>();
+        processQueue = processDeque;
     }
 
     @Override
@@ -45,12 +47,12 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
 
     @Override
     protected void handleProcessSchedule(org.pampasim.events.Process.Schedule event) {
-        ((Queue<Process>) processQueue).add(event.getProcess());
+        processDeque.add(event.getProcess());
     }
 
     @Override
     protected Process nextProcessToSchedule() {
-        Process p = ((Queue<Process>) processQueue).poll();
+        Process p = processDeque.poll();
         // be sure to send it off with the proper burst time
         if (p != null) { p.setBurstTime(getQuantum()); } // This is incorrect
         // burst time is a measurable stat, not a remaining time counter we can set
