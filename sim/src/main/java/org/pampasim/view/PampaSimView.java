@@ -7,7 +7,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -100,12 +100,12 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Button statisticsBtn;
     @FXML
     public Button addModuleBtn;
-    public record GanttLine(PidAllocator.Pid pid, ObservableMap<Integer, Process.State> stateMap, ObservableValue<Color> color) {};
+    public record GanttLine(PidAllocator.Pid pid, MapProperty<Integer, Process.State> stateMap, ObservableValue<Color> color) {};
     @FXML
-    public TableView<ObservableValue<GanttLine>> ganttChart;
+    public TableView<ObjectProperty<GanttLine>> ganttChart;
     @FXML
-    public TableColumn<ObservableValue<GanttLine>, PidAllocator.Pid> ganttPidCol;
-    private ObservableList<ObservableValue<GanttLine>> ganttLines;
+    public TableColumn<ObjectProperty<GanttLine>, PidAllocator.Pid> ganttPidCol;
+    private MapProperty<PidAllocator.Pid, ObjectProperty<GanttLine>> ganttLines;
 
     private Timeline animation;
     private ProcessViewModel editedProcessViewModel = null;
@@ -267,7 +267,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
             }
         });
 
-        ganttLines = FXCollections.observableArrayList();
+        ganttLines = new SimpleMapProperty<>(FXCollections.observableHashMap());
         bindGanttChartObservable();
     }
 
@@ -364,25 +364,40 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
 
     public void bindGanttChartObservable() {
-        ganttChart.setItems(ganttLines);
+        /* Problems we have:
+        1. We don't know which PIDs will get assigned to which ProcessViewModels
+        2. We don't know how many PIDs will be allocated before the first run
+        3. After the first run, we shall not duplicate/reallocate bindings for rows that
+        were created and will be reused (shaky on this requirement)
+         */
+
+        ObservableList<ObjectProperty<GanttLine>> observableLineList = FXCollections.observableArrayList(ganttLines.values());
+        ganttChart.setItems(observableLineList);
+
         pampaSimViewModel.getGanttData().addListener(new MapChangeListener<PidAllocator.Pid, ObservableMap<Integer, Process.State>>() {
             @Override
             public void onChanged(Change<? extends PidAllocator.Pid, ? extends ObservableMap<Integer, Process.State>> change) {
                 if (change.wasAdded()) {
-                    var val = Bindings.valueAt(pampaSimViewModel.getGanttData(), change.getKey());
+                    var val = new SimpleMapProperty<>(change.getValueAdded());
                     var pid = change.getKey();
+                    // FIXME: this might be too slow, consider exposing a hashmap for these queries
                     var pvm = pampaSimViewModel.getAllProcesses().filtered(p -> p.getPid().get() == pid).getFirst();
-                    var observableLine = val.flatMap(
-                            stateMap -> Bindings.createObjectBinding(
-                                    () -> new GanttLine(
-                                            pid, stateMap,
-                                            pvm.getColorProperty()), val));
-                    ganttLines.add(observableLine);
-                    LOGGER.debug("added gantt info for PID {} = {}", change.getKey(), observableLine.toString());
+                    // we can get away with a non-observable pid here since PIDs increment monotonically (save for reuse)
+                    var line = new GanttLine(pid, val, pvm.getColorProperty());
+                    ganttLines.compute(pid, (_k, v) -> {
+                        if (v == null) {
+                            v = new SimpleObjectProperty<>(line);
+                        } else {
+                            v.set(line);
+                        }
+                        return v;
+                    });
+                    LOGGER.trace("added gantt info for PID {} = {}", change.getKey(), line.toString());
                 } else if (change.wasRemoved()) {
-                    LOGGER.debug("simulation removed gantt info for PID {}", change.getKey());
-                    ganttLines.removeIf(line -> line.getValue().pid == change.getKey());
+                    LOGGER.trace("removed gantt info for PID {}", change.getKey());
+                    ganttLines.remove(change.getKey());
                 }
+                observableLineList.setAll(ganttLines.values()); // sync with the table list
             }
         });
 
@@ -397,7 +412,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                                 .addListener((observableClock, _oldNumber, number) -> {
                                     LOGGER.info("adding column for {}", number);
                                     if (number.intValue() < ganttChart.getColumns().size()-1) { return; } // don't rollback
-                                    var col = new TableColumn<ObservableValue<GanttLine>, Process.State>(number.toString());
+                                    TableColumn<ObjectProperty<GanttLine>, Process.State> col = new TableColumn<>(number.toString());
                                     col.setCellValueFactory(cellData ->
                                             ganttValueFactory(cellData.getValue(), number.intValue()));
                                     col.setCellFactory( column -> new TableCell<>() {
@@ -439,6 +454,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     protected ObservableValue<Process.State> ganttValueFactory(
            ObservableValue<GanttLine> line, int idx)
     {
-        return Bindings.valueAt(line.getValue().stateMap, idx);
+        return line.getValue().stateMap.valueAt(idx);
     }
 }
