@@ -32,7 +32,7 @@
     </xs:group>
     <xs:complexType name="processorConfig">
         <xs:attribute name="millionInstructionsPerSecond" default="100" type="xs:positiveInteger"/>
-        <xs:attribute name="coreCount" fixed="1"/> <!-- TODO: fixed for now, change when multicore -->
+        <xs:attribute name="coreCount" fixed="1" type="xs:positiveInteger"/> <!-- TODO: fixed for now, change when multicore -->
     </xs:complexType>
     <xs:complexType name="schedulerConfig">
         <xs:sequence>

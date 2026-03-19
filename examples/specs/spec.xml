@@ -10,7 +10,7 @@
         </scheduler>
     </entities>
     <stimuli>
-        <event name="start" timing="instant">
+        <event fullyQualifiedClassName="start" timing="instant">
             <processCreationDataPayload>
                 <arrivalTick>0</arrivalTick>
                 <durationTicks>5</durationTicks>
@@ -18,7 +18,7 @@
                 <displayColor>0000ff</displayColor>
             </processCreationDataPayload>
         </event>
-        <event name="start" timing="instant">
+        <event fullyQualifiedClassName="start" timing="instant">
             <processCreationDataPayload>
                 <arrivalTick>0</arrivalTick>
                 <durationTicks>2</durationTicks>
@@ -26,7 +26,7 @@
                 <displayColor>888800</displayColor>
             </processCreationDataPayload>
         </event>
-        <event name="start" timing="instant">
+        <event fullyQualifiedClassName="start" timing="instant">
             <processCreationDataPayload>
                 <arrivalTick>1</arrivalTick>
                 <durationTicks>4</durationTicks>
@@ -34,7 +34,7 @@
                 <displayColor>008888</displayColor>
             </processCreationDataPayload>
         </event>
-        <event name="start" timing="instant">
+        <event fullyQualifiedClassName="start" timing="instant">
             <processCreationDataPayload>
                 <arrivalTick>3</arrivalTick>
                 <durationTicks>1</durationTicks>
@@ -42,7 +42,7 @@
                 <displayColor>008800</displayColor>
             </processCreationDataPayload>
         </event>
-        <event name="start" timing="instant">
+        <event fullyQualifiedClassName="start" timing="instant">
             <processCreationDataPayload>
                 <arrivalTick>5</arrivalTick>
                 <durationTicks>2</durationTicks>
@@ -50,7 +50,7 @@
                 <displayColor>880000</displayColor>
             </processCreationDataPayload>
         </event>
-        <event name="start" timing="instant">
+        <event fullyQualifiedClassName="start" timing="instant">
             <processCreationDataPayload>
                 <arrivalTick>16</arrivalTick>
                 <durationTicks>10</durationTicks>

@@ -4,6 +4,9 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,8 +31,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,6 +47,7 @@ import java.util.stream.Stream;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.xml.sax.SAXException;
 
 /// Data to set up a simulation scenario
 /// Usually comes from a spec file
@@ -63,6 +70,7 @@ public class Spec {
     private boolean hasProcManager;
     private EventSchedule eventSchedule;
     private Map<Long, Color> colorMap;
+    private static JAXBContext jaxbContext;
 
     public Spec() {
         this.schedulerInfo = null;
@@ -73,15 +81,32 @@ public class Spec {
     }
 
     public static Spec loadSpec(InputStream stream) {
-        Spec spec;
+        Spec spec = new Spec();
         try {
-            CharStream charStream = CharStreams.fromStream(stream);
-            var lexer = new SpecFileLexer(charStream);
-            var tokStream = new CommonTokenStream(lexer);
-            var specParser = new SpecFileParser(tokStream);
-            var specVisitor = new SpecVisitor();
-            spec = specVisitor.visitSpecFile(specParser.specFile());
-        } catch (IOException e) {
+            if (Spec.jaxbContext == null) {
+                Spec.jaxbContext = JAXBContext.newInstance("org.pampasim");
+            }
+            Unmarshaller u = Spec.jaxbContext.createUnmarshaller();
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(new File("schemas/spec.xsd"));
+            u.setSchema(schema);
+            Object specObj = u.unmarshal(stream);
+            org.pampasim.Spec s = (org.pampasim.Spec)specObj;
+
+            var pInfo = s.getEntities().getProcessor();
+            var cores = new ArrayList<Integer>(1);
+            cores.add(pInfo.getMillionInstructionsPerSecond().intValue());
+            spec.getProcessors().add(new ProcessorInfo(cores));
+
+            var schInfo = s.getEntities().getScheduler();
+            //var anyMaybe = schInfo.getAny()
+            spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), Optional.empty());
+
+            spec.setHasProcManager(true); // don't really know why I left it optional
+
+            s.getStimuli().getEvent().forEach(e -> {
+            });
+        } catch (JAXBException | SAXException e) {
             throw new RuntimeException(e);
         }
         return spec;

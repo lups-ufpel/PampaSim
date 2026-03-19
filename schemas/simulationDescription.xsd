@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="simulationDescription">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="events" type="eventDeclaration"/>
+                <xs:element name="entity" type="entityDeclaration" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="eventDeclaration">
+        <xs:sequence>
+            <xs:element name="eventGroup" type="eventGroup" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="eventGroup">
+        <xs:sequence>
+            <xs:element name="payloads">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="fullyQualifiedClassName" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="event" type="xs:string" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="entityDeclaration">
+        <xs:sequence>
+            <xs:element name="handler" type="handlerDeclaration" maxOccurs="unbounded"/>
+            <xs:element name="produces" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="event" type="eventIdentifier"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="handlerDeclaration">
+        <xs:sequence>
+            <xs:element name="event" type="eventIdentifier"/>
+            <xs:element name="do" type="xs:string"/>
+            <xs:element name="chains" minOccurs="0" type="chainsADT">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="chainsADT">
+        <xs:choice>
+            <xs:element name="event" type="eventIdentifier"/>
+            <xs:element name="or">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="alt" type="chainsADT" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="eventIdentifier">
+        <xs:all>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="group" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>
+</xs:schema>

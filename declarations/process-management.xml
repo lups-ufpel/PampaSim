@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<simulationDescription
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../schemas/simulationDescription.xsd">
+    <events>
+        <eventGroup name="External">
+            <payloads>
+                <fullyQualifiedClassName>org.pampasim.resources.Process$CreationData</fullyQualifiedClassName>
+            </payloads>
+            <event>Arrival</event>
+        </eventGroup>
+        <eventGroup name="Process">
+            <payloads>
+                <fullyQualifiedClassName>org.pampasim.resources.Process$CreationData</fullyQualifiedClassName>
+                <fullyQualifiedClassName>org.pampasim.resources.Process</fullyQualifiedClassName>
+            </payloads>
+            <event>Allocate</event>
+            <event>Ready</event>
+            <event>Schedule</event>
+            <event>Dispatch</event>
+            <event>Run</event>
+            <event>Load</event>
+            <event>IoOperation</event>
+            <event>Preemption</event>
+            <event>RunPaused</event>
+            <event>End</event>
+            <event>Kill</event>
+        </eventGroup>
+    </events>
+    <entity name="ProcessManager">
+        <handler>
+            <event>
+                <name>Arrival</name>
+                <group>External</group>
+            </event>
+            <do>create process</do>
+            <chains>
+                <event>
+                    <name>Allocate</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <handler>
+            <event>
+                <name>Ready</name>
+                <group>Process</group>
+            </event>
+            <do>schedule for execution</do>
+            <chains>
+                <event>
+                    <name>Schedule</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <handler>
+            <event>
+                <name>RunPaused</name>
+                <group>Process</group>
+            </event>
+            <do>schedule for execution or end process</do>
+            <chains>
+                <or>
+                    <alt>
+                        <event>
+                            <name>Schedule</name>
+                            <group>Process</group>
+                        </event>
+                    </alt>
+                    <alt>
+                        <event>
+                            <name>End</name>
+                            <group>Process</group>
+                        </event>
+                    </alt>
+                </or>
+            </chains>
+        </handler>
+    </entity>
+    <entity name="Scheduler">
+        <handler>
+            <event>
+                <name>Schedule</name>
+                <group>Process</group>
+            </event>
+            <do>bring process to memory</do>
+            <chains>
+                <event>
+                    <name>Dispatch</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <produces>
+            <event>
+                <name>Preemption</name>
+                <group>Process</group>
+            </event>
+        </produces>
+    </entity>
+    <entity name="Processor">
+        <handler>
+            <event>
+                <name>Preemption</name>
+                <group>Process</group>
+            </event>
+            <do>suspend and evict current process</do>
+            <chains>
+                <event>
+                    <name>RunPaused</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <handler>
+            <event>
+                <name>Dispatch</name>
+                <group>Process</group>
+            </event>
+            <do>load pages for current execution tick</do>
+            <chains>
+                <event>
+                    <name>Run</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+    </entity>
+    <entity name="Memory">
+        <handler>
+            <event>
+                <name>Allocate</name>
+                <group>Process</group>
+            </event>
+            <do>allocate memory</do>
+            <chains>
+                <event>
+                    <name>Ready</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <handler>
+            <event>
+                <name>End</name>
+                <group>Process</group>
+            </event>
+            <do>free memory</do>
+            <chains>
+                <event>
+                    <name>Kill</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <handler>
+            <event>
+                <name>Load</name>
+                <group>Process</group>
+            </event>
+            <do>load requested pages into memory</do>
+            <chains>
+                <event>
+                    <name>Run</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+        <handler>
+            <event>
+                <name>IoOperation</name>
+                <group>Process</group>
+            </event>
+            <do>perform expensive IO operations</do>
+            <chains>
+                <event>
+                    <name>Schedule</name>
+                    <group>Process</group>
+                </event>
+            </chains>
+        </handler>
+    </entity>
+</simulationDescription>
