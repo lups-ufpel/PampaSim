@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="processCreationDataPayload">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="arrivalTick" type="xs:nonNegativeInteger"/>
+                <xs:element name="durationTicks" type="xs:positiveInteger"/>
+                <xs:element name="startPriority" type="xs:nonNegativeInteger"/>
+                <!-- FIXME: regex restriction for the color -->
+                <xs:element name="displayColor" type="xs:string"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

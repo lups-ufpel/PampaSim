@@ -2,18 +2,16 @@
 
 <xs:schema
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://pampasim.org"
-        xmlns="http://pampasim.org"
         elementFormDefault="qualified">
     <xs:include schemaLocation="./event.xsd"/>
+    <xs:include schemaLocation="./events/processCreationData.xsd"/>
+
     <xs:element name="spec">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="entities">
                     <xs:complexType>
-                        <xs:sequence>
-                            <xs:group ref="mandatoryEntities"/>
-                        </xs:sequence>
+                        <xs:group ref="mandatoryEntities"/>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="stimuli">
