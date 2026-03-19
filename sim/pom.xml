@@ -144,6 +144,26 @@
                     </execution>
                 </executions>
             </plugin>
+           <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jaxb2-maven-plugin</artifactId>
+            <version>4.1.0</version>
+            <executions>
+                <execution>
+                    <id>xjc</id>
+                    <goals>
+                        <goal>xjc</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <!-- The package of your generated sources -->
+                <packageName>org.pampasim</packageName>
+                <sources>
+                    <source>../schemas/spec.xsd</source>
+                </sources>
+            </configuration>
+        </plugin>
         </plugins>
         <resources>
             <resource>

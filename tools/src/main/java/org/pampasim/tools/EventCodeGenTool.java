@@ -65,6 +65,7 @@ public class EventCodeGenTool {
                 module org.pampasim.events {
                     requires org.pampasim.core;
                     requires org.pampasim.resources;
+                    requires jakarta.xml.bind;
                     requires lombok;
                     opens org.pampasim.events;
                     exports org.pampasim.events;
