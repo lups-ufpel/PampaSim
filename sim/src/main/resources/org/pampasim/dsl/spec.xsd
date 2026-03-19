@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://pampasim.org"
+        xmlns="http://pampasim.org"
+        elementFormDefault="qualified">
+    <xs:element name="spec">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="entities">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:group ref="mandatoryEntities"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="stimuli">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="event" type="event" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:group name="mandatoryEntities">
+        <xs:all>
+            <xs:element name="processor" type="processorConfig"/>
+            <xs:element name="scheduler">
+
+            </xs:element>
+        </xs:all>
+    </xs:group>
+    <xs:complexType name="processorConfig">
+        <xs:attribute name="millionInstructionsPerSecond" default="100" type="xs:positiveInteger"/>
+        <xs:attribute name="coreCount" fixed="1"/> <!-- TODO: fixed for now, change when multicore -->
+    </xs:complexType>
+    <xs:complexType name="schedulerConfig">
+        <xs:sequence>
+            <xs:element name="fullyQualifiedClassName" type="xs:string"/>
+            <xs:any minOccurs="0"/> <!-- instance configuration -->
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
