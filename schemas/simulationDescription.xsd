@@ -11,7 +11,8 @@
     </xs:element>
     <xs:complexType name="eventDeclaration">
         <xs:sequence>
-            <xs:element name="eventGroup" type="eventGroup" maxOccurs="unbounded"/>
+            <xs:element name="import" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="eventGroup" type="eventGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="eventGroup">
