@@ -1,0 +1,1 @@
+schemas are all kept here to be later copied into the uberjar, that way the relative paths all work out both inside the IDE and inside the jar zip

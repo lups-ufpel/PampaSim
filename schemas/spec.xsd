@@ -5,6 +5,7 @@
         targetNamespace="http://pampasim.org"
         xmlns="http://pampasim.org"
         elementFormDefault="qualified">
+    <xs:include schemaLocation="./event.xsd"/>
     <xs:element name="spec">
         <xs:complexType>
             <xs:sequence>
@@ -28,9 +29,7 @@
     <xs:group name="mandatoryEntities">
         <xs:all>
             <xs:element name="processor" type="processorConfig"/>
-            <xs:element name="scheduler">
-
-            </xs:element>
+            <xs:element name="scheduler" type="schedulerConfig"/>
         </xs:all>
     </xs:group>
     <xs:complexType name="processorConfig">

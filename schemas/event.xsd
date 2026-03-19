@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://pampasim.org"
+        elementFormDefault="qualified" >
+<xs:complexType name="event">
+    <xs:sequence>
+        <!-- allow arbitrary payloads -->
+        <!-- FIXME: figure out a way to give each event kind a schema -->
+        <xs:any maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="timing" type="xs:string" default="instant" use="required"/>
+    <!-- FIXME: timing characteristic complex type -->
+</xs:complexType>
+</xs:schema>
