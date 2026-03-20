@@ -1,9 +1,7 @@
 package org.pampasim.resources.viewmodel;
 
-import com.ibm.icu.impl.StringSegment;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;

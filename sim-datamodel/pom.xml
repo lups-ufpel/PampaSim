@@ -37,7 +37,45 @@
           <groupId>org.kordamp.ikonli</groupId>
           <artifactId>ikonli-javafx</artifactId>
       </dependency>
+      <dependency>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+          <version>4.0.4</version>
+      </dependency>
   </dependencies>
   <build>
+      <plugins>
+          <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>jaxb2-maven-plugin</artifactId>
+              <version>4.1.0</version>
+              <executions>
+                  <execution>
+                      <id>xjc</id>
+                      <goals>
+                          <goal>xjc</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              <configuration>
+                  <!-- The package of your generated sources -->
+                  <packageName>org.pampasim.resources</packageName>
+                  <sources>
+                      <source>../schemas/simulationDescription.xsd</source>
+                  </sources>
+                  <!--plugins>
+                      <plugin>equalsHashCode</plugin>
+                      <plugin>toString</plugin>
+                  </plugins-->
+              </configuration>
+              <!--dependencies>
+                  <dependency>
+                      <groupId>org.jvnet.jaxb</groupId>
+                      <artifactId>jaxb2-basics</artifactId>
+                      <version>2.0.15</version>
+                  </dependency>
+              </dependencies-->
+          </plugin>
+      </plugins>
   </build>
 </project>

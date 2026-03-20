@@ -48,17 +48,6 @@
       <groupId>guru.nidi</groupId>
       <artifactId>graphviz-java</artifactId>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.antlr/antlr4-runtime -->
-    <!-- https://github.com/Rospaccio/learnantlr/blob/master/pom.xml -->
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4-maven-plugin</artifactId>
-    </dependency>
-
     <!-- these two are here for the Color definition and the observable classes-->
     <dependency>
       <groupId>org.openjfx</groupId>
@@ -68,11 +57,11 @@
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-graphics</artifactId>
     </dependency>
-    <!-- this one may not be needed -->
+    <!-- this one may not be needed
     <dependency>
       <groupId>de.saxsys</groupId>
       <artifactId>mvvmfx</artifactId>
-    </dependency>
+    </dependency> -->
   </dependencies>
 
   <build>
@@ -80,10 +69,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

@@ -6,7 +6,6 @@ module org.pampasim.memory {
     requires org.pampasim.events;
     requires guru.nidi.graphviz;
     requires static lombok;
-    requires org.antlr.antlr4.runtime;
     requires org.apache.logging.log4j;
     requires de.saxsys.mvvmfx;
     requires javafx.fxml;

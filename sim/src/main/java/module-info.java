@@ -6,10 +6,8 @@ module org.pampasim {
     requires org.pampasim.resources;
     requires guru.nidi.graphviz;
     requires static lombok;
-    requires org.antlr.antlr4.runtime;
     requires io.github.classgraph;
     requires org.apache.logging.log4j;
-    requires antlr4;
 
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.feather;

@@ -1,7 +1,5 @@
 package org.pampasim.entity.schedulers;
 
-import lombok.Getter;
-import org.antlr.v4.Tool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
@@ -10,7 +8,6 @@ import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.resources.Process;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Stream;
 
 // TODO: write a suite of tests that assert the invariants as described below to validate foreign schedulers

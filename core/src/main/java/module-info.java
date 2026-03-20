@@ -2,11 +2,8 @@ module org.pampasim.core {
     requires static lombok;
     requires javafx.base; // we need javafx.beans for the observables
     requires guru.nidi.graphviz;
-    requires org.antlr.antlr4.runtime;
     requires org.apache.logging.log4j;
-    requires de.saxsys.mvvmfx;
 
-    exports org.pampasim.core.dsl;
     exports org.pampasim.core.dsl.metadata;
     exports org.pampasim.core.dsl.errors;
     exports org.pampasim.core.entity;

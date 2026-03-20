@@ -65,8 +65,8 @@
         <configuration>
             <mainClass>org.pampasim.tools.EventCodeGenTool</mainClass>
             <arguments>
-                <argument>sim/refactor.ent</argument>
-                <argument>memory/desc.ent</argument>
+                <argument>declarations/processManagement.xml</argument>
+                <argument>declarations/memoryManagement.xml</argument>
                 <argument>org.pampasim.events</argument>
                 <argument>events/target/generated-sources/events</argument>
             </arguments>

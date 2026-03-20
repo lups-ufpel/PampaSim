@@ -1,5 +1,6 @@
 package org.pampasim.tools;
 
+/*
 import guru.nidi.graphviz.attribute.*;
 import guru.nidi.graphviz.engine.Engine;
 import guru.nidi.graphviz.model.*;
@@ -7,8 +8,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import org.pampasim.core.dsl.EntityDSLLexer;
-import org.pampasim.core.dsl.EntityDSLParser;
 import org.pampasim.core.dsl.metadata.*;
 
 import java.io.IOException;
@@ -164,3 +163,5 @@ public class EntityGraphTool {
         viz.render(Format.DOT).toFile(new File("entity-network.dot"));
     }
 }
+
+ */

@@ -117,7 +117,7 @@ public class PampaSimViewModel implements ViewModel {
     private MemoryTabViewModel memoryModule = null;
 
     public PampaSimViewModel() {
-        var templateSpecStream = PampaSim.class.getResourceAsStream("template.spec");
+        var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
         var templateSpec = Spec.loadSpec(templateSpecStream);
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
             var sim = PampaSim.fromSpec(spec);

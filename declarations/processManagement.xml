@@ -12,7 +12,6 @@
         </eventGroup>
         <eventGroup name="Process">
             <payloads>
-                <fullyQualifiedClassName>org.pampasim.resources.Process$CreationData</fullyQualifiedClassName>
                 <fullyQualifiedClassName>org.pampasim.resources.Process</fullyQualifiedClassName>
             </payloads>
             <event>Allocate</event>

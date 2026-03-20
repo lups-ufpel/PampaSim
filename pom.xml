@@ -78,18 +78,6 @@
         <artifactId>graphviz-java</artifactId>
         <version>0.18.1</version>
       </dependency>
-      <!-- https://mvnrepository.com/artifact/org.antlr/antlr4-runtime -->
-      <!-- https://github.com/Rospaccio/learnantlr/blob/master/pom.xml -->
-      <dependency>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-runtime</artifactId>
-        <version>${antlr4.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-maven-plugin</artifactId>
-        <version>${antlr4.plugin.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
@@ -106,6 +94,12 @@
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
         <version>2.25.2</version>
+      </dependency>
+     <!-- Source: https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>4.0.7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -183,24 +177,6 @@
           <groupId>org.openjfx</groupId>
           <artifactId>javafx-maven-plugin</artifactId>
           <version>0.0.8</version>
-        </plugin>
-        <plugin>
-          <groupId>org.antlr</groupId>
-          <artifactId>antlr4-maven-plugin</artifactId>
-          <version>${antlr4.plugin.version}</version>
-          <executions>
-            <execution>
-              <id>antlr</id>
-              <goals>
-                <goal>antlr4</goal>
-              </goals>
-              <phase>generate-sources</phase>
-              <configuration>
-                <listener>true</listener>
-                <visitor>true</visitor>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

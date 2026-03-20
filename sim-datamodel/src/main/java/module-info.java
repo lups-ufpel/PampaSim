@@ -1,13 +1,13 @@
 module org.pampasim.resources {
     requires org.pampasim.core;
     requires static lombok;
-    requires org.antlr.antlr4.runtime;
     requires org.apache.logging.log4j;
-    requires com.ibm.icu;
+    //requires com.ibm.icu;
     requires de.saxsys.mvvmfx;
     requires javafx.fxml;
     requires org.kordamp.ikonli.javafx;
     requires javafx.controls;
+    requires jakarta.xml.bind;
 
     opens org.pampasim.resources.view to de.saxsys.mvvmfx, javafx.fxml;
     opens org.pampasim.resources.viewmodel to de.saxsys.mvvmfx, javafx.fxml;

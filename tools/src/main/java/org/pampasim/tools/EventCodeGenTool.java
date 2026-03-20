@@ -1,66 +1,82 @@
 package org.pampasim.tools;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.core.dsl.EntityDSLLexer;
-import org.pampasim.core.dsl.EntityDSLParser;
-import org.pampasim.core.dsl.metadata.Event;
-import org.pampasim.core.dsl.metadata.EventGroup;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
+import org.xml.sax.SAXException;
+import org.pampasim.resources.*;
 
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /// Generates all the event classes from a simulation description file
 public class EventCodeGenTool {
     public static Path destinationFolder;
     public static String destinationPackage;
     public static Path pkgPath;
+    private static JAXBContext jaxbContext;
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, JAXBException, SAXException {
         destinationPackage = args[args.length - 2];
         destinationFolder = Paths.get(args[args.length - 1]);
         pkgPath = destinationFolder.resolve(Paths.get(".", destinationPackage.split("\\.")));
         Files.createDirectories(pkgPath);
+        jaxbContext = JAXBContext.newInstance("org.pampasim.resources");
+        Unmarshaller u = jaxbContext.createUnmarshaller();
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(new File("schemas/simulationDescription.xsd"));
+        u.setSchema(schema);
 
-        List<EventGroup> allEventGroups = new ArrayList<>();
+        Map<String, EventGroup> allEventGroups = new HashMap<>();
 
         for (int i = 0; i < args.length - 2; i++) {
-            var fileName = args[i];
-            CharStream stream = null;
-            try {
-                stream = CharStreams.fromFileName(fileName);
-            } catch (IOException e) {
-                System.err.println(fileName + " not found!");
-                assert (false);
-            }
-            var lexer = new EntityDSLLexer(stream);
-            var tokenStream = new CommonTokenStream(lexer);
-            var parser = new EntityDSLParser(tokenStream);
-            parser.setBuildParseTree(true);
-            EntityDSLParser.DescriptionFileContext tree
-                    = parser.descriptionFile();
-            System.out.println(parser.getEvents());
-            System.out.println(parser.getEntities());
+            var file = new File(args[i]);
+            Object descObj = u.unmarshal(file);
+            SimulationDescription simDesc = (SimulationDescription) descObj;
 
-            for (var entry : parser.getEventGroups().entrySet()) {
-                var groupName = entry.getKey();
-                var dataClass = entry.getValue().dataClass();
-                System.out.println("processing event group " + groupName + " that transmits " + dataClass);
-                writeClasses(entry.getValue());
+            var eventGroups = new HashSet<EventGroup>(simDesc.getEvents().getEventGroup());
+            var imports = new ArrayList<String>(simDesc.getEvents().getImport());
+            var visitedImports = new HashSet<String>();
+            while (!imports.isEmpty()) {
+                var path = imports.removeLast();
+                visitedImports.add(path);
+                try {
+                    Object extDescObj = u.unmarshal(new File(path));
+                    SimulationDescription extDesc = (SimulationDescription) extDescObj;
+                    eventGroups.addAll(extDesc.getEvents().getEventGroup());
+                    var notYetSeen = extDesc.getEvents().getImport().stream().filter(p -> !visitedImports.contains(p)).toList();
+                    imports.addAll(notYetSeen);
+
+                } catch (JAXBException e) {
+                    throw new RuntimeException(e);
+                }
+            };
+
+            for (var group : eventGroups) {
+                var groupName = group.getName();
+                var payloads = group.getPayloads().getFullyQualifiedClassName();
+                System.out.println("processing event group " + groupName + " that transmits " + payloads);
+                writeClasses(group);
+                group.getEvent().stream().map(ev -> Map.entry(groupName + "." + ev, group))
+                        .forEach(entry -> {
+                    allEventGroups.put(entry.getKey(), entry.getValue());
+                });
             }
-            allEventGroups.addAll(parser.getEventGroups().values());
         }
-        writeModuleInfo(allEventGroups);
+        System.out.println("allEventsGroups: " + allEventGroups.values().stream().map(EventGroup::getName).toList());
+        writeModuleInfo(new HashSet<>(allEventGroups.values()));
     }
 
-    private static void writeModuleInfo(List<EventGroup> eventGroups) throws IOException {
+    private static void writeModuleInfo(Set<EventGroup> eventGroups) throws IOException {
         StringBuilder code = new StringBuilder("""
                 module org.pampasim.events {
                     requires org.pampasim.core;
@@ -70,7 +86,7 @@ public class EventCodeGenTool {
                     opens org.pampasim.events;
                     exports org.pampasim.events;
                 """);
-        for (String modName : eventGroups.stream().map(EventGroup::name).toList()) {
+        for (String modName : eventGroups.stream().map(EventGroup::getName).toList()) {
             code.append("\n\texports org.pampasim.events.").append(modName).append(";");
         }
         code.append("\n}\n");
@@ -78,9 +94,10 @@ public class EventCodeGenTool {
     }
 
     private record GroupInfo (EventGroup eventGroup, String className, String dataType) {};
-    private static void writeClasses(EventGroup eventGroup) throws IOException {
-        var dataClass = eventGroup.dataClass();
-        var events = eventGroup.events();
+    private static void writeClasses(EventGroup eventGroup) throws IOException, ClassNotFoundException {
+        var dataClassName = eventGroup.getPayloads().getFullyQualifiedClassName().getFirst();
+        var dataClass = Class.forName(dataClassName);
+        var events = eventGroup.getEvent();
         var groupInfo = new GroupInfo(eventGroup,
                 dataClass.getCanonicalName()
                         .replace(dataClass.getPackageName(), "")
@@ -131,11 +148,11 @@ public class EventCodeGenTool {
         }
     }
 
-    static String subClass(GroupInfo groupInfo, Event event) throws IOException {
+    static String subClass(GroupInfo groupInfo, String event) throws IOException {
         System.out.println("processing event " + event);
-        var classNameParts = event.getName().split("\\.");
+        var classNameParts = event.split("\\.");
         var className = classNameParts[classNameParts.length-1];
-        return  "package " + destinationPackage + "." + groupInfo.eventGroup.name() + ";\n" +
+        return  "package " + destinationPackage + "." + groupInfo.eventGroup.getName() + ";\n" +
                 "import org.pampasim.core.events.*;\n" +
                 "import org.pampasim.core.entity.SimEntity;\n" +
                 "import " + destinationPackage + ".*;\n" +
@@ -146,10 +163,10 @@ public class EventCodeGenTool {
                 "}\n";
     }
 
-    static void writeSubClass(GroupInfo groupInfo, Event event) throws IOException {
-        var groupPath = pkgPath.resolve(groupInfo.eventGroup.name());
+    static void writeSubClass(GroupInfo groupInfo, String event) throws IOException {
+        var groupPath = pkgPath.resolve(groupInfo.eventGroup.getName());
         Files.createDirectories(groupPath);
-        var classNameParts = event.getName().split("\\.");
+        var classNameParts = event.split("\\.");
         var className = classNameParts[classNameParts.length-1];
         Files.writeString(groupPath.resolve(className + ".java"), subClass(groupInfo, event));
     }

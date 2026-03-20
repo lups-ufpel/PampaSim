@@ -1,10 +1,9 @@
 package org.pampasim.tools;
 
+/*
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.pampasim.core.dsl.EntityDSLLexer;
-import org.pampasim.core.dsl.EntityDSLParser;
 import org.pampasim.core.dsl.metadata.Entity;
 import org.pampasim.core.dsl.metadata.Event;
 
@@ -136,3 +135,5 @@ public class EntityCodeGenTool {
 
 
 }
+
+*/
