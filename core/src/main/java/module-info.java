@@ -3,6 +3,7 @@ module org.pampasim.core {
     requires javafx.base; // we need javafx.beans for the observables
     requires guru.nidi.graphviz;
     requires org.apache.logging.log4j;
+    requires java.xml;
 
     exports org.pampasim.core.dsl.metadata;
     exports org.pampasim.core.dsl.errors;

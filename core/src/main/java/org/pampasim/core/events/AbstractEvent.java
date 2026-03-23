@@ -4,14 +4,19 @@ import org.pampasim.core.entity.AbstractSimEntity;
 import lombok.Getter;
 import org.pampasim.core.entity.SimEntity;
 
+import javax.xml.validation.Schema;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Getter
 public abstract class AbstractEvent implements Event, Comparable<Event> {
     private final SimEntity source;
     private final long serial;
     private final int creationTick;
+    protected static Map<Class<?>, Optional<Schema>> payloadSchemas;
 
     public AbstractEvent(SimEntity source) {
         this.source = source;
@@ -23,6 +28,7 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
             this.serial = -1;
             this.creationTick = -1;
         }
+        payloadSchemas = new HashMap<>();
     }
 
 

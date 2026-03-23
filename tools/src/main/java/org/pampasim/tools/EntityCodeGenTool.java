@@ -105,7 +105,7 @@ public class EntityCodeGenTool {
         {
             FileInputStream srcFile;
             try {
-                srcFile = new FileInputStream(pkg + "/core/EventManager.java");
+                srcFile = new FileInputStream(pkg + "/core/EventManagerTemplate.java");
             } catch (FileNotFoundException fnfe) {
                 System.out.println("No implementation file for the EventManager, Abort!");
                 assert false;

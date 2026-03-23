@@ -6,11 +6,13 @@ import jakarta.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 import org.pampasim.resources.*;
 
+import javax.print.DocFlavor;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,13 +74,65 @@ public class EventCodeGenTool {
                 });
             }
         }
-        System.out.println("allEventsGroups: " + allEventGroups.values().stream().map(EventGroup::getName).toList());
-        writeModuleInfo(new HashSet<>(allEventGroups.values()));
+        var groupSet = new HashSet<>(allEventGroups.values());
+        System.out.println("event groups: " + groupSet.stream().map(EventGroup::getName).toList());
+        writeEventManager(groupSet);
+        writeModuleInfo(groupSet);
+    }
+
+    private static void writeEventManager(Set<EventGroup> eventGroups) throws IOException {
+        try (var codeStream = EventCodeGenTool.class.getResourceAsStream("EventManagerTemplate.java")) {
+            assert codeStream != null;
+            var code = new String(codeStream.readAllBytes(), StandardCharsets.UTF_8);
+
+            String initPayloadSchemas = eventGroups
+                    .stream()
+                    .flatMap(g -> g.getPayloads().getClazz().stream())
+                    .map(payload -> {
+                // FIXME: use resource streams like https://stackoverflow.com/a/17705322
+                var payloadSchemaPutCode = """
+{
+    var schemaOption = SCHEMA_PATH_OPTION.map(schemaPath -> {
+        try {
+            Schema schema = schemaFactory.newSchema(new File((String)schemaPath));
+            return schema;
+        } catch (org.xml.sax.SAXException e) {
+            throw new RuntimeException(e);
+        }
+    });
+    payloadSchemas.put(PAYLOAD_CLASS, schemaOption);
+}""";
+                var schemaPathStr = payload.getSchema();
+                var schemaPathOptStr = (schemaPathStr == null) ? "Optional.empty()" : "Optional.of(\"" + schemaPathStr + "\")";
+                payloadSchemaPutCode = payloadSchemaPutCode.replaceAll("SCHEMA_PATH_OPTION", schemaPathOptStr);
+                payloadSchemaPutCode = payloadSchemaPutCode.replaceAll("PAYLOAD_CLASS", payload.getFullyQualifiedClassName().replace('$', '.') + ".class");
+                return payloadSchemaPutCode;
+            }).collect(Collectors.joining());
+
+            String initEventPayloads = eventGroups
+                    .stream()
+                    .map(group -> {
+                        return group.getEvent().stream().map(eventName -> {
+                            var payloadListStr = "List.of(" + group.getPayloads()
+                                    .getClazz()
+                                    .stream()
+                                    .map(p -> p.getFullyQualifiedClassName().replace('$','.') + ".class")
+                                    .reduce((lhs, rhs) -> lhs + ", " + rhs).orElse("") + ")";
+                            return "eventPayloads.put(" + destinationPackage + "." + group.getName() + "." + eventName + ".class, "
+                                        + payloadListStr + ");";
+                        }).collect(Collectors.joining());
+                    }).collect(Collectors.joining());
+
+            var initCode = initEventPayloads;// + initPayloadSchemas;
+            code = code.replaceAll("DESTINATION_PACKAGE", destinationPackage);
+            code = code.replaceAll("INITIALIZE_BODY", initCode);
+            Files.writeString(pkgPath.resolve("EventManager.java"), code);
+        }
     }
 
     private static void writeModuleInfo(Set<EventGroup> eventGroups) throws IOException {
-        StringBuilder code = new StringBuilder("""
-                module org.pampasim.events {
+        StringBuilder code = new StringBuilder("module " + destinationPackage + """
+                    {
                     requires org.pampasim.core;
                     requires org.pampasim.resources;
                     requires jakarta.xml.bind;
@@ -87,13 +141,15 @@ public class EventCodeGenTool {
                     exports org.pampasim.events;
                 """);
         for (String modName : eventGroups.stream().map(EventGroup::getName).toList()) {
-            code.append("\n\texports org.pampasim.events.").append(modName).append(";");
+            code.append("\n\texports ").append(destinationPackage).append(".").append(modName).append(";");
         }
         code.append("\n}\n");
         Files.writeString(destinationFolder.resolve("module-info.java"), code.toString());
     }
 
+    // legacy cruft, remove when possible
     private record GroupInfo (EventGroup eventGroup, String className, String dataType) {};
+
     private static void writeClasses(EventGroup eventGroup) throws IOException, ClassNotFoundException {
         var dataClassName = eventGroup.getPayloads().getClazz().getFirst().getFullyQualifiedClassName();
         var dataClass = Class.forName(dataClassName);
@@ -145,7 +201,7 @@ public class EventCodeGenTool {
 
         try (var codeStream = EventCodeGenTool.class.getResourceAsStream("EventGroupTemplate.java")) {
             assert codeStream != null;
-            var code = new String(codeStream.readAllBytes());
+            var code = new String(codeStream.readAllBytes(), StandardCharsets.UTF_8);
             code = code.replaceAll("CLASS_NAME", groupInfo.className);
             code = code.replaceAll("PAYLOAD_CLASS", groupInfo.dataType);
             code = code.replaceAll("DATA_MEMBER_GETTER", dataMemberGetter);

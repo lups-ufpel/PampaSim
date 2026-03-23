@@ -10,49 +10,43 @@
         </scheduler>
     </entities>
     <stimuli>
-        <event fullyQualifiedClassName="start" timing="instant">
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
             <processCreationDataPayload>
-                <arrivalTick>0</arrivalTick>
                 <durationTicks>5</durationTicks>
                 <startPriority>2</startPriority>
                 <displayColor>0000ff</displayColor>
             </processCreationDataPayload>
         </event>
-        <event fullyQualifiedClassName="start" timing="instant">
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
             <processCreationDataPayload>
-                <arrivalTick>0</arrivalTick>
                 <durationTicks>2</durationTicks>
                 <startPriority>3</startPriority>
                 <displayColor>888800</displayColor>
             </processCreationDataPayload>
         </event>
-        <event fullyQualifiedClassName="start" timing="instant">
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="1">
             <processCreationDataPayload>
-                <arrivalTick>1</arrivalTick>
                 <durationTicks>4</durationTicks>
                 <startPriority>1</startPriority>
                 <displayColor>008888</displayColor>
             </processCreationDataPayload>
         </event>
-        <event fullyQualifiedClassName="start" timing="instant">
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="3">
             <processCreationDataPayload>
-                <arrivalTick>3</arrivalTick>
                 <durationTicks>1</durationTicks>
                 <startPriority>4</startPriority>
                 <displayColor>008800</displayColor>
             </processCreationDataPayload>
         </event>
-        <event fullyQualifiedClassName="start" timing="instant">
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="5">
             <processCreationDataPayload>
-                <arrivalTick>5</arrivalTick>
                 <durationTicks>2</durationTicks>
                 <startPriority>5</startPriority>
                 <displayColor>880000</displayColor>
             </processCreationDataPayload>
         </event>
-        <event fullyQualifiedClassName="start" timing="instant">
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="16">
             <processCreationDataPayload>
-                <arrivalTick>16</arrivalTick>
                 <durationTicks>10</durationTicks>
                 <startPriority>1</startPriority>
                 <displayColor>33cc33</displayColor>

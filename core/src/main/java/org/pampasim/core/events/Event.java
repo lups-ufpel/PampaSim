@@ -2,6 +2,10 @@ package org.pampasim.core.events;
 
 import org.pampasim.core.entity.SimEntity;
 
+import javax.xml.validation.Schema;
+import java.util.Map;
+import java.util.Optional;
+
 public interface Event extends Comparable<Event> {
     SimEntity getSource();
     long getSerial();

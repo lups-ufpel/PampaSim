@@ -10,7 +10,7 @@
         <xs:any minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="fullyQualifiedClassName" type="xs:string" use="required"/>
-    <xs:attribute name="timing" type="xs:string" default="instant"/>
+    <xs:attribute name="tick" type="xs:nonNegativeInteger" use="required"/>
     <!-- FIXME: timing characteristic complex type -->
 </xs:complexType>
 </xs:schema>

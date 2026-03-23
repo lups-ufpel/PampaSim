@@ -2,7 +2,7 @@
 
 <spec
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../../../../schemas/spec.xsd">
+        xsi:noNamespaceSchemaLocation="../../../../../../schemas/spec.xsd">
     <entities>
         <processor coreCount="1" millionInstructionsPerSecond="100"/>
         <scheduler>
@@ -10,53 +10,5 @@
         </scheduler>
     </entities>
     <stimuli>
-        <event fullyQualifiedClassName="start" timing="instant">
-            <processCreationDataPayload>
-                <arrivalTick>0</arrivalTick>
-                <durationTicks>5</durationTicks>
-                <startPriority>2</startPriority>
-                <displayColor>0000ff</displayColor>
-            </processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="start" timing="instant">
-            <processCreationDataPayload>
-                <arrivalTick>0</arrivalTick>
-                <durationTicks>2</durationTicks>
-                <startPriority>3</startPriority>
-                <displayColor>888800</displayColor>
-            </processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="start" timing="instant">
-            <processCreationDataPayload>
-                <arrivalTick>1</arrivalTick>
-                <durationTicks>4</durationTicks>
-                <startPriority>1</startPriority>
-                <displayColor>008888</displayColor>
-            </processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="start" timing="instant">
-            <processCreationDataPayload>
-                <arrivalTick>3</arrivalTick>
-                <durationTicks>1</durationTicks>
-                <startPriority>4</startPriority>
-                <displayColor>008800</displayColor>
-            </processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="start" timing="instant">
-            <processCreationDataPayload>
-                <arrivalTick>5</arrivalTick>
-                <durationTicks>2</durationTicks>
-                <startPriority>5</startPriority>
-                <displayColor>880000</displayColor>
-            </processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="start" timing="instant">
-            <processCreationDataPayload>
-                <arrivalTick>16</arrivalTick>
-                <durationTicks>10</durationTicks>
-                <startPriority>1</startPriority>
-                <displayColor>33cc33</displayColor>
-            </processCreationDataPayload>
-        </event>
     </stimuli>
 </spec>

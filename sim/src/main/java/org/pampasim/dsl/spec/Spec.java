@@ -12,14 +12,19 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.Launcher;
+import org.pampasim.ProcessCreationDataPayload;
 import org.pampasim.core.EventSchedule;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.*;
+import org.pampasim.events.EventManager;
 import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -29,6 +34,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,7 +52,7 @@ import org.xml.sax.SAXException;
 @Getter
 @XmlRootElement
 public class Spec {
-    private final Logger LOGGER = LogManager.getLogger(Spec.class);
+    private static final Logger LOGGER = LogManager.getLogger(Spec.class);
     // This string-based programming is really awkward, but needed:
     // can't instantiate a SimEntity (Scheduler) without having a simulation ready
     @XmlRootElement
@@ -97,6 +103,50 @@ public class Spec {
             spec.setHasProcManager(true); // don't really know why I left it optional
 
             s.getStimuli().getEvent().forEach(e -> {
+                var payloads = e.getAny();
+                Class<?> eventClass = null;
+                try {
+                    eventClass = Spec.class.getClassLoader().loadClass(e.getFullyQualifiedClassName());
+
+                } catch (ClassNotFoundException ex) {
+                    LOGGER.error("couldn't find class {} for event {}: {}", e.getFullyQualifiedClassName(), e, ex);
+                    return;
+                }
+                for (Object o : payloads) {
+                    var possiblePayloads = EventManager.getEventPayloads().get(eventClass);
+                    var bodge = false;
+                    if (possiblePayloads.contains(Process.CreationData.class)) {
+                        possiblePayloads = new ArrayList<>(possiblePayloads);
+                        possiblePayloads.add(ProcessCreationDataPayload.class);
+                        bodge = true; // TODO / FIXME: no clue how to translate these properly without restructuring the modules
+                    }
+                    final Object predicateCopy = o;
+                    var classMatch = possiblePayloads.stream().filter(candidate -> candidate == predicateCopy.getClass()).findFirst();
+                    if (classMatch.isEmpty()) {
+                        LOGGER.error("payload {} doesn't match event {}, which has payloads {}", o, e, possiblePayloads);
+                        throw new RuntimeException("Error loading spec file");
+                    } else {
+                        LOGGER.trace("got any object {}", o);
+                        var payloadClass = classMatch.get();
+                        if (bodge) {
+                            payloadClass = Process.CreationData.class;
+                            ProcessCreationDataPayload pcdp = (ProcessCreationDataPayload) o;
+                            o = new Process.CreationData(
+                                    e.getTick().intValue(),
+                                    pcdp.getDurationTicks().intValue(),
+                                    pcdp.getStartPriority().intValue());
+                            spec.getColorMap().put(((Process.CreationData) o).getCreationId(), Color.web(pcdp.getDisplayColor()));
+                        }
+                        try {
+                            var constructor = eventClass.getConstructor(SimEntity.class, payloadClass);
+                            var eventInstance = constructor.newInstance(null, o);
+                            spec.getEventSchedule().schedule(e.getTick().intValue(), (Event) eventInstance);
+                        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                                 InvocationTargetException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
             });
         } catch (JAXBException | SAXException e) {
             throw new RuntimeException(e);

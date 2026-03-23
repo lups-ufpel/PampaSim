@@ -4,7 +4,6 @@
     <xs:element name="processCreationDataPayload">
         <xs:complexType>
             <xs:all>
-                <xs:element name="arrivalTick" type="xs:nonNegativeInteger"/>
                 <xs:element name="durationTicks" type="xs:positiveInteger"/>
                 <xs:element name="startPriority" type="xs:nonNegativeInteger"/>
                 <!-- FIXME: regex restriction for the color -->

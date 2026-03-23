@@ -8,7 +8,7 @@
             <payloads>
                 <class>
                     <fullyQualifiedClassName>org.pampasim.resources.Process$CreationData</fullyQualifiedClassName>
-                    <schema>../schemas/events/processCreationData</schema>
+                    <schema>../schemas/events/processCreationData.xsd</schema>
                 </class>
             </payloads>
             <event>Arrival</event>
