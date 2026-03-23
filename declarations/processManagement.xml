@@ -6,13 +6,18 @@
     <events>
         <eventGroup name="External">
             <payloads>
-                <fullyQualifiedClassName>org.pampasim.resources.Process$CreationData</fullyQualifiedClassName>
+                <class>
+                    <fullyQualifiedClassName>org.pampasim.resources.Process$CreationData</fullyQualifiedClassName>
+                    <schema>../schemas/events/processCreationData</schema>
+                </class>
             </payloads>
             <event>Arrival</event>
         </eventGroup>
         <eventGroup name="Process">
             <payloads>
-                <fullyQualifiedClassName>org.pampasim.resources.Process</fullyQualifiedClassName>
+                <class>
+                    <fullyQualifiedClassName>org.pampasim.resources.Process</fullyQualifiedClassName>
+                </class>
             </payloads>
             <event>Allocate</event>
             <event>Ready</event>

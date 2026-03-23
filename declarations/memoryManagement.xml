@@ -7,7 +7,9 @@
         <import>declarations/processManagement.xml</import>
         <eventGroup name="Memory">
             <payloads>
-                <fullyQualifiedClassName>org.pampasim.resources.Process</fullyQualifiedClassName>
+                <class>
+                    <fullyQualifiedClassName>org.pampasim.resources.Process</fullyQualifiedClassName>
+                </class>
             </payloads>
             <event>Allocate</event>
             <event>AllocateFinished</event>

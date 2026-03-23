@@ -63,7 +63,7 @@ public class EventCodeGenTool {
 
             for (var group : eventGroups) {
                 var groupName = group.getName();
-                var payloads = group.getPayloads().getFullyQualifiedClassName();
+                var payloads = group.getPayloads().getClazz();
                 System.out.println("processing event group " + groupName + " that transmits " + payloads);
                 writeClasses(group);
                 group.getEvent().stream().map(ev -> Map.entry(groupName + "." + ev, group))
@@ -95,7 +95,7 @@ public class EventCodeGenTool {
 
     private record GroupInfo (EventGroup eventGroup, String className, String dataType) {};
     private static void writeClasses(EventGroup eventGroup) throws IOException, ClassNotFoundException {
-        var dataClassName = eventGroup.getPayloads().getFullyQualifiedClassName().getFirst();
+        var dataClassName = eventGroup.getPayloads().getClazz().getFirst().getFullyQualifiedClassName();
         var dataClass = Class.forName(dataClassName);
         var events = eventGroup.getEvent();
         var groupInfo = new GroupInfo(eventGroup,
@@ -113,6 +113,7 @@ public class EventCodeGenTool {
         }).get();
         var dataMemberGetter = "get" + dataClass.getSimpleName();
 
+        /*
         StringBuilder code = new StringBuilder("package " + destinationPackage + ";\n" +
                 "import lombok.Getter;\n" +
                 "import org.pampasim.core.entity.SimEntity;\n" +
@@ -140,8 +141,20 @@ public class EventCodeGenTool {
                 "}\n" +
                 "public Object getData() { return " + dataMemberGetter + "();" + "}\n");
         code.append("}\n");
+         */
 
-        Files.writeString(pkgPath.resolve(groupInfo.className + ".java"), code.toString());
+        try (var codeStream = EventCodeGenTool.class.getResourceAsStream("EventGroupTemplate.java")) {
+            assert codeStream != null;
+            var code = new String(codeStream.readAllBytes());
+            code = code.replaceAll("CLASS_NAME", groupInfo.className);
+            code = code.replaceAll("PAYLOAD_CLASS", groupInfo.dataType);
+            code = code.replaceAll("DATA_MEMBER_GETTER", dataMemberGetter);
+            code = code.replaceAll("DESTINATION_PACKAGE", destinationPackage);
+            code = code.replaceAll("DATA_MEMBER_NAME", dataMemberName);
+            Files.writeString(pkgPath.resolve(groupInfo.className + ".java"), code);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         for (var event : events) {
             writeSubClass(groupInfo, event);
