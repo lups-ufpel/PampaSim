@@ -597,11 +597,19 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
-//        int start = editedProcessViewModel.getCreationData().getArrivalTick();
-//        int duration = editedProcessViewModel.getCreationData().getDurationTicks();
-//        int priority = editedProcessViewModel.getCreationData().getStartPriority();
-//        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
-//        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
+        int start = editedProcessViewModel.getArrivalTick().get();
+        int duration = editedProcessViewModel.getBurst().get(); // aka duration
+        int priority = editedProcessViewModel.getPriority().get();
+        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
+        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
+        result.ifPresent(editRecord -> {
+            final CreateProcessRecord procRecord = editRecord.processRecord();
+            final var epvm = editedProcessViewModel;
+            epvm.getArrivalTick().set(procRecord.start());
+            epvm.getBurst().set(procRecord.duration());
+            epvm.getColorProperty().set(Color.valueOf(procRecord.color()));
+            epvm.getPriority().set(procRecord.priority());
+        });
     }
 
     private void reinitializeMemoryManagement(SimulationBase simulationBase) {
