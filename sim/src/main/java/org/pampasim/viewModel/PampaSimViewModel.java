@@ -38,6 +38,7 @@ import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.events.ProcessCreationDataEvent;
+import org.pampasim.events.ProcessEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
@@ -211,6 +212,34 @@ public class PampaSimViewModel implements ViewModel {
                                                                         null);
             MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
         }
+        syncWithSpec();
+    }
+    private void editProcess(ProcessViewModel processViewModel, EditProcessRecord epr) {
+        CreateProcessRecord cpr = epr.processRecord();
+        if (epr.deleted()) {
+            deleteProcess(processViewModel);
+            return;
+        }
+        var spec = simulatedScenario.getSpec();
+        var oldTickEventList = spec.getEventSchedule().get(processViewModel.getArrivalTick().get());
+        var arrivalEvent = (ProcessCreationDataEvent) oldTickEventList.stream().filter(event -> {
+            if (event instanceof ProcessCreationDataEvent procEvent) {
+                return procEvent.getCreationData().getCreationId() == processViewModel.getCreationId();
+            } else { return false; }
+        }).findFirst().orElseThrow();
+
+        // this messes with the creationId, might change the processing order
+        // ...after we went through all this trouble to not change the event serial
+        var oldCreationId = arrivalEvent.getCreationData().getCreationId();
+        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority());
+        arrivalEvent.setCreationData(creationData);
+
+        spec.getColorMap().remove(oldCreationId);
+        spec.getColorMap().put(creationData.getCreationId(), Color.web(epr.processRecord().color()));
+        var newTickEventList = spec.getEventSchedule().get(epr.processRecord().start());
+
+        oldTickEventList.remove(arrivalEvent);
+        newTickEventList.add(arrivalEvent);
         syncWithSpec();
     }
     private void deleteProcess(ProcessViewModel processViewModel) {
@@ -598,18 +627,11 @@ public class PampaSimViewModel implements ViewModel {
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
         int start = editedProcessViewModel.getArrivalTick().get();
-        int duration = editedProcessViewModel.getBurst().get(); // aka duration
+        int duration = editedProcessViewModel.getBurst().get();
         int priority = editedProcessViewModel.getPriority().get();
         ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
         Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
-        result.ifPresent(editRecord -> {
-            final CreateProcessRecord procRecord = editRecord.processRecord();
-            final var epvm = editedProcessViewModel;
-            epvm.getArrivalTick().set(procRecord.start());
-            epvm.getBurst().set(procRecord.duration());
-            epvm.getColorProperty().set(Color.valueOf(procRecord.color()));
-            epvm.getPriority().set(procRecord.priority());
-        });
+        result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
     }
 
     private void reinitializeMemoryManagement(SimulationBase simulationBase) {

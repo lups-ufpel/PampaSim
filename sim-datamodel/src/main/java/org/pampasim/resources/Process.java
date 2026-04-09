@@ -46,7 +46,6 @@ public class Process {
 
     private final ArrayList<ProcessModuleInfo> moduleInfo;
 
-
     public Process(Pid pid, CreationData creationData) {
         this.pid = pid;
         this.state = State.NEW;
@@ -55,7 +54,7 @@ public class Process {
         this.currExecTime = 0;
         this.moduleInfo = new ArrayList<>();
     }
-    public Process(Pid pid, CreationData creationData,  ProcessMemoryInfo.CreationData memoryCreationData, ProcessMemoryInfo.MemoryConfigData memoryConfigData) {
+    public Process(Pid pid, CreationData creationData, ProcessMemoryInfo.CreationData memoryCreationData, ProcessMemoryInfo.MemoryConfigData memoryConfigData) {
         this.pid = pid;
         this.state = State.NEW;
         this.creationData = creationData;

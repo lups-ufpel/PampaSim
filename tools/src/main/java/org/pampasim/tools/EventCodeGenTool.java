@@ -163,41 +163,10 @@ public class EventCodeGenTool {
                     .getCanonicalName() // important for nested classes
                     .replace(destinationPackage, "")
                 );
-        String dataMemberName = ((Supplier<String>)() -> {
-            var name = dataClass.getSimpleName();
-            return name.substring(0,1).toLowerCase() + name.substring(1);
-        }).get();
+        var name = dataClass.getSimpleName();
+        String dataMemberName = name.substring(0,1).toLowerCase() + name.substring(1);
         var dataMemberGetter = "get" + dataClass.getSimpleName();
-
-        /*
-        StringBuilder code = new StringBuilder("package " + destinationPackage + ";\n" +
-                "import lombok.Getter;\n" +
-                "import org.pampasim.core.entity.SimEntity;\n" +
-                "import org.pampasim.core.events.*;\n" +
-                "import java.lang.reflect.Constructor;\n" +
-                "import java.lang.reflect.InvocationTargetException;\n" +
-                "public abstract class " +
-                groupInfo.className +
-                " extends AbstractEvent {\n" +
-                "@Getter\n" +
-                "private final " + groupInfo.dataType + " " + dataMemberName + ";\n" +
-                "public " + groupInfo.className + "(SimEntity source, " + groupInfo.dataType +
-                " data) {\nsuper(source);\n" + dataMemberName + " = data;\n}\n" +
-                "@Override\n" +
-                "public org.pampasim.core.events.Event cloneAs(Class<? extends org.pampasim.core.events.Event> asClass) throws\n" +
-                "IncompatibleEventDataException {\n" +
-                "try {\n" +
-                "Constructor<? extends org.pampasim.core.events.Event> cons = asClass.getConstructor(SimEntity.class, " +
-                groupInfo.dataType +
-                ".class);\n" +
-                "return cons.newInstance(getSource(), getData());\n" +
-                "} catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException _e) {\n" +
-                "throw new IncompatibleEventDataException();\n" +
-                "}\n" +
-                "}\n" +
-                "public Object getData() { return " + dataMemberGetter + "();" + "}\n");
-        code.append("}\n");
-         */
+        var dataMemberSetter = "set" + dataClass.getSimpleName();
 
         try (var codeStream = EventCodeGenTool.class.getResourceAsStream("EventGroupTemplate.java")) {
             assert codeStream != null;
@@ -205,6 +174,7 @@ public class EventCodeGenTool {
             code = code.replaceAll("CLASS_NAME", groupInfo.className);
             code = code.replaceAll("PAYLOAD_CLASS", groupInfo.dataType);
             code = code.replaceAll("DATA_MEMBER_GETTER", dataMemberGetter);
+            code = code.replaceAll("DATA_MEMBER_SETTER", dataMemberSetter);
             code = code.replaceAll("DESTINATION_PACKAGE", destinationPackage);
             code = code.replaceAll("DATA_MEMBER_NAME", dataMemberName);
             Files.writeString(pkgPath.resolve(groupInfo.className + ".java"), code);

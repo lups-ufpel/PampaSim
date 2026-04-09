@@ -66,8 +66,8 @@ public class Spec {
     private ArrayList<ProcessorInfo> processors;
     @Setter
     private boolean hasProcManager;
-    private EventSchedule eventSchedule;
-    private Map<Long, Color> colorMap;
+    private final EventSchedule eventSchedule;
+    private final Map<Long, Color> colorMap;
     private static JAXBContext jaxbContext;
 
     public Spec() {

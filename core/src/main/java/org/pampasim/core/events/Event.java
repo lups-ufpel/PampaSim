@@ -12,4 +12,5 @@ public interface Event extends Comparable<Event> {
     int getCreationTick();
     Event cloneAs(Class<? extends Event> asClass) throws IncompatibleEventDataException;
     Object getData();
+    void setData(Object obj);
 }
