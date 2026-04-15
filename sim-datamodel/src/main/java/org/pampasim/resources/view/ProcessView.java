@@ -15,7 +15,9 @@ import org.apache.logging.log4j.Logger;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
-public class ProcessView  implements FxmlView<ProcessViewModel> {
+import java.util.Optional;
+
+public class ProcessView implements FxmlView<ProcessViewModel> {
 
     private final Logger LOGGER = LogManager.getLogger(ProcessView.class);
     @InjectViewModel
@@ -26,20 +28,21 @@ public class ProcessView  implements FxmlView<ProcessViewModel> {
     @FXML
     Label number;
 
+    private Optional<Stage> inspectorView = Optional.empty();
+
     public void initialize() {
         circle.fillProperty().bind(viewModel.getColorProperty());
         number.textProperty().bind(viewModel.getPid().map(PidAllocator.Pid::toString));
     }
 
     public void showInfo(MouseEvent mouseEvent) {
-//        if (viewModel.getPid().get() == null) {
-//            Alert alert = new Alert(Alert.AlertType.WARNING);
-//            alert.setTitle("Aviso");
-//            alert.setHeaderText(null);
-//            alert.setContentText("Processo não foi inicializado!");
-//            alert.showAndWait();
-//        }
-
+        if (inspectorView.isPresent()) {
+            var stage = inspectorView.get();
+            if (stage.isShowing()) {
+                stage.requestFocus();
+                return;
+            }
+        }
         var processInspectorViewTuple = FluentViewLoader
                 .fxmlView(ProcessInspectorView.class)
                 .viewModel(viewModel)
@@ -49,6 +52,10 @@ public class ProcessView  implements FxmlView<ProcessViewModel> {
         stage.setTitle("Informações do Processo");
         stage.setScene(new Scene(processInspectorViewTuple.getView()));
         stage.setResizable(true);
+        inspectorView = Optional.of(stage);
+        viewModel.subscribe("CloseInspectors", (_a, b) -> {
+            inspectorView = Optional.empty();
+        });
         stage.show();
     }
 }

@@ -34,11 +34,12 @@ public class ProcessInspectorView implements FxmlView<ProcessViewModel> {
     }
 
     public void delete(ActionEvent actionEvent) {
-        viewModel.delete();
+        viewModel.delete(); // publishes CloseInspectors
         LOGGER.debug("called delete on {}", this);
     }
 
     public void edit(ActionEvent actionEvent) {
+        close();
         viewModel.edit();
         LOGGER.debug("called edit on {}", this);
     }

@@ -626,11 +626,12 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
+        long creationId = editedProcessViewModel.getCreationId();
         int start = editedProcessViewModel.getArrivalTick().get();
         int duration = editedProcessViewModel.getBurst().get();
         int priority = editedProcessViewModel.getPriority().get();
         ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
-        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
+        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(creationId, start, duration, priority, color);
         result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
     }
 

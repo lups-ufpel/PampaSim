@@ -19,8 +19,9 @@ module org.pampasim {
     requires org.pampasim.events;
     requires org.pampasim.memory;
     requires org.apache.logging.log4j.core;
+    requires jsr305;
 
-    opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx, info.picocli;
+    opens org.pampasim to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx, info.picocli, jakarta.xml.bind;
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.view to javafx.fxml, de.saxsys.mvvmfx;
     exports org.pampasim.viewModel to de.saxsys.mvvmfx;

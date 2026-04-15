@@ -461,11 +461,13 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                                                             case Process.State.SCHEDULED -> 32; // really faint
                                                             case Process.State.RUNNING -> 255; // full bright
                                                         };
-                                                        hexColor = "#" + HexFormat.of().formatHex(new byte[]{
+                                                        var colorTuple = new byte[]{
                                                                 ((byte) (procClr.getRed() * 255)),
                                                                 ((byte) (procClr.getGreen() * 255)),
                                                                 ((byte) (procClr.getBlue() * 255)),
-                                                                alpha});
+                                                                alpha};
+
+                                                        hexColor = "#" + HexFormat.of().formatHex(colorTuple);
                                                     }
                                                     setStyle("-fx-background-color: " + hexColor);
                                                 }
