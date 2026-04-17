@@ -26,7 +26,6 @@
     </xs:element>
     <xs:group name="mandatoryEntities">
         <xs:all>
-            <xs:element name="processor" type="processorConfig"/>
             <xs:element name="scheduler" type="schedulerConfig"/>
         </xs:all>
     </xs:group>
@@ -40,4 +39,7 @@
             <xs:any minOccurs="0"/> <!-- instance configuration -->
         </xs:sequence>
     </xs:complexType>
+    <xs:simpleType name="quantumDeclaration">
+        <xs:restriction base="xs:nonNegativeInteger"/>
+    </xs:simpleType>
 </xs:schema>

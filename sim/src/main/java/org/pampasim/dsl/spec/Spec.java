@@ -6,6 +6,7 @@ import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import javafx.scene.paint.Color;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.Launcher;
 import org.pampasim.ProcessCreationDataPayload;
+import org.pampasim.SchedulerConfig;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.*;
@@ -35,6 +37,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,29 +56,17 @@ import org.xml.sax.SAXException;
 @XmlRootElement
 public class Spec {
     private static final Logger LOGGER = LogManager.getLogger(Spec.class);
-    // This string-based programming is really awkward, but needed:
-    // can't instantiate a SimEntity (Scheduler) without having a simulation ready
-    @XmlRootElement
-    public record SchedulerInfo(Class<? extends Scheduler> clazz, Optional<Integer> quantum) {};
-    @XmlRootElement
-    public record ProcessorInfo(ArrayList<Integer> coreCapacities) {};
+    private org.pampasim.Spec innerSpec;
 
-    @Setter
-    private SchedulerInfo schedulerInfo;
-    @Setter
-    private ArrayList<ProcessorInfo> processors;
-    @Setter
-    private boolean hasProcManager;
-    private final EventSchedule eventSchedule;
-    private final Map<Long, Color> colorMap;
+    private EventSchedule eventSchedule;
+    private Map<Long, Color> colorMap;
+
     private static JAXBContext jaxbContext;
 
     public Spec() {
-        this.schedulerInfo = null;
         this.eventSchedule = new EventSchedule();
         this.colorMap = new HashMap<>();
-        this.processors = new ArrayList<>();
-        this.hasProcManager = false;
+        this.innerSpec = new org.pampasim.Spec();
     }
 
     public static Spec loadSpec(InputStream stream) {
@@ -91,16 +82,8 @@ public class Spec {
             Object specObj = u.unmarshal(stream);
             org.pampasim.Spec s = (org.pampasim.Spec)specObj;
 
-            var pInfo = s.getEntities().getProcessor();
-            var cores = new ArrayList<Integer>(1);
-            cores.add(pInfo.getMillionInstructionsPerSecond().intValue());
-            spec.getProcessors().add(new ProcessorInfo(cores));
-
             var schInfo = s.getEntities().getScheduler();
-            //var anyMaybe = schInfo.getAny()
             spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), Optional.empty());
-
-            spec.setHasProcManager(true); // don't really know why I left it optional
 
             s.getStimuli().getEvent().forEach(e -> {
                 var payloads = e.getAny();
@@ -158,50 +141,26 @@ public class Spec {
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
             PrintWriter printer = new PrintWriter(writer);
 
-            for (ProcessorInfo processorInfo : processors) {
-                printer.print("processor");
-                for (var coreCapacity : processorInfo.coreCapacities) {
-                    printer.format(" core mips %d count 1", coreCapacity);
-                }
-                printer.println(";");
-            }
-
-            if (schedulerInfo != null) {
-                printer.format("scheduler %s",
-                        schedulerInfo.clazz.getCanonicalName()
-                                .replace(schedulerInfo.clazz.getPackageName(), "")
-                                .substring(1) // remove leading dot
-                );
-                if (Arrays.stream(schedulerInfo.clazz.getInterfaces()).anyMatch(i -> i == RespectsQuantum.class)) {
-                    printer.format(", quantum %d", schedulerInfo.quantum.orElse(1));
-                }
-                printer.println(";");
-            }
-            if (hasProcManager) {
-                printer.println("procmanager;");
-            }
-
-            var allEvents = eventSchedule.values().stream().map(Collection::stream).reduce(Stream::concat);
-            allEvents.orElseThrow().forEach(event -> {
-                ProcessCreationDataEvent procEvent = (ProcessCreationDataEvent) event;
-                Process.CreationData creationData = procEvent.getCreationData();
-                printer.format("proc start %d duration %d priority %d clr #%s;",
-                        creationData.getArrivalTick(),
-                        creationData.getDurationTicks(),
-                        creationData.getStartPriority(),
-                        colorMap.get(creationData.getCreationId())
-                                .toString()
-                                .substring(2) // skip the 0x leader
-                );
-                printer.println();
-            });
-        } catch (IOException e) {
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = schemaFactory.newSchema(new File("schemas/spec.xsd"));
+            marshaller.setSchema(schema);
+            org.pampasim.Spec spec = new org.pampasim.Spec();
+            var entities = new org.pampasim.Spec.Entities();
+            var schedulerConf = new SchedulerConfig();
+            schedulerConf.setFullyQualifiedClassName(this.schedulerInfo.clazz.getCanonicalName());
+            //schedulerConf.setAny(new org.pampasim.QuantumDeclaration);
+            //entities.setScheduler();
+            //spec.setEntities(entities);
+            //marshaller.marshal();
+        } catch (IOException | JAXBException | SAXException e) {
             throw new RuntimeException(e);
         }
     }
 
     public Event addProcessArrival(Process.CreationData creationData) {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
+        innerSpec.getStimuli().getEvent().add((Event)ev);
         eventSchedule.schedule(creationData.getArrivalTick(), ev);
         return ev;
     }
