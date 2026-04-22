@@ -6,9 +6,9 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.utils.PidAllocator.Pid;
-import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -21,8 +21,7 @@ public class Process {
      */
     public record CreationData(
             int arrivalTick, int durationTicks, int startPriority,
-            int intraTickOrder) {
-        // TODO: some module info needs to be part of the creation data later when a module is included
+            int intraTickOrder, Map<Class<?>, Object> moduleCreationData) {
     }
     @Getter
     @EqualsAndHashCode.Include
@@ -54,15 +53,6 @@ public class Process {
         this.burstTime = creationData.durationTicks;
         this.currExecTime = 0;
         this.moduleInfo = new ArrayList<>();
-    }
-    public Process(Pid pid, CreationData creationData, ProcessMemoryInfo.CreationData memoryCreationData, ProcessMemoryInfo.MemoryConfigData memoryConfigData) {
-        this.pid = pid;
-        this.state = State.NEW;
-        this.creationData = creationData;
-        this.burstTime = creationData.durationTicks;
-        this.currExecTime = 0;
-        this.moduleInfo = new ArrayList<>();
-        moduleInfo.add(new ProcessMemoryInfo(this, memoryCreationData, memoryConfigData));
     }
 
     public int getRemainingExecutionTime() {

@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +28,7 @@ import java.util.stream.IntStream;
 public class MemoryTabViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(MemoryTabViewModel.class);
 
-    private Map<Long, Color> colorMap;
+    //private IdentityHashMap<Process, Color> colorMap;
     private MemoryManagement memoryManagement;
 
     @Getter private final SimpleStringProperty virtualAddress = new SimpleStringProperty("");
@@ -47,7 +48,7 @@ public class MemoryTabViewModel implements ViewModel {
 
     @Getter private final ObservableList<MemoryFrameViewModel> observableRamFrameList = FXCollections.observableArrayList();
     @Getter private final ObservableList<MemoryFrameViewModel> observableSwapFrameList = FXCollections.observableArrayList();
-    @Getter private final ObservableList<ProcessViewModel> observableProcessList;
+    private ObservableMap<Process, ProcessViewModel> observablePvmMap;
 
     private final MemoryStatisticsViewModel memoryStatisticsViewModel;
 
@@ -55,13 +56,12 @@ public class MemoryTabViewModel implements ViewModel {
 
     public MemoryTabViewModel(
             MemoryManagement memoryManagement,
-            Map<Long, Color> colorMap,
-            ObservableList<ProcessViewModel> observableProcessList,
+            ObservableMap<Process, ProcessViewModel> observablePvmMap,
             MemoryStatisticsViewModel memoryStatisticsViewModel) {
 
         this.memoryManagement = memoryManagement;
-        this.colorMap = colorMap;
-        this.observableProcessList = observableProcessList;
+        //this.colorMap = colorMap;
+        this.observablePvmMap = observablePvmMap;
         this.memoryStatisticsViewModel = memoryStatisticsViewModel;
 
         setupSnoopers();
@@ -83,7 +83,8 @@ public class MemoryTabViewModel implements ViewModel {
 
             if (entry != null) {
                 Process process = entry.getProcess();
-                vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK));
+                ProcessViewModel procVm = observablePvmMap.get(process);
+                vm.getColorProperty().set(procVm.getColorProperty().get());
                 vm.getPid().set(process.getPid());
                 vm.getPageNumber().set(entry.getPageNumber());
                 vm.getReferenced().set(entry.isReferenced());
@@ -107,8 +108,9 @@ public class MemoryTabViewModel implements ViewModel {
 
             if (entry != null) {
                 Process process = entry.getProcess();
+                ProcessViewModel procVm = observablePvmMap.get(process);
+                vm.getColorProperty().set(procVm.getColorProperty().get());
                 vm.getPid().set(process.getPid());
-                vm.getColorProperty().set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
                 vm.getPageNumber().set(entry.getPageNumber());
                 vm.getReferenced().set(entry.isReferenced());
                 vm.getDirty().set(entry.isDirty());
@@ -138,13 +140,15 @@ public class MemoryTabViewModel implements ViewModel {
         }
 
         // Update MemoryInfoViewModel for all matching processes
-        observableProcessList.stream()
-                .filter(vm -> vm.getPid() != null && vm.getPid().get() != null)
-                .filter(vm -> vm.getPid().get().equals(process.getPid()))
-                .flatMap(vm -> vm.getModuleInfoViewModels().stream())
-                .filter(m -> m instanceof MemoryInfoViewModel)
-                .map(m -> (MemoryInfoViewModel) m)
-                .forEach(vm -> vm.updateFrom(memoryInfo));
+        observablePvmMap
+                .get(process)
+                .getModuleInfoViewModels()
+                .forEach(m -> {
+                    if (!(m instanceof MemoryInfoViewModel)) {
+                        return;
+                    }
+                    ((MemoryInfoViewModel) m).updateFrom(memoryInfo);
+                });
 
         LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", event);
 
@@ -159,7 +163,8 @@ public class MemoryTabViewModel implements ViewModel {
         }
 
         updateFrameLists();
-        memoryStatisticsViewModel.updateStatistics(memoryManagement, observableProcessList);
+        // I sure hope the .values().stream().toList() chain is not expensive
+        memoryStatisticsViewModel.updateStatistics(memoryManagement, observablePvmMap.values().stream().toList());
     }
 
     private void handleTlbNoTranslation(ProcessMemoryInfo memoryInfo, Process process) {
@@ -189,7 +194,7 @@ public class MemoryTabViewModel implements ViewModel {
     }
 
     private void handleDiskOperation(Process process, ProcessMemoryInfo memoryInfo) {
-        boolean cpuIdle = observableProcessList.stream()
+        boolean cpuIdle = observablePvmMap.values().stream()
                 .noneMatch(vm -> vm.getState() == Process.State.RUNNING);
 
         if (resetInfo && cpuIdle) {
@@ -217,7 +222,8 @@ public class MemoryTabViewModel implements ViewModel {
         // Build swap-in message
         StringBuilder swapInMessage = new StringBuilder();
         if (!swappedInPages.isEmpty()) {
-            Color processColor = colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK);
+            ProcessViewModel procVm = observablePvmMap.get(process);
+            Color processColor = procVm.getColorProperty().get();
             swapInMessage.append(" Processo ")
                     .append(process.getPid())
                     .append(swappedInPages.size() == 1 ? " carregou a página " : " carregou as páginas ")
@@ -232,8 +238,9 @@ public class MemoryTabViewModel implements ViewModel {
 
         if (swappedOutPage != null) {
             Process swappedOutProcess = swappedOutPage.getProcess();
+            ProcessViewModel swappedOutProcVm = observablePvmMap.get(swappedOutProcess);
             swapInMessage.append(", substituindo a página ").append(swappedOutPage.getPageNumber()).append(" do ");
-            Color swappedOutColor = colorMap.getOrDefault(swappedOutProcess.getCreationData().getCreationId(), Color.BLACK);
+            Color swappedOutColor = swappedOutProcVm.getColorProperty().get();
             String swapOutMessage = " Processo " +
                     swappedOutProcess.getPid() +
                     (swappedOutPage.isFileBacked() ?
@@ -253,7 +260,8 @@ public class MemoryTabViewModel implements ViewModel {
 
     private void handleDiskOperationFinishedDiskAccess(Process process, ProcessMemoryInfo memoryInfo) {
         ioOperationInfoSwapInText.set(" Processo " + process.getPid() + " Finalizou acesso a disco");
-        Color processColor = colorMap.getOrDefault(process.getCreationData().getCreationId(), Color.BLACK);
+        ProcessViewModel procVm = observablePvmMap.get(process);
+        Color processColor = procVm.getColorProperty().get();
         ioOperationInfoSwapInColor.set(processColor);
     }
 
@@ -262,13 +270,10 @@ public class MemoryTabViewModel implements ViewModel {
                 .getIoEventQueue()
                 .stream()
                 .map(ioEvent -> ((org.pampasim.events.ProcessEvent) ioEvent).getProcess())
-                .collect(Collectors.toList());
+                .toList();
 
         for (Process queuedProc : processIoQueue) {
-            long queuedId = queuedProc.getCreationData().getCreationId();
-            observableProcessList.stream()
-                    .filter(pvm -> pvm.getCreationId() == queuedId)
-                    .findFirst()
+            Optional.ofNullable(observablePvmMap.get(queuedProc))
                     .ifPresent(pvm -> pvm.getModuleInfoViewModel(MemoryInfoViewModel.class)
                             .getIoWaitingTime()
                             .set(queuedProc.getModuleInfo(ProcessMemoryInfo.class).getIoWaitingTime()));
@@ -277,17 +282,19 @@ public class MemoryTabViewModel implements ViewModel {
 
     private void handlePageHit(Process process, ProcessMemoryInfo memoryInfo) {
         int access = memoryInfo.getCurrentAccess();
+        ProcessViewModel procVm = observablePvmMap.get(process);
         infoTitle.set("Page Hit");
         infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
-        infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+        infoColor.set(procVm.getColorProperty().get());
         resetInfo = false;
     }
 
     private void handlePageFault(Process process, ProcessMemoryInfo memoryInfo) {
         int access = memoryInfo.getCurrentAccess();
+        ProcessViewModel procVm = observablePvmMap.get(process);
         infoTitle.set("Page Fault");
         infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que não está presente na memória RAM, e deve ser carregado da memória secundária");
-        infoColor.set(colorMap.getOrDefault(process.getCreationData().getCreationId(), null));
+        infoColor.set(procVm.getColorProperty().get());
         resetInfo = false;
     }
 
@@ -317,9 +324,9 @@ public class MemoryTabViewModel implements ViewModel {
         memoryManagement.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
     }
 
-    public void setMemoryManagement(MemoryManagement memoryManagement, Map<Long, Color> colorMap) {
+    public void setMemoryManagement(MemoryManagement memoryManagement, ObservableMap<Process, ProcessViewModel> observablePvmMap) {
         this.memoryManagement = memoryManagement;
-        this.colorMap = colorMap;
+        this.observablePvmMap = observablePvmMap;
         setupSnoopers();
     }
 
@@ -339,10 +346,10 @@ public class MemoryTabViewModel implements ViewModel {
 
     public void updateSwapOutPageTable() {
         PageTableEntry lastSwappedOutEntry = memoryManagement.getEntity(PhysicalMemory.class).getLastSwappedOutPage();
-        long queuedId = lastSwappedOutEntry.getProcess().getCreationData().getCreationId();
-        observableProcessList.stream()
-                .filter(pvm -> pvm.getCreationId() == queuedId)
-                .findFirst()
-                .ifPresent(pvm -> pvm.getModuleInfoViewModel(MemoryInfoViewModel.class).updateFrom(lastSwappedOutEntry.getProcess().getModuleInfo(ProcessMemoryInfo.class)));
+        var lastSwappedOutEntryProcess = lastSwappedOutEntry.getProcess();
+        Optional.ofNullable(observablePvmMap.get(lastSwappedOutEntryProcess))
+                .ifPresent(pvm ->
+                        pvm.getModuleInfoViewModel(MemoryInfoViewModel.class)
+                                .updateFrom(lastSwappedOutEntry.getProcess().getModuleInfo(ProcessMemoryInfo.class)));
     }
 }

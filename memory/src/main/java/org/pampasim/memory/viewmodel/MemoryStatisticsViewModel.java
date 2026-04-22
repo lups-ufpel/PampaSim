@@ -11,6 +11,8 @@ import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
+import java.util.List;
+
 public class MemoryStatisticsViewModel implements StatisticsViewModel {
 
     // Memory
@@ -27,7 +29,7 @@ public class MemoryStatisticsViewModel implements StatisticsViewModel {
     public final SimpleDoubleProperty totalPageFaultPercentage = new SimpleDoubleProperty();
     public final SimpleDoubleProperty averageIoWaitingTicks = new SimpleDoubleProperty();
 
-    public void updateStatistics(SimulationBase simulation, ObservableList<ProcessViewModel> allProcesses) {
+    public void updateStatistics(SimulationBase simulation, List<ProcessViewModel> allProcesses) {
         MemoryManagement memoryManagement = (MemoryManagement) simulation;
         PhysicalMemory physicalMemory = memoryManagement.getEntity(PhysicalMemory.class);
 

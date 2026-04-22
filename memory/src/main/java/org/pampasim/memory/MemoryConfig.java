@@ -3,11 +3,9 @@ package org.pampasim.memory;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
+import org.pampasim.resources.Process;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class MemoryConfig {
 
@@ -41,7 +39,7 @@ public final class MemoryConfig {
     @Getter @Setter private static boolean TlbEnabled                  = false;
     @Getter @Setter private static int TlbEntries                      = 0;
 
-    @Getter private static final Map<Long, ProcessMemoryInfo.CreationData> processMemoryConfigs = new HashMap<Long, ProcessMemoryInfo.CreationData>();
+    @Getter private static final IdentityHashMap<Process, ProcessMemoryInfo.CreationData> processMemoryConfigs = new IdentityHashMap<>();
 
     @Getter
     private static final List<ProcessMemoryInfo> processMemoryInfos = new ArrayList<>();

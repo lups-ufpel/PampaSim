@@ -11,6 +11,8 @@ import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.Process;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -34,6 +36,10 @@ public class ProcessViewModel implements ViewModel {
     // bodge to make the UD part of CRUD work with the edit and remove buttons
     private final Consumer<ProcessViewModel> editCallback;
     private final Consumer<ProcessViewModel> deleteCallback;
+
+    // notify interested module view models when this PVM binds to a process
+    @Getter
+    private final List<Consumer<ProcessViewModel>> deferredModuleInitializers = new ArrayList<>();
 
     // Armazena informações dos módulos (ex: memória, IO, etc.)
     private final ObservableList<ModuleInfoViewModel> moduleInfoViewModels = FXCollections.observableArrayList();
@@ -76,6 +82,7 @@ public class ProcessViewModel implements ViewModel {
                 .filter(proc -> proc.getCreationData().equals(this.creationData))
                 .map(proc -> {
                     this.processRef = new WeakReference<>(candidate);
+                    this.deferredModuleInitializers.forEach(c -> c.accept(this));
                     return proc;
                 }).isPresent();
     }

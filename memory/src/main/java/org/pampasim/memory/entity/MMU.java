@@ -63,10 +63,12 @@ public class MMU extends AbstractSimEntity {
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
         Process process = event.getProcess();
 
-        ProcessMemoryInfo.CreationData creationData = MemoryConfig.getProcessMemoryConfigs().get(process.getCreationData().getCreationId());
-        ProcessMemoryInfo.MemoryConfigData memoryConfigData = new ProcessMemoryInfo.MemoryConfigData(MemoryConfig.getSwapOperationLength(),
-                                                                                                    MemoryConfig.getMaxPagesPerProcess(),
-                                                                                                    MemoryConfig.getWorkingSetWindow());
+        ProcessMemoryInfo.CreationData creationData = MemoryConfig.getProcessMemoryConfigs().get(process);
+        ProcessMemoryInfo.MemoryConfigData memoryConfigData =
+                new ProcessMemoryInfo.MemoryConfigData(
+                        MemoryConfig.getSwapOperationLength(),
+                        MemoryConfig.getMaxPagesPerProcess(),
+                        MemoryConfig.getWorkingSetWindow());
 
         ProcessMemoryInfo processMemoryInfo = new ProcessMemoryInfo(process, creationData, memoryConfigData);
 

@@ -214,8 +214,7 @@ public class PampaSimViewModel implements ViewModel {
                                                                         memoryInfo.modifiesPageFlags(),
                                                                         memoryInfo.loopAccess(),
                                                                         null);
-            // URGENT / FIXME:
-            // MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
+            MemoryConfig.getProcessMemoryConfigs().put(creationData, memoryCreationData);
         }
         syncWithSpec();
     }
@@ -271,8 +270,7 @@ public class PampaSimViewModel implements ViewModel {
 
             memoryModule = new MemoryTabViewModel(
                     simulatedScenario.getSimulation().get().getEntity(MemoryManagement.class),
-                    simulatedScenario.getSpec().getColorMap(),
-                    allProcesses,
+                    FXCollections.observableMap(pvmMap), // TODO/FIXME: does this observable map ever get triggered?
                     memoryStatisticsViewModel
             );
 
@@ -449,18 +447,14 @@ public class PampaSimViewModel implements ViewModel {
                     .getEntity(Scheduler.class)
                     .getScheduledProcesses();
 
-            // FIXME: allProcesses should be a hashMap over (creationId, pvm) at this point
             processStream.forEach(scheduledProc -> {
-                
-                long pCid = scheduledProc.getCreationData().getCreationId();
-                allProcesses.stream()
-                        .filter(pvm -> pvm.getCreationId() == pCid)
-                        .findFirst()
-                        .ifPresent(pvm -> pvm.getReadyWaitingTime().set(scheduledProc.getWaitTime()));
+                var pvm = pvmMap.get(scheduledProc);
+                if (pvm != null) {
+                    pvm.getReadyWaitingTime().set(scheduledProc.getWaitTime());
+                }
             });
         }
         simulationStatisticsViewModel.updateStatistics((SimulationBase) simulatedScenario.getSimulation().get(), allProcesses);
-
     }
 
     private void generateCSVReport(Simulation sim) {

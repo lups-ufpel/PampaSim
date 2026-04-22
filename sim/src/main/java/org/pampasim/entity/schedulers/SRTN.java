@@ -27,8 +27,8 @@ public class SRTN extends Scheduler implements RespectsQuantum {
                 // lhs = rhs -> 0
                 // rhs -> +
                 var order = lhs.getRemainingExecutionTime() - rhs.getRemainingExecutionTime();
-                if(order == 0) { // creation id is the tiebreaker
-                    return (int) (lhs.getCreationData().getCreationId() - rhs.getCreationData().getCreationId());
+                if(order == 0) { // intra tick order is the tiebreaker
+                    return lhs.getCreationData().intraTickOrder() - rhs.getCreationData().intraTickOrder();
                 }
                 return order;
             }
