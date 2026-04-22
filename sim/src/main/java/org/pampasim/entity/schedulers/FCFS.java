@@ -30,7 +30,7 @@ public class FCFS extends RankingScheduler {
                 // lhs -> -
                 // lhs = rhs -> 0
                 // rhs -> +
-                var order = lhs.getCreationData().getArrivalTick() - rhs.getCreationData().getArrivalTick();
+                var order = lhs.getCreationData().arrivalTick() - rhs.getCreationData().arrivalTick();
                 if(order == 0) { // creation id is the tiebreaker
                   return (int) (lhs.getCreationData().getCreationId() - rhs.getCreationData().getCreationId());
                 }

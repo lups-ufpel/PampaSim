@@ -20,7 +20,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.Level;
@@ -37,8 +36,8 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
+import org.pampasim.events.External.Arrival;
 import org.pampasim.events.ProcessCreationDataEvent;
-import org.pampasim.events.ProcessEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
@@ -112,6 +111,8 @@ public class PampaSimViewModel implements ViewModel {
     // Process States
     @Getter
     private final ObservableList<ProcessViewModel> allProcesses = FXCollections.observableArrayList();
+    @Getter
+    private final IdentityHashMap<Process, ProcessViewModel> pvmMap = new IdentityHashMap<>();
     @Setter
     private TabPane tabPane;
 
@@ -135,23 +136,25 @@ public class PampaSimViewModel implements ViewModel {
                     if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
                         var creationData = e.getCreationData();
                         ProcessViewModel vm = new ProcessViewModel(
-                                creationData.getCreationId(),
+                                creationData,
                                 // bodge to make process inspector buttons work
                                 this::openEditProcessDialog,
                                 this::deleteProcess
                         );
-                        vm.getColorProperty().set(spec.getColorMap().get(creationData.getCreationId()));
+                        vm.getColorProperty().set(spec.getArrivalColorMap().get(event));
                         vm.setState(Process.State.NEW);
-                        vm.getArrivalTick().set(creationData.getArrivalTick());
-                        vm.getBurst().set(creationData.getDurationTicks());
-                        vm.getPriority().set(creationData.getStartPriority());
+                        vm.getArrivalTick().set(creationData.arrivalTick());
+                        vm.getBurst().set(creationData.durationTicks());
+                        vm.getPriority().set(creationData.startPriority());
                         allProcesses.add(vm);
 
                         //TODO: make adding module info part of the creation data
                         if (simMemoryModule != null) {
-                            vm.addModuleInfoViewModel(new MemoryInfoViewModel(MemoryConfig.getProcessMemoryConfigs().get(creationData.getCreationId()),
+                            // URGENT / FIXME:
+                            /*vm.addModuleInfoViewModel(new MemoryInfoViewModel(MemoryConfig.getProcessMemoryConfigs().get(creationData.getCreationId()),
                                                                               MemoryConfig.getWorkingSetWindow(),
                                                                               MemoryConfig.getMaxPagesPerProcess()));
+                             */
                         }
                     }
                 }
@@ -197,10 +200,11 @@ public class PampaSimViewModel implements ViewModel {
 
     public void createNewProcess(CreateProcessRecord userProcess) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority());
         var spec = simulatedScenario.getSpec();
-        spec.addProcessArrival(creationData);
-        spec.getColorMap().put(creationData.getCreationId(), Color.web(userProcess.color()));
+        var tickEvents = spec.getEventSchedule().get(userProcess.start()).size();
+        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEvents);
+        var arrivalEvent = spec.addProcessArrival(creationData);
+        spec.getArrivalColorMap().put(arrivalEvent, Color.web(userProcess.color()));
 
         if (memoryModule != null) {
             ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
@@ -210,7 +214,8 @@ public class PampaSimViewModel implements ViewModel {
                                                                         memoryInfo.modifiesPageFlags(),
                                                                         memoryInfo.loopAccess(),
                                                                         null);
-            MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
+            // URGENT / FIXME:
+            // MemoryConfig.getProcessMemoryConfigs().put(creationData.getCreationId(), memoryCreationData);
         }
         syncWithSpec();
     }
@@ -224,20 +229,17 @@ public class PampaSimViewModel implements ViewModel {
         var oldTickEventList = spec.getEventSchedule().get(processViewModel.getArrivalTick().get());
         var arrivalEvent = (ProcessCreationDataEvent) oldTickEventList.stream().filter(event -> {
             if (event instanceof ProcessCreationDataEvent procEvent) {
-                return procEvent.getCreationData().getCreationId() == processViewModel.getCreationId();
+                return procEvent.getCreationData().equals(processViewModel.getCreationData());
             } else { return false; }
         }).findFirst().orElseThrow();
 
-        // this messes with the creationId, might change the processing order
-        // ...after we went through all this trouble to not change the event serial
-        var oldCreationId = arrivalEvent.getCreationData().getCreationId();
-        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority());
+        var tickEventCount = spec.getEventSchedule().get(cpr.start()).size();
+        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount);
         arrivalEvent.setCreationData(creationData);
 
-        spec.getColorMap().remove(oldCreationId);
-        spec.getColorMap().put(creationData.getCreationId(), Color.web(epr.processRecord().color()));
-        var newTickEventList = spec.getEventSchedule().get(epr.processRecord().start());
+        spec.getArrivalColorMap().put(arrivalEvent, Color.web(epr.processRecord().color()));
 
+        var newTickEventList = spec.getEventSchedule().get(epr.processRecord().start());
         oldTickEventList.remove(arrivalEvent);
         newTickEventList.add(arrivalEvent);
         syncWithSpec();
@@ -245,7 +247,7 @@ public class PampaSimViewModel implements ViewModel {
     private void deleteProcess(ProcessViewModel processViewModel) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var spec = simulatedScenario.getSpec();
-        spec.removeProcessArrival(processViewModel.getCreationId());
+        spec.removeProcessArrival(processViewModel.getCreationData());
         syncWithSpec();
     }
 
@@ -407,25 +409,39 @@ public class PampaSimViewModel implements ViewModel {
         */
     }
 
+
     public void handleProcessEvent(Event uncastEvent) {
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
-        long id = proc.getCreationData().getCreationId();
-        ProcessViewModel found = allProcesses.stream()
-                .filter(pvm -> pvm.getCreationId() == id)
-                .findFirst().orElse(null);
+        Optional<ProcessViewModel> pvmOpt
+                = Optional.ofNullable(pvmMap.get(proc))
+                .or(() -> allProcesses.stream().filter(pvm2 ->
+                                pvm2.getCreationData().equals(proc.getCreationData()))
+                        .findFirst())
+                .or(() -> {
+                    // We need to intercept the arriving process to bind the appropriate ProcessViewModel
+                    if (event instanceof org.pampasim.events.Process.Allocate) {
+                        for (var pvm : allProcesses) {
+                            if (pvm.tryBinding(proc)) {
+                                pvmMap.put(proc, pvm);
+                                return Optional.of(pvm);
+                            }
+                        }
+                    }
+                    return Optional.empty();
+                });
 
-        if (found != null) {
-            found.getPid().set(proc.getPid());
-            found.setState(proc.getState());
-            found.getPriority().set(proc.getPriority());
-            found.getCurrExecTime().set(proc.getCurrExecTime());
-            found.getBurstTime().set(proc.getBurstTime());
+        pvmOpt.ifPresent(pvm -> {
+            pvm.getPid().set(proc.getPid());
+            pvm.setState(proc.getState());
+            pvm.getPriority().set(proc.getPriority());
+            pvm.getCurrExecTime().set(proc.getCurrExecTime());
+            pvm.getBurstTime().set(proc.getBurstTime());
             double current = proc.getCurrExecTime();
-            double total = proc.getCreationData().getDurationTicks();
-            found.getProgress().set(current/total);
-            found.getEndTime().set(proc.getEndTime());
-        }
+            double total = proc.getCreationData().durationTicks();
+            pvm.getProgress().set(current/total);
+            pvm.getEndTime().set(proc.getEndTime());
+        });
 
         // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
@@ -435,6 +451,7 @@ public class PampaSimViewModel implements ViewModel {
 
             // FIXME: allProcesses should be a hashMap over (creationId, pvm) at this point
             processStream.forEach(scheduledProc -> {
+                
                 long pCid = scheduledProc.getCreationData().getCreationId();
                 allProcesses.stream()
                         .filter(pvm -> pvm.getCreationId() == pCid)
@@ -626,12 +643,11 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
-        long creationId = editedProcessViewModel.getCreationId();
         int start = editedProcessViewModel.getArrivalTick().get();
         int duration = editedProcessViewModel.getBurst().get();
         int priority = editedProcessViewModel.getPriority().get();
         ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
-        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(creationId, start, duration, priority, color);
+        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
         result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
     }
 
@@ -647,8 +663,9 @@ public class PampaSimViewModel implements ViewModel {
             simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
         }
 
+        // FIXME / URGENT: memory module decoupling
         if (memoryModule != null) {
-            memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getColorMap());
+            //memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getArrivalColorMap());
             memoryModule.refreshFrameList();
         }
     }

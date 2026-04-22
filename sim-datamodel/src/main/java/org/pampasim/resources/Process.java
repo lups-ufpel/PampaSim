@@ -1,12 +1,10 @@
 package org.pampasim.resources;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.utils.PidAllocator.Pid;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
@@ -15,13 +13,16 @@ import java.util.ArrayList;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Process {
-    @Data
-    public static class CreationData { // TODO: some module info needs to be part of the creation data later when a module is included
-        private static long idCounter = 0;
-        private final long creationId = idCounter++;
-        private final int arrivalTick;
-        private final int durationTicks;
-        private final int startPriority;
+    /**
+     * @param intraTickOrder used for ordering events dispatched in the same tick,
+     *                       and to later bind Processes to their ProcessViewModels.
+     * @link Process
+     * @link ProcessViewModel
+     */
+    public record CreationData(
+            int arrivalTick, int durationTicks, int startPriority,
+            int intraTickOrder) {
+        // TODO: some module info needs to be part of the creation data later when a module is included
     }
     @Getter
     @EqualsAndHashCode.Include

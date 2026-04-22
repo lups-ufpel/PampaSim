@@ -10,7 +10,9 @@ public interface Event extends Comparable<Event> {
     SimEntity getSource();
     long getSerial();
     int getCreationTick();
+    /// Allows translation between events belonging to the same payload group
     Event cloneAs(Class<? extends Event> asClass) throws IncompatibleEventDataException;
     Object getData();
     void setData(Object obj);
+    int getIntraTickOrder();
 }

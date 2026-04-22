@@ -6,14 +6,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import lombok.NonNull;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.Process;
 
+import java.lang.ref.WeakReference;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Getter
 public class ProcessViewModel implements ViewModel {
-    private final long creationId;
+    private WeakReference<Process> processRef = null;
+    private Process.CreationData creationData;
     private final ObjectProperty<PidAllocator.Pid> pid = new SimpleObjectProperty<>();
     private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
     private final ObjectProperty<Process.State> state = new SimpleObjectProperty<>();
@@ -34,8 +38,8 @@ public class ProcessViewModel implements ViewModel {
     // Armazena informações dos módulos (ex: memória, IO, etc.)
     private final ObservableList<ModuleInfoViewModel> moduleInfoViewModels = FXCollections.observableArrayList();
 
-    public ProcessViewModel(long creationId, Consumer<ProcessViewModel> editCallback, Consumer<ProcessViewModel> deleteCallback) {
-        this.creationId = creationId;
+    public ProcessViewModel(@NonNull Process.CreationData creationData, Consumer<ProcessViewModel> editCallback, Consumer<ProcessViewModel> deleteCallback) {
+        this.creationData = creationData;
         this.editCallback = editCallback;
         this.deleteCallback = deleteCallback;
     }
@@ -65,6 +69,15 @@ public class ProcessViewModel implements ViewModel {
 
     public void addModuleInfoViewModel(ModuleInfoViewModel moduleViewModel) {
         this.moduleInfoViewModels.add(moduleViewModel);
+    }
+
+    public boolean tryBinding(@NonNull Process candidate) {
+        return Optional.of(candidate)
+                .filter(proc -> proc.getCreationData().equals(this.creationData))
+                .map(proc -> {
+                    this.processRef = new WeakReference<>(candidate);
+                    return proc;
+                }).isPresent();
     }
 
     public <T extends ModuleInfoViewModel> T getModuleInfoViewModel(Class<T> clazz) {

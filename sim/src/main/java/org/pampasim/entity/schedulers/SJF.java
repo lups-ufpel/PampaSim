@@ -30,7 +30,7 @@ public class SJF extends RankingScheduler {
                 // lhs -> -
                 // lhs = rhs -> 0
                 // rhs -> +
-                var order = lhs.getCreationData().getDurationTicks() - rhs.getCreationData().getDurationTicks();
+                var order = lhs.getCreationData().durationTicks() - rhs.getCreationData().durationTicks();
                 if(order == 0) { // creation id is the tiebreaker
                     return (int) (lhs.getCreationData().getCreationId() - rhs.getCreationData().getCreationId());
                 }

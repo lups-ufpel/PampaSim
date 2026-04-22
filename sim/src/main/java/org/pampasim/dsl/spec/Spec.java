@@ -10,10 +10,8 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.Launcher;
 import org.pampasim.ProcessCreationDataPayload;
 import org.pampasim.SchedulerConfig;
 import org.pampasim.core.EventSchedule;
@@ -24,9 +22,7 @@ import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
-import org.pampasim.events.ProcessCreationDataEvent;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -37,16 +33,12 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.xml.sax.SAXException;
 
@@ -59,13 +51,13 @@ public class Spec {
     private org.pampasim.Spec innerSpec;
 
     private EventSchedule eventSchedule;
-    private Map<Long, Color> colorMap;
+    private IdentityHashMap<Event, Color> arrivalColorMap;
 
     private static JAXBContext jaxbContext;
 
     public Spec() {
         this.eventSchedule = new EventSchedule();
-        this.colorMap = new HashMap<>();
+        this.arrivalColorMap = new IdentityHashMap<>();
         this.innerSpec = new org.pampasim.Spec();
     }
 
@@ -85,7 +77,16 @@ public class Spec {
             var schInfo = s.getEntities().getScheduler();
             spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), Optional.empty());
 
+            /* introduces line order semantics for intra tick ordering
+             * which is poorly documented in the schema
+             */
+            var tickEventCounts = new ArrayList<Integer>();
+
             s.getStimuli().getEvent().forEach(e -> {
+                var curTick = e.getTick().intValue();
+                while (curTick > tickEventCounts.size()) {
+                    tickEventCounts.add(0);
+                }
                 var payloads = e.getAny();
                 Class<?> eventClass = null;
                 try {
@@ -103,27 +104,35 @@ public class Spec {
                         possiblePayloads.add(ProcessCreationDataPayload.class);
                         bodge = true; // TODO / FIXME: no clue how to translate these properly without restructuring the modules
                     }
+                    // workaround for lambda binding
                     final Object predicateCopy = o;
-                    var classMatch = possiblePayloads.stream().filter(candidate -> candidate == predicateCopy.getClass()).findFirst();
+                    var classMatch = possiblePayloads.stream()
+                            .filter(candidate -> candidate == predicateCopy.getClass())
+                            .findFirst();
                     if (classMatch.isEmpty()) {
                         LOGGER.error("payload {} doesn't match event {}, which has payloads {}", o, e, possiblePayloads);
                         throw new RuntimeException("Error loading spec file");
                     } else {
                         LOGGER.trace("got any object {}", o);
                         var payloadClass = classMatch.get();
+                        ProcessCreationDataPayload pcdp = null; // bodge
                         if (bodge) {
                             payloadClass = Process.CreationData.class;
-                            ProcessCreationDataPayload pcdp = (ProcessCreationDataPayload) o;
+                            pcdp = (ProcessCreationDataPayload) o;
                             o = new Process.CreationData(
                                     e.getTick().intValue(),
                                     pcdp.getDurationTicks().intValue(),
-                                    pcdp.getStartPriority().intValue());
-                            spec.getColorMap().put(((Process.CreationData) o).getCreationId(), Color.web(pcdp.getDisplayColor()));
+                                    pcdp.getStartPriority().intValue(),
+                                    tickEventCounts.get(curTick));
                         }
                         try {
                             var constructor = eventClass.getConstructor(SimEntity.class, payloadClass);
                             var eventInstance = constructor.newInstance(null, o);
-                            spec.getEventSchedule().schedule(e.getTick().intValue(), (Event) eventInstance);
+                            spec.getEventSchedule().schedule(curTick, (Event) eventInstance);
+                            tickEventCounts.set(curTick, tickEventCounts.get(curTick) + 1);
+                            if (bodge) {
+                                spec.getArrivalColorMap().put((Event)eventInstance, Color.web(pcdp.getDisplayColor()));
+                            }
                         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                                  InvocationTargetException ex) {
                             throw new RuntimeException(ex);
@@ -145,14 +154,7 @@ public class Spec {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(new File("schemas/spec.xsd"));
             marshaller.setSchema(schema);
-            org.pampasim.Spec spec = new org.pampasim.Spec();
-            var entities = new org.pampasim.Spec.Entities();
-            var schedulerConf = new SchedulerConfig();
-            schedulerConf.setFullyQualifiedClassName(this.schedulerInfo.clazz.getCanonicalName());
-            //schedulerConf.setAny(new org.pampasim.QuantumDeclaration);
-            //entities.setScheduler();
-            //spec.setEntities(entities);
-            //marshaller.marshal();
+            marshaller.marshal(this.innerSpec, printer);
         } catch (IOException | JAXBException | SAXException e) {
             throw new RuntimeException(e);
         }
@@ -161,15 +163,15 @@ public class Spec {
     public Event addProcessArrival(Process.CreationData creationData) {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
         innerSpec.getStimuli().getEvent().add((Event)ev);
-        eventSchedule.schedule(creationData.getArrivalTick(), ev);
+        eventSchedule.schedule(creationData.arrivalTick(), ev);
         return ev;
     }
 
-    public Event removeProcessArrival(long creationId) {
+    public Event removeProcessArrival(Process.CreationData creationData) {
         return eventSchedule.removeFirstMatch((candidate) -> {
             try {
                 org.pampasim.events.External.Arrival ev = (org.pampasim.events.External.Arrival) candidate;
-                return ev.getCreationData().getCreationId() == creationId;
+                return ev.getCreationData().equals(creationData);
             } catch (ClassCastException e) {
                 LOGGER.debug("removeProcessArrival couldn't cast event {}", candidate);
                 return false;

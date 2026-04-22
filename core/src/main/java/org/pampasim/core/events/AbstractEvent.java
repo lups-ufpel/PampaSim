@@ -1,5 +1,6 @@
 package org.pampasim.core.events;
 
+import lombok.Setter;
 import org.pampasim.core.entity.AbstractSimEntity;
 import lombok.Getter;
 import org.pampasim.core.entity.SimEntity;
@@ -13,9 +14,12 @@ import java.util.Optional;
 
 @Getter
 public abstract class AbstractEvent implements Event, Comparable<Event> {
+    // note that some Event methods are fulfilled by lombok generated getters
     private final SimEntity source;
     private final long serial;
     private final int creationTick;
+    @Setter
+    private int intraTickOrder;
     protected static Map<Class<?>, Optional<Schema>> payloadSchemas;
 
     public AbstractEvent(SimEntity source) {
@@ -24,7 +28,7 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
             var sim = source.getSimulation();
             this.serial = sim.getEventManager().nextEventSerial();
             this.creationTick = sim.getSimulationClock().get();
-        } else { // botch to just punt the issue down the line
+        } else { // bodge to just punt the issue down the line
             this.serial = -1;
             this.creationTick = -1;
         }
@@ -34,7 +38,9 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
 
     @Override
     public int compareTo(Event event) {
-        return (int)(this.getSerial() - event.getSerial());
+        var tickWise = (int)(this.getSerial() - event.getSerial());
+        var itoWise = this.getIntraTickOrder() - event.getIntraTickOrder();
+        return (tickWise != 0)? tickWise : itoWise;
     }
 
     public Event cloneAs(Class<? extends Event> asClass) throws IncompatibleEventDataException {

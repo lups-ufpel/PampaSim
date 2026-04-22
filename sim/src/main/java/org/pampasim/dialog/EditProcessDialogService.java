@@ -23,23 +23,21 @@ public class EditProcessDialogService implements DialogService<EditProcessRecord
         ViewTuple<EditProcessDialogView, EditProcessDialogViewModel> viewTuple =
                 FluentViewLoader.fxmlView(EditProcessDialogView.class).load();
 
-        if (args.length != 5
-                || !(args[0] instanceof Long)
+        if (args.length != 4
+                || !(args[0] instanceof Integer)
                 || !(args[1] instanceof Integer)
                 || !(args[2] instanceof Integer)
-                || !(args[3] instanceof Integer)
-                || !(args[4] instanceof ObjectProperty)) {
+                || !(args[3] instanceof ObjectProperty)) {
             throw new IllegalArgumentException("Invalid arguments for showDialog");
         }
-        long creationId = (long) args[0];
 
         Dialog<ButtonType> dialog = new Dialog<>();
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
         dialog.setDialogPane(dialogPane);
-        int start = (int) args[1];
-        int duration = (int) args[2];
-        int priority = (int) args[3];
-        ObjectProperty<Color> color = (ObjectProperty<Color>) args[4];
+        int start = (int) args[0];
+        int duration = (int) args[1];
+        int priority = (int) args[2];
+        ObjectProperty<Color> color = (ObjectProperty<Color>) args[3];
         viewTuple.getCodeBehind().setProcessData(start, duration, priority, color); //TODO: NOT THE BEST OPTION
         // this is blocking AFAIK
         Optional<EditProcessRecord> result = dialog.showAndWait()
