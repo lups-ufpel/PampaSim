@@ -21,7 +21,7 @@ public class Process {
      */
     public record CreationData(
             int arrivalTick, int durationTicks, int startPriority,
-            int intraTickOrder, Map<Class<?>, Object> moduleCreationData) {
+            int intraTickOrder, Map<? extends Class<?>, Object> moduleCreationData) {
     }
     @Getter
     @EqualsAndHashCode.Include

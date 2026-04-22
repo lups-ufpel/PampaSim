@@ -201,21 +201,24 @@ public class PampaSimViewModel implements ViewModel {
     public void createNewProcess(CreateProcessRecord userProcess) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var spec = simulatedScenario.getSpec();
-        var tickEvents = spec.getEventSchedule().get(userProcess.start()).size();
-        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEvents);
+        var tickEventCount = spec.getEventSchedule().get(userProcess.start()).size();
+        var moduleCreationDataMap = Optional.ofNullable(memoryModule)
+                .map(module -> {
+            ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
+            var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
+                    memoryInfo.fileBackedPages(),
+                    memoryInfo.memoryAccesses(),
+                    memoryInfo.modifiesPageFlags(),
+                    memoryInfo.loopAccess(),
+                    null);
+            //MemoryConfig.getProcessMemoryConfigs().put(creationDatad(), memoryCreationData);
+            return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
+        }).orElse(Map.of());
+        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEventCount, moduleCreationDataMap);
         var arrivalEvent = spec.addProcessArrival(creationData);
         spec.getArrivalColorMap().put(arrivalEvent, Color.web(userProcess.color()));
 
-        if (memoryModule != null) {
-            ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
-            var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
-                                                                        memoryInfo.fileBackedPages(),
-                                                                        memoryInfo.memoryAccesses(),
-                                                                        memoryInfo.modifiesPageFlags(),
-                                                                        memoryInfo.loopAccess(),
-                                                                        null);
-            MemoryConfig.getProcessMemoryConfigs().put(creationData, memoryCreationData);
-        }
+
         syncWithSpec();
     }
     private void editProcess(ProcessViewModel processViewModel, EditProcessRecord epr) {
@@ -233,7 +236,19 @@ public class PampaSimViewModel implements ViewModel {
         }).findFirst().orElseThrow();
 
         var tickEventCount = spec.getEventSchedule().get(cpr.start()).size();
-        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount);
+        var moduleCreationDataMap = Optional.ofNullable(memoryModule)
+                .map(module -> {
+                    ProcessMemoryInfoRecord memoryInfo = epr.processRecord().memoryInfoRecord();
+                    var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
+                            memoryInfo.fileBackedPages(),
+                            memoryInfo.memoryAccesses(),
+                            memoryInfo.modifiesPageFlags(),
+                            memoryInfo.loopAccess(),
+                            null);
+                    //MemoryConfig.getProcessMemoryConfigs().put(creationDatad(), memoryCreationData);
+                    return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
+                }).orElse(Map.of());
+        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount, moduleCreationDataMap);
         arrivalEvent.setCreationData(creationData);
 
         spec.getArrivalColorMap().put(arrivalEvent, Color.web(epr.processRecord().color()));
@@ -270,7 +285,8 @@ public class PampaSimViewModel implements ViewModel {
 
             memoryModule = new MemoryTabViewModel(
                     simulatedScenario.getSimulation().get().getEntity(MemoryManagement.class),
-                    FXCollections.observableMap(pvmMap), // TODO/FIXME: does this observable map ever get triggered?
+                    pvmMap,
+                    allProcesses,
                     memoryStatisticsViewModel
             );
 
@@ -659,7 +675,7 @@ public class PampaSimViewModel implements ViewModel {
 
         // FIXME / URGENT: memory module decoupling
         if (memoryModule != null) {
-            //memoryModule.setMemoryManagement(simMemoryModule, simulatedScenario.getSpec().getArrivalColorMap());
+            memoryModule.setMemoryManagement(simMemoryModule, this.pvmMap);
             memoryModule.refreshFrameList();
         }
     }
