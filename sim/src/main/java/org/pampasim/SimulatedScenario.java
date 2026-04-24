@@ -22,7 +22,7 @@ public class SimulatedScenario {
     @Setter
     private boolean saved = true; // an empty scenario is "saved" since it doesn't need saving
 
-    // feels not very java-y but by jove I love passing functions around
+    // feels not very java-y but by love I love passing functions around
     public SimulatedScenario(Spec template, Function<Spec, Simulation> simulationFactory) {
         this.spec = template;
         this.simulationFactory = simulationFactory;

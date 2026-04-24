@@ -33,6 +33,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,6 +74,7 @@ public class Spec {
             u.setSchema(schema);
             Object specObj = u.unmarshal(stream);
             org.pampasim.Spec s = (org.pampasim.Spec)specObj;
+            spec.innerSpec = s; // I'm surprised this is allowed
 
             var schInfo = s.getEntities().getScheduler();
             spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), Optional.empty());
@@ -116,6 +118,8 @@ public class Spec {
                         LOGGER.trace("got any object {}", o);
                         var payloadClass = classMatch.get();
                         ProcessCreationDataPayload pcdp = null; // bodge
+                        // FIXME/TODO: load module creation data
+                        Map<? extends Class<?>, Object> moduleCreationData = Map.of();
                         if (bodge) {
                             payloadClass = Process.CreationData.class;
                             pcdp = (ProcessCreationDataPayload) o;
@@ -123,7 +127,8 @@ public class Spec {
                                     e.getTick().intValue(),
                                     pcdp.getDurationTicks().intValue(),
                                     pcdp.getStartPriority().intValue(),
-                                    tickEventCounts.get(curTick));
+                                    tickEventCounts.get(curTick),
+                                    moduleCreationData);
                         }
                         try {
                             var constructor = eventClass.getConstructor(SimEntity.class, payloadClass);
@@ -162,7 +167,15 @@ public class Spec {
 
     public Event addProcessArrival(Process.CreationData creationData) {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
-        innerSpec.getStimuli().getEvent().add((Event)ev);
+
+        // FIXME: bodge
+        org.pampasim.Event e = new org.pampasim.Event();
+        e.setFullyQualifiedClassName(org.pampasim.events.External.Arrival.class.getCanonicalName());
+        e.setTick(BigInteger.valueOf(ev.getCreationTick()));
+        e.setIntraTickOrder(BigInteger.valueOf(ev.getIntraTickOrder()));
+        e.getAny().add(ev.getCreationData());
+
+        innerSpec.getStimuli().getEvent().add(e);
         eventSchedule.schedule(creationData.arrivalTick(), ev);
         return ev;
     }
@@ -191,13 +204,14 @@ public class Spec {
                     = scanResult.getSubclasses(Scheduler.class.getName());
             ClassInfo schedulerInfo = schedulerClasses.filter(clazz -> clazz.getName().contains(name)).getFirst();
             if (schedulerInfo == null) { throw new RuntimeException("scheduler " + name + " not found!"); }
-            if (schedulerInfo.getInterfaces().filter(iface -> iface.getName().contains(RespectsQuantum.class.getName())).iterator().hasNext() == false) {
+            if (!schedulerInfo.getInterfaces().filter(i -> i.getName().contains(RespectsQuantum.class.getName())).iterator().hasNext()) {
                 quantum = Optional.empty();
             }
             try {
-                setSchedulerInfo(
-                    new SchedulerInfo((Class<? extends Scheduler>) schedulerInfo.loadClass(), quantum)
-                );
+                Class<? extends Scheduler> schedulerClass = (Class<? extends Scheduler>) schedulerInfo.loadClass();
+                SchedulerConfig schedConfig = innerSpec.getEntities().getScheduler();
+                schedConfig.setFullyQualifiedClassName(schedulerClass.getCanonicalName());
+                schedConfig.setAny(quantum);
             } catch (ClassCastException e) {
                 throw new RuntimeException("type cast error during scheduler class load: " + e);
             }

@@ -25,4 +25,5 @@ module org.pampasim {
     opens org.pampasim.viewModel to javafx.controls, javafx.fxml,javafx.graphics,de.saxsys.mvvmfx;
     opens org.pampasim.view to javafx.fxml, de.saxsys.mvvmfx;
     exports org.pampasim.viewModel to de.saxsys.mvvmfx;
+    exports org.pampasim.entity.schedulers;
 }

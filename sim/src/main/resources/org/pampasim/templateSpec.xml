@@ -4,7 +4,6 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../../../../schemas/spec.xsd">
     <entities>
-        <processor coreCount="1" millionInstructionsPerSecond="100"/>
         <scheduler>
             <fullyQualifiedClassName>org.pampasim.entity.schedulers.FCFS</fullyQualifiedClassName>
         </scheduler>

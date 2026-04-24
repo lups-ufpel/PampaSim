@@ -17,6 +17,7 @@ import org.pampasim.resources.ProcessorCore;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class PampaSim extends SimulationBase {
     private final static Logger LOGGER = LogManager.getLogger(PampaSim.class);
@@ -47,13 +48,19 @@ public class PampaSim extends SimulationBase {
 
     public static PampaSim fromSpec(Spec s) {
         PampaSim sim = new PampaSim(null);
-        Spec.SchedulerInfo schedulerInfo = s.getSchedulerInfo();
-        if (schedulerInfo != null) {
-            Class<? extends Scheduler> schedulerClass = s.getSchedulerInfo().clazz();
+        SchedulerConfig schedConf = s.getInnerSpec().getEntities().getScheduler();
+        if (schedConf != null) {
+            Class<? extends Scheduler> schedulerClass = null;
+            try {
+                schedulerClass = (Class<? extends Scheduler>) Thread.currentThread().getContextClassLoader().loadClass(schedConf.getFullyQualifiedClassName());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             if (schedulerClass != null) try {
                 Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
                 var instance = cons.newInstance(sim);
-                schedulerInfo.quantum().ifPresent(quantum -> {
+                Optional<Integer> quantumOpt = (Optional<Integer>) schedConf.getAny();
+                quantumOpt.ifPresent(quantum -> {
                     org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
                     rq_instance.setQuantum(quantum);
                 });
@@ -64,23 +71,19 @@ public class PampaSim extends SimulationBase {
             }
         }
         try {
-            new Processor(sim,
+            /*new Processor(sim,
                     new ProcessorCore(
                             s.getProcessors()
                                     .getFirst() // Single processor, for now
                                     .coreCapacities()
                                     .getFirst() // Single core, for now
                     )
-            );
+            );*/
+            new Processor(sim, new ProcessorCore(1000));
         } catch (NoSuchElementException e) {
             LOGGER.warn("Possible mistake: no processor set up by spec!");
         }
-
-        if (s.isHasProcManager()) {
-            new ProcessManager(sim);
-        } else {
-            LOGGER.warn("Possible mistake: no process manager set up by spec!");
-        }
+        new ProcessManager(sim);
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
         return sim;
     }
