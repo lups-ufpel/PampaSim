@@ -201,7 +201,9 @@ public class PampaSimViewModel implements ViewModel {
     public void createNewProcess(CreateProcessRecord userProcess) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var spec = simulatedScenario.getSpec();
-        var tickEventCount = spec.getEventSchedule().get(userProcess.start()).size();
+        var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(userProcess.start()))
+                .map(ArrayList::size)
+                .orElse(0);
         var moduleCreationDataMap = Optional.ofNullable(memoryModule)
                 .map(module -> {
             ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
@@ -235,7 +237,9 @@ public class PampaSimViewModel implements ViewModel {
             } else { return false; }
         }).findFirst().orElseThrow();
 
-        var tickEventCount = spec.getEventSchedule().get(cpr.start()).size();
+        var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(cpr.start()))
+                .map(ArrayList::size)
+                .orElse(0);
         var moduleCreationDataMap = Optional.ofNullable(memoryModule)
                 .map(module -> {
                     ProcessMemoryInfoRecord memoryInfo = epr.processRecord().memoryInfoRecord();

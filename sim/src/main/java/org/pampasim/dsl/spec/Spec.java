@@ -86,7 +86,7 @@ public class Spec {
 
             s.getStimuli().getEvent().forEach(e -> {
                 var curTick = e.getTick().intValue();
-                while (curTick > tickEventCounts.size()) {
+                while (curTick >= tickEventCounts.size()) {
                     tickEventCounts.add(0);
                 }
                 var payloads = e.getAny();
@@ -123,11 +123,12 @@ public class Spec {
                         if (bodge) {
                             payloadClass = Process.CreationData.class;
                             pcdp = (ProcessCreationDataPayload) o;
+                            var tec = Optional.ofNullable(tickEventCounts.get(curTick)).orElse(0);
                             o = new Process.CreationData(
                                     e.getTick().intValue(),
                                     pcdp.getDurationTicks().intValue(),
                                     pcdp.getStartPriority().intValue(),
-                                    tickEventCounts.get(curTick),
+                                    tec,
                                     moduleCreationData);
                         }
                         try {
