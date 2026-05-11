@@ -4,14 +4,12 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.ObjectFactory;
 import org.pampasim.ProcessCreationDataPayload;
 import org.pampasim.SchedulerConfig;
 import org.pampasim.core.EventSchedule;
@@ -26,6 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -56,6 +55,7 @@ public class Spec {
 
     private static JAXBContext jaxbContext;
 
+    /// Instantiates a new, empty spec. Save with saveSpec()
     public Spec() {
         this.eventSchedule = new EventSchedule();
         this.arrivalColorMap = new IdentityHashMap<>();
@@ -77,7 +77,17 @@ public class Spec {
             spec.innerSpec = s; // I'm surprised this is allowed
 
             var schInfo = s.getEntities().getScheduler();
-            spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), Optional.empty());
+            var quantumOpt = Optional.ofNullable(schInfo.getAny())
+                    .flatMap(anyElem -> {
+                        if (anyElem instanceof JAXBElement<?> elem) {
+                            if (elem.getName().getLocalPart().equals("quantum")) {
+                                var quantumInt = ((BigInteger)elem.getValue()).intValue();
+                                return Optional.of(quantumInt);
+                            }
+                        }
+                        return Optional.empty();
+                    });
+            spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), quantumOpt);
 
             /* introduces line order semantics for intra tick ordering
              * which is poorly documented in the schema
@@ -166,23 +176,37 @@ public class Spec {
         }
     }
 
-    public Event addProcessArrival(Process.CreationData creationData) {
+    public Event addProcessArrival(Process.CreationData creationData, Color c) {
         var ev = new org.pampasim.events.External.Arrival(null, creationData);
 
         // FIXME: bodge
         org.pampasim.Event e = new org.pampasim.Event();
         e.setFullyQualifiedClassName(org.pampasim.events.External.Arrival.class.getCanonicalName());
-        e.setTick(BigInteger.valueOf(ev.getCreationTick()));
+        e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
         e.setIntraTickOrder(BigInteger.valueOf(ev.getIntraTickOrder()));
-        e.getAny().add(ev.getCreationData());
+        var objFact = new ObjectFactory();
+        var pcdPayload = objFact.createProcessCreationDataPayload();
+        pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
+        pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
+        var clrStr = convertColor(c);
+        pcdPayload.setDisplayColor(clrStr);
+        e.getAny().add(pcdPayload);
 
         innerSpec.getStimuli().getEvent().add(e);
         eventSchedule.schedule(creationData.arrivalTick(), ev);
+        this.arrivalColorMap.put(ev, Color.web(clrStr));
         return ev;
     }
 
-    public Event removeProcessArrival(Process.CreationData creationData) {
-        return eventSchedule.removeFirstMatch((candidate) -> {
+    private String convertColor(Color c) {
+        int r = (int) Math.round(c.getRed() * 255);
+        int g = (int) Math.round(c.getGreen() * 255);
+        int b = (int) Math.round(c.getBlue() * 255);
+        return String.format("#%02x%02x%02x", r, g, b);
+    }
+
+    public Event removeProcessArrival(@Nonnull Process.CreationData creationData) {
+        var arrivalEvent = eventSchedule.removeFirstMatch((candidate) -> {
             try {
                 org.pampasim.events.External.Arrival ev = (org.pampasim.events.External.Arrival) candidate;
                 return ev.getCreationData().equals(creationData);
@@ -191,6 +215,22 @@ public class Spec {
                 return false;
             }
         });
+
+        // FIXME: bodge
+        org.pampasim.Event e = new org.pampasim.Event();
+        e.setFullyQualifiedClassName(org.pampasim.events.External.Arrival.class.getCanonicalName());
+        e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
+        e.setIntraTickOrder(BigInteger.valueOf(arrivalEvent.getIntraTickOrder()));
+        var objFact = new ObjectFactory();
+        var pcdPayload = objFact.createProcessCreationDataPayload();
+        pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
+        pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
+        pcdPayload.setDisplayColor(convertColor(arrivalColorMap.get(arrivalEvent)));
+        e.getAny().add(pcdPayload);
+
+        var found = innerSpec.getStimuli().getEvent().removeIf(sev -> sev.equals(e));
+        assert(found);
+        return arrivalEvent;
     }
 
     public void setSchedulerInfo(String name, Optional<Integer> quantum) {
@@ -212,7 +252,12 @@ public class Spec {
                 Class<? extends Scheduler> schedulerClass = (Class<? extends Scheduler>) schedulerInfo.loadClass();
                 SchedulerConfig schedConfig = innerSpec.getEntities().getScheduler();
                 schedConfig.setFullyQualifiedClassName(schedulerClass.getCanonicalName());
-                schedConfig.setAny(quantum);
+                var objFact = new ObjectFactory();
+                quantum.ifPresent(quantumInt ->
+                        schedConfig.setAny(
+                                objFact.createQuantum(BigInteger.valueOf(quantumInt))
+                            )
+                    );
             } catch (ClassCastException e) {
                 throw new RuntimeException("type cast error during scheduler class load: " + e);
             }
@@ -292,8 +337,6 @@ public class Spec {
             return List.of("memory");
         }
     }
-
-
 
     @Override
     public String toString() {

@@ -1,5 +1,6 @@
 package org.pampasim;
 
+import jakarta.xml.bind.JAXBElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.EventSchedule;
@@ -16,7 +17,9 @@ import org.pampasim.resources.ProcessorCore;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
 public class PampaSim extends SimulationBase {
@@ -59,11 +62,13 @@ public class PampaSim extends SimulationBase {
             if (schedulerClass != null) try {
                 Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
                 var instance = cons.newInstance(sim);
-                Optional<Integer> quantumOpt = (Optional<Integer>) schedConf.getAny();
-                quantumOpt.ifPresent(quantum -> {
-                    org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
-                    rq_instance.setQuantum(quantum);
-                });
+                if (schedConf.getAny() instanceof JAXBElement<?> anyElem) {
+                    if (anyElem.getName().getLocalPart().equals("quantum")) {
+                        var quantum = ((BigInteger)anyElem.getValue()).intValue();
+                        org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
+                        rq_instance.setQuantum(quantum);
+                    }
+                };
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {

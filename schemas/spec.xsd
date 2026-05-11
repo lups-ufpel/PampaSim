@@ -42,4 +42,6 @@
     <xs:simpleType name="quantumDeclaration">
         <xs:restriction base="xs:nonNegativeInteger"/>
     </xs:simpleType>
+
+    <xs:element name="quantum" type="quantumDeclaration"/>
 </xs:schema>

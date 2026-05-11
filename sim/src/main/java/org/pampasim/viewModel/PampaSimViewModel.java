@@ -217,9 +217,7 @@ public class PampaSimViewModel implements ViewModel {
             return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
         }).orElse(Map.of());
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEventCount, moduleCreationDataMap);
-        var arrivalEvent = spec.addProcessArrival(creationData);
-        spec.getArrivalColorMap().put(arrivalEvent, Color.web(userProcess.color()));
-
+        var arrivalEvent = spec.addProcessArrival(creationData, Color.web(userProcess.color()));
 
         syncWithSpec();
     }
@@ -257,9 +255,8 @@ public class PampaSimViewModel implements ViewModel {
 
         spec.getArrivalColorMap().put(arrivalEvent, Color.web(epr.processRecord().color()));
 
-        var newTickEventList = spec.getEventSchedule().get(epr.processRecord().start());
-        oldTickEventList.remove(arrivalEvent);
-        newTickEventList.add(arrivalEvent);
+        spec.getEventSchedule().removeFirstMatch(e -> e == arrivalEvent);
+        spec.getEventSchedule().schedule(epr.processRecord().start(), arrivalEvent);
         syncWithSpec();
     }
     private void deleteProcess(ProcessViewModel processViewModel) {

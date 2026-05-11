@@ -17,7 +17,6 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
     // note that some Event methods are fulfilled by lombok generated getters
     private final SimEntity source;
     private final long serial;
-    private final int creationTick;
     @Setter
     private int intraTickOrder;
     protected static Map<Class<?>, Optional<Schema>> payloadSchemas;
@@ -27,10 +26,8 @@ public abstract class AbstractEvent implements Event, Comparable<Event> {
         if (source != null) {
             var sim = source.getSimulation();
             this.serial = sim.getEventManager().nextEventSerial();
-            this.creationTick = sim.getSimulationClock().get();
         } else { // bodge to just punt the issue down the line
             this.serial = -1;
-            this.creationTick = -1;
         }
         payloadSchemas = new HashMap<>();
     }
