@@ -7,8 +7,13 @@
                 <xs:element name="durationTicks" type="xs:positiveInteger"/>
                 <xs:element name="startPriority" type="xs:nonNegativeInteger"/>
                 <!-- FIXME: regex restriction for the color -->
-                <xs:element name="displayColor" type="xs:string"/>
+                <xs:element name="displayColor" type="webColor3"/>
             </xs:all>
         </xs:complexType>
     </xs:element>
+    <xs:simpleType name="webColor3">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([0-9]|[a-f]|[A-F]){6}"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

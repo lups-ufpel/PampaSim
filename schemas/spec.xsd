@@ -9,6 +9,15 @@
     <xs:element name="spec">
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="version">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="major" type="xs:nonNegativeInteger"/>
+                            <xs:element name="minor" type="xs:nonNegativeInteger"/>
+                            <xs:element name="patch" type="xs:nonNegativeInteger"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="entities">
                     <xs:complexType>
                         <xs:group ref="mandatoryEntities"/>
