@@ -231,7 +231,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         stateCol.setCellValueFactory(cellData -> cellData.getValue().stateProperty());
         arrivalCol.setCellValueFactory(cellData -> cellData.getValue().getArrivalTick());
         priorityCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
-        burstCol.setCellValueFactory(cellData -> cellData.getValue().getPriority());
+        burstCol.setCellValueFactory(cellData -> cellData.getValue().getBurst());
         progressCol.setCellValueFactory(p -> {
             return p.getValue().getProgress();
             });
