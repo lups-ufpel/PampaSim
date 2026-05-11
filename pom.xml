@@ -193,7 +193,7 @@
           <version>3.3.1</version>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
-            <projectVersionPolicyId>SemVerVersionPolicy</projectVersionPolicyId>
+            <projectVersionPolicyId>SemVerMinorDevelopmentVersionPolicy</projectVersionPolicyId>
           </configuration>
         </plugin>
       </plugins>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<spec
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../schemas/spec.xsd">
+    <version>
+        <major>2</major>
+        <minor>3</minor>
+        <patch>0</patch>
+    </version>
+    <entities>
+        <scheduler>
+            <fullyQualifiedClassName>org.pampasim.entity.schedulers.SJF</fullyQualifiedClassName>
+        </scheduler>
+    </entities>
+    <stimuli>
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
+            <processCreationDataPayload>
+                <durationTicks>8</durationTicks>
+                <startPriority>0</startPriority>
+                <displayColor>990000</displayColor>
+            </processCreationDataPayload>
+        </event>
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
+            <processCreationDataPayload>
+                <durationTicks>6</durationTicks>
+                <startPriority>0</startPriority>
+                <displayColor>b31a1a</displayColor>
+            </processCreationDataPayload>
+        </event>
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
+            <processCreationDataPayload>
+                <durationTicks>4</durationTicks>
+                <startPriority>0</startPriority>
+                <displayColor>ff6666</displayColor>
+            </processCreationDataPayload>
+        </event>
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
+            <processCreationDataPayload>
+                <durationTicks>2</durationTicks>
+                <startPriority>0</startPriority>
+                <displayColor>ff9999</displayColor>
+            </processCreationDataPayload>
+        </event>
+        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
+            <processCreationDataPayload>
+                <durationTicks>1</durationTicks>
+                <startPriority>0</startPriority>
+                <displayColor>e6b3cc</displayColor>
+            </processCreationDataPayload>
+        </event>
+    </stimuli>
+</spec>
