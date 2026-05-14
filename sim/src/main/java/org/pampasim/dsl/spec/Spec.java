@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.pampasim.ObjectFactory;
 import org.pampasim.ProcessCreationDataPayload;
 import org.pampasim.SchedulerConfig;
+import org.pampasim.VersionInfo;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.*;
@@ -54,6 +55,7 @@ public class Spec {
     private IdentityHashMap<Event, Color> arrivalColorMap;
 
     private static JAXBContext jaxbContext;
+    private static ObjectFactory objFact;
 
     /// Instantiates a new, empty spec. Save with saveSpec()
     public Spec() {
@@ -62,7 +64,7 @@ public class Spec {
         this.innerSpec = new org.pampasim.Spec();
     }
 
-    public static Spec loadSpec(InputStream stream) {
+    public static Spec loadSpec(InputStream stream, boolean versionOverride) {
         Spec spec = new Spec();
         try {
             if (Spec.jaxbContext == null) {
@@ -74,6 +76,30 @@ public class Spec {
             u.setSchema(schema);
             Object specObj = u.unmarshal(stream);
             org.pampasim.Spec s = (org.pampasim.Spec)specObj;
+
+            var specVersion = s.getVersion();
+
+            int major = VersionInfo.getMajor();
+            int minor = VersionInfo.getMinor();
+            int patch = VersionInfo.getPatch();
+
+            if (versionOverride) {
+                if (objFact == null) {
+                    objFact = new ObjectFactory();
+                }
+                var versionVal = objFact.createSpecVersion();
+                versionVal.setMajor(BigInteger.valueOf(major));
+                versionVal.setMinor(BigInteger.valueOf(minor));
+                versionVal.setPatch(BigInteger.valueOf(patch));
+                s.setVersion(versionVal);
+            } else {
+                var majorMatch = specVersion.getMajor().intValue() == major;
+                var minorMatch = specVersion.getMinor().intValue() == minor;
+                var patchMatch = specVersion.getPatch().intValue() == patch;
+                // TODO / FIXME: proper exception type for this throw
+                throw new RuntimeException("Specification version mismatch");
+            }
+
             spec.innerSpec = s; // I'm surprised this is allowed
 
             var schInfo = s.getEntities().getScheduler();
@@ -161,6 +187,9 @@ public class Spec {
         }
         return spec;
     }
+    public static Spec loadSpec(InputStream stream) {
+        return loadSpec(stream, false);
+    }
 
     public void saveSpec(Path path) {
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
@@ -170,6 +199,7 @@ public class Spec {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(new File("schemas/spec.xsd"));
             marshaller.setSchema(schema);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(this.innerSpec, printer);
         } catch (IOException | JAXBException | SAXException e) {
             throw new RuntimeException(e);
@@ -202,7 +232,7 @@ public class Spec {
         int r = (int) Math.round(c.getRed() * 255);
         int g = (int) Math.round(c.getGreen() * 255);
         int b = (int) Math.round(c.getBlue() * 255);
-        return String.format("#%02x%02x%02x", r, g, b);
+        return String.format("%02x%02x%02x", r, g, b);
     }
 
     public Event removeProcessArrival(@Nonnull Process.CreationData creationData) {
@@ -217,11 +247,13 @@ public class Spec {
         });
 
         // FIXME: bodge
+        if (objFact == null) {
+            objFact = new ObjectFactory();
+        }
         org.pampasim.Event e = new org.pampasim.Event();
         e.setFullyQualifiedClassName(org.pampasim.events.External.Arrival.class.getCanonicalName());
         e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
         e.setIntraTickOrder(BigInteger.valueOf(arrivalEvent.getIntraTickOrder()));
-        var objFact = new ObjectFactory();
         var pcdPayload = objFact.createProcessCreationDataPayload();
         pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
         pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));

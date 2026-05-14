@@ -120,7 +120,7 @@ public class PampaSimViewModel implements ViewModel {
 
     public PampaSimViewModel() {
         var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
-        var templateSpec = Spec.loadSpec(templateSpecStream);
+        var templateSpec = Spec.loadSpec(templateSpecStream, true);
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
             var sim = PampaSim.fromSpec(spec);
             var eventManager = sim.getEventManager();

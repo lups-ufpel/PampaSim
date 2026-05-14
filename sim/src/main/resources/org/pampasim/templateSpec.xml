@@ -4,8 +4,8 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../../../../schemas/spec.xsd">
     <version>
-        <major>2</major>
-        <minor>3</minor>
+        <major>0</major>
+        <minor>0</minor>
         <patch>0</patch>
     </version>
     <entities>

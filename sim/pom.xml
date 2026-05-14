@@ -160,6 +160,26 @@
                 </sources>
             </configuration>
         </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>codegen-version-baker</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.pampasim.tools.VersionBaker</mainClass>
+                    <sourceRoot>
+                        ../sim/target/generated-sources/VersionBaker
+                    </sourceRoot>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>
