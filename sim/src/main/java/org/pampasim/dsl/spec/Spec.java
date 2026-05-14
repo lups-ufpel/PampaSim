@@ -93,11 +93,13 @@ public class Spec {
                 versionVal.setPatch(BigInteger.valueOf(patch));
                 s.setVersion(versionVal);
             } else {
-                var majorMatch = specVersion.getMajor().intValue() == major;
-                var minorMatch = specVersion.getMinor().intValue() == minor;
-                var patchMatch = specVersion.getPatch().intValue() == patch;
+                var majorMismatch = specVersion.getMajor().intValue() != major;
+                var minorMismatch = specVersion.getMinor().intValue() != minor;
+                var patchMismatch = specVersion.getPatch().intValue() != patch;
                 // TODO / FIXME: proper exception type for this throw
-                throw new RuntimeException("Specification version mismatch");
+                if (majorMismatch || minorMismatch || patchMismatch) {
+                    throw new RuntimeException("Specification version mismatch");
+                }
             }
 
             spec.innerSpec = s; // I'm surprised this is allowed

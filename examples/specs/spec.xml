@@ -6,7 +6,7 @@
     <version>
         <major>2</major>
         <minor>3</minor>
-        <patch>0</patch>
+        <patch>2</patch>
     </version>
     <entities>
         <scheduler>
