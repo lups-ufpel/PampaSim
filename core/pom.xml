@@ -57,11 +57,6 @@
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-graphics</artifactId>
     </dependency>
-    <!-- this one may not be needed
-    <dependency>
-      <groupId>de.saxsys</groupId>
-      <artifactId>mvvmfx</artifactId>
-    </dependency> -->
   </dependencies>
 
   <build>

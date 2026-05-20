@@ -261,15 +261,14 @@ public class Spec {
         pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
         pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
         pcdPayload.setDisplayColor(convertColor(arrivalColorMap.get(arrivalEvent)));
+        e.getAny().add(pcdPayload);
 
-        var found = innerSpec.getStimuli().getEvent().removeIf(sev -> {
-            var t = sev.getFullyQualifiedClassName().equals(e.getFullyQualifiedClassName())
-                && sev.getTick().equals(e.getTick())
-                && ((ProcessCreationDataPayload) sev.getAny().getFirst()).equals(pcdPayload);
-            LOGGER.debug("comparing\n{}\n\tand\n{}", sev, e);
-            return t;
-        });
-        assert found;
+        var eventList = innerSpec.getStimuli().getEvent();
+        var found = eventList.removeIf(sev -> sev.equals(e));
+        if (!found) {
+            LOGGER.error("None of the arrival events match {}, {}\n=>\n{}", e, eventList, eventList.stream().map(sev -> sev.equals(e)).toList());
+            assert false;
+        }
         return arrivalEvent;
     }
 

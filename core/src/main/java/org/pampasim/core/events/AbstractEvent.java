@@ -1,7 +1,6 @@
 package org.pampasim.core.events;
 
 import lombok.Setter;
-import org.pampasim.core.entity.AbstractSimEntity;
 import lombok.Getter;
 import org.pampasim.core.entity.SimEntity;
 
