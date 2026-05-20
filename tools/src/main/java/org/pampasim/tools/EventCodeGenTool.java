@@ -77,7 +77,7 @@ public class EventCodeGenTool {
         var groupSet = new HashSet<>(allEventGroups.values());
         System.out.println("event groups: " + groupSet.stream().map(EventGroup::getName).toList());
         writeEventManager(groupSet);
-        writeModuleInfo(groupSet);
+        //writeModuleInfo(groupSet);
     }
 
     private static void writeEventManager(Set<EventGroup> eventGroups) throws IOException {

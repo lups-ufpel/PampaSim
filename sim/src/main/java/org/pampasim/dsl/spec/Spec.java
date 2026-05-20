@@ -19,6 +19,7 @@ import org.pampasim.core.events.*;
 import org.pampasim.events.EventManager;
 import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
+import org.pampasim.events.External.Arrival;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.w3c.dom.Document;
@@ -209,11 +210,11 @@ public class Spec {
     }
 
     public Event addProcessArrival(Process.CreationData creationData, Color c) {
-        var ev = new org.pampasim.events.External.Arrival(null, creationData);
+        var ev = new Arrival(null, creationData);
 
         // FIXME: bodge
         org.pampasim.Event e = new org.pampasim.Event();
-        e.setFullyQualifiedClassName(org.pampasim.events.External.Arrival.class.getCanonicalName());
+        e.setFullyQualifiedClassName(Arrival.class.getCanonicalName());
         e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
         e.setIntraTickOrder(BigInteger.valueOf(ev.getIntraTickOrder()));
         var objFact = new ObjectFactory();
@@ -240,7 +241,7 @@ public class Spec {
     public Event removeProcessArrival(@Nonnull Process.CreationData creationData) {
         var arrivalEvent = eventSchedule.removeFirstMatch((candidate) -> {
             try {
-                org.pampasim.events.External.Arrival ev = (org.pampasim.events.External.Arrival) candidate;
+                Arrival ev = (Arrival) candidate;
                 return ev.getCreationData().equals(creationData);
             } catch (ClassCastException e) {
                 LOGGER.debug("removeProcessArrival couldn't cast event {}", candidate);
@@ -253,17 +254,22 @@ public class Spec {
             objFact = new ObjectFactory();
         }
         org.pampasim.Event e = new org.pampasim.Event();
-        e.setFullyQualifiedClassName(org.pampasim.events.External.Arrival.class.getCanonicalName());
+        e.setFullyQualifiedClassName(Arrival.class.getCanonicalName());
         e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
         e.setIntraTickOrder(BigInteger.valueOf(arrivalEvent.getIntraTickOrder()));
         var pcdPayload = objFact.createProcessCreationDataPayload();
         pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
         pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
         pcdPayload.setDisplayColor(convertColor(arrivalColorMap.get(arrivalEvent)));
-        e.getAny().add(pcdPayload);
 
-        var found = innerSpec.getStimuli().getEvent().removeIf(sev -> sev.equals(e));
-        assert(found);
+        var found = innerSpec.getStimuli().getEvent().removeIf(sev -> {
+            var t = sev.getFullyQualifiedClassName().equals(e.getFullyQualifiedClassName())
+                && sev.getTick().equals(e.getTick())
+                && ((ProcessCreationDataPayload) sev.getAny().getFirst()).equals(pcdPayload);
+            LOGGER.debug("comparing\n{}\n\tand\n{}", sev, e);
+            return t;
+        });
+        assert found;
         return arrivalEvent;
     }
 

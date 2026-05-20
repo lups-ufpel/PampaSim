@@ -40,12 +40,19 @@
       <dependency>
           <groupId>jakarta.xml.bind</groupId>
           <artifactId>jakarta.xml.bind-api</artifactId>
-          <version>4.0.4</version>
+      </dependency>
+      <dependency>
+          <groupId>jakarta.annotation</groupId>
+          <artifactId>jakarta.annotation-api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.jvnet.jaxb</groupId>
+          <artifactId>jaxb-plugins</artifactId>
       </dependency>
   </dependencies>
   <build>
       <plugins>
-          <plugin>
+          <!--plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>jaxb2-maven-plugin</artifactId>
               <version>4.1.0</version>
@@ -58,23 +65,47 @@
                   </execution>
               </executions>
               <configuration>
-                  <!-- The package of your generated sources -->
+                  <The package of your generated sources
                   <packageName>org.pampasim.resources</packageName>
                   <sources>
                       <source>../schemas/simulationDescription.xsd</source>
                   </sources>
-                  <!--plugins>
-                      <plugin>equalsHashCode</plugin>
-                      <plugin>toString</plugin>
-                  </plugins-->
               </configuration>
-              <!--dependencies>
-                  <dependency>
-                      <groupId>org.jvnet.jaxb</groupId>
-                      <artifactId>jaxb2-basics</artifactId>
-                      <version>2.0.15</version>
-                  </dependency>
-              </dependencies-->
+          </plugin -->
+          <plugin>
+              <groupId>org.jvnet.jaxb</groupId>
+              <artifactId>jaxb-maven-plugin</artifactId>
+              <version>4.0.8</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>generate</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              <configuration>
+                  <!--generateDirectory></generateDirectory-->
+                  <generatePackage>org.pampasim.resources</generatePackage>
+                  <markGenerated>true</markGenerated>
+                  <schemaDirectory>../schemas</schemaDirectory>
+                  <schemaIncludes>
+                      <include>simulationDescription.xsd</include>
+                  </schemaIncludes>
+                  <extension>true</extension>
+                  <args>
+                      <arg>-XtoString</arg>
+                      <arg>-Xequals</arg>
+                      <arg>-XhashCode</arg>
+                      <arg>-Xcopyable</arg>
+                  </args>
+                  <plugins>
+                      <plugin>
+                          <groupId>org.jvnet.jaxb</groupId>
+                          <artifactId>jaxb-plugins</artifactId>
+                          <version>4.0.8</version>
+                      </plugin>
+                  </plugins>
+              </configuration>
           </plugin>
       </plugins>
   </build>
