@@ -2,10 +2,6 @@ package org.pampasim.memory;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.pampasim.resources.memory.ProcessMemoryInfo;
-import org.pampasim.resources.Process;
-
-import java.util.*;
 
 public final class MemoryConfig {
 
@@ -38,19 +34,6 @@ public final class MemoryConfig {
     @Getter @Setter private static double variablePageAllocationBottomThreshold = 0;
     @Getter @Setter private static boolean TlbEnabled                  = false;
     @Getter @Setter private static int TlbEntries                      = 0;
-
-    @Getter private static final IdentityHashMap<Process, ProcessMemoryInfo.CreationData> processMemoryConfigs = new IdentityHashMap<>();
-
-    @Getter
-    private static final List<ProcessMemoryInfo> processMemoryInfos = new ArrayList<>();
-
-    public static void addProcessMemoryInfo(ProcessMemoryInfo info) {
-        processMemoryInfos.add(info);
-    }
-
-    public static void clearProcessMemoryInfos() {
-        processMemoryInfos.clear();
-    }
 
     private MemoryConfig() {
         throw new AssertionError("Cannot instantiate static configuration class");

@@ -10,6 +10,7 @@ import org.pampasim.events.Memory.Allocate;
 import org.pampasim.events.Memory.IoOperation;
 import org.pampasim.events.Process.*;
 import org.pampasim.memory.MemoryConfig;
+import org.pampasim.memory.MemoryManagement;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
@@ -63,7 +64,11 @@ public class MMU extends AbstractSimEntity {
     private void handleProcessAllocate(org.pampasim.events.Process.Allocate event) {
         Process process = event.getProcess();
 
-        ProcessMemoryInfo.CreationData creationData = MemoryConfig.getProcessMemoryConfigs().get(process);
+        ProcessMemoryInfo.CreationData creationData = (ProcessMemoryInfo.CreationData) process.getCreationData().moduleCreationData().get(ProcessMemoryInfo.class);
+        if (creationData == null) {
+            LOGGER.error("Process {} without memory information!", process);
+            throw new RuntimeException("process without memory information!");
+        }
         ProcessMemoryInfo.MemoryConfigData memoryConfigData =
                 new ProcessMemoryInfo.MemoryConfigData(
                         MemoryConfig.getSwapOperationLength(),
@@ -71,6 +76,7 @@ public class MMU extends AbstractSimEntity {
                         MemoryConfig.getWorkingSetWindow());
 
         ProcessMemoryInfo processMemoryInfo = new ProcessMemoryInfo(process, creationData, memoryConfigData);
+        MemoryManagement.getProcessMemoryInfos().put(process, processMemoryInfo);
 
         process.addModuleInfo(processMemoryInfo);
 

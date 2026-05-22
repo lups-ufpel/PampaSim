@@ -36,7 +36,6 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
-import org.pampasim.events.External.Arrival;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
@@ -116,7 +115,7 @@ public class PampaSimViewModel implements ViewModel {
     @Setter
     private TabPane tabPane;
 
-    private MemoryTabViewModel memoryModule = null;
+    private MemoryTabViewModel memoryModuleVM = null;
 
     public PampaSimViewModel() {
         var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
@@ -150,11 +149,16 @@ public class PampaSimViewModel implements ViewModel {
 
                         //TODO: make adding module info part of the creation data
                         if (simMemoryModule != null) {
-                            // URGENT / FIXME:
-                            /*vm.addModuleInfoViewModel(new MemoryInfoViewModel(MemoryConfig.getProcessMemoryConfigs().get(creationData.getCreationId()),
-                                                                              MemoryConfig.getWorkingSetWindow(),
-                                                                              MemoryConfig.getMaxPagesPerProcess()));
-                             */
+                            var processMemConfig = (ProcessMemoryInfo.CreationData)creationData.moduleCreationData().get(ProcessMemoryInfo.class);
+                            var memInfoVM = new MemoryInfoViewModel(
+                                    processMemConfig,
+                                    MemoryConfig.getWorkingSetWindow(),
+                                    MemoryConfig.getMaxPagesPerProcess());
+                            vm.addModuleInfoViewModel(memInfoVM);
+
+                            vm.getDeferredModuleInitializers().add(pvm -> {
+                                var process = vm.getProcessRef().get();
+                            });
                         }
                     }
                 }
@@ -204,7 +208,7 @@ public class PampaSimViewModel implements ViewModel {
         var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(userProcess.start()))
                 .map(ArrayList::size)
                 .orElse(0);
-        var moduleCreationDataMap = Optional.ofNullable(memoryModule)
+        var moduleCreationDataMap = Optional.ofNullable(memoryModuleVM)
                 .map(module -> {
             ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
             var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
@@ -213,7 +217,6 @@ public class PampaSimViewModel implements ViewModel {
                     memoryInfo.modifiesPageFlags(),
                     memoryInfo.loopAccess(),
                     null);
-            //MemoryConfig.getProcessMemoryConfigs().put(creationDatad(), memoryCreationData);
             return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
         }).orElse(Map.of());
         var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEventCount, moduleCreationDataMap);
@@ -238,7 +241,7 @@ public class PampaSimViewModel implements ViewModel {
         var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(cpr.start()))
                 .map(ArrayList::size)
                 .orElse(0);
-        var moduleCreationDataMap = Optional.ofNullable(memoryModule)
+        var moduleCreationDataMap = Optional.ofNullable(memoryModuleVM)
                 .map(module -> {
                     ProcessMemoryInfoRecord memoryInfo = epr.processRecord().memoryInfoRecord();
                     var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
@@ -247,7 +250,6 @@ public class PampaSimViewModel implements ViewModel {
                             memoryInfo.modifiesPageFlags(),
                             memoryInfo.loopAccess(),
                             null);
-                    //MemoryConfig.getProcessMemoryConfigs().put(creationDatad(), memoryCreationData);
                     return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
                 }).orElse(Map.of());
         var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount, moduleCreationDataMap);
@@ -284,7 +286,7 @@ public class PampaSimViewModel implements ViewModel {
             MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
             simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);
 
-            memoryModule = new MemoryTabViewModel(
+            memoryModuleVM = new MemoryTabViewModel(
                     simulatedScenario.getSimulation().get().getEntity(MemoryManagement.class),
                     pvmMap,
                     allProcesses,
@@ -295,7 +297,7 @@ public class PampaSimViewModel implements ViewModel {
 
             ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
                     .fxmlView(MemoryTabView.class)
-                    .viewModel(memoryModule)
+                    .viewModel(memoryModuleVM)
                     .load();
 
             Parent content = viewTuple.getView();
@@ -426,25 +428,27 @@ public class PampaSimViewModel implements ViewModel {
 
 
     public void handleProcessEvent(Event uncastEvent) {
+        LOGGER.trace("handling event {}", uncastEvent);
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
         Optional<ProcessViewModel> pvmOpt
                 = Optional.ofNullable(pvmMap.get(proc))
-                .or(() -> allProcesses.stream().filter(pvm2 ->
-                                pvm2.getCreationData().equals(proc.getCreationData()))
-                        .findFirst())
                 .or(() -> {
                     // We need to intercept the arriving process to bind the appropriate ProcessViewModel
                     if (event instanceof org.pampasim.events.Process.Allocate) {
                         for (var pvm : allProcesses) {
+                            LOGGER.trace("testing creationId compat between {} and {}", proc, pvm);
                             if (pvm.tryBinding(proc)) {
+                                LOGGER.trace("process {} bound to process view model {}", proc, pvm);
                                 pvmMap.put(proc, pvm);
                                 return Optional.of(pvm);
                             }
                         }
                     }
-                    return Optional.empty();
-                });
+                    return Optional.ofNullable(pvmMap.get(proc));
+                });/*.or(() -> allProcesses.stream().filter(pvm2 ->
+                                pvm2.getCreationData().equals(proc.getCreationData()))
+                        .findFirst());*/
 
         pvmOpt.ifPresent(pvm -> {
             pvm.getPid().set(proc.getPid());
@@ -566,11 +570,11 @@ public class PampaSimViewModel implements ViewModel {
 
         final boolean[] closedWithoutApply = {false};
 
-        settingsDialogService.setMemoryModulePresent(memoryModule != null);
+        settingsDialogService.setMemoryModulePresent(memoryModuleVM != null);
 
         Optional<SchedulerSelectionRecord> result;
 
-        if (memoryModule != null) {
+        if (memoryModuleVM != null) {
             List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
             result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms);
         } else {
@@ -581,7 +585,7 @@ public class PampaSimViewModel implements ViewModel {
         if (result.isPresent()) {
             // User pressed OK/Apply
             SchedulerSelectionRecord selection = result.get();
-            if (memoryModule != null) {
+            if (memoryModuleVM != null) {
                 MemoryConfigSelectionRecord mem = selection.memoryConfig();
                 MemoryConfig.initialize(
                         mem.pageSize(),
@@ -648,7 +652,7 @@ public class PampaSimViewModel implements ViewModel {
         });
     }
     public void openCreateProcessDialog() {
-        createProcessDialogService.setMemoryModulePresent(memoryModule != null);
+        createProcessDialogService.setMemoryModulePresent(memoryModuleVM != null);
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
     }
@@ -675,9 +679,9 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         // FIXME / URGENT: memory module decoupling
-        if (memoryModule != null) {
-            memoryModule.setMemoryManagement(simMemoryModule, this.pvmMap);
-            memoryModule.refreshFrameList();
+        if (memoryModuleVM != null) {
+            memoryModuleVM.setMemoryManagement(simMemoryModule, this.pvmMap);
+            memoryModuleVM.refreshFrameList();
         }
     }
 

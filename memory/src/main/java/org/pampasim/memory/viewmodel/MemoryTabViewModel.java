@@ -141,16 +141,16 @@ public class MemoryTabViewModel implements ViewModel {
             throw new IllegalStateException("Process MemoryInfo not found");
         }
 
-        // Update MemoryInfoViewModel for all matching processes
-        pvmMap
-                .get(process)
-                .getModuleInfoViewModels()
-                .forEach(m -> {
-                    if (!(m instanceof MemoryInfoViewModel)) {
-                        return;
-                    }
-                    ((MemoryInfoViewModel) m).updateFrom(memoryInfo);
-                });
+        // Update MemoryInfoViewModel for all matching processes which have a bound process view model
+        Optional.ofNullable(pvmMap.get(process))
+                .ifPresent(pvm -> pvm
+                        .getModuleInfoViewModels()
+                        .forEach(m -> {
+                            if (!(m instanceof MemoryInfoViewModel)) {
+                                return;
+                            }
+                            ((MemoryInfoViewModel) m).updateFrom(memoryInfo);
+                        }));
 
         LOGGER.debug("MemoryTabViewModel observed ProcessEvent {}", event);
 

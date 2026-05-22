@@ -14,9 +14,19 @@ import org.pampasim.memory.entity.PageTableManager;
 import org.pampasim.memory.entity.PhysicalMemory;
 //import org.pampasim.memory.entity.TLB;
 import org.pampasim.memory.entity.algorithms.*;
+import org.pampasim.resources.Process;
+import org.pampasim.resources.memory.ProcessMemoryInfo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 @Getter
 public class MemoryManagement extends SimulationBase {
+
+    @Getter private static final IdentityHashMap<Process, ProcessMemoryInfo> processMemoryInfos = new IdentityHashMap<>();
+    @Getter private static final HashMap<Process.CreationData, ProcessMemoryInfo.CreationData> pendingMemoryInfoBindings = new HashMap<>();
 
     public MemoryManagement(SimulationBase parent) {
         super(parent);
@@ -43,6 +53,7 @@ public class MemoryManagement extends SimulationBase {
                 MemoryConfig.getVariablePageAllocationBottomThreshold()
         );
     }
+
     @Override
     public void acceptEvent(Event evt) {
         // Forward certain events to parent simulation
