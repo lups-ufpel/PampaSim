@@ -7,15 +7,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
-import javafx.util.Callback;
+/*
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.PageTableEntryViewModel;
 import org.pampasim.resources.viewmodel.PageTableViewModel;
+ */
 import org.pampasim.resources.viewmodel.ProcessViewModel;
-
-import java.util.function.Function;
 
 public class PCBView implements FxmlView<ProcessViewModel> {
 
@@ -35,6 +34,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
 
     // Memory Management Info
 
+    /*
     @FXML public TitledPane processMemoryInfoTitledPane;
 
     @FXML public Label memorySizeLabel;
@@ -59,7 +59,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
     @FXML private TableColumn<PageTableEntryViewModel, Boolean> referencedColumn;
     @FXML private TableColumn<PageTableEntryViewModel, Boolean> fileBackedColumn;
     @FXML private TableColumn<PageTableEntryViewModel, String> frameAddressColumn;
-
+    */
 
 
     public void initialize() {
@@ -79,6 +79,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
         burstLabel.textProperty().bind(viewModel.getBurst().asString());
 
 
+        /*
         // Memory info
         MemoryInfoViewModel memoryInfo = viewModel.getModuleInfoViewModel(MemoryInfoViewModel.class);
 
@@ -146,8 +147,10 @@ public class PCBView implements FxmlView<ProcessViewModel> {
             }
 
         }
+        */
     }
 
+    /*
     private void updatePageTableUI(PageTableViewModel pageTable) {
         pageTableView.setItems(pageTable.getEntries());
 
@@ -165,6 +168,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
         setupBooleanColumn(referencedColumn, PageTableEntryViewModel::referencedProperty);
         setupBooleanColumn(fileBackedColumn, PageTableEntryViewModel::fileBackedProperty);
     }
+     */
 
     private String toHex(Color color) {
         return String.format("#%02X%02X%02X",
@@ -178,6 +182,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
         return luminance < 0.5 ? "white" : "black";
     }
 
+    /*
     private void setupBooleanColumn(TableColumn<PageTableEntryViewModel, Boolean> column,
                                     Function<PageTableEntryViewModel, ObservableValue<Boolean>> prop) {
         column.setCellValueFactory(cell -> prop.apply(cell.getValue()));
@@ -198,5 +203,6 @@ public class PCBView implements FxmlView<ProcessViewModel> {
             }
         });
     }
+     */
 
 }

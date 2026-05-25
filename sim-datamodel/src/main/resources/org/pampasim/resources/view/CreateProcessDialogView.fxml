@@ -70,60 +70,14 @@
                         </rowConstraints>
                     </GridPane>
 
-                    <!-- Memory Management Section -->
-                    <VBox fx:id="memorySectionVBox" alignment="CENTER" spacing="10">
-                        <Separator prefWidth="400.0"/>
-                        <Label alignment="CENTER" text="Gerência de Memoria" textAlignment="CENTER">
-                            <font>
-                                <Font name="System Bold" size="16.0"/>
-                            </font>
-                        </Label>
-
-                        <GridPane alignment="CENTER" hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
-                            <Label text="Tamanho do Processo (Nº de Páginas)" GridPane.rowIndex="0"/>
-                            <Spinner fx:id="processSizeSpinner" editable="true" max="999" min="1"
-                                     styleClass="split-arrows-horizontal" GridPane.columnIndex="1"
-                                     GridPane.rowIndex="0"/>
-
-                            <Label text="Páginas file-backed (ex: 1,6,8,9-15)" GridPane.rowIndex="1"/>
-                            <TextField fx:id="fileBackedPagesField" promptText="1,6,8,9-15" GridPane.columnIndex="1"
-                                       GridPane.rowIndex="1"/>
-
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS"/>
-                                <ColumnConstraints hgrow="ALWAYS"/>
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints/>
-                                <RowConstraints/>
-                            </rowConstraints>
-                        </GridPane>
-
-                        <VBox alignment="CENTER" spacing="5.0">
-                            <Label fx:id="validAddressRangeLabel" text="Endereços válidos do processo: 0 - ?" />
-                            <Label text="Acessos de Memória">
-                                <font>
-                                    <Font name="System Bold" size="14.0"/>
-                                </font>
-                            </Label>
-
-                            <HBox spacing="10">
-                                <Button fx:id="addAccessButton" text="Adicionar Acesso"/>
-                                <Button fx:id="randomizeAccessesButton" text="Gerar Aleatórios"/>
-                                <CheckBox fx:id="loopAccessCheckBox" text="Loop"/>
-                            </HBox>
-
-                            <VBox fx:id="memoryAccessesContainer" spacing="5.0"
-                                  style="-fx-border-color: lightgray; -fx-padding: 5" VBox.vgrow="ALWAYS">
-                                <!-- Entries will be added here dynamically -->
-                            </VBox>
-                        </VBox>
+                    <!-- Pluggable modules section -->
+                    <VBox fx:id="moduleSection" alignment="CENTER" spacing="10">
                     </VBox>
                 </VBox>
             </ScrollPane>
         </VBox>
     </content>
 
-    <ButtonType fx:id="cancelButton" buttonData="CANCEL_CLOSE" text="Cancel" />
+    <ButtonType buttonData="CANCEL_CLOSE" text="Cancel" />
     <ButtonType fx:id="okButton" buttonData="APPLY" text="OK" />
 </DialogPane>

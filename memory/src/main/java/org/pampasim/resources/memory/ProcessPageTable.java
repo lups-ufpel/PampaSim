@@ -17,7 +17,7 @@ public class ProcessPageTable {
         processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         int processSize = processMemoryInfo.getSize();
         ArrayList<Boolean> fileBackedFlags = processMemoryInfo.getFileBackedPages();
-        this.entries = new ArrayList<>(processMemoryInfo.getCreationData().getSize());
+        this.entries = new ArrayList<>((int) processMemoryInfo.getCreationData().getPageCount());
         for (int i = 0; i < processSize; i++) {
             entries.add(new PageTableEntry(process, i, fileBackedFlags.get(i)));
         }

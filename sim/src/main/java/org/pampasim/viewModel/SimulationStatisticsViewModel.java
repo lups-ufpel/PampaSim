@@ -6,14 +6,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
 import org.pampasim.core.SimulationBase;
-import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 import org.pampasim.entity.Processor;
-import org.pampasim.memory.MemoryConfig;
-import org.pampasim.memory.MemoryManagement;
-import org.pampasim.memory.entity.PhysicalMemory;
 import org.pampasim.resources.Process;
-import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.util.List;

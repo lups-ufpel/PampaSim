@@ -40,6 +40,7 @@ import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
+import org.pampasim.memory.view.MemoryInfoView;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
@@ -53,6 +54,7 @@ import org.pampasim.resources.dialog.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -149,16 +151,12 @@ public class PampaSimViewModel implements ViewModel {
 
                         //TODO: make adding module info part of the creation data
                         if (simMemoryModule != null) {
-                            var processMemConfig = (ProcessMemoryInfo.CreationData)creationData.moduleCreationData().get(ProcessMemoryInfo.class);
-                            var memInfoVM = new MemoryInfoViewModel(
+                            var processMemConfig = (MemoryProcessCreationData) creationData.moduleCreationData().get(MemoryManagement.class);
+                            var memInfoVM = new org.pampasim.memory.viewmodel.MemoryInfoViewModel(
                                     processMemConfig,
                                     MemoryConfig.getWorkingSetWindow(),
                                     MemoryConfig.getMaxPagesPerProcess());
                             vm.addModuleInfoViewModel(memInfoVM);
-
-                            vm.getDeferredModuleInitializers().add(pvm -> {
-                                var process = vm.getProcessRef().get();
-                            });
                         }
                     }
                 }
@@ -208,18 +206,7 @@ public class PampaSimViewModel implements ViewModel {
         var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(userProcess.start()))
                 .map(ArrayList::size)
                 .orElse(0);
-        var moduleCreationDataMap = Optional.ofNullable(memoryModuleVM)
-                .map(module -> {
-            ProcessMemoryInfoRecord memoryInfo = userProcess.memoryInfoRecord();
-            var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
-                    memoryInfo.fileBackedPages(),
-                    memoryInfo.memoryAccesses(),
-                    memoryInfo.modifiesPageFlags(),
-                    memoryInfo.loopAccess(),
-                    null);
-            return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
-        }).orElse(Map.of());
-        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEventCount, moduleCreationDataMap);
+        var creationData = new Process.CreationData(userProcess.start(), userProcess.duration(), userProcess.priority(), tickEventCount, userProcess.moduleInfo());
         var arrivalEvent = spec.addProcessArrival(creationData, Color.web(userProcess.color()));
 
         syncWithSpec();
@@ -241,18 +228,7 @@ public class PampaSimViewModel implements ViewModel {
         var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(cpr.start()))
                 .map(ArrayList::size)
                 .orElse(0);
-        var moduleCreationDataMap = Optional.ofNullable(memoryModuleVM)
-                .map(module -> {
-                    ProcessMemoryInfoRecord memoryInfo = epr.processRecord().memoryInfoRecord();
-                    var memoryCreationData = new ProcessMemoryInfo.CreationData(memoryInfo.processSize(),
-                            memoryInfo.fileBackedPages(),
-                            memoryInfo.memoryAccesses(),
-                            memoryInfo.modifiesPageFlags(),
-                            memoryInfo.loopAccess(),
-                            null);
-                    return Map.of((Class<?>)ProcessMemoryInfo.class, (Object)memoryCreationData);
-                }).orElse(Map.of());
-        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount, moduleCreationDataMap);
+        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount, cpr.moduleInfo());
         arrivalEvent.setCreationData(creationData);
 
         spec.getArrivalColorMap().put(arrivalEvent, Color.web(epr.processRecord().color()));
@@ -652,7 +628,49 @@ public class PampaSimViewModel implements ViewModel {
         });
     }
     public void openCreateProcessDialog() {
-        createProcessDialogService.setMemoryModulePresent(memoryModuleVM != null);
+        if (memoryModulePresent.get()) {
+            var memoryViewTuple = FluentViewLoader.fxmlView(MemoryInfoView.class).load();
+            var memVM = memoryViewTuple.getViewModel();
+            var memView = memoryViewTuple.getCodeBehind();
+            createProcessDialogService.setModuleInfo(
+                    Map.of(
+                            MemoryManagement.class, new CreateProcessDialogService.ModuleTuple(
+                                    //init
+                                    memView::moduleInitializer,
+                                    // generate
+                                    viewModel -> {
+                                        var objFact = new org.pampasim.resources.memory.ObjectFactory();
+                                        var memCData = objFact.createMemoryProcessCreationData();
+                                        memCData.setPageCount(memVM.getProcessSize());
+
+                                        memCData.setFileBackedPages   (objFact.createPageIdList());
+                                        memCData.setModifyPages       (objFact.createPageIdList());
+                                        memCData.setAddressAccessList (objFact.createAccessList());
+
+                                        { // Populate MemoryProcessCreationData fields
+                                            memCData.setPageCount(memVM.getProcessSize());
+                                            var fileBackedPages = memCData.getFileBackedPages().getPageId();
+                                            var modifyPages = memCData.getModifyPages().getPageId();
+                                            for (int i = 0; i < memVM.getProcessSize(); i++) {
+                                                if (memVM.getFileBackedPages().get(i)) {
+                                                    fileBackedPages.add((long)i);
+                                                }
+                                                if (memVM.getModifiesPage().get(i)) {
+                                                    modifyPages.add((long)i);
+                                                }
+                                            }
+                                            var accessList = memCData.getAddressAccessList();
+                                            for (var address : memVM.getMemoryAccesses()) {
+                                                accessList.getAddress().add(BigInteger.valueOf(address));
+                                            }
+                                            memCData.setLoopAccessList(memVM.getLoopAccessList());
+                                        };
+                                        return memCData;
+                                    })
+                    )
+            );
+        }
+        LOGGER.trace("createProcessDialogService.moduleInfo = {}", createProcessDialogService.getModuleInfo());
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
     }

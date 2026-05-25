@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:id="memorySectionVBox" alignment="CENTER" spacing="10" fx:controller="org.pampasim.memory.view.MemoryInfoView">
+    <Separator prefWidth="400.0"/>
+    <Label alignment="CENTER" text="Gerência de Memória" textAlignment="CENTER">
+        <font>
+            <Font name="System Bold" size="16.0"/>
+        </font>
+    </Label>
+
+    <GridPane alignment="CENTER" hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
+        <Label text="Tamanho do Processo (Nº de Páginas)" GridPane.rowIndex="0"/>
+        <Spinner fx:id="processSizeSpinner" editable="true" max="999" min="1"
+                 styleClass="split-arrows-horizontal" GridPane.columnIndex="1"
+                 GridPane.rowIndex="0"/>
+
+        <Label text="Páginas file-backed (ex: 1,6,8,9-15)" GridPane.rowIndex="1"/>
+        <TextField fx:id="fileBackedPagesField" promptText="1,6,8,9-15" GridPane.columnIndex="1"
+                   GridPane.rowIndex="1"/>
+
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints/>
+            <RowConstraints/>
+        </rowConstraints>
+    </GridPane>
+
+    <VBox alignment="CENTER" spacing="5.0">
+        <Label fx:id="validAddressRangeLabel" text="Endereços válidos do processo: 0 - ?" />
+        <Label text="Acessos de Memória">
+            <font>
+                <Font name="System Bold" size="14.0"/>
+            </font>
+        </Label>
+
+        <HBox spacing="10">
+            <Button fx:id="addAccessButton" text="Adicionar Acesso"/>
+            <Button fx:id="randomizeAccessesButton" text="Gerar Aleatórios"/>
+            <CheckBox fx:id="loopAccessCheckBox" text="Loop"/>
+        </HBox>
+
+        <VBox fx:id="memoryAccessesContainer" spacing="5.0"
+              style="-fx-border-color: lightgray; -fx-padding: 5" VBox.vgrow="ALWAYS">
+            <!-- Entries will be added here dynamically -->
+        </VBox>
+    </VBox>
+</VBox>

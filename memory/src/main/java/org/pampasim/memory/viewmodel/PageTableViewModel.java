@@ -1,4 +1,4 @@
-package org.pampasim.resources.viewmodel;
+package org.pampasim.memory.viewmodel;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

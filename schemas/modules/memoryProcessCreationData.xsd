@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="memoryProcessCreationData">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="pageCount" type="xs:unsignedInt"/>
+                <xs:element name="addressAccessList" type="accessList"/>
+                <xs:element name="fileBackedPages" type="pageIdList"/>
+                <xs:element name="modifyPages" type="pageIdList"/>
+                <xs:element name="loopAccessList" type="xs:boolean"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="pageId">
+        <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+    <xs:complexType name="pageIdList">
+        <xs:sequence>
+            <xs:element name="pageId" minOccurs="0" maxOccurs="unbounded" type="pageId"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="accessList">
+        <xs:sequence>
+            <xs:element name="address" type="xs:unsignedLong" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

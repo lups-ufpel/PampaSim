@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextFlow;
 import org.pampasim.memory.viewmodel.MemoryFrameViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
-import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
+import org.pampasim.memory.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.view.ProcessView;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ViewListBinder;

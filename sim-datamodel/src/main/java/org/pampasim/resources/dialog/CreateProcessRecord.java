@@ -1,13 +1,11 @@
 package org.pampasim.resources.dialog;
 
-import org.pampasim.resources.memory.ProcessMemoryInfo;
-
-import java.util.List;
+import java.util.Map;
 
 public record CreateProcessRecord(
         int start,
         int duration,
         int priority,
         String color,
-        ProcessMemoryInfoRecord memoryInfoRecord
+        Map<Class<?>, Object> moduleInfo
 ) { }

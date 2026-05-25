@@ -1,13 +1,11 @@
-package org.pampasim.resources.viewmodel;
+package org.pampasim.memory.viewmodel;
 
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ProcessMemoryInfoViewModel implements ViewModel {
 

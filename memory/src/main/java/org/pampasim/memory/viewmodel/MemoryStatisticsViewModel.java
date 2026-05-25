@@ -2,12 +2,10 @@ package org.pampasim.memory.viewmodel;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.collections.ObservableList;
 import org.pampasim.core.SimulationBase;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.entity.PhysicalMemory;
-import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 

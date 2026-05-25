@@ -16,7 +16,6 @@ import org.pampasim.memory.entity.PhysicalMemory;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
-import org.pampasim.resources.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package org.pampasim.resources.viewmodel;
+package org.pampasim.memory.viewmodel;
 
 import javafx.beans.property.*;
 import org.pampasim.resources.memory.PageTableEntry;

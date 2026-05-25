@@ -1,15 +1,17 @@
 package org.pampasim.resources.viewmodel;
 
 import de.saxsys.mvvmfx.ViewModel;
+import de.saxsys.mvvmfx.ViewTuple;
+import de.saxsys.mvvmfx.internal.viewloader.View;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.pampasim.resources.dialog.CreateProcessDialogService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreateProcessDialogViewModel implements ViewModel {
-
-    private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
-    @Getter
-    private final IntegerProperty pageSize = new SimpleIntegerProperty(0);
 
     private final IntegerProperty processStart = new SimpleIntegerProperty();
     private final IntegerProperty processDuration = new SimpleIntegerProperty();
@@ -18,7 +20,8 @@ public class CreateProcessDialogViewModel implements ViewModel {
     private final ObjectProperty<Color> selectedColor = new SimpleObjectProperty<>(pleasantRandomColor());
 
     @Getter
-    private final ProcessMemoryInfoViewModel memoryInfo = new ProcessMemoryInfoViewModel();
+    private final Map<Class<Object>, CreateProcessDialogService.ModuleTuple> moduleInfo = new HashMap<>();
+    //private final ProcessMemoryInfoViewModel memoryInfo = new ProcessMemoryInfoViewModel();
 
     // gpt color theory ahead
     private static double hue = Math.random() * 360;
@@ -66,21 +69,4 @@ public class CreateProcessDialogViewModel implements ViewModel {
         int b = (int) Math.round(col.getBlue() * 255);
         return String.format("#%02x%02x%02x", r, g, b);
     }
-
-    public BooleanProperty memoryModulePresentProperty() {
-        return memoryModulePresent;
-    }
-
-    public boolean isMemoryModulePresent() {
-        return memoryModulePresent.get();
-    }
-
-    public void setMemoryModulePresent(boolean present) {
-        memoryModulePresent.set(present);
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize.set(pageSize);
-    }
-
 }

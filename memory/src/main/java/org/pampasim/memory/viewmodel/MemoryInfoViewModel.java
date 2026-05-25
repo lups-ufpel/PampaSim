@@ -1,13 +1,17 @@
-package org.pampasim.resources.viewmodel;
+package org.pampasim.memory.viewmodel;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import lombok.Getter;
 import lombok.Setter;
+import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessMemoryInfo.IoOperationType;
 import org.pampasim.resources.memory.PageTableEntry;
 import org.pampasim.resources.memory.ProcessPageTable;
+import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
+
+import java.math.BigInteger;
 
 @Getter
 @Setter
@@ -33,13 +37,14 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
     private final ObjectProperty<PageTableViewModel> pageTableViewModel = new SimpleObjectProperty<>();
 
 
-    public MemoryInfoViewModel(ProcessMemoryInfo.CreationData creationData, int workingSetWindow, int maxPagesRam) {
+    public MemoryInfoViewModel(MemoryProcessCreationData creationData, int workingSetWindow, int maxPagesRam) {
         if (creationData == null) return;
 
         this.workingSetWindow.set(workingSetWindow);
         this.maxPagesRam.set(maxPagesRam);
-        processSize.set(creationData.getSize());
-        totalAccessList.setAll(creationData.getAddressAccessList());
+        processSize.set((int) creationData.getPageCount());
+        var temp = creationData.getAddressAccessList().getAddress().stream().map(BigInteger::intValue);
+        totalAccessList.setAll(temp.toList());
         workingSet.setAll(FXCollections.observableArrayList());
     }
 
