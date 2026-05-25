@@ -652,10 +652,10 @@ public class PampaSimViewModel implements ViewModel {
                                             var fileBackedPages = memCData.getFileBackedPages().getPageId();
                                             var modifyPages = memCData.getModifyPages().getPageId();
                                             for (int i = 0; i < memVM.getProcessSize(); i++) {
-                                                if (memVM.getFileBackedPages().get(i)) {
+                                                if (i < memVM.getFileBackedPages().size() && memVM.getFileBackedPages().get(i)) {
                                                     fileBackedPages.add((long)i);
                                                 }
-                                                if (memVM.getModifiesPage().get(i)) {
+                                                if (i < memVM.getModifiesPage().size() && memVM.getModifiesPage().get(i)) {
                                                     modifyPages.add((long)i);
                                                 }
                                             }

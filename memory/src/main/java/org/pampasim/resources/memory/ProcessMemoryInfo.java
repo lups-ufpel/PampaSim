@@ -64,13 +64,15 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.runtimeAddressAccessList
                 .addAll(creationData.addressAccessList.address.stream()
                         .map(BigInteger::intValue).toList());
+        var numAccesses = this.runtimeAddressAccessList.size();
         creationData.modifyPages.pageId.sort(Comparator.naturalOrder());
-        for (int i = 0; i < creationData.pageCount; i++) {
-            this.runtimeModifyPage.add(creationData.getModifyPages().pageId.contains((long) i));
-        }
-        creationData.getFileBackedPages().pageId.sort(Comparator.naturalOrder());
-        for (int i = 0; i < creationData.pageCount; i++) {
-            this.runtimeFileBackedPages.add(creationData.getFileBackedPages().pageId.contains((long) i));
+        creationData.fileBackedPages.pageId.sort(Comparator.naturalOrder());
+        for (int i = 0; i < numAccesses; i++) {
+            var access = (long)runtimeAddressAccessList.get(i);
+            var m = creationData.getModifyPages().pageId.contains(access);
+            this.runtimeModifyPage.add(m);
+            var f = creationData.getFileBackedPages().pageId.contains(access);
+            this.runtimeFileBackedPages.add(f);
         }
     }
 

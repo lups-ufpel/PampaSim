@@ -69,7 +69,7 @@ public class Spec {
         Spec spec = new Spec();
         try {
             if (Spec.jaxbContext == null) {
-                Spec.jaxbContext = JAXBContext.newInstance("org.pampasim");
+                Spec.jaxbContext = JAXBContext.newInstance("org.pampasim:org.pampasim.resources:org.pampasim.resources.memory");
             }
             Unmarshaller u = Spec.jaxbContext.createUnmarshaller();
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -224,6 +224,10 @@ public class Spec {
         var clrStr = convertColor(c);
         pcdPayload.setDisplayColor(clrStr);
         e.getAny().add(pcdPayload);
+
+        creationData.moduleCreationData().forEach((k,v) -> {
+            e.getAny().add(v);
+        });
 
         innerSpec.getStimuli().getEvent().add(e);
         eventSchedule.schedule(creationData.arrivalTick(), ev);
