@@ -32,11 +32,8 @@
                 </executions>
                 <configuration>
                     <generatePackage>org.pampasim.resources.memory</generatePackage>
+                    <schemaDirectory>src/main/resources/org/pampasim/resources/memory</schemaDirectory>
                     <markGenerated>true</markGenerated>
-                    <schemaDirectory>../schemas</schemaDirectory>
-                    <schemaIncludes>
-                        <include>modules/memoryProcessCreationData.xsd</include>
-                    </schemaIncludes>
                     <extension>true</extension>
                     <args>
                         <arg>-XtoString</arg>
