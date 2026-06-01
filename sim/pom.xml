@@ -173,9 +173,11 @@
                 </executions>
                 <configuration>
                     <!--generateDirectory></generateDirectory-->
+                    <episode>true</episode>
+                    <useDependenciesAsEpisodes>true</useDependenciesAsEpisodes>
                     <generatePackage>org.pampasim</generatePackage>
                     <markGenerated>true</markGenerated>
-                    <schemaDirectory>../schemas</schemaDirectory>
+                    <schemaDirectory>src/main/resources/org/pampasim/</schemaDirectory>
                     <schemaIncludes>
                         <include>spec.xsd</include>
                     </schemaIncludes>

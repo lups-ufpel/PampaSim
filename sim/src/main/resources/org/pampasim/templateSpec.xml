@@ -2,7 +2,12 @@
 
 <spec
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../../../../../schemas/spec.xsd">
+        xmlns="http://pampasim.org/"
+        xmlns:events="http://pampasim.org/events"
+        xmlns:process="http://pampasim.org/events/process"
+        xsi:schemaLocation="http://pampasim.org/  /org/pampasim/spec.xsd
+                            http://pampasim.org/events/ /org/pampasim/events/event.xsd
+                            http://pampasim.org/events/process/ /org/pampasim/events/processCreationData.xsd">
     <version>
         <major>0</major>
         <minor>0</minor>

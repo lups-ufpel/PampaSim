@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema
+        targetNamespace="http://pampasim.org/"
+        xmlns="http://pampasim.org/"
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:events="http://pampasim.org/events"
+        xmlns:process="http://pampasim.org/events/process"
         elementFormDefault="qualified">
-    <xs:include schemaLocation="./event.xsd"/>
-    <xs:include schemaLocation="./events/processCreationData.xsd"/>
+    <!-- these comments have semantic value! -->
+    <!-- runtime rewrite begin -->
+    <xs:import namespace="http://pampasim.org/events" schemaLocation="../../../../../../events/src/main/resources/org/pampasim/events/event.xsd"/>
+    <xs:import namespace="http://pampasim.org/events/process" schemaLocation="../../../../../../events/src/main/resources/org/pampasim/events/processCreationData.xsd"/>
+    <xs:import namespace="http://pampasim.org/events/memory" schemaLocation="../../../../../../memory/src/main/resources/org/pampasim/resources/memory/memoryProcessCreationData.xsd"/>
+    <!-- runtime rewrite end -->
 
     <xs:element name="spec">
         <xs:complexType>
@@ -26,7 +34,7 @@
                 <xs:element name="stimuli">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="event" type="event" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="event" type="events:event" minOccurs="0" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>

@@ -52,26 +52,6 @@
   </dependencies>
   <build>
       <plugins>
-          <!--plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>jaxb2-maven-plugin</artifactId>
-              <version>4.1.0</version>
-              <executions>
-                  <execution>
-                      <id>xjc</id>
-                      <goals>
-                          <goal>xjc</goal>
-                      </goals>
-                  </execution>
-              </executions>
-              <configuration>
-                  <The package of your generated sources
-                  <packageName>org.pampasim.resources</packageName>
-                  <sources>
-                      <source>../schemas/simulationDescription.xsd</source>
-                  </sources>
-              </configuration>
-          </plugin -->
           <plugin>
               <groupId>org.jvnet.jaxb</groupId>
               <artifactId>jaxb-maven-plugin</artifactId>
@@ -85,12 +65,10 @@
               </executions>
               <configuration>
                   <!--generateDirectory></generateDirectory-->
+                  <episode>true</episode>
                   <generatePackage>org.pampasim.resources</generatePackage>
+                  <schemaDirectory>src/main/resources/org/pampasim/resources</schemaDirectory>
                   <markGenerated>true</markGenerated>
-                  <schemaDirectory>../schemas</schemaDirectory>
-                  <schemaIncludes>
-                      <include>simulationDescription.xsd</include>
-                  </schemaIncludes>
                   <extension>true</extension>
                   <args>
                       <arg>-XtoString</arg>

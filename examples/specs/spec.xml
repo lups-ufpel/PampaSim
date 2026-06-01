@@ -2,7 +2,9 @@
 
 <spec
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../schemas/spec.xsd">
+        xmlns="http://pampasim.org/"
+        xmlns:events="http://pampasim.org/events"
+        xmlns:process="http://pampasim.org/events/process">
     <version>
         <major>2</major>
         <minor>3</minor>
@@ -15,46 +17,46 @@
     </entities>
     <stimuli>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <processCreationDataPayload>
-                <durationTicks>5</durationTicks>
-                <startPriority>2</startPriority>
-                <displayColor>0000ff</displayColor>
-            </processCreationDataPayload>
+            <process:processCreationDataPayload>
+                <process:durationTicks>5</process:durationTicks>
+                <process:startPriority>2</process:startPriority>
+                <process:displayColor>0000ff</process:displayColor>
+            </process:processCreationDataPayload>
         </event>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <processCreationDataPayload>
-                <durationTicks>2</durationTicks>
-                <startPriority>3</startPriority>
-                <displayColor>888800</displayColor>
-            </processCreationDataPayload>
+            <process:processCreationDataPayload>
+                <process:durationTicks>2</process:durationTicks>
+                <process:startPriority>3</process:startPriority>
+                <process:displayColor>888800</process:displayColor>
+            </process:processCreationDataPayload>
         </event>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="1">
-            <processCreationDataPayload>
-                <durationTicks>4</durationTicks>
-                <startPriority>1</startPriority>
-                <displayColor>008888</displayColor>
-            </processCreationDataPayload>
+            <process:processCreationDataPayload>
+                <process:durationTicks>4</process:durationTicks>
+                <process:startPriority>1</process:startPriority>
+                <process:displayColor>008888</process:displayColor>
+            </process:processCreationDataPayload>
         </event>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="3">
-            <processCreationDataPayload>
-                <durationTicks>1</durationTicks>
-                <startPriority>4</startPriority>
-                <displayColor>008800</displayColor>
-            </processCreationDataPayload>
+            <process:processCreationDataPayload>
+                <process:durationTicks>1</process:durationTicks>
+                <process:startPriority>4</process:startPriority>
+                <process:displayColor>008800</process:displayColor>
+            </process:processCreationDataPayload>
         </event>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="5">
-            <processCreationDataPayload>
-                <durationTicks>2</durationTicks>
-                <startPriority>5</startPriority>
-                <displayColor>880000</displayColor>
-            </processCreationDataPayload>
+            <process:processCreationDataPayload>
+                <process:durationTicks>2</process:durationTicks>
+                <process:startPriority>5</process:startPriority>
+                <process:displayColor>880000</process:displayColor>
+            </process:processCreationDataPayload>
         </event>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="16">
-            <processCreationDataPayload>
-                <durationTicks>10</durationTicks>
-                <startPriority>1</startPriority>
-                <displayColor>33cc33</displayColor>
-            </processCreationDataPayload>
+            <process:processCreationDataPayload>
+                <process:durationTicks>10</process:durationTicks>
+                <process:startPriority>1</process:startPriority>
+                <process:displayColor>33cc33</process:displayColor>
+            </process:processCreationDataPayload>
         </event>
     </stimuli>
 </spec>

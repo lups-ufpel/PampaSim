@@ -74,28 +74,6 @@
             </sourceRoot>
         </configuration>
       </plugin>
-        <!--
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jaxb2-maven-plugin</artifactId>
-            <version>4.1.0</version>
-            <executions>
-                <execution>
-                    <id>xjc</id>
-                    <goals>
-                        <goal>xjc</goal>
-                    </goals>
-                </execution>
-            </executions>
-            <configuration>
-                <packageName>org.pampasim.events</packageName>
-                <sources>
-                    <source>../schemas/events</source>
-                    <source>../schemas/event.xsd</source>
-                </sources>
-            </configuration>
-        </plugin>
-        -->
         <plugin>
             <groupId>org.jvnet.jaxb</groupId>
             <artifactId>jaxb-maven-plugin</artifactId>
@@ -109,13 +87,10 @@
             </executions>
             <configuration>
                 <!--generateDirectory></generateDirectory-->
+                <episode>true</episode>
                 <generatePackage>org.pampasim.events</generatePackage>
+                <schemaDirectory>src/main/resources/org/pampasim/events</schemaDirectory>
                 <markGenerated>true</markGenerated>
-                <schemaDirectory>../schemas</schemaDirectory>
-                <schemaIncludes>
-                    <include>events/*.xsd</include>
-                    <include>event.xsd</include>
-                </schemaIncludes>
                 <extension>true</extension>
                 <args>
                     <arg>-XtoString</arg>

@@ -6,8 +6,8 @@ import jakarta.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 import org.pampasim.resources.*;
 
-import javax.print.DocFlavor;
 import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /// Generates all the event classes from a simulation description file
@@ -35,49 +34,53 @@ public class EventCodeGenTool {
         jaxbContext = JAXBContext.newInstance("org.pampasim.resources");
         Unmarshaller u = jaxbContext.createUnmarshaller();
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = schemaFactory.newSchema(new File("schemas/simulationDescription.xsd"));
-        u.setSchema(schema);
+        try (var inputSchema = SimulationDescription.class.getResourceAsStream("simulationDescription.xsd")) {
+            Schema schema = schemaFactory.newSchema(new StreamSource(inputSchema));
+            u.setSchema(schema);
 
-        Map<String, EventGroup> allEventGroups = new HashMap<>();
+            Map<String, EventGroup> allEventGroups = new HashMap<>();
 
-        for (int i = 0; i < args.length - 2; i++) {
-            var file = new File(args[i]);
-            Object descObj = u.unmarshal(file);
-            SimulationDescription simDesc = (SimulationDescription) descObj;
+            for (int i = 0; i < args.length - 2; i++) {
+                var file = new File(args[i]);
+                Object descObj = u.unmarshal(file);
+                SimulationDescription simDesc = (SimulationDescription) descObj;
 
-            var eventGroups = new HashSet<EventGroup>(simDesc.getEvents().getEventGroup());
-            var imports = new ArrayList<String>(simDesc.getEvents().getImport());
-            var visitedImports = new HashSet<String>();
-            while (!imports.isEmpty()) {
-                var path = imports.removeLast();
-                visitedImports.add(path);
-                try {
-                    Object extDescObj = u.unmarshal(new File(path));
-                    SimulationDescription extDesc = (SimulationDescription) extDescObj;
-                    eventGroups.addAll(extDesc.getEvents().getEventGroup());
-                    var notYetSeen = extDesc.getEvents().getImport().stream().filter(p -> !visitedImports.contains(p)).toList();
-                    imports.addAll(notYetSeen);
+                var eventGroups = new HashSet<EventGroup>(simDesc.getEvents().getEventGroup());
+                var imports = new ArrayList<String>(simDesc.getEvents().getImport());
+                var visitedImports = new HashSet<String>();
+                while (!imports.isEmpty()) {
+                    var path = imports.removeLast();
+                    visitedImports.add(path);
+                    try {
+                        Object extDescObj = u.unmarshal(new File(path));
+                        SimulationDescription extDesc = (SimulationDescription) extDescObj;
+                        eventGroups.addAll(extDesc.getEvents().getEventGroup());
+                        var notYetSeen = extDesc.getEvents().getImport().stream().filter(p -> !visitedImports.contains(p)).toList();
+                        imports.addAll(notYetSeen);
 
-                } catch (JAXBException e) {
-                    throw new RuntimeException(e);
+                    } catch (JAXBException e) {
+                        throw new RuntimeException(e);
+                    }
+                };
+
+                for (var group : eventGroups) {
+                    var groupName = group.getName();
+                    var payloads = group.getPayloads().getClazz();
+                    System.out.println("processing event group " + groupName + " that transmits " + payloads);
+                    writeClasses(group);
+                    group.getEvent().stream().map(ev -> Map.entry(groupName + "." + ev, group))
+                            .forEach(entry -> {
+                                allEventGroups.put(entry.getKey(), entry.getValue());
+                            });
                 }
-            };
-
-            for (var group : eventGroups) {
-                var groupName = group.getName();
-                var payloads = group.getPayloads().getClazz();
-                System.out.println("processing event group " + groupName + " that transmits " + payloads);
-                writeClasses(group);
-                group.getEvent().stream().map(ev -> Map.entry(groupName + "." + ev, group))
-                        .forEach(entry -> {
-                    allEventGroups.put(entry.getKey(), entry.getValue());
-                });
             }
+            var groupSet = new HashSet<>(allEventGroups.values());
+            System.out.println("event groups: " + groupSet.stream().map(EventGroup::getName).toList());
+            writeEventManager(groupSet);
+            //writeModuleInfo(groupSet);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        var groupSet = new HashSet<>(allEventGroups.values());
-        System.out.println("event groups: " + groupSet.stream().map(EventGroup::getName).toList());
-        writeEventManager(groupSet);
-        //writeModuleInfo(groupSet);
     }
 
     private static void writeEventManager(Set<EventGroup> eventGroups) throws IOException {

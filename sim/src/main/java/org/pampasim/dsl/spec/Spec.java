@@ -10,7 +10,7 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.ObjectFactory;
-import org.pampasim.ProcessCreationDataPayload;
+import org.pampasim.events.ProcessCreationDataPayload;
 import org.pampasim.SchedulerConfig;
 import org.pampasim.VersionInfo;
 import org.pampasim.core.EventSchedule;
@@ -30,6 +30,8 @@ import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
@@ -39,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -55,8 +58,9 @@ public class Spec {
     private EventSchedule eventSchedule;
     private IdentityHashMap<Event, Color> arrivalColorMap;
 
-    private static JAXBContext jaxbContext;
-    private static ObjectFactory objFact;
+    private static JAXBContext jaxbContext = null;
+    private static Schema specSchema = null;
+    private static ObjectFactory objFact = null;
 
     /// Instantiates a new, empty spec. Save with saveSpec()
     public Spec() {
@@ -65,15 +69,74 @@ public class Spec {
         this.innerSpec = new org.pampasim.Spec();
     }
 
+    private static JAXBContext initJaxbContext() throws JAXBException {
+        Spec.jaxbContext = JAXBContext.newInstance("org.pampasim:org.pampasim.resources:org.pampasim.resources.memory:org.pampasim.events");
+        return Spec.jaxbContext;
+    }
+
+    private static JAXBContext getJaxbContext() throws JAXBException {
+        return (Spec.jaxbContext == null)? initJaxbContext() : Spec.jaxbContext;
+    }
+
+    private static Schema initSpecSchema() throws JAXBException, SAXException {
+        JAXBContext ctx = getJaxbContext();
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        var schemaSourceLines = new BufferedReader(
+                new InputStreamReader(
+                        Objects.requireNonNull(
+                                Spec.class.getResourceAsStream("/org/pampasim/spec.xsd")),
+                        StandardCharsets.UTF_8))
+                .lines();
+        var rtrwBeg = Pattern.compile("<!-- runtime rewrite begin -->").asPredicate();
+        var rtrwEnd = Pattern.compile("<!-- runtime rewrite end -->").asPredicate();
+        var importPat = Pattern.compile("namespace=\"(?<namespace>.*)\" schemaLocation=\"(?<location>.*)\"");
+        var rewriting = false;
+        var schemaSourceAcc = new StringBuilder();
+        for (var line : schemaSourceLines.toList()) {
+            String out = line;
+            if (rewriting) {
+                java.net.URL url = null;
+                var matcher = importPat.matcher(line);
+                if (matcher.find()) {
+                    var namedGroups = matcher.namedGroups();
+                    var namespace = matcher.group(namedGroups.get("namespace"));
+                    var location = matcher.group(namedGroups.get("location"));
+                    var absoluteLocation = location.substring(location.indexOf("/org/pampasim"));
+                    url = Spec.class.getResource(absoluteLocation);
+                    out = "<xs:import namespace=\"" + namespace + "\" schemaLocation=\"" + url + "\"/>";
+                    LOGGER.trace("Spec URL rewrite for namespace \"{}\", location \"{}\": {}", namespace, location, out);
+                } else {
+                    LOGGER.trace("non-import tag line ignored: {}", line);
+                }
+            }
+            if (!rewriting && rtrwBeg.test(line)) {
+                rewriting = true;
+                continue;
+            }
+            else if (rewriting && rtrwEnd.test(line)) {
+                rewriting = false;
+                continue;
+            }
+            schemaSourceAcc.append(out);
+        }
+        LOGGER.trace("spec schema:\n{}", schemaSourceAcc.toString());
+        specSchema = schemaFactory.newSchema(
+                new StreamSource(
+                        new ByteArrayInputStream(schemaSourceAcc.toString().getBytes(StandardCharsets.UTF_8))));
+
+        return specSchema;
+    }
+
+    private static Schema getSpecSchema() throws JAXBException, SAXException {
+        return (specSchema == null)? initSpecSchema() : specSchema;
+    }
+
     public static Spec loadSpec(InputStream stream, boolean versionOverride) {
         Spec spec = new Spec();
         try {
-            if (Spec.jaxbContext == null) {
-                Spec.jaxbContext = JAXBContext.newInstance("org.pampasim:org.pampasim.resources:org.pampasim.resources.memory");
-            }
-            Unmarshaller u = Spec.jaxbContext.createUnmarshaller();
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(new File("schemas/spec.xsd"));
+            JAXBContext ctx = getJaxbContext();
+            Unmarshaller u = ctx.createUnmarshaller();
+            Schema schema = getSpecSchema();
             u.setSchema(schema);
             Object specObj = u.unmarshal(stream);
             org.pampasim.Spec s = (org.pampasim.Spec)specObj;
@@ -198,9 +261,9 @@ public class Spec {
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
             PrintWriter printer = new PrintWriter(writer);
 
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(new File("schemas/spec.xsd"));
+            JAXBContext ctx = getJaxbContext();
+            Marshaller marshaller = ctx.createMarshaller();
+            Schema schema = getSpecSchema();
             marshaller.setSchema(schema);
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(this.innerSpec, printer);
@@ -213,11 +276,11 @@ public class Spec {
         var ev = new Arrival(null, creationData);
 
         // FIXME: bodge
-        org.pampasim.Event e = new org.pampasim.Event();
+        org.pampasim.events.Event e = new org.pampasim.events.Event();
         e.setFullyQualifiedClassName(Arrival.class.getCanonicalName());
         e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
         e.setIntraTickOrder(BigInteger.valueOf(ev.getIntraTickOrder()));
-        var objFact = new ObjectFactory();
+        var objFact = new org.pampasim.events.ObjectFactory();
         var pcdPayload = objFact.createProcessCreationDataPayload();
         pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
         pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
@@ -254,14 +317,12 @@ public class Spec {
         });
 
         // FIXME: bodge
-        if (objFact == null) {
-            objFact = new ObjectFactory();
-        }
-        org.pampasim.Event e = new org.pampasim.Event();
+        org.pampasim.events.Event e = new org.pampasim.events.Event();
         e.setFullyQualifiedClassName(Arrival.class.getCanonicalName());
         e.setTick(BigInteger.valueOf(creationData.arrivalTick()));
         e.setIntraTickOrder(BigInteger.valueOf(arrivalEvent.getIntraTickOrder()));
-        var pcdPayload = objFact.createProcessCreationDataPayload();
+        var eventObjFact = new org.pampasim.events.ObjectFactory();
+        var pcdPayload = eventObjFact.createProcessCreationDataPayload();
         pcdPayload.setStartPriority(BigInteger.valueOf(creationData.startPriority()));
         pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
         pcdPayload.setDisplayColor(convertColor(arrivalColorMap.get(arrivalEvent)));
