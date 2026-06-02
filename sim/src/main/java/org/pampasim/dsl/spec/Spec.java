@@ -20,8 +20,10 @@ import org.pampasim.events.EventManager;
 import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.events.External.Arrival;
+import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
+import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -213,17 +215,26 @@ public class Spec {
                     var classMatch = possiblePayloads.stream()
                             .filter(candidate -> candidate == predicateCopy.getClass())
                             .findFirst();
-                    if (classMatch.isEmpty()) {
+                    if (classMatch.isEmpty() && !bodge) {
                         LOGGER.error("payload {} doesn't match event {}, which has payloads {}", o, e, possiblePayloads);
                         throw new RuntimeException("Error loading spec file");
-                    } else {
+                    } else if (classMatch.isPresent()) {
                         LOGGER.trace("got any object {}", o);
                         var payloadClass = classMatch.get();
                         ProcessCreationDataPayload pcdp = null; // bodge
-                        // FIXME/TODO: load module creation data
-                        Map<? extends Class<?>, Object> moduleCreationData = Map.of();
+                        Map<Class<?>, Object> moduleCreationData = new HashMap<>();
                         if (bodge) {
                             payloadClass = Process.CreationData.class;
+                            var modulePayloads = payloads.stream().filter(p -> !(p.getClass() == ProcessCreationDataPayload.class));
+
+                            // hardcoded associations for now
+                            modulePayloads.forEach(payload -> {
+                                if (payload.getClass() == MemoryProcessCreationData.class) {
+                                    Class<?> clazz = MemoryManagement.class;
+                                    moduleCreationData.put(clazz, payload);
+                                }
+                            });
+
                             pcdp = (ProcessCreationDataPayload) o;
                             var tec = Optional.ofNullable(tickEventCounts.get(curTick)).orElse(0);
                             o = new Process.CreationData(

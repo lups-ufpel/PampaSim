@@ -599,7 +599,6 @@ public class PampaSimViewModel implements ViewModel {
             throw new RuntimeException("Initial setup aborted by user (dialog closed).");
         }
 
-
         result.ifPresent(userSelection -> {
             userSelection.modulesRecord().ifPresent(mods -> {
                 try {
