@@ -170,7 +170,11 @@ public class Spec {
 
             spec.innerSpec = s; // I'm surprised this is allowed
 
-            var schInfo = s.getEntities().getScheduler();
+            var schInfo = ((JAXBElement<SchedulerConfig>) s.getEntities().getAny().stream()
+                    .filter(obj -> obj instanceof JAXBElement && ((JAXBElement<?>)obj).getDeclaredType() == SchedulerConfig.class)
+                    .findAny()
+                    .orElseThrow())
+                    .getValue();
             var quantumOpt = Optional.ofNullable(schInfo.getAny())
                     .flatMap(anyElem -> {
                         if (anyElem instanceof JAXBElement<?> elem) {
@@ -365,7 +369,12 @@ public class Spec {
             }
             try {
                 Class<? extends Scheduler> schedulerClass = (Class<? extends Scheduler>) schedulerInfo.loadClass();
-                SchedulerConfig schedConfig = innerSpec.getEntities().getScheduler();
+                SchedulerConfig schedConfig
+                        = ((JAXBElement<SchedulerConfig>) innerSpec.getEntities().getAny().stream()
+                        .filter(obj -> obj instanceof JAXBElement && ((JAXBElement<?>)obj).getDeclaredType() == SchedulerConfig.class)
+                        .findAny()
+                        .orElseThrow())
+                        .getValue();
                 schedConfig.setFullyQualifiedClassName(schedulerClass.getCanonicalName());
                 var objFact = new ObjectFactory();
                 quantum.ifPresent(quantumInt ->

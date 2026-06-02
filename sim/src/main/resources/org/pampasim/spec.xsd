@@ -26,9 +26,18 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="extra-modules" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="module" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="entities">
                     <xs:complexType>
-                        <xs:group ref="mandatoryEntities"/>
+                        <xs:sequence>
+                            <xs:any minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="stimuli">
@@ -41,15 +50,11 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:group name="mandatoryEntities">
-        <xs:all>
-            <xs:element name="scheduler" type="schedulerConfig"/>
-        </xs:all>
-    </xs:group>
     <xs:complexType name="processorConfig">
         <xs:attribute name="millionInstructionsPerSecond" default="100" type="xs:positiveInteger"/>
         <xs:attribute name="coreCount" fixed="1" type="xs:positiveInteger"/> <!-- TODO: fixed for now, change when multicore -->
     </xs:complexType>
+    <xs:element name="scheduler" type="schedulerConfig"/>
     <xs:complexType name="schedulerConfig">
         <xs:sequence>
             <xs:element name="fullyQualifiedClassName" type="xs:string"/>

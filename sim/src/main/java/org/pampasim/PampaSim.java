@@ -51,29 +51,35 @@ public class PampaSim extends SimulationBase {
 
     public static PampaSim fromSpec(Spec s) {
         PampaSim sim = new PampaSim(null);
-        SchedulerConfig schedConf = s.getInnerSpec().getEntities().getScheduler();
-        if (schedConf != null) {
-            Class<? extends Scheduler> schedulerClass = null;
-            try {
-                schedulerClass = (Class<? extends Scheduler>) Thread.currentThread().getContextClassLoader().loadClass(schedConf.getFullyQualifiedClassName());
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            if (schedulerClass != null) try {
-                Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
-                var instance = cons.newInstance(sim);
-                if (schedConf.getAny() instanceof JAXBElement<?> anyElem) {
-                    if (anyElem.getName().getLocalPart().equals("quantum")) {
-                        var quantum = ((BigInteger)anyElem.getValue()).intValue();
-                        org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
-                        rq_instance.setQuantum(quantum);
-                    }
-                };
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
-            } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Error trying to instantiate scheduler: " + e);
-            }
+        SchedulerConfig schedConf
+                = ((JAXBElement<SchedulerConfig>) s
+                .getInnerSpec()
+                .getEntities()
+                .getAny().stream()
+                .filter(obj -> obj instanceof JAXBElement && ((JAXBElement<?>)obj).getDeclaredType() == SchedulerConfig.class)
+                .findAny()
+                .orElseThrow())
+                .getValue();
+        Class<? extends Scheduler> schedulerClass = null;
+        try {
+            schedulerClass = (Class<? extends Scheduler>) Thread.currentThread().getContextClassLoader().loadClass(schedConf.getFullyQualifiedClassName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        if (schedulerClass != null) try {
+            Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
+            var instance = cons.newInstance(sim);
+            if (schedConf.getAny() instanceof JAXBElement<?> anyElem) {
+                if (anyElem.getName().getLocalPart().equals("quantum")) {
+                    var quantum = ((BigInteger)anyElem.getValue()).intValue();
+                    org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
+                    rq_instance.setQuantum(quantum);
+                }
+            };
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException("Error trying to instantiate scheduler: " + e);
         }
         try {
             /*new Processor(sim,
