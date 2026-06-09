@@ -11,9 +11,9 @@
         <patch>2</patch>
     </version>
     <entities>
-        <scheduler>
+        <entity>
             <fullyQualifiedClassName>org.pampasim.entity.schedulers.FCFS</fullyQualifiedClassName>
-        </scheduler>
+        </entity>
     </entities>
     <stimuli>
         <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
