@@ -1,7 +1,9 @@
 package org.pampasim.memory;
 
 import lombok.Getter;
+import lombok.NonNull;
 import org.pampasim.core.SimulationBase;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 
 import org.pampasim.events.Process.Allocate;
@@ -27,20 +29,14 @@ public class MemoryManagement extends SimulationBase {
     @Getter private static final IdentityHashMap<Process, ProcessMemoryInfo> processMemoryInfos = new IdentityHashMap<>();
     @Getter private static final HashMap<Process.CreationData, MemoryProcessCreationData> pendingMemoryInfoBindings = new HashMap<>();
 
-    public MemoryManagement(SimulationBase parent) {
-        super(parent);
-
-        // Register handler
-        parent.getEventManager().addEventHandler(Allocate.class, this);
-        parent.getEventManager().addEventHandler(Load.class, this);
-        parent.getEventManager().addEventHandler(End.class, this);
-        parent.getEventManager().addEventHandler(IoOperation.class, this);
-
+    public MemoryManagement() {
+        super();
         // Use specialized memory event manager
         this.setEventManager(new MemoryEventManager(this));
 
         // Initialize memory subsystems
-        new MMU(this);
+        var mmu = new MMU();
+        mmu.bind(this);
         new PageTableManager(this, 5); // TODO: add a field for the user to define referencedReset;
         new PhysicalMemory(
                 this,
@@ -51,6 +47,20 @@ public class MemoryManagement extends SimulationBase {
                 MemoryConfig.getVariablePageAllocationTopThreshold(),
                 MemoryConfig.getVariablePageAllocationBottomThreshold()
         );
+    }
+
+    @Override
+    public boolean bind(@NonNull SimEntity parent) {
+        var ok = super.bind(parent);
+        if (ok) {
+            var simulation = parent.getSimulation();
+            // Register handler
+            simulation.getEventManager().addEventHandler(Allocate.class, this);
+            simulation.getEventManager().addEventHandler(Load.class, this);
+            simulation.getEventManager().addEventHandler(End.class, this);
+            simulation.getEventManager().addEventHandler(IoOperation.class, this);
+        }
+        return ok;
     }
 
     @Override

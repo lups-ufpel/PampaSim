@@ -1,8 +1,10 @@
 package org.pampasim.memory.entity;
 
+import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.*;
 import org.pampasim.events.Memory.*;
 import org.pampasim.core.entity.AbstractSimEntity;
@@ -26,20 +28,28 @@ public class MMU extends AbstractSimEntity {
     //private final PriorityQueue<Event> buffer;
     //private final FrameController virtualAddressRange;
 
-    public MMU(Simulation simulation) {
-        super(simulation);
+    public MMU() {
+        super();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
+    }
 
-        // Register event handlers
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Allocate.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.End.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Load.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.IoOperation.class, this);
+    @Override
+    public boolean bind(@NonNull SimEntity parent) {
+        var ok = super.bind(parent);
+        if (ok) {
+            var simulation = parent.getSimulation();
+            // Register event handlers
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Allocate.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.End.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Load.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.IoOperation.class, this);
 
-        simulation.getEventManager().addEventHandler(AllocateFinished.class, this);
-        simulation.getEventManager().addEventHandler(FreeProcessMemoryFinished.class, this);
-        simulation.getEventManager().addEventHandler(DiskOperationFinished.class, this);
-        simulation.getEventManager().addEventHandler(ProcessReady.class, this);
+            simulation.getEventManager().addEventHandler(AllocateFinished.class, this);
+            simulation.getEventManager().addEventHandler(FreeProcessMemoryFinished.class, this);
+            simulation.getEventManager().addEventHandler(DiskOperationFinished.class, this);
+            simulation.getEventManager().addEventHandler(ProcessReady.class, this);
+        }
+        return ok;
     }
 
     @Override

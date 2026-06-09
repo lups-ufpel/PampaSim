@@ -7,8 +7,9 @@ import java.util.Comparator;
 
 @SuppressWarnings("unused")
 public class SJF extends RankingScheduler {
-    public SJF(Simulation simulation) {
-        super(simulation);
+    public SJF() {
+        super();
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
     }
 
     @Override

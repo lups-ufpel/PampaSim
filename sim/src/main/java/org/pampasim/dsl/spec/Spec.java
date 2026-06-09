@@ -9,9 +9,9 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.EntityConfig;
 import org.pampasim.ObjectFactory;
 import org.pampasim.events.ProcessCreationDataPayload;
-import org.pampasim.SchedulerConfig;
 import org.pampasim.VersionInfo;
 import org.pampasim.core.EventSchedule;
 import org.pampasim.core.entity.SimEntity;
@@ -32,7 +32,6 @@ import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -45,6 +44,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.xml.sax.SAXException;
@@ -168,24 +168,8 @@ public class Spec {
                 }
             }
 
-            spec.innerSpec = s; // I'm surprised this is allowed
-
-            var schInfo = ((JAXBElement<SchedulerConfig>) s.getEntities().getAny().stream()
-                    .filter(obj -> obj instanceof JAXBElement && ((JAXBElement<?>)obj).getDeclaredType() == SchedulerConfig.class)
-                    .findAny()
-                    .orElseThrow())
-                    .getValue();
-            var quantumOpt = Optional.ofNullable(schInfo.getAny())
-                    .flatMap(anyElem -> {
-                        if (anyElem instanceof JAXBElement<?> elem) {
-                            if (elem.getName().getLocalPart().equals("quantum")) {
-                                var quantumInt = ((BigInteger)elem.getValue()).intValue();
-                                return Optional.of(quantumInt);
-                            }
-                        }
-                        return Optional.empty();
-                    });
-            spec.setSchedulerInfo(schInfo.getFullyQualifiedClassName(), quantumOpt);
+            // I'm surprised this is even allowed, since it is private
+            spec.innerSpec = s;
 
             /* introduces line order semantics for intra tick ordering
              * which is poorly documented in the schema
@@ -352,7 +336,28 @@ public class Spec {
         return arrivalEvent;
     }
 
-    public void setSchedulerInfo(String name, Optional<Integer> quantum) {
+    public EntityConfig getSchedulerConfig() {
+        return this.innerSpec
+                .getEntities()
+                .getEntity()
+                .stream()
+                .flatMap(entityConfig -> {
+                    try {
+                        var clazz = Thread.currentThread()
+                                .getContextClassLoader()
+                                .loadClass(entityConfig.getFullyQualifiedClassName());
+                        var isScheduler = Scheduler.class.isAssignableFrom(clazz);
+                        if (isScheduler) { return Stream.of(entityConfig); }
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return Stream.empty();
+                })
+                .findAny()
+                .orElseThrow();
+    }
+
+    public void setSchedulerInfo(String fqcn, int quantum) {
         try (ScanResult scanResult =
                      new ClassGraph()
                              .enableClassInfo()
@@ -362,26 +367,24 @@ public class Spec {
         ) {
             ClassInfoList schedulerClasses
                     = scanResult.getSubclasses(Scheduler.class.getName());
-            ClassInfo schedulerInfo = schedulerClasses.filter(clazz -> clazz.getName().contains(name)).getFirst();
-            if (schedulerInfo == null) { throw new RuntimeException("scheduler " + name + " not found!"); }
-            if (!schedulerInfo.getInterfaces().filter(i -> i.getName().contains(RespectsQuantum.class.getName())).iterator().hasNext()) {
-                quantum = Optional.empty();
+            ClassInfo schedulerInfo = schedulerClasses.filter(clazz -> clazz.getName().contains(fqcn)).getFirst();
+            if (schedulerInfo == null) { throw new RuntimeException("scheduler " + fqcn + " not found!"); }
+            var respectsQuantum = schedulerInfo.getInterfaces()
+                    .filter(i -> i.getName().contains(RespectsQuantum.class.getName()))
+                    .iterator().hasNext();
+            if (!respectsQuantum) {
+                quantum = 0;
             }
             try {
                 Class<? extends Scheduler> schedulerClass = (Class<? extends Scheduler>) schedulerInfo.loadClass();
-                SchedulerConfig schedConfig
-                        = ((JAXBElement<SchedulerConfig>) innerSpec.getEntities().getAny().stream()
-                        .filter(obj -> obj instanceof JAXBElement && ((JAXBElement<?>)obj).getDeclaredType() == SchedulerConfig.class)
-                        .findAny()
-                        .orElseThrow())
-                        .getValue();
+                EntityConfig schedConfig = this.getSchedulerConfig();
                 schedConfig.setFullyQualifiedClassName(schedulerClass.getCanonicalName());
                 var objFact = new ObjectFactory();
-                quantum.ifPresent(quantumInt ->
-                        schedConfig.setAny(
-                                objFact.createQuantum(BigInteger.valueOf(quantumInt))
-                            )
+                if (respectsQuantum) {
+                    schedConfig.setAny(
+                            objFact.createQuantum(BigInteger.valueOf(quantum))
                     );
+                }
             } catch (ClassCastException e) {
                 throw new RuntimeException("type cast error during scheduler class load: " + e);
             }

@@ -249,7 +249,7 @@ public class PampaSimViewModel implements ViewModel {
         simulatedScenario.getSpec()
                 .setSchedulerInfo(
                         userSelection.schedulerName(),
-                        Optional.of(userSelection.quantum()));
+                        userSelection.quantum());
         syncWithSpec();
         updateProps();
     }
@@ -687,7 +687,8 @@ public class PampaSimViewModel implements ViewModel {
 
         simulationBase.removeModule(MemoryManagement.class);
 
-        new MemoryManagement(simulationBase);
+        var memMan = new MemoryManagement();
+        memMan.bind(simulationBase);
 
         MemoryManagement simMemoryModule = simulationBase.getEntity(MemoryManagement.class);
 

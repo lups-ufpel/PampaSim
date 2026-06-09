@@ -36,7 +36,7 @@
                 <xs:element name="entities">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:any minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="entity" minOccurs="0" maxOccurs="unbounded" type="entityConfig"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -54,8 +54,7 @@
         <xs:attribute name="millionInstructionsPerSecond" default="100" type="xs:positiveInteger"/>
         <xs:attribute name="coreCount" fixed="1" type="xs:positiveInteger"/> <!-- TODO: fixed for now, change when multicore -->
     </xs:complexType>
-    <xs:element name="scheduler" type="schedulerConfig"/>
-    <xs:complexType name="schedulerConfig">
+    <xs:complexType name="entityConfig">
         <xs:sequence>
             <xs:element name="fullyQualifiedClassName" type="xs:string"/>
             <xs:any minOccurs="0"/> <!-- instance configuration -->

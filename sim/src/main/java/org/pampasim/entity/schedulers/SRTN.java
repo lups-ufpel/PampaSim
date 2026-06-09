@@ -1,7 +1,5 @@
 package org.pampasim.entity.schedulers;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.pampasim.core.Simulation;
 import org.pampasim.events.Process.Schedule;
 import org.pampasim.resources.Process;
@@ -10,15 +8,12 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 @SuppressWarnings("unused")
-public class SRTN extends Scheduler implements RespectsQuantum {
-    @Getter
-    @Setter
-    int quantum;
+public class SRTN extends Scheduler {
     protected Comparator<Process> comparator;
     protected PriorityQueue<Process> prioQueue;
 
-    public SRTN(Simulation simulation) {
-        super(simulation);
+    public SRTN() {
+        super();
         this.comparator = new Comparator<Process>() {
             @Override
             public int compare(Process lhs, Process rhs) {
@@ -33,6 +28,7 @@ public class SRTN extends Scheduler implements RespectsQuantum {
                 return order;
             }
         };
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
         this.prioQueue = new PriorityQueue<>(comparator);
         this.processQueue = this.prioQueue;
     }

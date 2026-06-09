@@ -1,10 +1,12 @@
 package org.pampasim.entity;
 
 import lombok.Getter;
+import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.ProcessorCore;
@@ -14,24 +16,30 @@ import java.util.PriorityQueue;
 
 public class Processor extends AbstractSimEntity {
     private final Logger LOGGER = LogManager.getLogger(Processor.class);
-    private final ProcessorCore core;
+    private final ProcessorCore core = new ProcessorCore();
     private boolean preemption;
     @Getter
     private int busyTicks;
 
-    public Processor(Simulation simulation, ProcessorCore core) {
-        super(simulation);
-
+    public Processor() {
+        super();
         this.buffer = new PriorityQueue<>(Comparator.comparingInt(this::getEventPriority));
-        this.core = core;
         this.preemption = false;
         this.busyTicks = 0;
+    }
 
-        // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Run.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Dispatch.class, this);
-        //simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunContinue.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Preemption.class, this);
+    @Override
+    public boolean bind(@NonNull SimEntity parent) {
+        var ok = super.bind(parent);
+        if (ok) {
+            var simulation = getSimulation();
+            // Adding the events which this entity handles
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Run.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Dispatch.class, this);
+            //simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunContinue.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Preemption.class, this);
+        }
+        return ok;
     }
 
     @Override

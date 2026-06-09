@@ -7,8 +7,9 @@ import java.util.Comparator;
 
 @SuppressWarnings("unused")
 public class FCFS extends RankingScheduler {
-    public FCFS(Simulation simulation) {
-        super(simulation);
+    public FCFS() {
+        super();
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
     }
 
     @Override

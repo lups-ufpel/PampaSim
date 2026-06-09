@@ -4,7 +4,9 @@ import lombok.Getter;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.model.Graph;
+import lombok.NonNull;
 import lombok.Setter;
+import lombok.experimental.StandardException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.RealClock;
@@ -21,29 +23,43 @@ public abstract class AbstractSimEntity implements SimEntity {
     @Getter
     protected EntityState state = EntityState.Idle;
     @Getter
-    private final Simulation simulation;
+    private Simulation simulation;
     @Getter
     @Setter
     private boolean clearBlock;
     @Getter
-    private final SimEntity parent;
+    private SimEntity parent;
     protected Queue<Event> buffer;
     protected Queue<Event> blockedBuffer;
     protected List<Event> lastRunBuffer = List.of();
 
-    public AbstractSimEntity(SimEntity parent) {
-        if (parent != null) {
-            this.simulation = parent.getSimulation();
-            this.simulation.addEntity(this);
-            this.parent = parent;
-        } else {
-            this.parent = null;
-            this.simulation = (Simulation)this; // this will fail if the entity is not a simulation, by design
-        }
+    @StandardException
+    public static class SimEntityBindException extends RuntimeException {}
+
+    public AbstractSimEntity() {
         LOGGER.debug("PampaSim entity {} created.", getClass().getSimpleName());
         this.buffer = new LinkedList<>();
         this.blockedBuffer = new LinkedList<>();
     }
+
+    public AbstractSimEntity(@NonNull SimEntity parent) {
+        this();
+        bind(parent);
+    }
+    /// returns success status
+    public boolean bind(@NonNull SimEntity parent) {
+        this.simulation = parent.getSimulation();
+        if (this.simulation == null) {
+            LOGGER.debug("PampaSim entity {} couldn't bind to {}, null simulation",
+                    getClass().getSimpleName(), parent.getClass().getSimpleName());
+            throw new SimEntityBindException();
+        }
+        this.simulation.addEntity(this);
+        this.parent = parent;
+        LOGGER.debug("PampaSim entity {} bound to {}", getClass().getSimpleName(), parent.getClass().getSimpleName());
+        return true;
+    }
+
     @Override
     public final boolean start() {
         if(this.isStarted()) {
@@ -57,7 +73,12 @@ public abstract class AbstractSimEntity implements SimEntity {
     @Override
     public void scheduleToNextClock(Event event) {
         LOGGER.trace("{} tx {}",getClass().getSimpleName(), event);
-        simulation.acceptEvent(event);
+        if (simulation != null) {
+            simulation.acceptEvent(event);
+        } else {
+            LOGGER.trace("null simulation event reroute: {}", event);
+            this.acceptEvent(event);
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.pampasim;
 
 import jakarta.xml.bind.JAXBElement;
+import lombok.experimental.StandardException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.EventSchedule;
@@ -18,14 +19,13 @@ import org.pampasim.resources.ProcessorCore;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PampaSim extends SimulationBase {
     private final static Logger LOGGER = LogManager.getLogger(PampaSim.class);
-    public PampaSim(SimEntity parent) {
-        super(parent);
+    public PampaSim() {
+        super();
         this.setEventManager(new InterimEventManager(this));
     }
 
@@ -50,51 +50,73 @@ public class PampaSim extends SimulationBase {
     }
 
     public static PampaSim fromSpec(Spec s) {
-        PampaSim sim = new PampaSim(null);
-        SchedulerConfig schedConf
-                = ((JAXBElement<SchedulerConfig>) s
-                .getInnerSpec()
-                .getEntities()
-                .getAny().stream()
-                .filter(obj -> obj instanceof JAXBElement && ((JAXBElement<?>)obj).getDeclaredType() == SchedulerConfig.class)
-                .findAny()
-                .orElseThrow())
-                .getValue();
-        Class<? extends Scheduler> schedulerClass = null;
-        try {
-            schedulerClass = (Class<? extends Scheduler>) Thread.currentThread().getContextClassLoader().loadClass(schedConf.getFullyQualifiedClassName());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        if (schedulerClass != null) try {
-            Constructor<? extends Scheduler> cons = schedulerClass.getConstructor(Simulation.class);
-            var instance = cons.newInstance(sim);
-            if (schedConf.getAny() instanceof JAXBElement<?> anyElem) {
-                if (anyElem.getName().getLocalPart().equals("quantum")) {
-                    var quantum = ((BigInteger)anyElem.getValue()).intValue();
-                    org.pampasim.entity.schedulers.RespectsQuantum rq_instance = (org.pampasim.entity.schedulers.RespectsQuantum) instance;
-                    rq_instance.setQuantum(quantum);
+        PampaSim sim = new PampaSim();
+        var entities = s.getInnerSpec().getEntities().getEntity();
+        record EntityTuple (
+                EntityConfig conf,
+                Class<? extends SimEntity> clazz,
+                Constructor<? extends SimEntity> constructor)
+        {};
+        @StandardException
+        class EntityLoadException extends RuntimeException {}
+        @StandardException
+        class SimulationInitializationException extends RuntimeException {}
+
+        var classLoader = Thread.currentThread().getContextClassLoader();
+        var entityTuples = entities.stream().map(entityConfig -> {
+            Class<? extends SimEntity> clazz;
+            Constructor<? extends SimEntity> constructor;
+
+            try {
+                var uncastClass = classLoader.loadClass(entityConfig.getFullyQualifiedClassName());
+                if (!SimEntity.class.isAssignableFrom(uncastClass)) {
+                    throw new RuntimeException(new Error("Named class does not extend SimEntity base class"));
                 }
-            };
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No valid constructors for scheduler " + schedulerClass.getName() + ", error: " + e);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Error trying to instantiate scheduler: " + e);
+                clazz = uncastClass.asSubclass(SimEntity.class);
+                constructor = clazz.getConstructor();
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                throw new EntityLoadException("Couldn't load entities from spec file", e);
+            }
+
+            return new EntityTuple(entityConfig, clazz, constructor);
+        }).collect(Collectors.toCollection(ArrayList::new));
+
+        var addIfMissingList = List.of(Processor.class, ProcessManager.class);
+        var errorIfMissingList = List.of(Scheduler.class);
+
+        for (var missing : addIfMissingList) {
+            if (entityTuples.stream().noneMatch(t -> missing.isAssignableFrom(t.clazz))) {
+                try {
+                    entityTuples.add(new EntityTuple(null, missing, missing.getConstructor()));
+                    LOGGER.debug("Added missing {} entity during spec load", missing.getSimpleName());
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
-        try {
-            /*new Processor(sim,
-                    new ProcessorCore(
-                            s.getProcessors()
-                                    .getFirst() // Single processor, for now
-                                    .coreCapacities()
-                                    .getFirst() // Single core, for now
-                    )
-            );*/
-            new Processor(sim, new ProcessorCore(1000));
-        } catch (NoSuchElementException e) {
-            LOGGER.warn("Possible mistake: no processor set up by spec!");
+
+        for (var fatalMissing : errorIfMissingList) {
+            if (entityTuples.stream().noneMatch(t -> fatalMissing.isAssignableFrom(t.clazz))) {
+                throw new SimulationInitializationException("No " + fatalMissing.getSimpleName() + " specified");
+            }
         }
-        new ProcessManager(sim);
+
+        for (var entityTuple : entityTuples) {
+            SimEntity instance = null;
+            try {
+                instance = entityTuple.constructor.newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new EntityLoadException(e);
+            }
+            if (SpecEntity.class.isAssignableFrom(entityTuple.clazz)) {
+                try {
+                    ((SpecEntity) instance).applySpecData(entityTuple.conf);
+                } catch (SpecEntityDataMismatch e) {
+                    throw new EntityLoadException(e);
+                }
+            }
+            instance.bind(sim);
+        }
         sim.eventsSchedule = new EventSchedule(s.getEventSchedule());
         return sim;
     }

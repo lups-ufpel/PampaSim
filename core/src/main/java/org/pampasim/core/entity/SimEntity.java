@@ -1,11 +1,13 @@
 package org.pampasim.core.entity;
 
+import lombok.NonNull;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.events.*;
 import org.pampasim.core.utils.GraphVisualizeable;
 
 public interface SimEntity extends GraphVisualizeable {
     enum EntityState { Run, Blocked, Idle };
+    boolean bind(@NonNull SimEntity parent);
     EntityState getState();
     void clearBlock();
     boolean isStarted();

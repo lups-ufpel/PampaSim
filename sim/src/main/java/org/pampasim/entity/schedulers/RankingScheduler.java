@@ -9,8 +9,9 @@ import java.util.PriorityQueue;
 // WARN: tightly coupled with baseclass thru the processEnRoute flag
 /// Abstracts away the queue semantics of strategies that only differ by how they order the queue (non-preemptive)
 public abstract class RankingScheduler extends Scheduler {
-    public RankingScheduler(Simulation simulation) {
-        super(simulation);
+    public RankingScheduler() {
+        super();
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
         this.processQueue = new PriorityQueue<>(processRankingAlgorithm());
     }
 

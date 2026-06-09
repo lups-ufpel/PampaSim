@@ -14,9 +14,9 @@
         <patch>0</patch>
     </version>
     <entities>
-        <scheduler>
+        <entity>
             <fullyQualifiedClassName>org.pampasim.entity.schedulers.FCFS</fullyQualifiedClassName>
-        </scheduler>
+        </entity>
     </entities>
     <stimuli>
     </stimuli>

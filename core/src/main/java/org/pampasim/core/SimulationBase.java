@@ -10,6 +10,7 @@ import guru.nidi.graphviz.model.Node;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,17 +44,26 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     @Getter
     protected RealClock realClock = new RealClock();
 
-    public SimulationBase(SimEntity parent) {
-        super(parent);
+    public SimulationBase() {
+        super();
         this.entityList = new ArrayList<>();
         this.eventsSchedule = new EventSchedule();
         this.simulationClock = new SimpleIntegerProperty();
         this.pidAllocator = new PidAllocator();
         this.state = EntityState.Run;
         this.clearBlock = false;
-        if(parent != null) {
-            this.realClock = ((Simulation) parent).getRealClock();
-        }
+    }
+
+    public SimulationBase(@NonNull SimEntity parent) {
+        this();
+        bind(parent);
+    }
+
+    @Override
+    public boolean bind(@NonNull SimEntity parent) {
+        super.bind(parent);
+        this.realClock = parent.getSimulation().getRealClock();
+        return true;
     }
 
     protected void setEventManager(EventManager eventManager) {

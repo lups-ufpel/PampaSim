@@ -51,13 +51,15 @@ public class PampaSimGUI extends Application {
             }
          } catch (RuntimeException e) {
             // If the thrown exception signals an abort:
-            if (e.getMessage().contains("aborted by user")) {
-                System.out.println(e.getMessage());
+            var msg = e.getMessage();
+            if (msg != null && e.getMessage().contains("aborted by user")) {
+                System.out.println(msg);
                 Platform.exit();
                 return false;
             }
             else {
                 showExceptionDialog(e);
+                return false;
             }
         }
         return true;

@@ -1,24 +1,19 @@
 package org.pampasim.entity.schedulers;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.pampasim.core.Simulation;
 import org.pampasim.resources.Process;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
 
 // Doesn't respect priorities! FIXME
 // making it do so is nontrivial
 @SuppressWarnings("unused")
 public class RoundRobin extends Scheduler implements RespectsQuantum {
-    @Getter
-    @Setter
-    int quantum;
     ArrayDeque<Process> processDeque;
 
-    public RoundRobin(Simulation simulation) {
-        super(simulation);
+    public RoundRobin() {
+        super();
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
         processDeque = new ArrayDeque<>();
         processQueue = processDeque;
     }

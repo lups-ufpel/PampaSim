@@ -1,20 +1,33 @@
 package org.pampasim.entity;
 
+import lombok.NonNull;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.resources.Process;
 
 public class ProcessManager extends AbstractSimEntity {
 
-    public ProcessManager(Simulation simulation) {
-        super(simulation);
+    public ProcessManager() {
+    }
 
-        // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(org.pampasim.events.External.Arrival.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Ready.class, this);
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunPaused.class, this);
+    public ProcessManager(@NonNull SimEntity parent) {
+        this();
+        bind(parent);
+    }
 
+    @Override
+    public boolean bind(@NonNull SimEntity parent) {
+        var ok = super.bind(parent);
+        if (ok) {
+            // Adding the events which this entity handles
+            var simulation = parent.getSimulation();
+            simulation.getEventManager().addEventHandler(org.pampasim.events.External.Arrival.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Ready.class, this);
+            simulation.getEventManager().addEventHandler(org.pampasim.events.Process.RunPaused.class, this);
+        }
+        return ok;
     }
 
     @Override

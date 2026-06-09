@@ -7,8 +7,9 @@ import java.util.Comparator;
 
 @SuppressWarnings("unused")
 public class SimplePriority extends RankingScheduler {
-    public SimplePriority(Simulation simulation) {
-        super(simulation);
+    public SimplePriority() {
+        super();
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
     }
 
     @Override

@@ -1,8 +1,10 @@
 package org.pampasim.entity.schedulers;
 
+import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.core.Simulation;
+import org.pampasim.*;
+import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.entity.AbstractSimEntity;
 import org.pampasim.resources.Process;
@@ -18,17 +20,30 @@ import java.util.stream.Stream;
 /// Expects concrete Process.Schedule handler and nextProcessToSchedule(),
 /// short and long descriptions, and if you decide to forego the default processQueue,
 /// a correctly implemented incrementWaitingTimes(), shouldRunNextTick(), and getScheduledProcesses().
-public abstract class Scheduler extends AbstractSimEntity {
+public abstract class Scheduler extends AbstractSimEntity implements SpecEntity {
     private final Logger LOGGER = LogManager.getLogger(Scheduler.class);
     protected Process lastRunProcess;
     protected Collection<Process> processQueue;
+    protected EntityConfig config;
+    protected ObjectFactory jaxbObjFactory;
 
-    public Scheduler(Simulation simulation) {
-        super(simulation);
+    public Scheduler() {
+        super();
+        jaxbObjFactory = new ObjectFactory();
+        config = jaxbObjFactory.createEntityConfig();
+        config.setFullyQualifiedClassName(getClass().getCanonicalName());
         lastRunProcess = null;
+    }
 
-        // Adding the events which this entity handles
-        simulation.getEventManager().addEventHandler(org.pampasim.events.Process.Schedule.class, this);
+    @Override
+    public boolean bind(@Nonnull SimEntity parent) {
+        var ok = super.bind(parent);
+        if (ok) {
+            var sim = parent.getSimulation();
+            // Adding the events which this entity handles
+            sim.getEventManager().addEventHandler(org.pampasim.events.Process.Schedule.class, this);
+        }
+        return ok;
     }
 
     @Override
@@ -83,5 +98,16 @@ public abstract class Scheduler extends AbstractSimEntity {
 
     public void incrementWaitingTimes() {
         processQueue.forEach(Process::forwardWaitingTime);
+    }
+
+    public EntityConfig getSpecData() {
+        return this.config;
+    }
+
+    public void applySpecData(EntityConfig entityConfig) throws SpecEntityDataMismatch {
+        var isMatch = entityConfig.getFullyQualifiedClassName()
+                .equals(this.getClass().getCanonicalName());
+        if (!isMatch) throw new SpecEntityDataMismatch();
+        this.config = entityConfig;
     }
 }
