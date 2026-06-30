@@ -7,54 +7,59 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
-<TitledPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.pampasim.view.pcb.Basics"
-            text="Gerência de Processos">
-    <VBox spacing="10">
-        <GridPane hgap="10" vgap="10">
-            <Label text="PID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <Label fx:id="pidLabel" GridPane.columnIndex="2" />
 
-            <Label text="Cor:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <Label fx:id="colorLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+<TabPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="org.pampasim.view.pcb.Basics">
+    <Tab fx:id="PCBTab" id="PCBTab" closable="false" text="PCB">
+        <TitledPane text="Gerência de Processos">
+            <VBox spacing="10">
+                <GridPane hgap="10" vgap="10">
+                    <Label text="PID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label fx:id="pidLabel" GridPane.columnIndex="2" />
 
-            <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <Label fx:id="stateLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                    <Label text="Cor:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label fx:id="colorLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-            <Label text="Tempo de Chegada:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <Label fx:id="arrivalTickLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label fx:id="stateLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
 
-            <Label text="Prioridade:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-            <Label fx:id="priorityLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                    <Label text="Tempo de Chegada:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="arrivalTickLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
 
-            <Label text="Tempo em Espera para Escalonamento:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-            <Label fx:id="readyWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                    <Label text="Prioridade:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <Label fx:id="priorityLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
 
-            <Label text="Tempo Total de Execução: " GridPane.rowIndex="6" />
-            <Label fx:id="burstLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                    <Label text="Tempo em Espera para Escalonamento:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <Label fx:id="readyWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="5" />
 
-            <Label text="Tempo Decorrente de Execução:" GridPane.rowIndex="7" />
-            <Label fx:id="currExecTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                    <Label text="Tempo Total de Execução: " GridPane.rowIndex="6" />
+                    <Label fx:id="burstLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
 
-            <columnConstraints>
-                <ColumnConstraints />
-                <ColumnConstraints />
-                <ColumnConstraints />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-            </rowConstraints>
-            <VBox.margin>
-                <Insets />
-            </VBox.margin>
-        </GridPane>
-    </VBox>
-</TitledPane>
+                    <Label text="Tempo Decorrente de Execução:" GridPane.rowIndex="7" />
+                    <Label fx:id="currExecTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                    <VBox.margin>
+                        <Insets />
+                    </VBox.margin>
+                </GridPane>
+            </VBox>
+        </TitledPane>
+    </Tab>
+</TabPane>

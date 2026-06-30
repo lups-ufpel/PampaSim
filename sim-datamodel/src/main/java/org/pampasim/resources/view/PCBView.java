@@ -4,32 +4,73 @@ import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class PCBView implements FxmlView<ProcessViewModel> {
 
     @InjectViewModel
     ProcessViewModel viewModel;
 
-    @FXML
-    VBox mainVBox;
+    @FXML private TabPane PCBViewTabPane;
 
-    public record ModuleView(Class<? extends FxmlView<ProcessViewModel>> clazz) {};
+    public interface ModulePCBView extends FxmlView<ProcessViewModel> {
+        Set<Tab> getTabs();
+    }
+    public record ModuleView(Class<? extends ModulePCBView> clazz) {};
     public static HashSet<ModuleView> moduleViews = new HashSet<>();
 
     public void initialize() {
         for (var moduleView : moduleViews) {
-            var view = FluentViewLoader
+            var viewTuple = FluentViewLoader
                     .fxmlView(moduleView.clazz)
                     .viewModel(viewModel)
-                    .load().getView();
-            mainVBox.getChildren().add(view);
+                    .load();
+            var controller = viewTuple.getCodeBehind();
+            for (Tab t : controller.getTabs()) {
+                var existingTabOpt = PCBViewTabPane.getTabs().stream().filter(
+                        et -> Objects.equals(et.getId(), t.getId())
+                    ).findAny();
+                existingTabOpt.ifPresentOrElse(
+                        existingTab -> {
+                            var existingContent = existingTab.getContent();
+                            var additionalContent = t.getContent();
+                            var targetPane = (Pane) existingTab.getContent();
+                            if (additionalContent instanceof Pane) {
+                                var childOList = ((Pane) additionalContent).getChildren();
+                                while(!childOList.isEmpty()) {
+                                    // remove child from original node tree, cause node unicity is a thing apparently
+                                    var child = childOList.removeFirst();
+                                    targetPane.getChildren().add(child);
+                                }
+                            } else {
+                                // remove child from original node tree, cause node unicity is a thing apparently
+                                t.setContent(null);
+                                targetPane.getChildren().add(additionalContent);
+                            }
+                        },
+                        () -> {
+                            PCBViewTabPane.getTabs().add(t);
+                            if (!(t.getContent() instanceof Pane)) {
+                                // add VBox pane wrapper, so other modules
+                                // can piggyback off of the same tab instance
+                                var preservedContent = t.getContent();
+                                var vboxPane = new VBox();
+                                t.setContent(vboxPane);
+                                vboxPane.getChildren().add(preservedContent);
+                            }
+                        }
+                );
+            }
         }
+        PCBViewTabPane.requestLayout();
     }
 
     /**

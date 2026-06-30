@@ -13,50 +13,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane prefHeight="572.0" prefWidth="515.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.PCBView">
-    <tabs>
-        <Tab closable="false" text="PCB">
-            <content>
-                <VBox fx:id="mainVBox">
-                </VBox>
-            </content>
-        </Tab>
-        <!--Tab closable="false" text="PCB">
-            <content>
-                <VBox>
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
-                        <TitledPane text="Gerência de Processos">
-                        </TitledPane>
-                    </ScrollPane>
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
-                        <TitledPane fx:id="processMemoryInfoTitledPane" text="Gerência de Memória">
-
-                        </TitledPane>
-                    </ScrollPane>
-                </VBox>
-            </content>
-        </Tab-->
-        <!--Tab fx:id="pageTableTab" closable="false" text="Tabela de Páginas">
-            <content>
-                <VBox>
-                    <Label fx:id="noPageTableLabel" managed="false" text="Tabela de páginas ainda não foi criada" visible="false" />
-                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
-                        <TableView fx:id="pageTableView" VBox.vgrow="ALWAYS">
-                            <columns>
-                                <TableColumn fx:id="pageNumberColumn" prefWidth="57.0" text="Página" />
-                                <TableColumn fx:id="validColumn" prefWidth="54.0" text="Válida" />
-                                <TableColumn fx:id="dirtyColumn" prefWidth="87.0" text="Modificada" />
-                                <TableColumn fx:id="referencedColumn" prefWidth="96.0" text="Referenciada" />
-                                <TableColumn fx:id="fileBackedColumn" prefWidth="87.0" text="File-backed" />
-                                <TableColumn fx:id="frameAddressColumn" prefWidth="131.0" text="Endereço do Frame" />
-                            </columns>
-                            <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                            </columnResizePolicy>
-                        </TableView>
-                    </ScrollPane>
-                </VBox>
-            </content>
-        </Tab-->
-    </tabs>
+<TabPane prefHeight="572.0" prefWidth="515.0" xmlns="http://javafx.com/javafx/22.0.1"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:id="PCBViewTabPane"
+         fx:controller="org.pampasim.resources.view.PCBView">
 </TabPane>

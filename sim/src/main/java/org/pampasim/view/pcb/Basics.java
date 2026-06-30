@@ -4,10 +4,14 @@ import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
+import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
-public class Basics implements FxmlView<ProcessViewModel> {
+import java.util.Set;
+
+public class Basics implements PCBView.ModulePCBView {
     @InjectViewModel
     private ProcessViewModel viewModel;
 
@@ -20,6 +24,7 @@ public class Basics implements FxmlView<ProcessViewModel> {
     @FXML private Label readyWaitingTime;
     @FXML private Label currExecTimeLabel;
     @FXML private Label burstLabel;
+    @FXML private Tab PCBTab;
 
     public void initialize() {
         pidLabel.textProperty().bind(viewModel.getPid().asString());
@@ -46,5 +51,9 @@ public class Basics implements FxmlView<ProcessViewModel> {
     private String getTextColorForBackground(Color color) {
         double luminance = 0.299 * color.getRed() + 0.587 * color.getGreen() + 0.114 * color.getBlue();
         return luminance < 0.5 ? "white" : "black";
+    }
+
+    public Set<Tab> getTabs() {
+        return Set.of(PCBTab);
     }
 }

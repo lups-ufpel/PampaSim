@@ -9,11 +9,13 @@ import javafx.scene.control.*;
 import org.pampasim.memory.viewmodel.MemoryInfoViewModel;
 import org.pampasim.memory.viewmodel.PageTableEntryViewModel;
 import org.pampasim.memory.viewmodel.PageTableViewModel;
+import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
+import java.util.Set;
 import java.util.function.Function;
 
-public class Memory implements FxmlView<ProcessViewModel> {
+public class Memory implements PCBView.ModulePCBView {
     @InjectViewModel
     ProcessViewModel viewModel;
 
@@ -30,8 +32,6 @@ public class Memory implements FxmlView<ProcessViewModel> {
     @FXML public Label workingSetListLabel;
     @FXML public Label accessListLabel;
 
-    @FXML public Tab pageTableTab;
-
     @FXML private Label noPageTableLabel;
     @FXML private TableView<PageTableEntryViewModel> pageTableView;
 
@@ -41,6 +41,9 @@ public class Memory implements FxmlView<ProcessViewModel> {
     @FXML private TableColumn<PageTableEntryViewModel, Boolean> referencedColumn;
     @FXML private TableColumn<PageTableEntryViewModel, Boolean> fileBackedColumn;
     @FXML private TableColumn<PageTableEntryViewModel, String> frameAddressColumn;
+
+    @FXML private Tab PCBTab;
+    @FXML public Tab pageTableTab;
 
     public void initialize() {
         MemoryInfoViewModel memoryInfo = viewModel.getModuleInfoViewModel(MemoryInfoViewModel.class);
@@ -149,5 +152,9 @@ public class Memory implements FxmlView<ProcessViewModel> {
                 }
             }
         });
+    }
+
+    public Set<Tab> getTabs() {
+        return Set.of(PCBTab, pageTableTab);
     }
 }
