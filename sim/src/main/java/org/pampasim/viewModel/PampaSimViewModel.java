@@ -48,6 +48,7 @@ import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.dialog.*;
 import org.pampasim.resources.memory.*;
+import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.*;
 import org.pampasim.resources.dialog.*;
 
@@ -171,8 +172,16 @@ public class PampaSimViewModel implements ViewModel {
                 simulationStatisticsViewModel.getModuleStatisticsViewModel(MemoryStatisticsViewModel.class).updateStatistics(simMemoryModule, allProcesses);
 
             }
+
+            // Can't figure out a better place to put this
+            PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.view.pcb.Basics.class));
+            if (memoryModulePresent.get()) {
+                PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.memory.view.pcb.Memory.class));
+            }
+
             return sim;
         });
+
     }
 
     public void loadSpec(Path path) {

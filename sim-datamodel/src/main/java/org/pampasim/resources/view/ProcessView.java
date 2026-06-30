@@ -28,7 +28,7 @@ public class ProcessView implements FxmlView<ProcessViewModel> {
     @FXML
     Label number;
 
-    private Optional<Stage> inspectorView = Optional.empty();
+    private Stage inspectorView = null;
 
     public void initialize() {
         circle.fillProperty().bind(viewModel.getColorProperty());
@@ -36,10 +36,9 @@ public class ProcessView implements FxmlView<ProcessViewModel> {
     }
 
     public void showInfo(MouseEvent mouseEvent) {
-        if (inspectorView.isPresent()) {
-            var stage = inspectorView.get();
-            if (stage.isShowing()) {
-                stage.requestFocus();
+        if (inspectorView != null) {
+            if (inspectorView.isShowing()) {
+                inspectorView.requestFocus();
                 return;
             }
         }
@@ -52,9 +51,9 @@ public class ProcessView implements FxmlView<ProcessViewModel> {
         stage.setTitle("Informações do Processo");
         stage.setScene(new Scene(processInspectorViewTuple.getView()));
         stage.setResizable(true);
-        inspectorView = Optional.of(stage);
+        inspectorView = stage;
         viewModel.subscribe("CloseInspectors", (_a, b) -> {
-            inspectorView = Optional.empty();
+            inspectorView = null;
         });
         stage.show();
     }

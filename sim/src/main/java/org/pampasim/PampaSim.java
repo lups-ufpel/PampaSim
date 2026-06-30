@@ -13,8 +13,8 @@ import org.pampasim.dsl.spec.Spec;
 import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
-import org.pampasim.memory.MemoryManagement;
 import org.pampasim.resources.ProcessorCore;
+import org.pampasim.resources.view.PCBView;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

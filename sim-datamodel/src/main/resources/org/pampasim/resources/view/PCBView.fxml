@@ -17,117 +17,26 @@
     <tabs>
         <Tab closable="false" text="PCB">
             <content>
+                <VBox fx:id="mainVBox">
+                </VBox>
+            </content>
+        </Tab>
+        <!--Tab closable="false" text="PCB">
+            <content>
                 <VBox>
                     <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                         <TitledPane text="Gerência de Processos">
-                            <VBox spacing="10">
-                                <GridPane hgap="10" vgap="10">
-                                    <Label text="PID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <Label fx:id="pidLabel" GridPane.columnIndex="2" />
-
-                                    <Label text="Cor:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <Label fx:id="colorLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                                    <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                    <Label fx:id="stateLabel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                                    <Label text="Tempo de Chegada:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                    <Label fx:id="arrivalTickLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-                                    <Label text="Prioridade:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                    <Label fx:id="priorityLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-
-                                    <Label text="Tempo em Espera para Escalonamento:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                    <Label fx:id="readyWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-
-                                    <Label text="Tempo Total de Execução: " GridPane.rowIndex="6" />
-                                    <Label fx:id="burstLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-
-                                    <Label text="Tempo Decorrente de Execução:" GridPane.rowIndex="7" />
-                                    <Label fx:id="currExecTimeLabel" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-
-                                    <columnConstraints>
-                                        <ColumnConstraints />
-                                        <ColumnConstraints />
-                                        <ColumnConstraints />
-                                    </columnConstraints>
-                                    <rowConstraints>
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                    </rowConstraints>
-                                    <VBox.margin>
-                                        <Insets />
-                                    </VBox.margin>
-                                </GridPane>
-                            </VBox>
                         </TitledPane>
                     </ScrollPane>
                     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
                         <TitledPane fx:id="processMemoryInfoTitledPane" text="Gerência de Memória">
-                            <content>
-                                <VBox spacing="10">
-                                    <GridPane hgap="10" vgap="10">
-                                        <Label text="Tamanho (em páginas):" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                        <Label fx:id="memorySizeLabel" GridPane.columnIndex="2" />
 
-                                        <Label text="Máximo de páginas na RAM:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                        <Label fx:id="maxPagesRamLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                                        <Label text="Tempo em Espera para Operaçao I/O:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                        <Label fx:id="ioWaitingTime" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                                        <Label text="Page Hits:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                        <Label fx:id="pageHitsLabel" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-                                        <Label text="Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                                        <Label fx:id="pageFaultsLabel" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-
-                                        <Label text="Taxa de Page Faults:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                                        <Label fx:id="pageFaultRateLabel" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-
-                                        <Label text="Tamanho da Janela do Working Set:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                                        <Label fx:id="workingSetWindowLabel" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-
-                                        <columnConstraints>
-                                            <ColumnConstraints />
-                                            <ColumnConstraints />
-                                            <ColumnConstraints />
-                                        </columnConstraints>
-                                        <rowConstraints>
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                        </rowConstraints>
-                                        <VBox.margin>
-                                            <Insets bottom="10.0" />
-                                        </VBox.margin>
-                                    </GridPane>
-
-                                    <VBox spacing="5">
-                                        <Label text="Working Set:" />
-                                        <Label fx:id="workingSetListLabel" wrapText="true" />
-
-                                        <Label text="Lista de Acessos:" />
-                                        <Label fx:id="accessListLabel" wrapText="true" />
-                                    </VBox>
-                                </VBox>
-                            </content>
                         </TitledPane>
                     </ScrollPane>
                 </VBox>
             </content>
-        </Tab>
-        <Tab fx:id="pageTableTab" closable="false" text="Tabela de Páginas">
+        </Tab-->
+        <!--Tab fx:id="pageTableTab" closable="false" text="Tabela de Páginas">
             <content>
                 <VBox>
                     <Label fx:id="noPageTableLabel" managed="false" text="Tabela de páginas ainda não foi criada" visible="false" />
@@ -148,6 +57,6 @@
                     </ScrollPane>
                 </VBox>
             </content>
-        </Tab>
+        </Tab-->
     </tabs>
 </TabPane>
