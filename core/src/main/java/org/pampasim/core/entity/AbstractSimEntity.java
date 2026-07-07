@@ -61,16 +61,6 @@ public abstract class AbstractSimEntity implements SimEntity {
     }
 
     @Override
-    public final boolean start() {
-        if(this.isStarted()) {
-            return false;
-        }
-        startInternal();
-        return true;
-    }
-    protected void startInternal() {
-    };
-    @Override
     public void scheduleToNextClock(Event event) {
         LOGGER.trace("{} tx {}",getClass().getSimpleName(), event);
         if (simulation != null) {
@@ -81,11 +71,6 @@ public abstract class AbstractSimEntity implements SimEntity {
         }
     }
 
-    @Override
-    public boolean isStarted() {
-        return false;
-    }
-
     public void processEvent(Event event) {}
     public void run() {
         LOGGER.trace("{} run", getClass().getSimpleName());
@@ -93,7 +78,7 @@ public abstract class AbstractSimEntity implements SimEntity {
         managedRun();
         buffer.clear();
     }
-    public void runUntilBlockedorIdle() {
+    public void eagerRun() {
         while (getState() == EntityState.Run) {
             run();
         }

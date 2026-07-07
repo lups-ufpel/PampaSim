@@ -368,7 +368,7 @@ public class PampaSimViewModel implements ViewModel {
             sim.run();
             blockedTick = true;
         } else {
-            sim.runUntilBlockedorIdle();
+            sim.eagerRun();
             blockedTick = false;
             if (fullStep) {
                 sim.run();
