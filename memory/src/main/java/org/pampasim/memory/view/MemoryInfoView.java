@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.pampasim.memory.MemoryConfig;
+import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.viewmodel.ProcessMemoryInfoViewModel;
 import org.pampasim.resources.view.CreateProcessDialogView;
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
@@ -73,6 +75,7 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
                     updateValidAddressRange();
                 });
         randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
+        pageSize.set(MemoryConfig.getPageSize());
     }
 
     public Parent moduleInitializer(ViewTuple<CreateProcessDialogView, CreateProcessDialogViewModel> parentDialog) {

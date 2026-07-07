@@ -2,6 +2,10 @@ package org.pampasim.resources.memory;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.pampasim.memory.MemoryConfig;
 import org.pampasim.resources.ProcessModuleInfo;
 import org.pampasim.resources.Process;
 
@@ -13,8 +17,10 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
+@Log4j2
 @Getter
 public class ProcessMemoryInfo extends ProcessModuleInfo {
+    private static final Logger LOGGER = LogManager.getLogger(ProcessMemoryInfo.class);
     @Data
     public static class MemoryConfigData { // info defined for all processes during the setup
         private final int swappingOperationsLength;
@@ -64,15 +70,18 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.runtimeAddressAccessList
                 .addAll(creationData.addressAccessList.address.stream()
                         .map(BigInteger::intValue).toList());
-        var numAccesses = this.runtimeAddressAccessList.size();
         creationData.modifyPages.pageId.sort(Comparator.naturalOrder());
         creationData.fileBackedPages.pageId.sort(Comparator.naturalOrder());
-        for (int i = 0; i < numAccesses; i++) {
-            var access = (long)runtimeAddressAccessList.get(i);
+
+        for (long access : runtimeAddressAccessList) {
+            var page = access / MemoryConfig.getPageSize();
+            while (page >= runtimeModifyPage.size())      { runtimeModifyPage.add(false); }
+            while (page >= runtimeFileBackedPages.size()) { runtimeFileBackedPages.add(false); }
             var m = creationData.getModifyPages().pageId.contains(access);
             this.runtimeModifyPage.add(m);
             var f = creationData.getFileBackedPages().pageId.contains(access);
             this.runtimeFileBackedPages.add(f);
+            LOGGER.trace("added page (modify {} f-backed {})", m, f);
         }
     }
 

@@ -19,7 +19,8 @@ public class ProcessPageTable {
         ArrayList<Boolean> fileBackedFlags = processMemoryInfo.getFileBackedPages();
         this.entries = new ArrayList<>((int) processMemoryInfo.getCreationData().getPageCount());
         for (int i = 0; i < processSize; i++) {
-            entries.add(new PageTableEntry(process, i, fileBackedFlags.get(i)));
+            var fileBacked = fileBackedFlags.get(i);
+            entries.add(new PageTableEntry(process, i, fileBacked));
         }
     }
 

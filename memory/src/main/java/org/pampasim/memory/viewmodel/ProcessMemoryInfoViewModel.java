@@ -88,7 +88,7 @@ public class ProcessMemoryInfoViewModel implements ViewModel {
             newPages.add(false);
         }
 
-        if ("".equals(val)) {
+        if (val.isBlank()) {
             setFileBackedPages(newPages);
             return;
         }
