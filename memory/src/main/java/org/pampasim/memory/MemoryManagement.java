@@ -16,6 +16,8 @@ import org.pampasim.memory.entity.PageTableManager;
 import org.pampasim.memory.entity.PhysicalMemory;
 //import org.pampasim.memory.entity.TLB;
 import org.pampasim.memory.entity.algorithms.*;
+import org.pampasim.resources.ModuleSimulation;
+import org.pampasim.resources.ModuleSimulationBase;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
@@ -24,7 +26,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 
 @Getter
-public class MemoryManagement extends SimulationBase {
+public class MemoryManagement extends ModuleSimulationBase {
 
     @Getter private static final IdentityHashMap<Process, ProcessMemoryInfo> processMemoryInfos = new IdentityHashMap<>();
     @Getter private static final HashMap<Process.CreationData, MemoryProcessCreationData> pendingMemoryInfoBindings = new HashMap<>();
@@ -91,5 +93,36 @@ public class MemoryManagement extends SimulationBase {
 
     public void incrementWaitingTimes() {
         // nothing is needed here, since the IO queue isn't as complex as the scheduler queue, and processes can't be interrupted on their way to performing the operation
+    }
+
+    @Override
+    public void applyConfig(Object config) throws ModuleSimulation.ConfigError {
+        if (! (config instanceof org.pampasim.resources.memory.MMU xmlConf)) {
+            throw new ConfigError("type mismatch for config object");
+        }
+        MemoryConfig.initialize(
+                MemoryConfig.getPageSize(),
+                MemoryConfig.getMaxPagesPerProcess(),
+                MemoryConfig.getFramesInRAM(),
+                MemoryConfig.getFramesInSwap(),
+
+                (int)xmlConf.getSwapOperationLength(),
+                (int)xmlConf.getWorkingSetWindow(),
+                xmlConf.getPageSubstitutionAlgorithm(),
+                xmlConf.isGlobalPageSubstitution(),
+                xmlConf.isAnticipatedPageLoading(),
+                (int)xmlConf.getPrePagingRange(),
+                xmlConf.isVariablePageAllocation(),
+                xmlConf.getVariablePageAllocationThresholds().getFirst(),
+                xmlConf.getVariablePageAllocationThresholds().getLast(),
+                xmlConf.isTlbEnabled(),
+                (int)xmlConf.getTlbEntries()
+        );
+        // no need to invalidate
+    }
+
+    @Override
+    public Class<?> configClass() {
+        return org.pampasim.resources.memory.MMU.class;
     }
 }

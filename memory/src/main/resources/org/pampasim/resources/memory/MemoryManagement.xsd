@@ -13,6 +13,7 @@
                 <xs:element name="globalPageSubstitution" type="xs:boolean"/>
                 <xs:element name="anticipatedPageLoading" type="xs:boolean"/>
                 <xs:element name="prePagingRange" type="xs:unsignedInt"/>
+                <xs:element name="variablePageAllocation" type="xs:boolean" default="false"/>
                 <xs:element name="variablePageAllocationThresholds">
                     <xs:simpleType>
                         <xs:list itemType="xs:double"/>

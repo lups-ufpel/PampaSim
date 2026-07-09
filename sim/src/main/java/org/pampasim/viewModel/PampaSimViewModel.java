@@ -2,31 +2,20 @@ package org.pampasim.viewModel;
 
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewModel;
-import de.saxsys.mvvmfx.ViewTuple;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.pampasim.*;
 import org.pampasim.core.*;
 import org.pampasim.core.events.Event;
@@ -41,13 +30,10 @@ import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.memory.view.MemoryInfoView;
-import org.pampasim.memory.view.MemoryTabView;
-import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
-import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.dialog.*;
-import org.pampasim.resources.memory.*;
+import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.*;
 import org.pampasim.resources.dialog.*;
@@ -55,7 +41,7 @@ import org.pampasim.resources.dialog.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,9 +64,6 @@ public class PampaSimViewModel implements ViewModel {
     @Getter
     private final BooleanProperty scenarioIsSaved = new SimpleBooleanProperty(true);
     private int graphNum = 0;
-
-    @Getter
-    private final BooleanProperty memoryModulePresent = new SimpleBooleanProperty(false);
 
     @Getter
     private final SimulationStatisticsViewModel simulationStatisticsViewModel = new SimulationStatisticsViewModel();;
@@ -117,10 +100,12 @@ public class PampaSimViewModel implements ViewModel {
     private final IdentityHashMap<Process, ProcessViewModel> pvmMap = new IdentityHashMap<>();
     @Setter
     private TabPane tabPane;
-
-    private MemoryTabViewModel memoryModuleVM = null;
+    @Getter
+    private final Map<Class<? extends PampaSimModule>, PampaSimModule> loadedModules = new IdentityHashMap<>();
 
     public PampaSimViewModel() {
+        // TODO: Punt this to PampaSimView
+        PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.view.pcb.Basics.class));
         var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
         var templateSpec = Spec.loadSpec(templateSpecStream, true);
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
@@ -128,10 +113,34 @@ public class PampaSimViewModel implements ViewModel {
             var eventManager = sim.getEventManager();
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
-            if (memoryModulePresent.get()) {
-                reinitializeMemoryManagement(sim);
+
+            try {
+                reinitializeModules(spec);
+            } catch (ModuleSimulation.ConfigError e) {
+                throw new RuntimeException(e);
             }
-            MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
+
+            for (var entry : loadedModules.entrySet()) {
+                var module = entry.getValue();
+
+                // module event snooper
+                module.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
+
+                // module stats
+                var moduleStats = module.getStatisticsViewModel();
+                if (moduleStats != null) {
+                    if (simulationStatisticsViewModel.getModuleStatisticsViewModel(moduleStats.getClass()) == null) {
+                        simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStats);
+                    }
+                    moduleStats.updateStatistics(sim, allProcesses);
+                }
+
+                // PCBView module views TODO: punt this to PampaSimView
+                var pcbModuleView = module.getPCBViewExtension();
+                if (pcbModuleView != null) {
+                    PCBView.registerModuleView(new PCBView.ModuleView(pcbModuleView.getClass()));
+                }
+            }
 
             for (var tick : spec.getEventSchedule().values()) {
                 for (var event : tick) {
@@ -150,14 +159,16 @@ public class PampaSimViewModel implements ViewModel {
                         vm.getPriority().set(creationData.startPriority());
                         allProcesses.add(vm);
 
-                        //TODO: make adding module info part of the creation data
-                        if (simMemoryModule != null) {
-                            var processMemConfig = (MemoryProcessCreationData) creationData.moduleCreationData().get(MemoryManagement.class);
-                            var memInfoVM = new org.pampasim.memory.viewmodel.MemoryInfoViewModel(
-                                    processMemConfig,
-                                    MemoryConfig.getWorkingSetWindow(),
-                                    MemoryConfig.getMaxPagesPerProcess());
-                            vm.addModuleInfoViewModel(memInfoVM);
+                        for (var entry : creationData.moduleCreationData().entrySet()) {
+                            var moduleClass = entry.getKey();
+                            var config = entry.getValue();
+                            var module = loadedModules.get(moduleClass);
+                            if (module != null) {
+                                module.annexModuleInfoVM(vm, config);
+                            } else {
+                                // FIXME: better handling of this case?
+                                LOGGER.info("ignoring module info for unloaded module {} pvm {}", moduleClass, vm);
+                            }
                         }
                     }
                 }
@@ -165,23 +176,45 @@ public class PampaSimViewModel implements ViewModel {
 
             simulationStatisticsViewModel.updateStatistics(sim, allProcesses);
 
-            // FIXME: There likely is a more elegant solution than this
-            if (simMemoryModule != null) {
-                simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class,
-                        this::handleProcessEvent);
-                simulationStatisticsViewModel.getModuleStatisticsViewModel(MemoryStatisticsViewModel.class).updateStatistics(simMemoryModule, allProcesses);
-
-            }
-
-            // Can't figure out a better place to put this
-            PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.view.pcb.Basics.class));
-            if (memoryModulePresent.get()) {
-                PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.memory.view.pcb.Memory.class));
-            }
-
             return sim;
         });
+    }
 
+    private void reinitializeModules(Spec spec) throws ModuleSimulation.ConfigError {
+        // TODO: punt to pampasim view
+        ObservableList<Tab> tabs = tabPane.getTabs();
+        tabs.remove(1, tabs.size()); // keep only basic
+
+        for (var moduleClassName : spec.getInnerSpec().getExtraModules().getModule()) {
+            var freshlyLoaded = loadModule(moduleClassName);
+            var module = getLoadedModuleByName(moduleClassName);
+            var moduleClass = module.getClass();
+
+            module.invalidate();
+
+            if(freshlyLoaded) {
+                // TODO: punt to pampasim view
+                Tab moduleTab = module.getModuleTab();
+                if (moduleTab != null) {
+                    tabs.add(moduleTab);
+                }
+            }
+            LOGGER.debug("invalidated module {}", moduleClass);
+            var moduleConfigClass = module.configClass();
+            if (moduleConfigClass != null) {
+                LOGGER.debug("configuring module {}", moduleClass);
+                var configElemOpt = spec.getInnerSpec()
+                        .getEntities()
+                        .getEntity()
+                        .stream()
+                        .filter(entityConfig ->
+                            entityConfig.getFullyQualifiedClassName().equals(moduleConfigClass.getCanonicalName())
+                        ).findAny();
+                if (configElemOpt.isPresent()) {
+                    module.applyConfig(configElemOpt.get().getAny());
+                }
+            }
+        }
     }
 
     public void loadSpec(Path path) {
@@ -263,82 +296,15 @@ public class PampaSimViewModel implements ViewModel {
         updateProps();
     }
 
-    public void setSimulationModules(AddModulesRecord userSelection) throws IOException {
+    public void setSimulationModules(AddModulesRecord userSelection) throws IOException, ModuleSimulation.ConfigError {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
-
-        if (userSelection.modules().getFirst().equals("memory")) { // FIXME: multiple modules
-            reinitializeMemoryManagement((SimulationBase) simulatedScenario.getSimulation().get());
-            MemoryStatisticsViewModel memoryStatisticsViewModel = new MemoryStatisticsViewModel();
-            simulationStatisticsViewModel.addModuleStatisticsViewModel(memoryStatisticsViewModel);
-
-            memoryModuleVM = new MemoryTabViewModel(
-                    simulatedScenario.getSimulation().get().getEntity(MemoryManagement.class),
-                    pvmMap,
-                    allProcesses,
-                    memoryStatisticsViewModel
-            );
-
-            memoryModulePresent.set(true);
-
-            ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
-                    .fxmlView(MemoryTabView.class)
-                    .viewModel(memoryModuleVM)
-                    .load();
-
-            Parent content = viewTuple.getView();
-
-            FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
-            icon.setIconSize(14);
-
-            // Create the memory tab with a pop-out button in the header
-            Tab memoryTab = new Tab();
-            HBox header = new HBox(5);
-            header.setAlignment(Pos.CENTER_LEFT); // center vertically
-            Label title = new Label("Memória");
-            Button popOutBtn = getPopoutButton(icon, memoryTab);
-
-            header.getChildren().addAll(title, popOutBtn);
-            memoryTab.setGraphic(header);
-            memoryTab.setContent(content);
-            memoryTab.setClosable(false);
-
-            ObservableList<Tab> tabs = tabPane.getTabs();
-            if (tabs.size() > 1) {
-                List<Tab> tabsToRemove = new ArrayList<>(tabs.subList(1, tabs.size()));
-                tabs.removeAll(tabsToRemove);
-            }
-
-            tabPane.getTabs().add(memoryTab);
-        }
+        var spec = simulatedScenario.getSpec();
+        var moduleList = spec.getInnerSpec().getExtraModules().getModule();
+        moduleList.clear();
+        moduleList.addAll(userSelection.modules());
+        reinitializeModules(spec);
     }
 
-    private Button getPopoutButton(FontIcon icon, Tab memoryTab) {
-        Button popOutBtn = new Button();
-        popOutBtn.setGraphic(icon);
-        popOutBtn.setFocusTraversable(false);
-
-        popOutBtn.setOnAction(e -> {
-            if (memoryTab.getContent() == null) return;
-
-            Parent poppedContent = (Parent) memoryTab.getContent();
-            memoryTab.setContent(null);
-
-            Stage popOutStage = new Stage();
-            popOutStage.setTitle("Memória");
-
-            BorderPane layout = new BorderPane(poppedContent);
-            Scene popOutScene = new Scene(layout, 800, 600);
-            popOutStage.setScene(popOutScene);
-            popOutStage.initOwner(tabPane.getScene().getWindow());
-
-            popOutStage.setOnCloseRequest(event -> {
-                memoryTab.setContent(poppedContent);
-            });
-
-            popOutStage.show();
-        });
-        return popOutBtn;
-    }
 
 
     public void startSimulation() {
@@ -642,39 +608,7 @@ public class PampaSimViewModel implements ViewModel {
             var memView = memoryViewTuple.getCodeBehind();
             createProcessDialogService.setModuleInfo(
                     Map.of(
-                            MemoryManagement.class, new CreateProcessDialogService.ModuleTuple(
-                                    //init
-                                    memView::moduleInitializer,
-                                    // generate
-                                    viewModel -> {
-                                        var objFact = new org.pampasim.resources.memory.ObjectFactory();
-                                        var memCData = objFact.createMemoryProcessCreationData();
-                                        memCData.setPageCount(memVM.getProcessSize());
-
-                                        memCData.setFileBackedPages   (objFact.createPageIdList());
-                                        memCData.setModifyPages       (objFact.createPageIdList());
-                                        memCData.setAddressAccessList (objFact.createAccessList());
-
-                                        { // Populate MemoryProcessCreationData fields
-                                            memCData.setPageCount(memVM.getProcessSize());
-                                            var fileBackedPages = memCData.getFileBackedPages().getPageId();
-                                            var modifyPages = memCData.getModifyPages().getPageId();
-                                            for (int i = 0; i < memVM.getProcessSize(); i++) {
-                                                if (i < memVM.getFileBackedPages().size() && memVM.getFileBackedPages().get(i)) {
-                                                    fileBackedPages.add((long)i);
-                                                }
-                                                if (i < memVM.getModifiesPage().size() && memVM.getModifiesPage().get(i)) {
-                                                    modifyPages.add((long)i);
-                                                }
-                                            }
-                                            var accessList = memCData.getAddressAccessList();
-                                            for (var address : memVM.getMemoryAccesses()) {
-                                                accessList.getAddress().add(BigInteger.valueOf(address));
-                                            }
-                                            memCData.setLoopAccessList(memVM.getLoopAccessList());
-                                        };
-                                        return memCData;
-                                    })
+                            MemoryManagement.class,
                     )
             );
         }
@@ -692,24 +626,56 @@ public class PampaSimViewModel implements ViewModel {
         result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
     }
 
-    private void reinitializeMemoryManagement(SimulationBase simulationBase) {
-
-        simulationBase.removeModule(MemoryManagement.class);
-
-        var memMan = new MemoryManagement();
-        memMan.bind(simulationBase);
-
-        MemoryManagement simMemoryModule = simulationBase.getEntity(MemoryManagement.class);
-
-        if (simMemoryModule != null) {
-            simMemoryModule.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
+    /**
+     * @param moduleClassName fully qualified class path for the module to load
+     * @return whether the class was loaded (true) or the operation no-oped (false)
+     */
+    public boolean loadModule(String moduleClassName) {
+        var alreadyLoaded = getLoadedModuleByName(moduleClassName);
+        if (alreadyLoaded != null) {
+            return false;
         }
 
-        // FIXME / URGENT: memory module decoupling
-        if (memoryModuleVM != null) {
-            memoryModuleVM.setMemoryManagement(simMemoryModule, this.pvmMap);
-            memoryModuleVM.refreshFrameList();
+        Class<? extends PampaSimModule> moduleClass = null;
+        PampaSimModule module = null;
+        try {
+            moduleClass = (Class<? extends PampaSimModule>) Thread.currentThread()
+                    .getContextClassLoader()
+                    .loadClass(moduleClassName);
+            var cons = moduleClass.getConstructor();
+            module = cons.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Couldn't load module " + moduleClassName, e);
+        } catch (ClassCastException e) {
+            throw new RuntimeException("Class " + moduleClassName + " is not a module", e);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
+
+        loadedModules.put(moduleClass, module);
+
+        var moduleStatsVM = module.getStatisticsViewModel();
+        if (moduleStatsVM != null) {
+            simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStatsVM);
+        }
+
+        // TODO: punt to pampasim view
+        Tab moduleTab = module.getModuleTab();
+        if (moduleTab != null) {
+            tabPane.getTabs().add(moduleTab);
+        }
+        return true;
     }
 
+    /**
+     * @param moduleClassName fully qualified class name of the target module
+     * @return the module instance if loaded, null otherwise
+     */
+    public PampaSimModule getLoadedModuleByName(String moduleClassName) {
+        var opt = loadedModules.entrySet().stream()
+                .filter(entry ->
+                        entry.getKey().getCanonicalName().equals(moduleClassName)
+                ).findAny();
+        return opt.map(Map.Entry::getValue).orElse(null);
+    }
 }

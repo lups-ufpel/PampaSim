@@ -56,7 +56,7 @@ public class MemoryTabViewModel implements ViewModel {
 
     public MemoryTabViewModel(
             MemoryManagement memoryManagement,
-            IdentityHashMap<Process, ProcessViewModel> pvmMap,
+            Map<Process, ProcessViewModel> pvmMap,
             ObservableList<ProcessViewModel> observableProcessList,
             MemoryStatisticsViewModel memoryStatisticsViewModel) {
 
@@ -324,7 +324,7 @@ public class MemoryTabViewModel implements ViewModel {
         memoryManagement.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
     }
 
-    public void setMemoryManagement(MemoryManagement memoryManagement, IdentityHashMap<Process, ProcessViewModel> pvmMap) {
+    public void setMemoryManagement(MemoryManagement memoryManagement, Map<Process, ProcessViewModel> pvmMap) {
         this.memoryManagement = memoryManagement;
         this.pvmMap = pvmMap;
         setupSnoopers();
