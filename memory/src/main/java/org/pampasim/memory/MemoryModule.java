@@ -40,7 +40,6 @@ public class MemoryModule extends PampaSimModuleBase {
     private MemoryTabViewModel memoryModuleVM = null;
     private MemoryStatisticsViewModel memoryStatisticsViewModel = null;
     private Tab memoryTab = null;
-    //private MemoryConfig config = null;
 
     public MemoryModule() {
         ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
@@ -64,9 +63,6 @@ public class MemoryModule extends PampaSimModuleBase {
         memoryTab.setContent(content);
         memoryTab.setClosable(false);
     }
-
-
-
 
     @Override
     public Tab getModuleTab() {
@@ -140,7 +136,7 @@ public class MemoryModule extends PampaSimModuleBase {
     }
 
     @Override
-    public Simulation getSimulation() {
+    public ModuleSimulation getSimulation() {
         return memSim;
     }
 
@@ -161,15 +157,12 @@ public class MemoryModule extends PampaSimModuleBase {
 
     @Override
     public void invalidate() {
-        reinitializeMemoryManagement(this.getSimulation());
+        reinitializeMemoryManagement(this.getSimulation().getParent().getSimulation());
     }
 
     private void reinitializeMemoryManagement(Simulation sim) {
-        // FIXME: we can't to remove entities from simulations currently,
-        //  so this check makes sure there are no duplicates
-        if (sim.getEntity())
         memSim = new MemoryManagement();
-
+        memSim.bind(sim);
 
         memoryStatisticsViewModel = new MemoryStatisticsViewModel();
         memoryModuleVM = new MemoryTabViewModel(

@@ -250,10 +250,19 @@ public class Spec {
         } catch (JAXBException | SAXException e) {
             throw new RuntimeException(e);
         }
+        spec.addOmittedElements();
         return spec;
     }
     public static Spec loadSpec(InputStream stream) {
         return loadSpec(stream, false);
+    }
+
+    private void addOmittedElements() {
+        var extraModules = this.innerSpec.getExtraModules();
+        if (extraModules == null) {
+            extraModules = objFact.createSpecExtraModules();
+            this.innerSpec.setExtraModules(extraModules);
+        }
     }
 
     public void saveSpec(Path path) {
@@ -437,6 +446,8 @@ public class Spec {
         );
 
         // we can't read arbitrary files from inside the uber-jar
+        // FIXME: now we can use the same class discovery trick used for finding scheduler
+        // algorithms for module discovery, just search the classpath for PampaSimModule impls
         if (false) {
             try {
                 File pomFile = new File("../pom.xml");

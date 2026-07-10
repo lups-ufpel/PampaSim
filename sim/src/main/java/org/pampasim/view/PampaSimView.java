@@ -10,6 +10,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -29,10 +30,12 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.PampaSimModule;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.Process;
+import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.view.ProcessView;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
@@ -179,9 +182,49 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         pampaSimViewModel.saveSpec(Paths.get(file.getPath()));
         pampaSimViewModel.updateProps();
     }
+
+    private void onLoadModule(PampaSimModule m) {
+        Tab moduleTab = m.getModuleTab();
+        if (moduleTab != null) {
+            moduleTabPane.getTabs().add(moduleTab);
+        }
+
+        // PCBView module views
+        var pcbModuleView = m.getPCBViewExtension();
+        if (pcbModuleView != null) {
+            PCBView.registerModuleView(new PCBView.ModuleView(pcbModuleView.getClass()));
+        }
+    }
+
+    private void onUnloadModule(PampaSimModule m) {
+        Tab moduleTab = m.getModuleTab();
+        if (moduleTab != null) {
+            moduleTabPane.getTabs().remove(moduleTab);
+        }
+
+        // PCBView module views
+        var pcbModuleView = m.getPCBViewExtension();
+        if (pcbModuleView != null) {
+            // FIXME: this definitely doesn't work, object identity issue
+            PCBView.unregisterModuleView(new PCBView.ModuleView(pcbModuleView.getClass()));
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        pampaSimViewModel.setTabPane(moduleTabPane); // FIXME: tight coupling
+        PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.view.pcb.Basics.class));
+
+        var loadedModulesObservableMap = pampaSimViewModel.getLoadedModules();
+        loadedModulesObservableMap.addListener(new MapChangeListener<Class<? extends PampaSimModule>, PampaSimModule>() {
+            @Override
+            public void onChanged(Change<? extends Class<? extends PampaSimModule>, ? extends PampaSimModule> change) {
+                if (change.wasAdded()) {
+                    onLoadModule(change.getValueAdded());
+                } if (change.wasRemoved()) {
+                    onUnloadModule(change.getValueRemoved());
+                }
+            }
+        });
 
         ViewListBinder.bind(
                 Map.of(
@@ -314,7 +357,6 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 pampaSimViewModel
                         .getSimulationIsValidSetup()
                         .or(pampaSimViewModel.getSimulationRunning())
-                        .or(pampaSimViewModel.getMemoryModulePresent())
         );
 
         resetBtn.disableProperty()

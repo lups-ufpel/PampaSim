@@ -16,8 +16,6 @@ public class Process {
     /**
      * @param intraTickOrder used for ordering events dispatched in the same tick,
      *                       and to later bind Processes to their ProcessViewModels.
-     * @link Process
-     * @link ProcessViewModel
      */
     public record CreationData(
             int arrivalTick, int durationTicks, int startPriority,

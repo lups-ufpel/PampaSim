@@ -1,6 +1,5 @@
 package org.pampasim.viewModel;
 
-import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewModel;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -8,11 +7,8 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,9 +23,8 @@ import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.memory.MemoryConfig;
-import org.pampasim.memory.MemoryManagement;
+import org.pampasim.memory.MemoryModule;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
-import org.pampasim.memory.view.MemoryInfoView;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.dialog.*;
@@ -52,13 +47,10 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-
 public class PampaSimViewModel implements ViewModel {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimViewModel.class);
     @Getter
     private final BooleanProperty simulationRunning = new SimpleBooleanProperty(false);
-    //@Getter
-    //private final BooleanProperty genGraphs = new SimpleBooleanProperty(false);
     @Getter
     private final BooleanProperty simulationIsValidSetup = new SimpleBooleanProperty(false);
     @Getter
@@ -67,7 +59,6 @@ public class PampaSimViewModel implements ViewModel {
 
     @Getter
     private final SimulationStatisticsViewModel simulationStatisticsViewModel = new SimulationStatisticsViewModel();;
-
 
     //***** Dialog services *****//
     private final SettingsDialogService settingsDialogService = new SettingsDialogService();
@@ -98,14 +89,11 @@ public class PampaSimViewModel implements ViewModel {
     private final ObservableList<ProcessViewModel> allProcesses = FXCollections.observableArrayList();
     @Getter
     private final IdentityHashMap<Process, ProcessViewModel> pvmMap = new IdentityHashMap<>();
-    @Setter
-    private TabPane tabPane;
     @Getter
-    private final Map<Class<? extends PampaSimModule>, PampaSimModule> loadedModules = new IdentityHashMap<>();
+    private final ObservableMap<Class<? extends PampaSimModule>, PampaSimModule> loadedModules
+            = FXCollections.observableMap(new IdentityHashMap<>());
 
     public PampaSimViewModel() {
-        // TODO: Punt this to PampaSimView
-        PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.view.pcb.Basics.class));
         var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
         var templateSpec = Spec.loadSpec(templateSpecStream, true);
         simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
@@ -124,7 +112,9 @@ public class PampaSimViewModel implements ViewModel {
                 var module = entry.getValue();
 
                 // module event snooper
-                module.getEventManager().addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
+                module.getSimulation()
+                        .getEventManager()
+                        .addSnooper(org.pampasim.events.ProcessEvent.class, this::handleProcessEvent);
 
                 // module stats
                 var moduleStats = module.getStatisticsViewModel();
@@ -133,12 +123,6 @@ public class PampaSimViewModel implements ViewModel {
                         simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStats);
                     }
                     moduleStats.updateStatistics(sim, allProcesses);
-                }
-
-                // PCBView module views TODO: punt this to PampaSimView
-                var pcbModuleView = module.getPCBViewExtension();
-                if (pcbModuleView != null) {
-                    PCBView.registerModuleView(new PCBView.ModuleView(pcbModuleView.getClass()));
                 }
             }
 
@@ -181,26 +165,16 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void reinitializeModules(Spec spec) throws ModuleSimulation.ConfigError {
-        // TODO: punt to pampasim view
-        ObservableList<Tab> tabs = tabPane.getTabs();
-        tabs.remove(1, tabs.size()); // keep only basic
-
         for (var moduleClassName : spec.getInnerSpec().getExtraModules().getModule()) {
             var freshlyLoaded = loadModule(moduleClassName);
             var module = getLoadedModuleByName(moduleClassName);
             var moduleClass = module.getClass();
 
-            module.invalidate();
-
-            if(freshlyLoaded) {
-                // TODO: punt to pampasim view
-                Tab moduleTab = module.getModuleTab();
-                if (moduleTab != null) {
-                    tabs.add(moduleTab);
-                }
+            if (!freshlyLoaded) {
+                LOGGER.debug("kept module {}", moduleClass);
             }
-            LOGGER.debug("invalidated module {}", moduleClass);
-            var moduleConfigClass = module.configClass();
+
+            var moduleConfigClass = module.getSimulation().configClass();
             if (moduleConfigClass != null) {
                 LOGGER.debug("configuring module {}", moduleClass);
                 var configElemOpt = spec.getInnerSpec()
@@ -211,7 +185,7 @@ public class PampaSimViewModel implements ViewModel {
                             entityConfig.getFullyQualifiedClassName().equals(moduleConfigClass.getCanonicalName())
                         ).findAny();
                 if (configElemOpt.isPresent()) {
-                    module.applyConfig(configElemOpt.get().getAny());
+                    module.getSimulation().applyConfig(configElemOpt.get().getAny());
                 }
             }
         }
@@ -270,6 +244,7 @@ public class PampaSimViewModel implements ViewModel {
         var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(cpr.start()))
                 .map(ArrayList::size)
                 .orElse(0);
+        LOGGER.trace("got epr {}, with cpr {}, moduleInfo {}", epr, cpr, cpr.moduleInfo());
         var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount, cpr.moduleInfo());
         arrivalEvent.setCreationData(creationData);
 
@@ -304,8 +279,6 @@ public class PampaSimViewModel implements ViewModel {
         moduleList.addAll(userSelection.modules());
         reinitializeModules(spec);
     }
-
-
 
     public void startSimulation() {
         if (!isValidSetup()) {
@@ -367,16 +340,7 @@ public class PampaSimViewModel implements ViewModel {
 
             stopSimulation();
         }
-        /*
-        if (genGraphs.get()) {
-            try { exportSimulationGraph(); }
-            catch(Exception e) {
-                JOptionPane.showMessageDialog(null, e);
-            }
-        }
-        */
     }
-
 
     public void handleProcessEvent(Event uncastEvent) {
         LOGGER.trace("handling event {}", uncastEvent);
@@ -521,11 +485,12 @@ public class PampaSimViewModel implements ViewModel {
 
         final boolean[] closedWithoutApply = {false};
 
-        settingsDialogService.setMemoryModulePresent(memoryModuleVM != null);
+        var memoryModuleLoaded = loadedModules.containsKey(MemoryModule.class);
+        settingsDialogService.setMemoryModulePresent(memoryModuleLoaded);
 
         Optional<SchedulerSelectionRecord> result;
 
-        if (memoryModuleVM != null) {
+        if (memoryModuleLoaded) {
             List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
             result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms);
         } else {
@@ -536,7 +501,7 @@ public class PampaSimViewModel implements ViewModel {
         if (result.isPresent()) {
             // User pressed OK/Apply
             SchedulerSelectionRecord selection = result.get();
-            if (memoryModuleVM != null) {
+            if (memoryModuleLoaded) {
                 MemoryConfigSelectionRecord mem = selection.memoryConfig();
                 MemoryConfig.initialize(
                         mem.pageSize(),
@@ -578,7 +543,7 @@ public class PampaSimViewModel implements ViewModel {
             userSelection.modulesRecord().ifPresent(mods -> {
                 try {
                     setSimulationModules(mods);
-                } catch (IOException e) {
+                } catch (IOException | ModuleSimulation.ConfigError e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -596,22 +561,12 @@ public class PampaSimViewModel implements ViewModel {
         addModulesDialogService.showDialog(modules).ifPresent(userSelection -> {
             try {
                 setSimulationModules(userSelection);
-            } catch (IOException e) {
+            } catch (IOException | ModuleSimulation.ConfigError e) {
                 throw new RuntimeException(e);
             }
         });
     }
     public void openCreateProcessDialog() {
-        if (memoryModulePresent.get()) {
-            var memoryViewTuple = FluentViewLoader.fxmlView(MemoryInfoView.class).load();
-            var memVM = memoryViewTuple.getViewModel();
-            var memView = memoryViewTuple.getCodeBehind();
-            createProcessDialogService.setModuleInfo(
-                    Map.of(
-                            MemoryManagement.class,
-                    )
-            );
-        }
         LOGGER.trace("createProcessDialogService.moduleInfo = {}", createProcessDialogService.getModuleInfo());
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
         createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
@@ -621,8 +576,9 @@ public class PampaSimViewModel implements ViewModel {
         int start = editedProcessViewModel.getArrivalTick().get();
         int duration = editedProcessViewModel.getBurst().get();
         int priority = editedProcessViewModel.getPriority().get();
+        var moduleInfo = editedProcessViewModel.getCreationData().moduleCreationData();
         ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
-        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color);
+        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color, moduleInfo);
         result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
     }
 
@@ -631,6 +587,7 @@ public class PampaSimViewModel implements ViewModel {
      * @return whether the class was loaded (true) or the operation no-oped (false)
      */
     public boolean loadModule(String moduleClassName) {
+
         var alreadyLoaded = getLoadedModuleByName(moduleClassName);
         if (alreadyLoaded != null) {
             return false;
@@ -659,10 +616,9 @@ public class PampaSimViewModel implements ViewModel {
             simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStatsVM);
         }
 
-        // TODO: punt to pampasim view
-        Tab moduleTab = module.getModuleTab();
-        if (moduleTab != null) {
-            tabPane.getTabs().add(moduleTab);
+        var cProcDiagServModuleInfo = module.getCreateProcessDialogServiceModuleTuple();
+        if (cProcDiagServModuleInfo != null) {
+            createProcessDialogService.getModuleInfo().put(moduleClass, cProcDiagServModuleInfo);
         }
         return true;
     }

@@ -14,7 +14,6 @@ import org.pampasim.core.utils.PidAllocator;
  *
  * `hasPendingEvents` is used to manage when to execute the simulation entity,
  * so make sure its implementation is prim and proper.
- * @see org.pampasim.core.entity.Module
  * @see org.pampasim.core.entity.AbstractSimEntity
  */
 public interface Simulation extends SimEntity {

@@ -76,9 +76,8 @@ public class PCBView implements FxmlView<ProcessViewModel> {
     /**
      * @param moduleView The module to add
      * Register a module's inspector view node
-     * @apiNote Call before instancing the PCBView, so initialize() is called with the right state.
-     * @apiNote idempotent, modules can only be registered once, extra calls are ignored
-     * @see this.unregisterModuleView
+     * Call before instancing the PCBView, so initialize() is called with the right state.
+     * idempotent, modules can only be registered once, extra calls are ignored
      */
     public static void registerModuleView(ModuleView moduleView) {
         moduleViews.add(moduleView);
@@ -87,9 +86,8 @@ public class PCBView implements FxmlView<ProcessViewModel> {
     /**
      * @param moduleView The module to remove
      * Unregister a module's inspector view node
-     * @apiNote Won't remove module view from existing PCBView instances
-     * @apiNote idempotent, modules can only be registered once, extra calls are ignored
-     * @see this.registerModuleView
+     * Won't remove module view from existing PCBView instances
+     * idempotent, modules can only be registered once, extra calls are ignored
      */
     public static void unregisterModuleView(ModuleView moduleView) {
         moduleViews.remove(moduleView);

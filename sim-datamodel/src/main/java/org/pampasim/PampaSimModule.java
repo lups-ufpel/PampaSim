@@ -22,7 +22,7 @@ public interface PampaSimModule {
     StatisticsViewModel getStatisticsViewModel();
     CreateProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple();
     ViewModel getViewModel();
-    Simulation getSimulation();
+    ModuleSimulation getSimulation();
 
     void setProcessToProcessVMMap(Map<Process, ProcessViewModel> pvmMap);
     void setProcessVMObservableList(ObservableList<ProcessViewModel> obProcList);
@@ -37,8 +37,7 @@ public interface PampaSimModule {
     Class<? extends SimEntity> rootSimEntityClass();
 
     /**
-     * Clear state and restart module, may be required after a {@link this.applyConfig} call
-     * @see this.applyConfig
+     * Clear state and restart module, may be required after a `this.applyConfig` call
      */
     void invalidate();
 }

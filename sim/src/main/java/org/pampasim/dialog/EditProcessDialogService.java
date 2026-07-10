@@ -23,11 +23,13 @@ public class EditProcessDialogService implements DialogService<EditProcessRecord
         ViewTuple<EditProcessDialogView, EditProcessDialogViewModel> viewTuple =
                 FluentViewLoader.fxmlView(EditProcessDialogView.class).load();
 
-        if (args.length != 4
+        if (args.length != 5
                 || !(args[0] instanceof Integer)
                 || !(args[1] instanceof Integer)
                 || !(args[2] instanceof Integer)
-                || !(args[3] instanceof ObjectProperty)) {
+                || !(args[3] instanceof ObjectProperty)
+                || !(args[4] instanceof Map)
+        ) {
             throw new IllegalArgumentException("Invalid arguments for showDialog");
         }
 
@@ -38,19 +40,21 @@ public class EditProcessDialogService implements DialogService<EditProcessRecord
         int duration = (int) args[1];
         int priority = (int) args[2];
         ObjectProperty<Color> color = (ObjectProperty<Color>) args[3];
+        Map<Class<?>, Object> moduleInfo = (Map<Class<?>, Object>) args[4];
         viewTuple.getCodeBehind().setProcessData(start, duration, priority, color); //TODO: NOT THE BEST OPTION
         // this is blocking AFAIK
-        Optional<EditProcessRecord> result = dialog.showAndWait()
+        return dialog.showAndWait()
             .filter(r -> r.getButtonData() != ButtonBar.ButtonData.CANCEL_CLOSE)
             .map(r -> {
                 CreateProcessRecord userInput = new CreateProcessRecord(
                         viewTuple.getViewModel().getProcessStart(),
                         viewTuple.getViewModel().getProcessDuration(),
                         viewTuple.getViewModel().getProcessPriority(),
-                        viewTuple.getViewModel().convertColor(), null);
+                        viewTuple.getViewModel().convertColor(),
+                        moduleInfo // FIXME/TODO: Hack job, need to make it so we can edit module info too
+                        );
                 boolean delete = r.getButtonData() == ButtonBar.ButtonData.LEFT;
                 return new EditProcessRecord(userInput, delete);
             });
-        return result;
     }
 }
