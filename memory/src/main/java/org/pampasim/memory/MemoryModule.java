@@ -12,10 +12,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import lombok.NonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.pampasim.PampaSimModule;
 import org.pampasim.core.Simulation;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.memory.view.MemoryInfoView;
@@ -23,10 +23,8 @@ import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryTabViewModel;
 import org.pampasim.resources.ModuleSimulation;
-import org.pampasim.resources.ModuleSimulationBase;
 import org.pampasim.resources.PampaSimModuleBase;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
-import org.pampasim.resources.memory.MMU;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
@@ -36,42 +34,38 @@ import org.pampasim.resources.viewmodel.StatisticsViewModel;
 import java.math.BigInteger;
 
 public class MemoryModule extends PampaSimModuleBase {
+    private static final Logger LOGGER = LogManager.getLogger(MemoryModule.class);
     private MemoryManagement memSim = null;
     private MemoryTabViewModel memoryModuleVM = null;
     private MemoryStatisticsViewModel memoryStatisticsViewModel = null;
     private Tab memoryTab = null;
 
-    public MemoryModule() {
-        ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
-                .fxmlView(MemoryTabView.class)
-                .viewModel(memoryModuleVM)
-                .load();
-        Parent content = viewTuple.getView();
+    public MemoryModule() {}
 
-        FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
-        icon.setIconSize(14);
-
+    @Override
+    public void managedInitialize() {
         // Create the memory tab with a pop-out button in the header
         memoryTab = new Tab();
         HBox header = new HBox(5);
         header.setAlignment(Pos.CENTER_LEFT); // center vertically
         Label title = new Label("Memória");
+        FontIcon icon = new FontIcon(BootstrapIcons.BOX_ARROW_UP_RIGHT);
+        icon.setIconSize(14);
         Button popOutBtn = getPopoutButton(icon, memoryTab);
-
         header.getChildren().addAll(title, popOutBtn);
         memoryTab.setGraphic(header);
-        memoryTab.setContent(content);
         memoryTab.setClosable(false);
+    }
+
+    @Override
+    public boolean managedBind(Simulation sim) {
+        reinitializeMemoryManagement(sim);
+        return true;
     }
 
     @Override
     public Tab getModuleTab() {
         return memoryTab;
-    }
-
-    @Override
-    public PCBView.ModulePCBView getPCBViewExtension() {
-        return null;
     }
 
     @Override
@@ -132,11 +126,13 @@ public class MemoryModule extends PampaSimModuleBase {
 
     @Override
     public ViewModel getViewModel() {
+        assert(getModuleState() != ModuleState.UNINITIALIZED);
         return memoryModuleVM;
     }
 
     @Override
     public ModuleSimulation getSimulation() {
+        assert(getModuleState() != ModuleState.UNINITIALIZED);
         return memSim;
     }
 
@@ -160,9 +156,16 @@ public class MemoryModule extends PampaSimModuleBase {
         reinitializeMemoryManagement(this.getSimulation().getParent().getSimulation());
     }
 
+    /**
+     * Creates the actual simulation entity that'll compose part of the whole simulated environment
+     * and updates the relevant references for this object
+     * @param sim parent simulation
+     */
     private void reinitializeMemoryManagement(Simulation sim) {
+        LOGGER.trace("reinitializeMemoryManagement called");
         memSim = new MemoryManagement();
         memSim.bind(sim);
+
 
         memoryStatisticsViewModel = new MemoryStatisticsViewModel();
         memoryModuleVM = new MemoryTabViewModel(
@@ -174,6 +177,15 @@ public class MemoryModule extends PampaSimModuleBase {
 
         MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
         assert(simMemoryModule == memSim);
+
+        ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
+                .fxmlView(MemoryTabView.class)
+                .viewModel(memoryModuleVM)
+                .load();
+        Parent content = viewTuple.getView();
+
+        memoryTab.setContent(content);
+
 
         memoryModuleVM.refreshFrameList();
     }

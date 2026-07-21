@@ -17,10 +17,7 @@ import org.pampasim.core.dialog.DialogService;
 import org.pampasim.resources.view.CreateProcessDialogView;
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,11 +27,15 @@ public class CreateProcessDialogService implements DialogService<CreateProcessRe
     private static final Logger LOGGER = LogManager.getLogger(CreateProcessDialogService.class);
     private int memoryPageSize = 0;
 
+    public CreateProcessDialogService() {
+        moduleInfo = new HashMap<>();
+    }
+
     public record ModuleTuple(
             Function<ViewTuple<CreateProcessDialogView,CreateProcessDialogViewModel>, Parent> initializer,
             Function<ViewModel, Object> generator) {};
 
-    public Map<Class<?>, ModuleTuple> moduleInfo = Map.of();
+    public Map<Class<?>, ModuleTuple> moduleInfo;
 
     @Override
     public Optional<CreateProcessRecord> showDialog(Object ... args) {

@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
-import org.pampasim.core.SimulationBase;
+import org.pampasim.core.Simulation;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 import org.pampasim.entity.Processor;
 import org.pampasim.resources.Process;
@@ -29,7 +29,7 @@ public class SimulationStatisticsViewModel implements StatisticsViewModel {
 
     private final ObservableList<StatisticsViewModel> moduleStatisticsViewModels = FXCollections.observableArrayList();
 
-    public void updateStatistics(SimulationBase simulation, List<ProcessViewModel> processes) {
+    public void updateStatistics(Simulation simulation, List<ProcessViewModel> processes) {
         elapsedTicks.set(simulation.getRealClock().get());
         totalProcessesCreated.set(processes.size());
 

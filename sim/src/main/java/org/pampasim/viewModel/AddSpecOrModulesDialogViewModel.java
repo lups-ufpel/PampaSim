@@ -6,6 +6,7 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.pampasim.memory.MemoryModule;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public class AddSpecOrModulesDialogViewModel implements ViewModel {
 
     public Optional<AddModulesRecord> getSelectedModulesOpt(){
       if(memoryModuleEnabled.get()){
-          AddModulesRecord userSelection = new AddModulesRecord(List.of("memory"));
+          AddModulesRecord userSelection = new AddModulesRecord(List.of(MemoryModule.class.getCanonicalName()));
             return Optional.of(userSelection);
       }
 

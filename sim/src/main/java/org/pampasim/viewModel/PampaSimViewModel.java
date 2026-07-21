@@ -29,7 +29,6 @@ import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.dialog.*;
 import org.pampasim.resources.ModuleSimulation;
-import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.*;
 import org.pampasim.resources.dialog.*;
 
@@ -103,7 +102,7 @@ public class PampaSimViewModel implements ViewModel {
                     this::handleProcessEvent);
 
             try {
-                reinitializeModules(spec);
+                setupModules(spec, sim);
             } catch (ModuleSimulation.ConfigError e) {
                 throw new RuntimeException(e);
             }
@@ -122,7 +121,7 @@ public class PampaSimViewModel implements ViewModel {
                     if (simulationStatisticsViewModel.getModuleStatisticsViewModel(moduleStats.getClass()) == null) {
                         simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStats);
                     }
-                    moduleStats.updateStatistics(sim, allProcesses);
+                    moduleStats.updateStatistics(module.getSimulation(), allProcesses);
                 }
             }
 
@@ -164,7 +163,7 @@ public class PampaSimViewModel implements ViewModel {
         });
     }
 
-    private void reinitializeModules(Spec spec) throws ModuleSimulation.ConfigError {
+    private void setupModules(Spec spec, Simulation sim) throws ModuleSimulation.ConfigError {
         for (var moduleClassName : spec.getInnerSpec().getExtraModules().getModule()) {
             var freshlyLoaded = loadModule(moduleClassName);
             var module = getLoadedModuleByName(moduleClassName);
@@ -172,8 +171,10 @@ public class PampaSimViewModel implements ViewModel {
 
             if (!freshlyLoaded) {
                 LOGGER.debug("kept module {}", moduleClass);
+            } else {
+                module.invalidateBinding();
             }
-
+            module.bind(sim);
             var moduleConfigClass = module.getSimulation().configClass();
             if (moduleConfigClass != null) {
                 LOGGER.debug("configuring module {}", moduleClass);
@@ -186,6 +187,9 @@ public class PampaSimViewModel implements ViewModel {
                         ).findAny();
                 if (configElemOpt.isPresent()) {
                     module.getSimulation().applyConfig(configElemOpt.get().getAny());
+                } else {
+                    //throw new ModuleSimulation.ConfigError("missing element! " + moduleConfigClass.getCanonicalName());
+                    LOGGER.debug("module " + moduleClassName + " missing explicit config, using default");
                 }
             }
         }
@@ -277,7 +281,7 @@ public class PampaSimViewModel implements ViewModel {
         var moduleList = spec.getInnerSpec().getExtraModules().getModule();
         moduleList.clear();
         moduleList.addAll(userSelection.modules());
-        reinitializeModules(spec);
+        simulatedScenario.resetToSpec();
     }
 
     public void startSimulation() {
@@ -601,6 +605,9 @@ public class PampaSimViewModel implements ViewModel {
                     .loadClass(moduleClassName);
             var cons = moduleClass.getConstructor();
             module = cons.newInstance();
+            module.setProcessToProcessVMMap(pvmMap);
+            module.setProcessVMObservableList(allProcesses);
+            module.initialize();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Couldn't load module " + moduleClassName, e);
         } catch (ClassCastException e) {

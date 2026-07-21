@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.EntityConfig;
 import org.pampasim.ObjectFactory;
+import org.pampasim.PampaSimModule;
 import org.pampasim.events.ProcessCreationDataPayload;
 import org.pampasim.VersionInfo;
 import org.pampasim.core.EventSchedule;
@@ -437,42 +438,21 @@ public class Spec {
         }
     }
 
-
     public List<String> listAvailableModules() {
-        List<String> modules = new ArrayList<>();
+        try (ScanResult scanResult = new ClassGraph()
+                .enableClassInfo()
+                .ignoreClassVisibility()
+                .scan()
+        ) {
+            ClassInfoList schedulerClasses =
+                    scanResult.getSubclasses(PampaSimModule.class.getName())
+                            .filter(ClassInfo::isStandardClass)
+                            .filter(ci -> !ci.isAbstract());
 
-        Set<String> excludedModules = Set.of(
-                "core", "tools", "sim-datamodel", "events", "sim"
-        );
-
-        // we can't read arbitrary files from inside the uber-jar
-        // FIXME: now we can use the same class discovery trick used for finding scheduler
-        // algorithms for module discovery, just search the classpath for PampaSimModule impls
-        if (false) {
-            try {
-                File pomFile = new File("../pom.xml");
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document doc = builder.parse(pomFile);
-                doc.getDocumentElement().normalize();
-
-                NodeList moduleNodes = doc.getElementsByTagName("module");
-                for (int i = 0; i < moduleNodes.getLength(); i++) {
-                    Node node = moduleNodes.item(i);
-                    String moduleName = node.getTextContent().trim();
-                    if (!moduleName.isEmpty() && !excludedModules.contains(moduleName)) {
-                        modules.add(moduleName);
-                    }
-                }
-
-                Collections.sort(modules);
-                return modules;
-            } catch (Exception e) {
-                throw new RuntimeException("Error parsing pom.xml to list modules", e);
-            }
-        } else {
-                // so we do the dumb, brittle way for now (tm)
-            return List.of("memory");
+            return schedulerClasses.stream()
+                    .map(ClassInfo::getName)
+                    .sorted()
+                    .collect(Collectors.toList());
         }
     }
 

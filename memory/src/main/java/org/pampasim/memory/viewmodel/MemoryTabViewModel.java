@@ -60,8 +60,7 @@ public class MemoryTabViewModel implements ViewModel {
             ObservableList<ProcessViewModel> observableProcessList,
             MemoryStatisticsViewModel memoryStatisticsViewModel) {
 
-        this.memoryManagement = memoryManagement;
-        this.pvmMap = pvmMap;
+        setMemoryManagement(memoryManagement, pvmMap);
         this.observableProcessList = observableProcessList;
         this.memoryStatisticsViewModel = memoryStatisticsViewModel;
 

@@ -2,6 +2,8 @@ package org.pampasim.memory;
 
 import lombok.Getter;
 import lombok.NonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.core.SimulationBase;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
@@ -27,7 +29,7 @@ import java.util.IdentityHashMap;
 
 @Getter
 public class MemoryManagement extends ModuleSimulationBase {
-
+    private static final Logger LOGGER = LogManager.getLogger(MemoryManagement.class);
     @Getter private static final IdentityHashMap<Process, ProcessMemoryInfo> processMemoryInfos = new IdentityHashMap<>();
     @Getter private static final HashMap<Process.CreationData, MemoryProcessCreationData> pendingMemoryInfoBindings = new HashMap<>();
 

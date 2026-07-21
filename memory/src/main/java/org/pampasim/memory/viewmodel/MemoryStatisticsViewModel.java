@@ -2,7 +2,7 @@ package org.pampasim.memory.viewmodel;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import org.pampasim.core.SimulationBase;
+import org.pampasim.core.Simulation;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.entity.PhysicalMemory;
@@ -27,7 +27,7 @@ public class MemoryStatisticsViewModel implements StatisticsViewModel {
     public final SimpleDoubleProperty totalPageFaultPercentage = new SimpleDoubleProperty();
     public final SimpleDoubleProperty averageIoWaitingTicks = new SimpleDoubleProperty();
 
-    public void updateStatistics(SimulationBase simulation, List<ProcessViewModel> allProcesses) {
+    public void updateStatistics(Simulation simulation, List<ProcessViewModel> allProcesses) {
         MemoryManagement memoryManagement = (MemoryManagement) simulation;
         PhysicalMemory physicalMemory = memoryManagement.getEntity(PhysicalMemory.class);
 
