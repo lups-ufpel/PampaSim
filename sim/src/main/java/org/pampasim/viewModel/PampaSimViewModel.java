@@ -205,6 +205,7 @@ public class PampaSimViewModel implements ViewModel {
 
             LOGGER.info("loaded {}", path);
             simulatedScenario.setSpec(spec);
+            simulatedScenario.setSpecPath(path);
             simulatedScenario.setSaved(true); // we just loaded from a file
             syncWithSpec();
             updateProps();
@@ -640,5 +641,8 @@ public class PampaSimViewModel implements ViewModel {
                         entry.getKey().getCanonicalName().equals(moduleClassName)
                 ).findAny();
         return opt.map(Map.Entry::getValue).orElse(null);
+    }
+    public Path getCurrentSpecPath() {
+        return simulatedScenario.getSpecPath();
     }
 }

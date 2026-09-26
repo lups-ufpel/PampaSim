@@ -13,7 +13,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import javafx.scene.text.Font?>
 
-<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView" minWidth="200">
+<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView" prefWidth="780" prefHeight="540" minWidth="780" minHeight="540" style="-fx-font-size: 17px;">
   <content>
     <VBox spacing="10" alignment="CENTER">
 

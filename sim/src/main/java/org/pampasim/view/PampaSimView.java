@@ -46,6 +46,8 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 
+import java.nio.file.Path;
+
 public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimView.class);
     @InjectViewModel
@@ -176,10 +178,18 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     @FXML
     public void saveSpec() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save specification file");
-        File file = fileChooser.showSaveDialog(null);
-        pampaSimViewModel.saveSpec(Paths.get(file.getPath()));
+        Path currentPath = pampaSimViewModel.getCurrentSpecPath();
+        if (currentPath != null) {
+            pampaSimViewModel.saveSpec(currentPath);
+        } else {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save specification file");
+            File file = fileChooser.showSaveDialog(null);
+            if (file == null) {
+                return;
+            }
+            pampaSimViewModel.saveSpec(file.toPath());
+        }
         pampaSimViewModel.updateProps();
     }
 

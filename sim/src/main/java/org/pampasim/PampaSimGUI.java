@@ -2,6 +2,7 @@ package org.pampasim;
 
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
+import jakarta.annotation.Nonnull;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -21,6 +22,13 @@ import org.apache.logging.log4j.core.config.Configurator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.nio.file.Path;
+
 public class PampaSimGUI extends Application {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimGUI.class);
     private BorderPane mainFrame;
@@ -33,7 +41,7 @@ public class PampaSimGUI extends Application {
         org.pampasim.events.EventManager.initialize();
         PampaSimViewModel viewModel = this.initializeMainFrame();
         if (openSetupScreens(viewModel)) {
-            this.configureStage(stage);
+            this.configureStage(stage, viewModel);
         }
     }
 
@@ -66,7 +74,7 @@ public class PampaSimGUI extends Application {
     }
 
     // LLM generated
-    private void showExceptionDialog(Exception ex) {
+    private void showExceptionDialog(@Nonnull Exception ex) {
         // 1. Create a standard Error Alert
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Exception Caught");
@@ -103,9 +111,53 @@ public class PampaSimGUI extends Application {
         alert.showAndWait();
     }
 
-    private void configureStage(Stage stage) {
+    private void configureStage(Stage stage, PampaSimViewModel viewModel) {
         stage.setTitle("PampaSim");
         stage.setScene(new Scene(mainFrame, 1000, 700));
+
+        stage.setOnCloseRequest(event -> {
+
+            if (viewModel.getScenarioIsSaved().get()) {
+                return;
+            }
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.initOwner(stage);
+            alert.setTitle("Sair");
+            alert.setHeaderText("Salvar antes de sair?");
+            alert.setContentText("Existem alterações que ainda não foram salvas.");
+            ButtonType yesButton = new ButtonType("Sim", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("Não", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(yesButton,noButton);
+            var result = alert.showAndWait();
+
+            if (result.isEmpty()) {
+                event.consume();
+                return;
+            }
+
+            if (result.get() == yesButton) {
+                Path path = viewModel.getCurrentSpecPath();
+                if (path != null) {
+                    viewModel.saveSpec(path);
+                } else {
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Salvar arquivo de especificação");
+                    File file = fileChooser.showSaveDialog(stage);
+                    if (file == null) {
+                        event.consume();
+                        return;
+                    }
+                    viewModel.saveSpec(file.toPath());
+                }
+                return;
+            }
+
+            if (result.get() == noButton) {
+                return;
+            }
+        });
+
         stage.show();
     }
 }

@@ -13,6 +13,8 @@ import java.util.function.Function;
 
 @Getter
 public class SimulatedScenario {
+    @Setter
+    private Path specPath;
     private ObjectProperty<Simulation> simulation;
     @Setter
     private Function<Spec, Simulation> simulationFactory;
@@ -35,6 +37,8 @@ public class SimulatedScenario {
 
     public void saveSpec(Path path) {
         this.spec.saveSpec(path);
+        this.specPath = path;
         this.saved = true;
     }
+
 }
