@@ -47,3 +47,7 @@ build/
 ### SVG graph clutter ###
 graph*.svg
 graph*.dot
+
+### Ignore Obsidian workspace and layout caches
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
