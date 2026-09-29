@@ -22,8 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class MemoryTabViewModel implements ViewModel {
-    private static final Logger LOGGER = LogManager.getLogger(MemoryTabViewModel.class);
+public class MemoryModuleViewModel implements ViewModel {
+    private static final Logger LOGGER = LogManager.getLogger(MemoryModuleViewModel.class);
 
     //private IdentityHashMap<Process, Color> colorMap;
     private MemoryManagement memoryManagement;
@@ -54,7 +54,7 @@ public class MemoryTabViewModel implements ViewModel {
 
     private boolean resetInfo;
 
-    public MemoryTabViewModel(
+    public MemoryModuleViewModel(
             MemoryManagement memoryManagement,
             Map<Process, ProcessViewModel> pvmMap,
             ObservableList<ProcessViewModel> observableProcessList,

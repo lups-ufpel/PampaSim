@@ -5,6 +5,8 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 import jakarta.xml.bind.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -60,6 +62,11 @@ public class Spec {
 
     private EventSchedule eventSchedule;
     private IdentityHashMap<Event, Color> arrivalColorMap;
+    @Getter
+    private static IdentityHashMap<Class<?>, Class<?>> payloadToModuleMap;
+    @Getter
+    private final ObservableMap<Class<? extends PampaSimModule>, PampaSimModule> loadedModules
+            = FXCollections.observableMap(new IdentityHashMap<>());
 
     private static JAXBContext jaxbContext = null;
     private static Schema specSchema = null;
@@ -69,6 +76,7 @@ public class Spec {
     public Spec() {
         this.eventSchedule = new EventSchedule();
         this.arrivalColorMap = new IdentityHashMap<>();
+        this.payloadToModuleMap = new IdentityHashMap<>();
         this.innerSpec = new org.pampasim.Spec();
     }
 
@@ -134,6 +142,12 @@ public class Spec {
         return (specSchema == null)? initSpecSchema() : specSchema;
     }
 
+    /**
+     * Loads a simulation specification from the 
+     * @param stream
+     * @param versionOverride
+     * @return
+     */
     public static Spec loadSpec(InputStream stream, boolean versionOverride) {
         Spec spec = new Spec();
         try {
@@ -207,22 +221,27 @@ public class Spec {
                     if (classMatch.isEmpty() && !bodge) {
                         LOGGER.error("payload {} doesn't match event {}, which has payloads {}", o, e, possiblePayloads);
                         throw new RuntimeException("Error loading spec file");
-                    } else if (classMatch.isPresent()) {
+                    } else {
                         LOGGER.trace("got any object {}", o);
-                        var payloadClass = classMatch.get();
+                        Class<?> payloadClass;
                         ProcessCreationDataPayload pcdp = null; // bodge
                         Map<Class<?>, Object> moduleCreationData = new HashMap<>();
                         if (bodge) {
                             payloadClass = Process.CreationData.class;
-                            var modulePayloads = payloads.stream().filter(p -> !(p.getClass() == ProcessCreationDataPayload.class));
+                            var modulePayloads = payloads
+                                    .stream()
+                                    .filter(p -> !(p.getClass() == ProcessCreationDataPayload.class))
+                                    .toList();
 
-                            // hardcoded associations for now
-                            modulePayloads.forEach(payload -> {
-                                if (payload.getClass() == MemoryProcessCreationData.class) {
-                                    Class<?> clazz = MemoryManagement.class;
-                                    moduleCreationData.put(clazz, payload);
+                            for (var encapsulatedPayload : modulePayloads) {
+                                var associatedModule = Spec.getPayloadToModuleMap().get(encapsulatedPayload.getClass());
+                                if (associatedModule != null) {
+                                    moduleCreationData.put(associatedModule, encapsulatedPayload);
+                                } else {
+                                    LOGGER.trace("ignoring unassociated payload {}, {}",
+                                        encapsulatedPayload.getClass(), encapsulatedPayload);
                                 }
-                            });
+                            }
 
                             pcdp = (ProcessCreationDataPayload) o;
                             var tec = Optional.ofNullable(tickEventCounts.get(curTick)).orElse(0);
@@ -232,6 +251,8 @@ public class Spec {
                                     pcdp.getStartPriority().intValue(),
                                     tec,
                                     moduleCreationData);
+                        } else {
+                            payloadClass = classMatch.get();
                         }
                         try {
                             var constructor = eventClass.getConstructor(SimEntity.class, payloadClass);
@@ -240,6 +261,7 @@ public class Spec {
                             tickEventCounts.set(curTick, tickEventCounts.get(curTick) + 1);
                             if (bodge) {
                                 spec.getArrivalColorMap().put((Event)eventInstance, Color.web(pcdp.getDisplayColor()));
+                                break; // don't treat the other payloads like usual
                             }
                         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                                  InvocationTargetException ex) {

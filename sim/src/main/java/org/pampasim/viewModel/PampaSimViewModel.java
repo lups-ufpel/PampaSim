@@ -88,26 +88,23 @@ public class PampaSimViewModel implements ViewModel {
     private final ObservableList<ProcessViewModel> allProcesses = FXCollections.observableArrayList();
     @Getter
     private final IdentityHashMap<Process, ProcessViewModel> pvmMap = new IdentityHashMap<>();
-    @Getter
-    private final ObservableMap<Class<? extends PampaSimModule>, PampaSimModule> loadedModules
-            = FXCollections.observableMap(new IdentityHashMap<>());
 
     public PampaSimViewModel() {
         var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
         var templateSpec = Spec.loadSpec(templateSpecStream, true);
-        simulatedScenario = new SimulatedScenario(templateSpec, spec -> {
-            var sim = PampaSim.fromSpec(spec);
+        simulatedScenario = new SimulatedScenario(templateSpec, simulatedScenario -> {
+            var sim = PampaSim.fromSpec(simulatedScenario.getSpec());
             var eventManager = sim.getEventManager();
             eventManager.addSnooper(org.pampasim.events.ProcessEvent.class,
                     this::handleProcessEvent);
 
             try {
-                setupModules(spec, sim);
+                simulatedScenario.setupModules(sim);
             } catch (ModuleSimulation.ConfigError e) {
                 throw new RuntimeException(e);
             }
 
-            for (var entry : loadedModules.entrySet()) {
+            for (var entry : simulatedScenario.getSpec().getLoadedModules().entrySet()) {
                 var module = entry.getValue();
 
                 // module event snooper
@@ -125,7 +122,7 @@ public class PampaSimViewModel implements ViewModel {
                 }
             }
 
-            for (var tick : spec.getEventSchedule().values()) {
+            for (var tick : simulatedScenario.getSpec().getEventSchedule().values()) {
                 for (var event : tick) {
                     if (Objects.requireNonNull(event) instanceof ProcessCreationDataEvent e) {
                         var creationData = e.getCreationData();
@@ -135,7 +132,7 @@ public class PampaSimViewModel implements ViewModel {
                                 this::openEditProcessDialog,
                                 this::deleteProcess
                         );
-                        vm.getColorProperty().set(spec.getArrivalColorMap().get(event));
+                        vm.getColorProperty().set(simulatedScenario.getSpec().getArrivalColorMap().get(event));
                         vm.setState(Process.State.NEW);
                         vm.getArrivalTick().set(creationData.arrivalTick());
                         vm.getBurst().set(creationData.durationTicks());
@@ -145,7 +142,7 @@ public class PampaSimViewModel implements ViewModel {
                         for (var entry : creationData.moduleCreationData().entrySet()) {
                             var moduleClass = entry.getKey();
                             var config = entry.getValue();
-                            var module = loadedModules.get(moduleClass);
+                            var module = simulatedScenario.getSpec().getLoadedModules().get(moduleClass);
                             if (module != null) {
                                 module.annexModuleInfoVM(vm, config);
                             } else {
@@ -160,40 +157,25 @@ public class PampaSimViewModel implements ViewModel {
             simulationStatisticsViewModel.updateStatistics(sim, allProcesses);
 
             return sim;
-        });
+        },
+                module -> {
+                    // preInit
+                    module.setProcessToProcessVMMap(pvmMap);
+                    module.setProcessVMObservableList(allProcesses);
+                },
+                module -> {
+                    // postInit
+                    var moduleStatsVM = module.getStatisticsViewModel();
+                    if (moduleStatsVM != null) {
+                        simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStatsVM);
+                    }
+                    var cProcDiagServModuleInfo = module.getCreateProcessDialogServiceModuleTuple();
+                    if (cProcDiagServModuleInfo != null) {
+                        createProcessDialogService.getModuleInfo().put(module.getClass(), cProcDiagServModuleInfo);
+                    }
+                });
     }
 
-    private void setupModules(Spec spec, Simulation sim) throws ModuleSimulation.ConfigError {
-        for (var moduleClassName : spec.getInnerSpec().getExtraModules().getModule()) {
-            var freshlyLoaded = loadModule(moduleClassName);
-            var module = getLoadedModuleByName(moduleClassName);
-            var moduleClass = module.getClass();
-
-            if (!freshlyLoaded) {
-                LOGGER.debug("kept module {}", moduleClass);
-            } else {
-                module.invalidateBinding();
-            }
-            module.bind(sim);
-            var moduleConfigClass = module.getSimulation().configClass();
-            if (moduleConfigClass != null) {
-                LOGGER.debug("configuring module {}", moduleClass);
-                var configElemOpt = spec.getInnerSpec()
-                        .getEntities()
-                        .getEntity()
-                        .stream()
-                        .filter(entityConfig ->
-                            entityConfig.getFullyQualifiedClassName().equals(moduleConfigClass.getCanonicalName())
-                        ).findAny();
-                if (configElemOpt.isPresent()) {
-                    module.getSimulation().applyConfig(configElemOpt.get().getAny());
-                } else {
-                    //throw new ModuleSimulation.ConfigError("missing element! " + moduleConfigClass.getCanonicalName());
-                    LOGGER.debug("module " + moduleClassName + " missing explicit config, using default");
-                }
-            }
-        }
-    }
 
     public void loadSpec(Path path) {
         try {
@@ -296,6 +278,7 @@ public class PampaSimViewModel implements ViewModel {
         allProcesses.clear();
         this.asciiReportClock = 0;
         this.ganttData.clear();
+
         simulatedScenario.resetToSpec();
         updateProps();
     }
@@ -490,7 +473,8 @@ public class PampaSimViewModel implements ViewModel {
 
         final boolean[] closedWithoutApply = {false};
 
-        var memoryModuleLoaded = loadedModules.containsKey(MemoryModule.class);
+        // TODO/FIXME: hardcoded memory module handling
+        var memoryModuleLoaded = simulatedScenario.getSpec().getLoadedModules().containsKey(MemoryModule.class);
         settingsDialogService.setMemoryModulePresent(memoryModuleLoaded);
 
         Optional<SchedulerSelectionRecord> result;
@@ -587,62 +571,11 @@ public class PampaSimViewModel implements ViewModel {
         result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
     }
 
-    /**
-     * @param moduleClassName fully qualified class path for the module to load
-     * @return whether the class was loaded (true) or the operation no-oped (false)
-     */
-    public boolean loadModule(String moduleClassName) {
-
-        var alreadyLoaded = getLoadedModuleByName(moduleClassName);
-        if (alreadyLoaded != null) {
-            return false;
-        }
-
-        Class<? extends PampaSimModule> moduleClass = null;
-        PampaSimModule module = null;
-        try {
-            moduleClass = (Class<? extends PampaSimModule>) Thread.currentThread()
-                    .getContextClassLoader()
-                    .loadClass(moduleClassName);
-            var cons = moduleClass.getConstructor();
-            module = cons.newInstance();
-            module.setProcessToProcessVMMap(pvmMap);
-            module.setProcessVMObservableList(allProcesses);
-            module.initialize();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Couldn't load module " + moduleClassName, e);
-        } catch (ClassCastException e) {
-            throw new RuntimeException("Class " + moduleClassName + " is not a module", e);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-
-        loadedModules.put(moduleClass, module);
-
-        var moduleStatsVM = module.getStatisticsViewModel();
-        if (moduleStatsVM != null) {
-            simulationStatisticsViewModel.addModuleStatisticsViewModel(moduleStatsVM);
-        }
-
-        var cProcDiagServModuleInfo = module.getCreateProcessDialogServiceModuleTuple();
-        if (cProcDiagServModuleInfo != null) {
-            createProcessDialogService.getModuleInfo().put(moduleClass, cProcDiagServModuleInfo);
-        }
-        return true;
-    }
-
-    /**
-     * @param moduleClassName fully qualified class name of the target module
-     * @return the module instance if loaded, null otherwise
-     */
-    public PampaSimModule getLoadedModuleByName(String moduleClassName) {
-        var opt = loadedModules.entrySet().stream()
-                .filter(entry ->
-                        entry.getKey().getCanonicalName().equals(moduleClassName)
-                ).findAny();
-        return opt.map(Map.Entry::getValue).orElse(null);
-    }
     public Path getCurrentSpecPath() {
         return simulatedScenario.getSpecPath();
+    }
+
+    public ObservableMap<Class<? extends PampaSimModule>, PampaSimModule> getLoadedModules() {
+        return simulatedScenario.getLoadedModules();
     }
 }

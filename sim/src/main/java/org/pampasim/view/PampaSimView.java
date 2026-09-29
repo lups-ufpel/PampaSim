@@ -224,8 +224,11 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public void initialize(URL location, ResourceBundle resources) {
         PCBView.registerModuleView(new PCBView.ModuleView(org.pampasim.view.pcb.Basics.class));
 
-        var loadedModulesObservableMap = pampaSimViewModel.getLoadedModules();
-        loadedModulesObservableMap.addListener(new MapChangeListener<Class<? extends PampaSimModule>, PampaSimModule>() {
+        var loadedModulesOM = pampaSimViewModel.getLoadedModules();
+        loadedModulesOM.forEach((moduleClass,module) -> {
+            onLoadModule(module);
+        });
+        loadedModulesOM.addListener(new MapChangeListener<Class<? extends PampaSimModule>, PampaSimModule>() {
             @Override
             public void onChanged(Change<? extends Class<? extends PampaSimModule>, ? extends PampaSimModule> change) {
                 if (change.wasAdded()) {

@@ -22,10 +22,12 @@ import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.ModuleSimulationBase;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
+import org.pampasim.resources.memory.ObjectFactory;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 
 @Getter
 public class MemoryManagement extends ModuleSimulationBase {
@@ -121,6 +123,26 @@ public class MemoryManagement extends ModuleSimulationBase {
                 (int)xmlConf.getTlbEntries()
         );
         // no need to invalidate
+    }
+
+    @Override
+    public Object saveConfig() {
+        var objFact = new ObjectFactory();
+        var conf = objFact.createMMU();
+        conf.setSwapOperationLength(MemoryConfig.getSwapOperationLength());
+        conf.setWorkingSetWindow(MemoryConfig.getWorkingSetWindow());
+        conf.setPageSubstitutionAlgorithm(MemoryConfig.getPageSubstitutionAlgorithm());
+        conf.setGlobalPageSubstitution(MemoryConfig.isGlobalPageSubstitution());
+        conf.setAnticipatedPageLoading(MemoryConfig.isAnticipatedPageLoading());
+        conf.setPrePagingRange(MemoryConfig.getPrePagingRange());
+        conf.setVariablePageAllocation(MemoryConfig.isVariablePageAllocation());
+        conf.getVariablePageAllocationThresholds()
+                .addAll(List.of(
+                        MemoryConfig.getVariablePageAllocationBottomThreshold(),
+                        MemoryConfig.getVariablePageAllocationTopThreshold()));
+        conf.setTlbEnabled(MemoryConfig.isTlbEnabled());
+        conf.setTlbEntries(MemoryConfig.getTlbEntries());
+        return conf;
     }
 
     @Override

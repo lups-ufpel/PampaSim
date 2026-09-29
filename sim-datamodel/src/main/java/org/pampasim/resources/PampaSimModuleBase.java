@@ -9,6 +9,7 @@ import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class PampaSimModuleBase implements PampaSimModule {
@@ -31,7 +32,7 @@ public abstract class PampaSimModuleBase implements PampaSimModule {
     public final void bind(Simulation sim) {
         assert(getModuleState() == ModuleState.UNBOUND
                 || getModuleState() == ModuleState.STALE_BINDING);
-        if (! managedBind(sim)) { moduleState = ModuleState.BOUND; }
+        if (managedBind(sim)) { moduleState = ModuleState.BOUND; }
     }
 
     /** abstracts away keeping the module state updated.
@@ -64,4 +65,7 @@ public abstract class PampaSimModuleBase implements PampaSimModule {
 
     @Override
     public CreateProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple() { return null; }
+
+    @Override
+    public List<Class<?>> getEventPayloadClasses() { return List.of(); }
 }

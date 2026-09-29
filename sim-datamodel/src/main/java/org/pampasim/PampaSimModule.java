@@ -13,6 +13,7 @@ import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,7 +73,18 @@ public interface PampaSimModule {
     ViewModel getViewModel();
     ModuleSimulation getSimulation();
 
+    /**
+     * Necessary evil to keep track of Process to ProcessViewModel associations non-intrusively wrt. Process data
+     * TODO: think about using Process factories and a specialization of Process to use Liskov Subst.?
+     * @param pvmMap the Process to ProcessViewModel map
+     */
     void setProcessToProcessVMMap(Map<Process, ProcessViewModel> pvmMap);
+
+    /**
+     * Necessary evil to keep track of all ProcessViewModels
+     * TODO: think about using Process factories and a specialization of Process to use Liskov Subst.?
+     * @param obProcList the Observable Process List
+     */
     void setProcessVMObservableList(ObservableList<ProcessViewModel> obProcList);
 
     /**
@@ -85,7 +97,9 @@ public interface PampaSimModule {
     Class<? extends SimEntity> rootSimEntityClass();
 
     /**
-     * Clear state and restart module, may be required after a `this.applyConfig` call
+     * Used to reverse-lookup the module when processing event payloads
+     * MUST be specified when the annexed module data mechanism is used
+     * @return the list of payload classes
      */
-    void invalidate();
+    List<Class<?>> getEventPayloadClasses();
 }

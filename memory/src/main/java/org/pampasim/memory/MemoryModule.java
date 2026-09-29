@@ -21,22 +21,22 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.memory.view.MemoryInfoView;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
-import org.pampasim.memory.viewmodel.MemoryTabViewModel;
+import org.pampasim.memory.viewmodel.MemoryModuleViewModel;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.PampaSimModuleBase;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
-import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class MemoryModule extends PampaSimModuleBase {
     private static final Logger LOGGER = LogManager.getLogger(MemoryModule.class);
     private MemoryManagement memSim = null;
-    private MemoryTabViewModel memoryModuleVM = null;
+    private MemoryModuleViewModel memoryModuleVM = null;
     private MemoryStatisticsViewModel memoryStatisticsViewModel = null;
     private Tab memoryTab = null;
 
@@ -147,13 +147,13 @@ public class MemoryModule extends PampaSimModuleBase {
     }
 
     @Override
-    public Class<? extends SimEntity> rootSimEntityClass() {
-        return memSim.getClass();
+    public List<Class<?>> getEventPayloadClasses() {
+        return List.of(MemoryProcessCreationData.class);
     }
 
     @Override
-    public void invalidate() {
-        reinitializeMemoryManagement(this.getSimulation().getParent().getSimulation());
+    public Class<? extends SimEntity> rootSimEntityClass() {
+        return memSim.getClass();
     }
 
     /**
@@ -168,7 +168,7 @@ public class MemoryModule extends PampaSimModuleBase {
 
 
         memoryStatisticsViewModel = new MemoryStatisticsViewModel();
-        memoryModuleVM = new MemoryTabViewModel(
+        memoryModuleVM = new MemoryModuleViewModel(
                 memSim,
                 pvmMap,
                 processVMObservableList,
@@ -178,15 +178,13 @@ public class MemoryModule extends PampaSimModuleBase {
         MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
         assert(simMemoryModule == memSim);
 
-        ViewTuple<MemoryTabView, MemoryTabViewModel> viewTuple = FluentViewLoader
+        ViewTuple<MemoryTabView, MemoryModuleViewModel> viewTuple = FluentViewLoader
                 .fxmlView(MemoryTabView.class)
                 .viewModel(memoryModuleVM)
                 .load();
         Parent content = viewTuple.getView();
 
         memoryTab.setContent(content);
-
-
         memoryModuleVM.refreshFrameList();
     }
 

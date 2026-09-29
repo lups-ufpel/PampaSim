@@ -42,7 +42,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
                         existingTab -> {
                             var existingContent = existingTab.getContent();
                             var additionalContent = t.getContent();
-                            var targetPane = (Pane) existingTab.getContent();
+                            var targetPane = (Pane) existingContent;
                             if (additionalContent instanceof Pane) {
                                 var childOList = ((Pane) additionalContent).getChildren();
                                 while(!childOList.isEmpty()) {

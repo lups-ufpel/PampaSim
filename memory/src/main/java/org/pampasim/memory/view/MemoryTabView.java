@@ -17,7 +17,7 @@ import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextFlow;
 import org.pampasim.memory.viewmodel.MemoryFrameViewModel;
-import org.pampasim.memory.viewmodel.MemoryTabViewModel;
+import org.pampasim.memory.viewmodel.MemoryModuleViewModel;
 import org.pampasim.memory.viewmodel.MemoryInfoViewModel;
 import org.pampasim.resources.view.ProcessView;
 import org.pampasim.resources.Process;
@@ -27,7 +27,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializable {
+public class MemoryTabView implements FxmlView<MemoryModuleViewModel>, Initializable {
 
     @FXML public TilePane mainTilepane;
     @FXML public TilePane swapTilepane;
@@ -53,7 +53,7 @@ public class MemoryTabView implements FxmlView<MemoryTabViewModel>, Initializabl
 
 
     @InjectViewModel
-    private MemoryTabViewModel viewModel;
+    private MemoryModuleViewModel viewModel;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

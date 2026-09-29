@@ -10,10 +10,7 @@ import org.pampasim.resources.ProcessModuleInfo;
 import org.pampasim.resources.Process;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -45,8 +42,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
     private int pageFaults;
     private final Map<Integer, Integer> runtimeIoOperationSchedule = new HashMap<>();
     private final ArrayList<Integer> runtimeAddressAccessList = new ArrayList<>();
-    private final ArrayList<Boolean> runtimeModifyPage = new ArrayList<>();
-    private final ArrayList<Boolean> runtimeFileBackedPages = new ArrayList<>();
+    private final BitSet runtimeModifyPage;
+    private final BitSet runtimeFileBackedPage;
     private int ioWaitingTime;
 
     public enum IoOperationType {
@@ -72,15 +69,15 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
                         .map(BigInteger::intValue).toList());
         creationData.modifyPages.pageId.sort(Comparator.naturalOrder());
         creationData.fileBackedPages.pageId.sort(Comparator.naturalOrder());
+        runtimeModifyPage     = new BitSet((int) this.creationData.pageCount);
+        runtimeFileBackedPage = new BitSet((int) this.creationData.pageCount);
 
         for (long access : runtimeAddressAccessList) {
-            var page = access / MemoryConfig.getPageSize();
-            while (page >= runtimeModifyPage.size())      { runtimeModifyPage.add(false); }
-            while (page >= runtimeFileBackedPages.size()) { runtimeFileBackedPages.add(false); }
+            int page = (int) (access / MemoryConfig.getPageSize());
             var m = creationData.getModifyPages().pageId.contains(access);
-            this.runtimeModifyPage.add(m);
+            if (m) { this.runtimeModifyPage.set(page); }
             var f = creationData.getFileBackedPages().pageId.contains(access);
-            this.runtimeFileBackedPages.add(f);
+            if (f) { this.runtimeFileBackedPage.set(page); }
             LOGGER.trace("added page (modify {} f-backed {})", m, f);
         }
     }
@@ -152,11 +149,11 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         return Math.toIntExact(creationData.pageCount);
     }
 
-    public ArrayList<Boolean> getFileBackedPages() {
-        return this.runtimeFileBackedPages;
+    public BitSet getFileBackedPage() {
+        return this.runtimeFileBackedPage;
     }
 
-    public ArrayList<Boolean> getModifyPage() {
+    public BitSet getModifyPage() {
         return this.runtimeModifyPage;
     }
 

@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.pampasim.resources.Process;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +17,7 @@ public class ProcessPageTable {
     public ProcessPageTable(Process process) {
         processMemoryInfo = process.getModuleInfo(ProcessMemoryInfo.class);
         int processSize = processMemoryInfo.getSize();
-        ArrayList<Boolean> fileBackedFlags = processMemoryInfo.getFileBackedPages();
+        BitSet fileBackedFlags = processMemoryInfo.getFileBackedPage();
         this.entries = new ArrayList<>((int) processMemoryInfo.getCreationData().getPageCount());
         for (int i = 0; i < processSize; i++) {
             var fileBacked = fileBackedFlags.get(i);
