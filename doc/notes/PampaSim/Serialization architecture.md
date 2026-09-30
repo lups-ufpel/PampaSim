@@ -33,3 +33,9 @@ I'm migrating from the codehaus jaxb2-maven-plugin to the jvnet jaxb-maven-plugi
 [Specifying what to compile](https://github.com/highsource/jaxb-tools/wiki/Specifying-What-To-Compile) has a section regarding schemas as resources that can be baked into the final überjar, so I can maybe fix that pain point. See also [XML catalog files](https://www.mojohaus.org/xml-maven-plugin/examples/catalog.html).
 
 In the end i had to use episodic compiling with the jaxb plugin to make sure that there were no duplicate classes in the final jar.
+
+# Notes
+- namespace URLs must be unique, else the XML parser fails with missing element declaration errors
+- the `Spec` class synthesizes a different schema for the runtime parser, one that uses JAR-file URLs for the schema imports. This was done to keep the IDE working with relative path URLs while still having the JAR deployment work.
+- every time a new `.xsd` schema is defined, be sure to import it inside the `spec.xsd` master schema.
+- every schema must use the `elementFormDefault="qualified"` attribute, else the parser breaks real bad.

@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.EntityConfig;
+import org.pampasim.resources.EntityConfig;
 import org.pampasim.ObjectFactory;
 import org.pampasim.PampaSimModule;
 import org.pampasim.events.ProcessCreationDataPayload;
@@ -45,6 +45,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,9 +63,7 @@ public class Spec {
 
     private EventSchedule eventSchedule;
     private IdentityHashMap<Event, Color> arrivalColorMap;
-    @Getter
     private static IdentityHashMap<Class<?>, Class<?>> payloadToModuleMap;
-    @Getter
     private final ObservableMap<Class<? extends PampaSimModule>, PampaSimModule> loadedModules
             = FXCollections.observableMap(new IdentityHashMap<>());
 
@@ -106,7 +105,11 @@ public class Spec {
         for (var line : schemaSourceLines.toList()) {
             String out = line;
             if (rewriting) {
-                java.net.URL url = null;
+                if (rtrwEnd.test(line)) {
+                    rewriting = false;
+                    continue;
+                }
+                    java.net.URL url = null;
                 var matcher = importPat.matcher(line);
                 if (matcher.find()) {
                     var namedGroups = matcher.namedGroups();
@@ -119,22 +122,16 @@ public class Spec {
                 } else {
                     LOGGER.trace("non-import tag line ignored: {}", line);
                 }
-            }
-            if (!rewriting && rtrwBeg.test(line)) {
+            } else if (rtrwBeg.test(line)) {
                 rewriting = true;
                 continue;
             }
-            else if (rewriting && rtrwEnd.test(line)) {
-                rewriting = false;
-                continue;
-            }
-            schemaSourceAcc.append(out);
+            schemaSourceAcc.append(out); schemaSourceAcc.append("\n");
         }
-        LOGGER.trace("spec schema:\n{}", schemaSourceAcc.toString());
+        LOGGER.debug("spec schema:\n{}", schemaSourceAcc.toString());
         specSchema = schemaFactory.newSchema(
                 new StreamSource(
                         new ByteArrayInputStream(schemaSourceAcc.toString().getBytes(StandardCharsets.UTF_8))));
-
         return specSchema;
     }
 
@@ -143,12 +140,14 @@ public class Spec {
     }
 
     /**
-     * Loads a simulation specification from the 
+     * Loads a simulation specification from a data stream.
      * @param stream
      * @param versionOverride
      * @return
      */
-    public static Spec loadSpec(InputStream stream, boolean versionOverride) {
+    public static Spec loadSpec(
+            InputStream stream,
+            boolean versionOverride) {
         Spec spec = new Spec();
         try {
             JAXBContext ctx = getJaxbContext();
@@ -280,6 +279,10 @@ public class Spec {
         return loadSpec(stream, false);
     }
 
+    public static IdentityHashMap<Class<?>, Class<?>> getPayloadToModuleMap() {
+        return payloadToModuleMap;
+    }
+
     private void addOmittedElements() {
         var extraModules = this.innerSpec.getExtraModules();
         if (extraModules == null) {
@@ -289,6 +292,21 @@ public class Spec {
     }
 
     public void saveSpec(Path path) {
+        // prep module entities
+        // shadow our own object factory for the sim-datamodel one
+        var objFact = new org.pampasim.resources.ObjectFactory();
+        loadedModules.values().forEach(module -> {
+            var moduleSim = module.getSimulation();
+            var moduleConfig = moduleSim.configClass();
+            if (moduleConfig != null) {
+                var config = moduleSim.saveConfig();
+                var entityConfig = objFact.createEntityConfig();
+                entityConfig.setFullyQualifiedClassName(moduleConfig.getCanonicalName());
+                entityConfig.setAny(config);
+                this.innerSpec.getEntities().getEntity().add(entityConfig);
+            }
+        });
+
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
             PrintWriter printer = new PrintWriter(writer);
 
@@ -411,7 +429,8 @@ public class Spec {
                 Class<? extends Scheduler> schedulerClass = (Class<? extends Scheduler>) schedulerInfo.loadClass();
                 EntityConfig schedConfig = this.getSchedulerConfig();
                 schedConfig.setFullyQualifiedClassName(schedulerClass.getCanonicalName());
-                var objFact = new ObjectFactory();
+                // shadow our objFact for the sim-datamodel one
+                var objFact = new org.pampasim.resources.ObjectFactory();
                 if (respectsQuantum) {
                     schedConfig.setAny(
                             objFact.createQuantum(BigInteger.valueOf(quantum))

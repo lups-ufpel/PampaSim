@@ -5,9 +5,13 @@
         xmlns="http://pampasim.org/"
         xmlns:events="http://pampasim.org/events"
         xmlns:process="http://pampasim.org/events/process"
-        xsi:schemaLocation="http://pampasim.org/  /org/pampasim/spec.xsd
-                            http://pampasim.org/events/ /org/pampasim/events/event.xsd
-                            http://pampasim.org/events/process/ /org/pampasim/events/processCreationData.xsd">
+        xmlns:decls="http://pampasim.org/spec/decls"
+        xsi:schemaLocation=
+                "http://pampasim.org/  /org/pampasim/spec.xsd
+                 http://pampasim.org/events/ /org/pampasim/events/event.xsd
+                 http://pampasim.org/events/process/ /org/pampasim/events/processCreationData.xsd
+                 http://pampasim.org/spec/decls/ /org/pampasim/resources/specDecls.xsd"
+        >
     <version>
         <major>0</major>
         <minor>0</minor>
@@ -15,7 +19,7 @@
     </version>
     <entities>
         <entity>
-            <fullyQualifiedClassName>org.pampasim.entity.schedulers.FCFS</fullyQualifiedClassName>
+            <decls:fullyQualifiedClassName>org.pampasim.entity.schedulers.FCFS</decls:fullyQualifiedClassName>
         </entity>
     </entities>
     <stimuli>

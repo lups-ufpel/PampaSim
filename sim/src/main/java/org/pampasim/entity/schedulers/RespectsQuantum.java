@@ -34,7 +34,7 @@ public interface RespectsQuantum extends SpecEntity {
                         new Error("can't set quantum, existing data object is not quantum"));
             }
         }, () -> {
-            var objFact = new ObjectFactory();
+            var objFact = new org.pampasim.resources.ObjectFactory();
             this.getSpecData().setAny(objFact.createQuantum(BigInteger.valueOf(quantum)));
         });
     }

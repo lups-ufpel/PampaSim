@@ -7,6 +7,8 @@ import org.pampasim.*;
 import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.entity.AbstractSimEntity;
+import org.pampasim.resources.EntityConfig;
+import org.pampasim.resources.ObjectFactory;
 import org.pampasim.resources.Process;
 
 import java.util.Collection;

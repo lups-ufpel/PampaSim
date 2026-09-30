@@ -6,12 +6,15 @@
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:events="http://pampasim.org/events"
         xmlns:process="http://pampasim.org/events/process"
+        xmlns:decls="http://pampasim.org/spec/decls"
         elementFormDefault="qualified">
     <!-- these comments have semantic value! -->
     <!-- runtime rewrite begin -->
+    <xs:import namespace="http://pampasim.org/spec/decls" schemaLocation="../../../../../../sim-datamodel/src/main/resources/org/pampasim/resources/specDecls.xsd"/>
     <xs:import namespace="http://pampasim.org/events" schemaLocation="../../../../../../events/src/main/resources/org/pampasim/events/event.xsd"/>
     <xs:import namespace="http://pampasim.org/events/process" schemaLocation="../../../../../../events/src/main/resources/org/pampasim/events/processCreationData.xsd"/>
     <xs:import namespace="http://pampasim.org/events/memory" schemaLocation="../../../../../../memory/src/main/resources/org/pampasim/resources/memory/memoryProcessCreationData.xsd"/>
+    <xs:import namespace="http://pampasim.org/memory" schemaLocation="../../../../../../memory/src/main/resources/org/pampasim/resources/memory/MemoryManagement.xsd"/>
     <!-- runtime rewrite end -->
 
     <xs:element name="spec">
@@ -36,7 +39,7 @@
                 <xs:element name="entities">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="entity" minOccurs="0" maxOccurs="unbounded" type="entityConfig"/>
+                            <xs:element name="entity" minOccurs="0" maxOccurs="unbounded" type="decls:entityConfig"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -50,19 +53,5 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:complexType name="processorConfig">
-        <xs:attribute name="millionInstructionsPerSecond" default="100" type="xs:positiveInteger"/>
-        <xs:attribute name="coreCount" fixed="1" type="xs:positiveInteger"/> <!-- TODO: fixed for now, change when multicore -->
-    </xs:complexType>
-    <xs:complexType name="entityConfig">
-        <xs:sequence>
-            <xs:element name="fullyQualifiedClassName" type="xs:string"/>
-            <xs:any minOccurs="0"/> <!-- instance configuration -->
-        </xs:sequence>
-    </xs:complexType>
-    <xs:simpleType name="quantumDeclaration">
-        <xs:restriction base="xs:nonNegativeInteger"/>
-    </xs:simpleType>
 
-    <xs:element name="quantum" type="quantumDeclaration"/>
 </xs:schema>

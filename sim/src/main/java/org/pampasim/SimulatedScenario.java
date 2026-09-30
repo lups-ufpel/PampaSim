@@ -64,7 +64,7 @@ public class SimulatedScenario {
             LOGGER.info("spec module list doesn't match currently loaded modules list, reloading all modules!");
             getSpec().getLoadedModules().clear();
             for (var moduleFQCN : specModuleNames) {
-                loadModule(moduleFQCN, modulePreInitHook, modulePostInitHook);
+                loadModule(moduleFQCN);
             }
         }
         this.simulation.set(simulationFactory.apply(this));
@@ -80,7 +80,7 @@ public class SimulatedScenario {
             throws ModuleSimulation.ConfigError
     {
         for (var moduleClassName : spec.getInnerSpec().getExtraModules().getModule()) {
-            var freshlyLoaded = loadModule(moduleClassName, modulePreInitHook, modulePostInitHook);
+            var freshlyLoaded = loadModule(moduleClassName);
             var module = getLoadedModuleByName(moduleClassName);
             var moduleClass = module.getClass();
 
@@ -125,10 +125,7 @@ public class SimulatedScenario {
      * @param moduleClassName fully qualified class path for the module to load
      * @return whether the class was loaded (true) or the operation no-oped (false)
      */
-    public boolean loadModule(
-            String moduleClassName,
-            Consumer<PampaSimModule> preInitCb,
-            Consumer<PampaSimModule> posInitCb) {
+    public boolean loadModule(String moduleClassName) {
         var alreadyLoaded = getLoadedModuleByName(moduleClassName);
         if (alreadyLoaded != null) {
             return false;
@@ -142,9 +139,9 @@ public class SimulatedScenario {
                     .loadClass(moduleClassName);
             var cons = moduleClass.getConstructor();
             module = cons.newInstance();
-            preInitCb.accept(module);
+            this.modulePreInitHook.accept(module);
             module.initialize();
-            posInitCb.accept(module);
+            this.modulePostInitHook.accept(module);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Couldn't load module " + moduleClassName, e);
         } catch (ClassCastException e) {
@@ -152,9 +149,7 @@ public class SimulatedScenario {
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-
         getLoadedModules().put(moduleClass, module);
-
         return true;
     }
 
