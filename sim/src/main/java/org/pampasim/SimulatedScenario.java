@@ -2,7 +2,6 @@ package org.pampasim;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,13 +9,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.Simulation;
 import org.pampasim.dsl.spec.Spec;
+import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
-import org.pampasim.resources.Process;
-import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -77,8 +74,7 @@ public class SimulatedScenario {
     }
 
     public void setupModules(Simulation sim)
-            throws ModuleSimulation.ConfigError
-    {
+            throws ModuleSimulation.ConfigError, SpecEntityDataMismatch {
         for (var moduleClassName : spec.getInnerSpec().getExtraModules().getModule()) {
             var freshlyLoaded = loadModule(moduleClassName);
             var module = getLoadedModuleByName(moduleClassName);
@@ -99,9 +95,25 @@ public class SimulatedScenario {
                     LOGGER.trace("payload {} associated with module {}", payloadClass, moduleClass);
                 }
             }
-            module.bind(sim);
+            var moduleSim = sim.getEntity(module.getModuleSimulationClass());
+            if (moduleSim == null) {
+                //throw new RuntimeException("Module missing associated ModuleSimulation!");
+                LOGGER.debug("Module {} missing associated ModuleSimulation, instantiating simulation entity...", moduleClass);
+                var moduleSimConf = module.getDefaultSpecEntityConfig();
+                ModuleSimulation freshModuleSim;
+                try {
+                    freshModuleSim = module.getModuleSimulationClass().getDeclaredConstructor().newInstance();
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                         InvocationTargetException e) {
+                    // TODO/FIXME: handle this better
+                    throw new RuntimeException(e);
+                }
+                freshModuleSim.bind(sim);
+                module.bind(freshModuleSim);
+                moduleSim = freshModuleSim;
+            }
 
-            var moduleConfigClass = module.getSimulation().configClass();
+            var moduleConfigClass = module.getSimulation().getSpecConfigClass();
             if (moduleConfigClass != null) {
                 LOGGER.debug("configuring module {}", moduleClass);
                 var configElemOpt = spec.getInnerSpec()
@@ -112,7 +124,9 @@ public class SimulatedScenario {
                                 entityConfig.getFullyQualifiedClassName().equals(moduleConfigClass.getCanonicalName())
                         ).findAny();
                 if (configElemOpt.isPresent()) {
-                    module.getSimulation().applyConfig(configElemOpt.get().getAny());
+                    EntityConfig entityConfig = configElemOpt.get();
+                    module.getSimulation().applySpecEntityConfig(entityConfig);
+                    LOGGER.debug("module {} configured with {}", moduleClassName, entityConfig);
                 } else {
                     //throw new ModuleSimulation.ConfigError("missing element! " + moduleConfigClass.getCanonicalName());
                     LOGGER.debug("module {} missing explicit config, using default", moduleClassName);

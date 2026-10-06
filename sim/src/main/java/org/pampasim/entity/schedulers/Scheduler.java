@@ -102,11 +102,18 @@ public abstract class Scheduler extends AbstractSimEntity implements SpecEntity 
         processQueue.forEach(Process::forwardWaitingTime);
     }
 
-    public EntityConfig getSpecData() {
+    public Class<?> getSpecConfigClass() {
+        try {
+            return Thread.currentThread().getContextClassLoader().loadClass(this.config.getFullyQualifiedClassName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public EntityConfig generateSpecEntityConfig() {
         return this.config;
     }
 
-    public void applySpecData(EntityConfig entityConfig) throws SpecEntityDataMismatch {
+    public void applySpecEntityConfig(EntityConfig entityConfig) throws SpecEntityDataMismatch {
         var isMatch = entityConfig.getFullyQualifiedClassName()
                 .equals(this.getClass().getCanonicalName());
         if (!isMatch) throw new SpecEntityDataMismatch();

@@ -3,6 +3,7 @@ package org.pampasim.memory;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
+import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,6 +23,7 @@ import org.pampasim.memory.view.MemoryInfoView;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
 import org.pampasim.memory.viewmodel.MemoryModuleViewModel;
+import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.PampaSimModuleBase;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
@@ -58,8 +60,24 @@ public class MemoryModule extends PampaSimModuleBase {
     }
 
     @Override
-    public boolean managedBind(Simulation sim) {
-        reinitializeMemoryManagement(sim);
+    public boolean managedBind(ModuleSimulation sim) {
+        this.memSim = (MemoryManagement) sim;
+        memoryStatisticsViewModel = new MemoryStatisticsViewModel();
+        memoryModuleVM = new MemoryModuleViewModel(
+                memSim,
+                pvmMap,
+                processVMObservableList,
+                memoryStatisticsViewModel
+        );
+
+        ViewTuple<MemoryTabView, MemoryModuleViewModel> viewTuple = FluentViewLoader
+                .fxmlView(MemoryTabView.class)
+                .viewModel(memoryModuleVM)
+                .load();
+        Parent content = viewTuple.getView();
+
+        memoryTab.setContent(content);
+        memoryModuleVM.refreshFrameList();
         return true;
     }
 
@@ -152,40 +170,19 @@ public class MemoryModule extends PampaSimModuleBase {
     }
 
     @Override
-    public Class<? extends SimEntity> rootSimEntityClass() {
-        return memSim.getClass();
+    public Class<? extends ModuleSimulation> getModuleSimulationClass() {
+        return MemoryManagement.class;
     }
 
-    /**
-     * Creates the actual simulation entity that'll compose part of the whole simulated environment
-     * and updates the relevant references for this object
-     * @param sim parent simulation
-     */
-    private void reinitializeMemoryManagement(Simulation sim) {
-        LOGGER.trace("reinitializeMemoryManagement called");
-        memSim = new MemoryManagement();
-        memSim.bind(sim);
-
-
-        memoryStatisticsViewModel = new MemoryStatisticsViewModel();
-        memoryModuleVM = new MemoryModuleViewModel(
-                memSim,
-                pvmMap,
-                processVMObservableList,
-                memoryStatisticsViewModel
-        );
-
-        MemoryManagement simMemoryModule = sim.getEntity(MemoryManagement.class);
-        assert(simMemoryModule == memSim);
-
-        ViewTuple<MemoryTabView, MemoryModuleViewModel> viewTuple = FluentViewLoader
-                .fxmlView(MemoryTabView.class)
-                .viewModel(memoryModuleVM)
-                .load();
-        Parent content = viewTuple.getView();
-
-        memoryTab.setContent(content);
-        memoryModuleVM.refreshFrameList();
+    @Override
+    public EntityConfig getDefaultSpecEntityConfig() {
+        var resObjFact = new org.pampasim.resources.ObjectFactory();
+        var memObjFact = new org.pampasim.resources.memory.ObjectFactory();
+        var conf = memObjFact.createMMU();
+        var entityConf = resObjFact.createEntityConfig();
+        entityConf.setFullyQualifiedClassName(MemoryManagement.class.getCanonicalName());
+        entityConf.setAny(conf);
+        return entityConf;
     }
 
     private Button getPopoutButton(FontIcon icon, Tab memoryTab) {

@@ -1,11 +1,9 @@
 package org.pampasim;
 
-import jakarta.xml.bind.JAXBElement;
 import lombok.experimental.StandardException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.EventSchedule;
-import org.pampasim.core.Simulation;
 import org.pampasim.core.SimulationBase;
 import org.pampasim.core.entity.*;
 import org.pampasim.core.events.Event;
@@ -14,12 +12,9 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.resources.EntityConfig;
-import org.pampasim.resources.ProcessorCore;
-import org.pampasim.resources.view.PCBView;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,7 +106,7 @@ public class PampaSim extends SimulationBase {
             }
             if (SpecEntity.class.isAssignableFrom(entityTuple.clazz)) {
                 try {
-                    ((SpecEntity) instance).applySpecData(entityTuple.conf);
+                    ((SpecEntity) instance).applySpecEntityConfig(entityTuple.conf);
                 } catch (SpecEntityDataMismatch e) {
                     throw new EntityLoadException(e);
                 }

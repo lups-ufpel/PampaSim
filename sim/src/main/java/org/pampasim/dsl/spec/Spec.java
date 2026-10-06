@@ -293,17 +293,12 @@ public class Spec {
 
     public void saveSpec(Path path) {
         // prep module entities
-        // shadow our own object factory for the sim-datamodel one
-        var objFact = new org.pampasim.resources.ObjectFactory();
         loadedModules.values().forEach(module -> {
             var moduleSim = module.getSimulation();
-            var moduleConfig = moduleSim.configClass();
+            var moduleConfig = moduleSim.getSpecConfigClass();
             if (moduleConfig != null) {
-                var config = moduleSim.saveConfig();
-                var entityConfig = objFact.createEntityConfig();
-                entityConfig.setFullyQualifiedClassName(moduleConfig.getCanonicalName());
-                entityConfig.setAny(config);
-                this.innerSpec.getEntities().getEntity().add(entityConfig);
+                var config = moduleSim.generateSpecEntityConfig();
+                this.innerSpec.getEntities().getEntity().add(config);
             }
         });
 

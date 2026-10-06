@@ -100,7 +100,7 @@ public class PampaSimViewModel implements ViewModel {
 
             try {
                 simulatedScenario.setupModules(sim);
-            } catch (ModuleSimulation.ConfigError e) {
+            } catch (ModuleSimulation.ConfigError | SpecEntityDataMismatch e) {
                 throw new RuntimeException(e);
             }
 

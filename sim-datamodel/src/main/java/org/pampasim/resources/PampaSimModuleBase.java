@@ -29,7 +29,7 @@ public abstract class PampaSimModuleBase implements PampaSimModule {
      */
     public abstract void managedInitialize();
     @Override
-    public final void bind(Simulation sim) {
+    public final void bind(ModuleSimulation sim) {
         assert(getModuleState() == ModuleState.UNBOUND
                 || getModuleState() == ModuleState.STALE_BINDING);
         if (managedBind(sim)) { moduleState = ModuleState.BOUND; }
@@ -38,7 +38,7 @@ public abstract class PampaSimModuleBase implements PampaSimModule {
     /** abstracts away keeping the module state updated.
      * @return whether binding was successful
      */
-    public abstract boolean managedBind(Simulation sim);
+    public abstract boolean managedBind(ModuleSimulation sim);
 
     @Override
     public void invalidateBinding() {

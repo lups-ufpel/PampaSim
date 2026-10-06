@@ -6,21 +6,25 @@
     <xs:element name="MMU">
         <xs:complexType>
             <xs:all>
-                <xs:element name="swapOperationLength" type="xs:unsignedInt"/>
-                <xs:element name="workingSetWindow" type="xs:unsignedInt"/>
+                <xs:element name="pageSizeKb" type="xs:positiveInteger" default="1"/>
+                <xs:element name="maxPagesPerProcess" type="xs:positiveInteger" default="24"/>
+                <xs:element name="framesInRam" type="xs:positiveInteger" default="32"/>
+                <xs:element name="framesInSwap" type="xs:positiveInteger" default="64"/>
+                <xs:element name="swapOperationLength" type="xs:unsignedInt" default="3"/>
+                <xs:element name="workingSetWindow" type="xs:unsignedInt" default="10"/>
                 <!-- Name type is a stand-in for a proper java FQCN type -->
-                <xs:element name="pageSubstitutionAlgorithm" type="xs:Name"/>
-                <xs:element name="globalPageSubstitution" type="xs:boolean"/>
-                <xs:element name="anticipatedPageLoading" type="xs:boolean"/>
-                <xs:element name="prePagingRange" type="xs:unsignedInt"/>
+                <xs:element name="pageSubstitutionAlgorithm" type="xs:Name" default="FIFO"/>
+                <xs:element name="globalPageSubstitution" type="xs:boolean" default="true"/>
+                <xs:element name="anticipatedPageLoading" type="xs:boolean" default="true"/>
+                <xs:element name="prePagingRange" type="xs:unsignedInt" default="5"/>
                 <xs:element name="variablePageAllocation" type="xs:boolean" default="false"/>
-                <xs:element name="variablePageAllocationThresholds">
+                <xs:element name="variablePageAllocationThresholds" default="0.25 0.75">
                     <xs:simpleType>
                         <xs:list itemType="xs:double"/>
                     </xs:simpleType>
                 </xs:element>
                 <xs:element name="tlbEnabled" type="xs:boolean" default="false"/>
-                <xs:element name="tlbEntries" type="xs:unsignedInt"/>
+                <xs:element name="tlbEntries" type="xs:unsignedInt" default="16"/>
             </xs:all>
         </xs:complexType>
     </xs:element>

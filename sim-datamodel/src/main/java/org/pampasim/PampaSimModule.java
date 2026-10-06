@@ -3,8 +3,7 @@ package org.pampasim;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
-import org.pampasim.core.Simulation;
-import org.pampasim.core.entity.SimEntity;
+import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
@@ -28,7 +27,12 @@ public interface PampaSimModule {
      */
     enum ModuleState { INVALID, UNINITIALIZED, UNBOUND, BOUND, STALE_BINDING }
     void initialize();
-    void bind(Simulation sim);
+
+    /** Bind this module to its respective simulation entity provided by the spec
+     * Modules MUST NOT allocate their own ModuleSimulation instances
+     * @param sim
+     */
+    void bind(ModuleSimulation sim);
     void invalidateBinding();
     ModuleState getModuleState();
 
@@ -94,7 +98,12 @@ public interface PampaSimModule {
      * @param mvm module info view model to be annexed
      */
     void annexModuleInfoVM(ProcessViewModel pvm, Object mvm);
-    Class<? extends SimEntity> rootSimEntityClass();
+    Class<? extends ModuleSimulation> getModuleSimulationClass();
+
+    /** The configuration that should be used if explicit user configuration is missing,
+     * sane defaults preferably
+     */
+    EntityConfig getDefaultSpecEntityConfig();
 
     /**
      * Used to reverse-lookup the module when processing event payloads
