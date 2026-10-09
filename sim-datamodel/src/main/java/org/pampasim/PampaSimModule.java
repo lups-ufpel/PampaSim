@@ -69,7 +69,7 @@ public interface PampaSimModule {
      * PampaSim modules MAY annex module information to processes.
      * When that is the case, they MUST provide a way for the user to enter whatever
      * information is user-decided alongside the usual process forms.
-     * If no module information needs user input, this MAY be ommited.
+     * If no module information needs user input, this MAY be omitted.
      * @return null or the initializer-generator function pair for the process creation dialog service
      */
     CreateProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple();

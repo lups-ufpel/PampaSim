@@ -100,9 +100,11 @@ public class SimulatedScenario {
                 //throw new RuntimeException("Module missing associated ModuleSimulation!");
                 LOGGER.debug("Module {} missing associated ModuleSimulation, instantiating simulation entity...", moduleClass);
                 var moduleSimConf = module.getDefaultSpecEntityConfig();
+                LOGGER.debug("default config: {}", moduleSimConf.toString());
                 ModuleSimulation freshModuleSim;
                 try {
                     freshModuleSim = module.getModuleSimulationClass().getDeclaredConstructor().newInstance();
+                    freshModuleSim.applySpecEntityConfig(moduleSimConf);
                 } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                          InvocationTargetException e) {
                     // TODO/FIXME: handle this better
@@ -111,9 +113,11 @@ public class SimulatedScenario {
                 freshModuleSim.bind(sim);
                 module.bind(freshModuleSim);
                 moduleSim = freshModuleSim;
+            } else {
+                module.bind(moduleSim);
             }
-
-            var moduleConfigClass = module.getSimulation().getSpecConfigClass();
+            var moduleConfigSim = module.getSimulation();
+            var moduleConfigClass = moduleConfigSim.getSpecConfigClass();
             if (moduleConfigClass != null) {
                 LOGGER.debug("configuring module {}", moduleClass);
                 var configElemOpt = spec.getInnerSpec()
@@ -130,6 +134,7 @@ public class SimulatedScenario {
                 } else {
                     //throw new ModuleSimulation.ConfigError("missing element! " + moduleConfigClass.getCanonicalName());
                     LOGGER.debug("module {} missing explicit config, using default", moduleClassName);
+
                 }
             }
         }

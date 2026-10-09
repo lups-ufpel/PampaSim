@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<MMU
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://pampasim.org/memory"
+        xsi:schemaLocation="http://pampasim.org/memory memoryManagement.xsd">
+    <pageSizeKb>1</pageSizeKb>
+    <maxPagesPerProcess>24</maxPagesPerProcess>
+    <framesInRam>32</framesInRam>
+    <framesInSwap>64</framesInSwap>
+    <swapOperationLength>3</swapOperationLength>
+    <workingSetWindow>10</workingSetWindow>
+    <!-- Name type is a stand-in for a proper java FQCN type -->
+    <pageSubstitutionAlgorithm>FIFO</pageSubstitutionAlgorithm>
+    <globalPageSubstitution>true</globalPageSubstitution>
+    <anticipatedPageLoading>true</anticipatedPageLoading>
+    <prePagingRange>5</prePagingRange>
+    <variablePageAllocation>false</variablePageAllocation>
+    <variablePageAllocationThresholds>0.25 0.75</variablePageAllocationThresholds>
+    <tlbEnabled>false</tlbEnabled>
+    <tlbEntries>16</tlbEntries>
+</MMU>

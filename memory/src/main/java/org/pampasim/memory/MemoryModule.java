@@ -3,6 +3,8 @@ package org.pampasim.memory;
 import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -27,11 +29,15 @@ import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.PampaSimModuleBase;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
+import org.pampasim.resources.memory.MMU;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
+import org.pampasim.resources.memory.ProcessPageTable;
 import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -179,6 +185,15 @@ public class MemoryModule extends PampaSimModuleBase {
         var resObjFact = new org.pampasim.resources.ObjectFactory();
         var memObjFact = new org.pampasim.resources.memory.ObjectFactory();
         var conf = memObjFact.createMMU();
+        try {
+            JAXBContext jc = JAXBContext.newInstance("org.pampasim:org.pampasim.resources:org.pampasim.resources.memory:org.pampasim.events");
+            var unm = jc.createUnmarshaller();
+            var xmlCode = ProcessPageTable.class.getResourceAsStream("memoryModuleTemplate.xml");
+            LOGGER.debug("generated template xml: {}", xmlCode);
+            conf = (MMU) unm.unmarshal(xmlCode);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
         var entityConf = resObjFact.createEntityConfig();
         entityConf.setFullyQualifiedClassName(MemoryManagement.class.getCanonicalName());
         entityConf.setAny(conf);

@@ -27,6 +27,7 @@ import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.pampasim.resources.memory.ObjectFactory;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -110,6 +111,10 @@ public class MemoryManagement extends ModuleSimulationBase {
     public EntityConfig generateSpecEntityConfig() {
         var objFact = new ObjectFactory();
         var conf = objFact.createMMU();
+        conf.setPageSizeKb(BigInteger.valueOf(MemoryConfig.getPageSize()/1024));
+        conf.setMaxPagesPerProcess(BigInteger.valueOf(MemoryConfig.getMaxPagesPerProcess()));
+        conf.setFramesInRam(BigInteger.valueOf(MemoryConfig.getFramesInRAM()));
+        conf.setFramesInSwap(BigInteger.valueOf(MemoryConfig.getFramesInSwap()));
         conf.setSwapOperationLength(MemoryConfig.getSwapOperationLength());
         conf.setWorkingSetWindow(MemoryConfig.getWorkingSetWindow());
         conf.setPageSubstitutionAlgorithm(MemoryConfig.getPageSubstitutionAlgorithm());
@@ -136,6 +141,10 @@ public class MemoryManagement extends ModuleSimulationBase {
         if (! (entityConfig.getAny() instanceof org.pampasim.resources.memory.MMU xmlConf)) {
             throw new SpecEntityDataMismatch();
         }
+        MemoryConfig.setPageSize(xmlConf.getPageSizeKb().intValue());
+        MemoryConfig.setMaxPagesPerProcess(xmlConf.getMaxPagesPerProcess().intValue());
+        MemoryConfig.setFramesInRAM(xmlConf.getFramesInRam().intValue());
+        MemoryConfig.setFramesInSwap(xmlConf.getFramesInSwap().intValue());
         MemoryConfig.initialize(
                 MemoryConfig.getPageSize(),
                 MemoryConfig.getMaxPagesPerProcess(),
