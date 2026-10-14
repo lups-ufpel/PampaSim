@@ -5,7 +5,6 @@ import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import javafx.beans.property.*;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,8 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.pampasim.core.Simulation;
-import org.pampasim.core.entity.SimEntity;
+import org.pampasim.events.External.Arrival;
 import org.pampasim.memory.view.MemoryInfoView;
 import org.pampasim.memory.view.MemoryTabView;
 import org.pampasim.memory.viewmodel.MemoryStatisticsViewModel;
@@ -28,6 +26,7 @@ import org.pampasim.memory.viewmodel.MemoryModuleViewModel;
 import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.PampaSimModuleBase;
+import org.pampasim.resources.Process;
 import org.pampasim.resources.dialog.CreateProcessDialogService;
 import org.pampasim.resources.memory.MMU;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
@@ -35,11 +34,15 @@ import org.pampasim.resources.memory.ProcessPageTable;
 import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
+import org.pampasim.core.events.Event;
 
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemoryModule extends PampaSimModuleBase {
     private static final Logger LOGGER = LogManager.getLogger(MemoryModule.class);
@@ -47,6 +50,8 @@ public class MemoryModule extends PampaSimModuleBase {
     private MemoryModuleViewModel memoryModuleVM = null;
     private MemoryStatisticsViewModel memoryStatisticsViewModel = null;
     private Tab memoryTab = null;
+
+    private static JAXBContext jaxbContext = null;
 
     public MemoryModule() {}
 
@@ -173,6 +178,54 @@ public class MemoryModule extends PampaSimModuleBase {
     @Override
     public List<Class<?>> getEventPayloadClasses() {
         return List.of(MemoryProcessCreationData.class);
+    }
+
+    private static JAXBContext getJaxbContext() throws JAXBException {
+        return (MemoryModule.jaxbContext == null)? initJaxbContext() : MemoryModule.jaxbContext;
+    }
+
+    private static JAXBContext initJaxbContext() throws JAXBException {
+        MemoryModule.jaxbContext = JAXBContext.newInstance("org.pampasim:org.pampasim.resources:org.pampasim.resources.memory:org.pampasim.events");
+        return MemoryModule.jaxbContext;
+    }
+
+    @Override
+    public boolean initializeMissingProcessModuleData(List<Event> events) {
+        AtomicBoolean changed = new AtomicBoolean(false);
+        for (var event : events) {
+            if (!(event instanceof Arrival arrival)) {
+                continue;
+            }
+
+            var cData = arrival.getCreationData();
+
+            Map<Class<?>, Object> castModuleCreationData = (Map<Class<?>, Object>) cData.moduleCreationData();
+            castModuleCreationData.computeIfAbsent(getClass(), (k) -> {
+                MemoryProcessCreationData memoryData;
+                changed.set(true);
+
+                try (var stream = MemoryProcessCreationData.class
+                        .getResourceAsStream("memoryProcessTemplate.xml")) {
+
+                    var unmarshaller = getJaxbContext().createUnmarshaller();
+
+                    memoryData = (MemoryProcessCreationData) unmarshaller.unmarshal(
+                            Objects.requireNonNull(
+                                    stream,
+                                    "memoryProcessTemplate.xml not found"
+                            )
+                    );
+                } catch (IOException | JAXBException e) {
+                    throw new RuntimeException(
+                            "Could not load default process memory configuration",
+                            e
+                    );
+                }
+                return memoryData;
+            });
+        }
+
+        return changed.get();
     }
 
     @Override

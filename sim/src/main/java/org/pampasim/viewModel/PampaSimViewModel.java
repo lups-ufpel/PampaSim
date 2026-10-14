@@ -35,7 +35,6 @@ import org.pampasim.resources.dialog.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,6 +120,10 @@ public class PampaSimViewModel implements ViewModel {
                     }
                     moduleStats.updateStatistics(module.getSimulation(), allProcesses);
                 }
+
+                // missing module data
+                var eventList = simulatedScenario.getSpec().getEventSchedule().values().stream().flatMap(l -> l.stream()).toList();
+                entry.getValue().initializeMissingProcessModuleData(eventList);
             }
 
             for (var tick : simulatedScenario.getSpec().getEventSchedule().values()) {
@@ -268,11 +271,6 @@ public class PampaSimViewModel implements ViewModel {
         var moduleList = spec.getInnerSpec().getExtraModules().getModule();
         moduleList.clear();
         moduleList.addAll(userSelection.modules());
-        if (moduleList.contains(MemoryModule.class.getCanonicalName())) {
-            spec.initializeMissingMemoryData();
-        } else {
-            spec.getInnerSpec().getEntities().getEntity().removeIf(entity -> org.pampasim.memory.MemoryManagement.class.getCanonicalName().equals(entity.getFullyQualifiedClassName()));
-        }
         syncWithSpec();
     }
 
@@ -288,11 +286,6 @@ public class PampaSimViewModel implements ViewModel {
         this.asciiReportClock = 0;
         this.ganttData.clear();
         var spec = simulatedScenario.getSpec();
-        if (spec.getInnerSpec().getExtraModules().getModule().contains(MemoryModule.class.getCanonicalName())) {
-            if (spec.initializeMissingMemoryData()) {
-                simulatedScenario.setSaved(false);
-            }
-        }
         simulatedScenario.resetToSpec();
         updateProps();
     }

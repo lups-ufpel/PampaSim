@@ -1,8 +1,10 @@
 package org.pampasim;
 
 import de.saxsys.mvvmfx.ViewModel;
+import jakarta.xml.bind.JAXBException;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
+import org.pampasim.core.events.Event;
 import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.Process;
@@ -12,8 +14,10 @@ import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * PampaSim module behavioral abstraction
@@ -111,4 +115,6 @@ public interface PampaSimModule {
      * @return the list of payload classes
      */
     List<Class<?>> getEventPayloadClasses();
+
+    boolean initializeMissingProcessModuleData(List<Event> spec);
 }

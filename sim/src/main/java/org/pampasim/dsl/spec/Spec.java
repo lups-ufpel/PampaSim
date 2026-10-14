@@ -23,18 +23,12 @@ import org.pampasim.events.EventManager;
 import org.pampasim.entity.schedulers.RespectsQuantum;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.events.External.Arrival;
-import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -45,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -305,64 +298,6 @@ public class Spec {
         );
 
         entities.add(config);
-    }
-
-    public boolean initializeMissingMemoryData() {
-        boolean changed = false;
-
-        for (var events : eventSchedule.values()) {
-            for (var event : events) {
-                if (!(event instanceof Arrival arrival)) {
-                    continue;
-                }
-
-                var oldData = arrival.getCreationData();
-
-                if (oldData.moduleCreationData().get(
-                        org.pampasim.memory.MemoryModule.class) != null) {
-                    continue;
-                }
-
-                MemoryProcessCreationData memoryData;
-
-                try (var stream = MemoryProcessCreationData.class
-                        .getResourceAsStream("memoryProcessTemplate.xml")) {
-
-                    var unmarshaller = getJaxbContext().createUnmarshaller();
-
-                    memoryData = (MemoryProcessCreationData) unmarshaller.unmarshal(
-                            Objects.requireNonNull(
-                                    stream,
-                                    "memoryProcessTemplate.xml not found"
-                            )
-                    );
-                } catch (IOException | JAXBException e) {
-                    throw new RuntimeException(
-                            "Could not load default process memory configuration",
-                            e
-                    );
-                }
-
-                Map<Class<?>, Object> moduleData = new HashMap<>();
-                oldData.moduleCreationData().forEach(moduleData::put);
-                moduleData.put(
-                        org.pampasim.memory.MemoryModule.class,
-                        memoryData
-                );
-
-                arrival.setCreationData(new Process.CreationData(
-                        oldData.arrivalTick(),
-                        oldData.durationTicks(),
-                        oldData.startPriority(),
-                        oldData.intraTickOrder(),
-                        moduleData
-                ));
-
-                changed = true;
-            }
-        }
-
-        return changed;
     }
 
     private void synchronizeProcessArrivals() {
