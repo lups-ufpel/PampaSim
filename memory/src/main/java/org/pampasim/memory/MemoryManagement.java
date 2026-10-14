@@ -43,25 +43,26 @@ public class MemoryManagement extends ModuleSimulationBase {
         // Use specialized memory event manager
         this.setEventManager(new MemoryEventManager(this));
 
-        // Initialize memory subsystems
-        var mmu = new MMU();
-        mmu.bind(this);
-        new PageTableManager(this, 5); // TODO: add a field for the user to define referencedReset;
-        new PhysicalMemory(
-                this,
-                MemoryConfig.isGlobalPageSubstitution(),
-                getReplacementAlgorithm(MemoryConfig.getPageSubstitutionAlgorithm()), // helper method
-                MemoryConfig.isAnticipatedPageLoading(),
-                MemoryConfig.isVariablePageAllocation(),
-                MemoryConfig.getVariablePageAllocationTopThreshold(),
-                MemoryConfig.getVariablePageAllocationBottomThreshold()
-        );
     }
 
     @Override
     public boolean bind(@NonNull SimEntity parent) {
         var ok = super.bind(parent);
         if (ok) {
+            // Initialize memory subsystems
+            var mmu = new MMU();
+            mmu.bind(this);
+            new PageTableManager(this, 5); // TODO: add a field for the user to define referencedReset;
+            new PhysicalMemory(
+                    this,
+                    MemoryConfig.isGlobalPageSubstitution(),
+                    getReplacementAlgorithm(MemoryConfig.getPageSubstitutionAlgorithm()), // helper method
+                    MemoryConfig.isAnticipatedPageLoading(),
+                    MemoryConfig.isVariablePageAllocation(),
+                    MemoryConfig.getVariablePageAllocationTopThreshold(),
+                    MemoryConfig.getVariablePageAllocationBottomThreshold()
+            );
+
             var simulation = parent.getSimulation();
             // Register handler
             simulation.getEventManager().addEventHandler(Allocate.class, this);
@@ -146,7 +147,7 @@ public class MemoryManagement extends ModuleSimulationBase {
         MemoryConfig.setFramesInRAM(xmlConf.getFramesInRam().intValue());
         MemoryConfig.setFramesInSwap(xmlConf.getFramesInSwap().intValue());
         MemoryConfig.initialize(
-                MemoryConfig.getPageSize(),
+                xmlConf.getPageSizeKb().intValue(),
                 MemoryConfig.getMaxPagesPerProcess(),
                 MemoryConfig.getFramesInRAM(),
                 MemoryConfig.getFramesInSwap(),
@@ -158,8 +159,8 @@ public class MemoryManagement extends ModuleSimulationBase {
                 xmlConf.isAnticipatedPageLoading(),
                 (int)xmlConf.getPrePagingRange(),
                 xmlConf.isVariablePageAllocation(),
-                xmlConf.getVariablePageAllocationThresholds().getFirst(),
                 xmlConf.getVariablePageAllocationThresholds().getLast(),
+                xmlConf.getVariablePageAllocationThresholds().getFirst(),
                 xmlConf.isTlbEnabled(),
                 (int)xmlConf.getTlbEntries()
         );

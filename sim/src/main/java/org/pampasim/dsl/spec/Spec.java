@@ -76,6 +76,10 @@ public class Spec {
         this.eventSchedule = new EventSchedule();
         this.arrivalColorMap = new IdentityHashMap<>();
         this.payloadToModuleMap = new IdentityHashMap<>();
+        payloadToModuleMap.put(
+                MemoryProcessCreationData.class,
+                org.pampasim.memory.MemoryModule.class
+        );
         this.innerSpec = new org.pampasim.Spec();
     }
 
@@ -290,6 +294,131 @@ public class Spec {
             this.innerSpec.setExtraModules(extraModules);
         }
     }
+    public void upsertEntityConfig(EntityConfig config) {
+        var entities = innerSpec.getEntities().getEntity();
+
+        entities.removeIf(entity ->
+                Objects.equals(
+                        entity.getFullyQualifiedClassName(),
+                        config.getFullyQualifiedClassName()
+                )
+        );
+
+        entities.add(config);
+    }
+
+    public boolean initializeMissingMemoryData() {
+        boolean changed = false;
+
+        for (var events : eventSchedule.values()) {
+            for (var event : events) {
+                if (!(event instanceof Arrival arrival)) {
+                    continue;
+                }
+
+                var oldData = arrival.getCreationData();
+
+                if (oldData.moduleCreationData().get(
+                        org.pampasim.memory.MemoryModule.class) != null) {
+                    continue;
+                }
+
+                MemoryProcessCreationData memoryData;
+
+                try (var stream = MemoryProcessCreationData.class
+                        .getResourceAsStream("memoryProcessTemplate.xml")) {
+
+                    var unmarshaller = getJaxbContext().createUnmarshaller();
+
+                    memoryData = (MemoryProcessCreationData) unmarshaller.unmarshal(
+                            Objects.requireNonNull(
+                                    stream,
+                                    "memoryProcessTemplate.xml not found"
+                            )
+                    );
+                } catch (IOException | JAXBException e) {
+                    throw new RuntimeException(
+                            "Could not load default process memory configuration",
+                            e
+                    );
+                }
+
+                Map<Class<?>, Object> moduleData = new HashMap<>();
+                oldData.moduleCreationData().forEach(moduleData::put);
+                moduleData.put(
+                        org.pampasim.memory.MemoryModule.class,
+                        memoryData
+                );
+
+                arrival.setCreationData(new Process.CreationData(
+                        oldData.arrivalTick(),
+                        oldData.durationTicks(),
+                        oldData.startPriority(),
+                        oldData.intraTickOrder(),
+                        moduleData
+                ));
+
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    private void synchronizeProcessArrivals() {
+        var xmlEvents = innerSpec.getStimuli().getEvent();
+
+        xmlEvents.removeIf(event ->
+                Objects.equals(
+                        event.getFullyQualifiedClassName(),
+                        Arrival.class.getCanonicalName()
+                )
+        );
+
+        eventSchedule.entries().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    for (var event : entry.getValue()) {
+                        if (!(event instanceof Arrival arrival)) {
+                            continue;
+                        }
+
+                        var data = arrival.getCreationData();
+                        var xmlEvent = new org.pampasim.events.Event();
+
+                        xmlEvent.setFullyQualifiedClassName(
+                                Arrival.class.getCanonicalName()
+                        );
+                        xmlEvent.setTick(
+                                BigInteger.valueOf(entry.getKey())
+                        );
+                        xmlEvent.setIntraTickOrder(
+                                BigInteger.valueOf(arrival.getIntraTickOrder())
+                        );
+
+                        var factory =
+                                new org.pampasim.events.ObjectFactory();
+                        var payload =
+                                factory.createProcessCreationDataPayload();
+
+                        payload.setStartPriority(
+                                BigInteger.valueOf(data.startPriority())
+                        );
+                        payload.setDurationTicks(
+                                BigInteger.valueOf(data.durationTicks())
+                        );
+                        payload.setDisplayColor(
+                                convertColor(arrivalColorMap.get(arrival))
+                        );
+
+                        xmlEvent.getAny().add(payload);
+                        data.moduleCreationData().values()
+                                .forEach(value -> xmlEvent.getAny().add(value));
+
+                        xmlEvents.add(xmlEvent);
+                    }
+                });
+    }
 
     public void saveSpec(Path path) {
         // prep module entities
@@ -298,9 +427,10 @@ public class Spec {
             var moduleConfig = moduleSim.getSpecConfigClass();
             if (moduleConfig != null) {
                 var config = moduleSim.generateSpecEntityConfig();
-                this.innerSpec.getEntities().getEntity().add(config);
+                upsertEntityConfig(config);
             }
         });
+        synchronizeProcessArrivals();
 
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)){
             PrintWriter printer = new PrintWriter(writer);
@@ -350,6 +480,7 @@ public class Spec {
     }
 
     public Event removeProcessArrival(@Nonnull Process.CreationData creationData) {
+        synchronizeProcessArrivals();
         var arrivalEvent = eventSchedule.removeFirstMatch((candidate) -> {
             try {
                 Arrival ev = (Arrival) candidate;
@@ -371,6 +502,10 @@ public class Spec {
         pcdPayload.setDurationTicks(BigInteger.valueOf(creationData.durationTicks()));
         pcdPayload.setDisplayColor(convertColor(arrivalColorMap.get(arrivalEvent)));
         e.getAny().add(pcdPayload);
+
+        creationData.moduleCreationData().forEach((k, v) -> {
+            e.getAny().add(v);
+        });
 
         var eventList = innerSpec.getStimuli().getEvent();
         var found = eventList.removeIf(sev -> sev.equals(e));

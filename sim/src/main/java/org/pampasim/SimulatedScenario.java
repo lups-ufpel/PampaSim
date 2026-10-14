@@ -100,6 +100,7 @@ public class SimulatedScenario {
                 //throw new RuntimeException("Module missing associated ModuleSimulation!");
                 LOGGER.debug("Module {} missing associated ModuleSimulation, instantiating simulation entity...", moduleClass);
                 var moduleSimConf = module.getDefaultSpecEntityConfig();
+                spec.upsertEntityConfig(moduleSimConf);
                 LOGGER.debug("default config: {}", moduleSimConf.toString());
                 ModuleSimulation freshModuleSim;
                 try {
@@ -125,7 +126,7 @@ public class SimulatedScenario {
                         .getEntity()
                         .stream()
                         .filter(entityConfig ->
-                                entityConfig.getFullyQualifiedClassName().equals(moduleConfigClass.getCanonicalName())
+                                entityConfig.getFullyQualifiedClassName().equals(module.getModuleSimulationClass().getCanonicalName())
                         ).findAny();
                 if (configElemOpt.isPresent()) {
                     EntityConfig entityConfig = configElemOpt.get();

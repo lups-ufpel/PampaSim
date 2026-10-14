@@ -67,8 +67,8 @@ public class ProcessMemoryInfo extends ProcessModuleInfo {
         this.runtimeAddressAccessList
                 .addAll(creationData.addressAccessList.address.stream()
                         .map(BigInteger::intValue).toList());
-        creationData.modifyPages.pageId.sort(Comparator.naturalOrder());
-        creationData.fileBackedPages.pageId.sort(Comparator.naturalOrder());
+        creationData.getModifyPages().getPageId().sort(Comparator.naturalOrder());
+        creationData.getFileBackedPages().getPageId().sort(Comparator.naturalOrder());
         runtimeModifyPage     = new BitSet((int) this.creationData.pageCount);
         runtimeFileBackedPage = new BitSet((int) this.creationData.pageCount);
 

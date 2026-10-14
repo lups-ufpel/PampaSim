@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<memoryProcessCreationData
+        xmlns="http://pampasim.org/events/memory"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://pampasim.org/events/memory memoryProcessCreationData.xsd">
+
+    <pageCount>1</pageCount>
+
+    <addressAccessList>
+        <address>0</address>
+    </addressAccessList>
+
+    <fileBackedPages/>
+    <modifyPages/>
+    <loopAccessList>true</loopAccessList>
+
+</memoryProcessCreationData>

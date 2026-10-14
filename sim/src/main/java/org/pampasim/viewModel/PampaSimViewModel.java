@@ -88,6 +88,7 @@ public class PampaSimViewModel implements ViewModel {
     private final ObservableList<ProcessViewModel> allProcesses = FXCollections.observableArrayList();
     @Getter
     private final IdentityHashMap<Process, ProcessViewModel> pvmMap = new IdentityHashMap<>();
+    private final MapProperty<Class<? extends PampaSimModule>, PampaSimModule> loadedModules = new SimpleMapProperty<>();
 
     public PampaSimViewModel() {
         var templateSpecStream = PampaSim.class.getResourceAsStream("templateSpec.xml");
@@ -174,6 +175,7 @@ public class PampaSimViewModel implements ViewModel {
                         createProcessDialogService.getModuleInfo().put(module.getClass(), cProcDiagServModuleInfo);
                     }
                 });
+        loadedModules.set(simulatedScenario.getLoadedModules());
     }
 
 
@@ -187,6 +189,7 @@ public class PampaSimViewModel implements ViewModel {
 
             LOGGER.info("loaded {}", path);
             simulatedScenario.setSpec(spec);
+            loadedModules.set(spec.getLoadedModules());
             simulatedScenario.setSpecPath(path);
             simulatedScenario.setSaved(true); // we just loaded from a file
             syncWithSpec();
@@ -220,6 +223,7 @@ public class PampaSimViewModel implements ViewModel {
             deleteProcess(processViewModel);
             return;
         }
+        simulatedScenario.setSaved(false);
         var spec = simulatedScenario.getSpec();
         var oldTickEventList = spec.getEventSchedule().get(processViewModel.getArrivalTick().get());
         var arrivalEvent = (ProcessCreationDataEvent) oldTickEventList.stream().filter(event -> {
@@ -264,7 +268,12 @@ public class PampaSimViewModel implements ViewModel {
         var moduleList = spec.getInnerSpec().getExtraModules().getModule();
         moduleList.clear();
         moduleList.addAll(userSelection.modules());
-        simulatedScenario.resetToSpec();
+        if (moduleList.contains(MemoryModule.class.getCanonicalName())) {
+            spec.initializeMissingMemoryData();
+        } else {
+            spec.getInnerSpec().getEntities().getEntity().removeIf(entity -> org.pampasim.memory.MemoryManagement.class.getCanonicalName().equals(entity.getFullyQualifiedClassName()));
+        }
+        syncWithSpec();
     }
 
     public void startSimulation() {
@@ -278,7 +287,12 @@ public class PampaSimViewModel implements ViewModel {
         allProcesses.clear();
         this.asciiReportClock = 0;
         this.ganttData.clear();
-
+        var spec = simulatedScenario.getSpec();
+        if (spec.getInnerSpec().getExtraModules().getModule().contains(MemoryModule.class.getCanonicalName())) {
+            if (spec.initializeMissingMemoryData()) {
+                simulatedScenario.setSaved(false);
+            }
+        }
         simulatedScenario.resetToSpec();
         updateProps();
     }
@@ -509,6 +523,13 @@ public class PampaSimViewModel implements ViewModel {
                         mem.tlbEnabled(),
                         mem.tlbEntries()
                 );
+                var memoryModule = simulatedScenario
+                        .getLoadedModules()
+                        .get(MemoryModule.class);
+
+                simulatedScenario.getSpec().upsertEntityConfig(
+                        memoryModule.getSimulation().generateSpecEntityConfig()
+                );
             }
             setSimulationScheduler(selection);
         } else {
@@ -529,16 +550,16 @@ public class PampaSimViewModel implements ViewModel {
         }
 
         result.ifPresent(userSelection -> {
+            userSelection.specPath().ifPresent(specPath -> {
+                loadSpec(Paths.get(specPath));
+                done.set(true);
+            });
             userSelection.modulesRecord().ifPresent(mods -> {
                 try {
                     setSimulationModules(mods);
                 } catch (IOException | ModuleSimulation.ConfigError e) {
                     throw new RuntimeException(e);
                 }
-            });
-            userSelection.specPath().ifPresent(specPath -> {
-                loadSpec(Paths.get(specPath));
-                done.set(true);
             });
         });
 
@@ -576,6 +597,6 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public ObservableMap<Class<? extends PampaSimModule>, PampaSimModule> getLoadedModules() {
-        return simulatedScenario.getLoadedModules();
+        return loadedModules;
     }
 }
