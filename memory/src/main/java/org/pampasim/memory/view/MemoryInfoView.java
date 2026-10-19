@@ -178,16 +178,21 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
     }
 
     public void updateValidAddressRange() {
-        int pageSize = this.getPageSize().get();
+        this.pageSize.set(MemoryConfig.getPageSize());
+        int pageSizeBytes = this.getPageSize().get();
         int processPages = viewModel.processSizeProperty().get();
-        int maxAddress = (processPages * pageSize) - 1;
+        if (pageSizeBytes <= 0 || processPages <= 0) {
+            validAddressRangeLabel.setText("Endereços válidos do processo: configuração indisponível");
+            return;
+        }
+        long maxAddress = ((long) processPages * pageSizeBytes) - 1;
         validAddressRangeLabel.setText("Endereços válidos do processo: 0 - " + maxAddress);
     }
 
     private void generateRandomAccesses() {
-        int pageSize = this.getPageSize().get();
+        int pageSizeBytes = this.getPageSize().get();
         int processPages = processSizeSpinner.getValue();
-        int maxAddress = processPages * pageSize;
+        int maxAddress = processPages * pageSizeBytes;
 
         for (MemoryAccessEntry entry : accessEntries) {
             int randomAddress = (int) (Math.random() * maxAddress);
