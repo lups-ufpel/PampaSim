@@ -85,8 +85,6 @@ public class PampaSimViewModel implements ViewModel {
     // Process States
     @Getter
     private final ObservableList<ProcessViewModel> allProcesses = FXCollections.observableArrayList();
-    @Getter
-    private final IdentityHashMap<Process, ProcessViewModel> pvmMap = new IdentityHashMap<>();
     private final MapProperty<Class<? extends PampaSimModule>, PampaSimModule> loadedModules = new SimpleMapProperty<>();
 
     public PampaSimViewModel() {
