@@ -1,81 +1,29 @@
 package org.pampasim.resources;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.pampasim.core.utils.PidAllocator.Pid;
+import org.pampasim.core.utils.PidAllocator;
 
-import java.util.ArrayList;
 import java.util.Map;
 
-@Getter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Process {
+/**
+ * A PampaSim Process.
+ *
+ * Implemented as an interface to employ the decorator pattern,
+ * which allows for factory methods to tack on extra module state and behavior.
+ */
+public interface Process {
+    Logger LOGGER = LogManager.getLogger(Process.class);
     /**
      * @param intraTickOrder used for ordering events dispatched in the same tick,
      *                       and to later bind Processes to their ProcessViewModels.
      */
-    public record CreationData(
+    record CreationData(
             int arrivalTick, int durationTicks, int startPriority,
             int intraTickOrder, Map<? extends Class<?>, Object> moduleCreationData) {
     }
-    @Getter
-    @EqualsAndHashCode.Include
-    private final CreationData creationData;
 
-    // Every execution tick the process will access one, none, or several of its virtual pages, it will send out an event which
-    // will require the memory module to check the Page Table or the TLB, it can also suspend the process if a page fault
-    // ends up happening. This is important to justify the existence of a TLB in the system
-
-    private final Logger LOGGER = LogManager.getLogger(Process.class);
-    @EqualsAndHashCode.Include
-    private final Pid pid;
-    State state;
-    private int currExecTime; // elapsed execution time
-    @Setter
-    int burstTime; // length of the next "turn" on the processor -- incorrect, but true for now
-    @Setter
-    private int priority;
-    private int waitTime;
-    @Setter
-    private int endTime;
-
-    private final ArrayList<ProcessModuleInfo> moduleInfo;
-
-    public Process(Pid pid, CreationData creationData) {
-        this.pid = pid;
-        this.state = State.NEW;
-        this.creationData = creationData;
-        this.burstTime = creationData.durationTicks;
-        this.currExecTime = 0;
-        this.moduleInfo = new ArrayList<>();
-    }
-
-    public int getRemainingExecutionTime() {
-        return creationData.durationTicks - currExecTime;
-    }
-
-    public void forwardProcessExecution() {
-        this.currExecTime +=1;
-        this.burstTime -= 1;
-    }
-
-    public void forwardWaitingTime() {
-        this.waitTime += 1;
-    }
-
-    public boolean isFinished() {
-        return getRemainingExecutionTime() <= 0;
-    }
-
-    public void setState(Process.State state) {
-        this.state = state;
-        LOGGER.debug("Process of PID {} transitioned to state {}", pid, state);
-    }
-
-    public enum State {
+    enum State {
         /**
          * The resources.Process has been just instantiated but not assigned to CPU resources.Core.
          */
@@ -115,25 +63,31 @@ public class Process {
          */
         TERMINATED
     }
-    public enum Type {
 
-        /**
-         * The resources.Process does not have memory and Register requirements
-         */
-        SIMPLE,
+    // Every execution tick the process will access one, none, or several of its virtual pages.
+    // to that end it will send out an event which will require the memory module to check the
+    // Page Table or the TLB, it can also suspend the process if a page fault ends up happening.
+    // This is important to justify the existence of a TLB in the system
 
-    }
+    CreationData getCreationData();
+    PidAllocator.Pid getPid();
+    State getState();
+    void setState(State state);
 
-    public void addModuleInfo(ProcessModuleInfo moduleInfo) {
-        this.moduleInfo.add(moduleInfo);
-    }
+    int getCurrExecTime();
+    int getBurstTime();
+    void setBurstTime(int burstTime);
+    int getPriority();
+    void setPriority(int priority);
+    int getWaitTime();
+    int getEndTime();
+    void setEndTime(int endTime);
 
-    public <T extends ProcessModuleInfo> T getModuleInfo(Class<T> moduleClass) {
-        return moduleInfo.stream()
-                .filter(moduleClass::isInstance)
-                .map(moduleClass::cast)
-                .findFirst()
-                .orElse(null);
-    }
+    int getRemainingExecutionTime();
+    void forwardProcessExecution();
+    void forwardWaitingTime();
+    boolean isFinished();
 
+    <T extends ProcessModuleInfo> T getModuleInfo(Class<T> moduleClass);
+    void addModuleInfo(ProcessModuleInfo moduleInfo);
 }

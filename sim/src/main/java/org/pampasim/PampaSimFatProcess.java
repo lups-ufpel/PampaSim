@@ -1,24 +1,28 @@
 package org.pampasim;
 
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.resources.Process;
+import org.pampasim.resources.ProcessImpl;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 /**
  * "Fat process" in the way it keeps track of extra references for the JavaFX MVVM GUI
  */
-public class PampaSimFatProcess extends org.pampasim.resources.Process {
+public class PampaSimFatProcess implements org.pampasim.resources.Process {
+    @Delegate
+    private org.pampasim.resources.Process process;
     @Getter
-    ProcessViewModel processViewModel;
-    ObservableMap<Integer, State> ganttData;
+    @Setter
+    ProcessViewModel processViewModel = null;
+    ObservableMap<Integer, State> ganttData = FXCollections.observableHashMap();
 
-    public PampaSimFatProcess(PidAllocator.Pid pid, CreationData creationData) {
-        super(pid, creationData);
-        processViewModel = null;
-
+    public PampaSimFatProcess(org.pampasim.resources.Process process) {
+        this.process = process;
+        this.processViewModel = null;
     }
-
 }

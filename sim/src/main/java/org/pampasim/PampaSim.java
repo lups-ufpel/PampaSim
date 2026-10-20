@@ -12,6 +12,7 @@ import org.pampasim.entity.ProcessManager;
 import org.pampasim.entity.Processor;
 import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.resources.EntityConfig;
+import org.pampasim.resources.Process;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -125,14 +126,15 @@ public class PampaSim extends SimulationBase {
 
     @Override
     public Function<Object, Object> getResourceFactory(Class<?> resourceClass) {
-        if (resourceClass == org.pampasim.resources.Process.class) {
+        if (resourceClass == Process.class) {
             LOGGER.trace("getResourceFactory call resolved Process resource");
             return (creationData) -> {
-                var baseProc = new org.pampasim.resources.Process(
+                var baseProc = new org.pampasim.resources.ProcessImpl(
                         getPidAllocator().assignPid(),
-                        (org.pampasim.resources.Process.CreationData)creationData
+                        (Process.CreationData)creationData
                 );
-                return baseProc;
+                var fatProc = new PampaSimFatProcess(baseProc);
+                return fatProc;
             };
         }
         LOGGER.trace("getResourceFactory call defaulted for class {}", resourceClass);
