@@ -7,7 +7,7 @@
 
     <Appenders>
         <Console name="CONSOLE">
-            <PatternLayout pattern="%highlight{%-5level %class{1} [%t]: %m%n}"/>
+            <PatternLayout pattern="%highlight{%-5level %class{1} [%t]: %m%n}{TRACE=blue}"/>
             <!--<JsonTemplateLayout/>-->
         </Console>
     </Appenders>

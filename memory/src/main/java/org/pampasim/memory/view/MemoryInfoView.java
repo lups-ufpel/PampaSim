@@ -14,9 +14,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryManagement;
+import org.pampasim.memory.MemoryModule;
 import org.pampasim.memory.viewmodel.ProcessMemoryInfoViewModel;
 import org.pampasim.resources.view.CreateProcessDialogView;
 import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
@@ -27,7 +30,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Initializable {
-
+    private static final Logger LOGGER = LogManager.getLogger(MemoryInfoView.class);
     @InjectViewModel
     ProcessMemoryInfoViewModel viewModel;
     CreateProcessDialogViewModel parentVM;
@@ -81,6 +84,7 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
     public Parent moduleInitializer(ViewTuple<CreateProcessDialogView, CreateProcessDialogViewModel> parentDialog) {
         this.parentVM = parentDialog.getViewModel();
         this.dialogPane = (DialogPane)parentDialog.getView();
+        this.getPageSize().setValue(MemoryConfig.getPageSize());
         ChangeListener<Number> durationListener = (obs, oldVal, newVal) -> {
             trimAccessesToDuration(newVal.intValue());
         };
