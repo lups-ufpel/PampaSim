@@ -16,6 +16,7 @@ import org.pampasim.resources.EntityConfig;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PampaSim extends SimulationBase {
@@ -120,5 +121,21 @@ public class PampaSim extends SimulationBase {
     @Override
     public void incrementWaitingTimes() {
         this.getEntity(Scheduler.class).incrementWaitingTimes();
+    }
+
+    @Override
+    public Function<Object, Object> getResourceFactory(Class<?> resourceClass) {
+        if (resourceClass == org.pampasim.resources.Process.class) {
+            LOGGER.trace("getResourceFactory call resolved Process resource");
+            return (creationData) -> {
+                var baseProc = new org.pampasim.resources.Process(
+                        getPidAllocator().assignPid(),
+                        (org.pampasim.resources.Process.CreationData)creationData
+                );
+                return baseProc;
+            };
+        }
+        LOGGER.trace("getResourceFactory call defaulted for class {}", resourceClass);
+        return null;
     }
 }

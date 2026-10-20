@@ -44,8 +44,9 @@ public class ProcessManager extends AbstractSimEntity {
     }
 
     private void handleProcessArrival(org.pampasim.events.External.Arrival event) {
-        scheduleToNextClock(new org.pampasim.events.Process.Allocate(this,
-                new Process(getSimulation().getPidAllocator().assignPid(), event.getCreationData())));
+        var procFactory = getSimulation().getResourceFactory(Process.class);
+        var proc = (org.pampasim.resources.Process)procFactory.apply(event.getCreationData());
+        scheduleToNextClock(new org.pampasim.events.Process.Allocate(this, proc));
     }
 
     private void handleProcessReady(org.pampasim.events.Process.Ready event) {

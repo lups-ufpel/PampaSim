@@ -24,10 +24,10 @@ Main issues:
 - [ ] TODO write some tests already ⏫
 - [x] TODO fix the duration bug / PCB values not being updated properly ✅ 2026-07-22 10:11
 - [ ] TODO event queue bounds
-- [ ] TODO fix out-of-bounds access in the memory module
+- [x] TODO fix out-of-bounds access in the memory module
 - [ ] TODO fix dependency cycle between sim-datamodel and memory modules thru PCBView
 - [ ] TODO remove CTSS option
-- [ ] TODO fix ghost events (process deletion)
+- [x] TODO fix ghost events (process deletion)
 - [ ] TODO better names for the Spec - Specfile classes, disambiguate
 - [ ] TODO the visual queues are not reflecting the states quite right (waiting queue specifically)
 - [ ] TODO fix inconsistent annexing of module data (inside Process.CreationData or inside the event XJC class?)

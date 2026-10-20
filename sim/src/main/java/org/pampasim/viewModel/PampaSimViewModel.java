@@ -123,7 +123,7 @@ public class PampaSimViewModel implements ViewModel {
 
                 // missing module data
                 var eventList = simulatedScenario.getSpec().getEventSchedule().values().stream().flatMap(l -> l.stream()).toList();
-                entry.getValue().initializeMissingProcessModuleData(eventList);
+                module.initializeMissingProcessModuleData(eventList);
             }
 
             for (var tick : simulatedScenario.getSpec().getEventSchedule().values()) {
