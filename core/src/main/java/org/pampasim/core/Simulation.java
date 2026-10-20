@@ -5,6 +5,8 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.core.events.Event;
 import org.pampasim.core.utils.PidAllocator;
 
+import java.util.function.Function;
+
 /**
  * Simulations are entities composed of other entities governed
  * by an independent simulation clock.
@@ -24,6 +26,7 @@ public interface Simulation extends SimEntity {
     RealClock getRealClock();
     PidAllocator getPidAllocator();
     ObservableIntegerValue getSimulationClock();
+    Function<Object,Object> getResourceFactory(Class<?> resourceClass);
 
     /**
      * returns whether the simulation has any pending / scheduled events

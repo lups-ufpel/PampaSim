@@ -22,6 +22,7 @@ import org.pampasim.core.utils.PidAllocator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
@@ -314,4 +315,10 @@ public abstract class SimulationBase extends AbstractSimEntity implements Simula
     }
 
     protected abstract void incrementWaitingTimes();
+
+    @Override
+    public Function<Object, Object> getResourceFactory(Class<?> resourceClass) {
+        assert(false);
+        return null;
+    }
 }
