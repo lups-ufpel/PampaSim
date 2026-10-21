@@ -82,13 +82,6 @@ public interface PampaSimModule {
     ModuleSimulation getSimulation();
 
     /**
-     * Necessary evil to keep track of Process to ProcessViewModel associations non-intrusively wrt. Process data
-     * TODO: think about using Process factories and a specialization of Process to use Liskov Subst.?
-     * @param pvmMap the Process to ProcessViewModel map
-     */
-    void setProcessToProcessVMMap(Map<Process, ProcessViewModel> pvmMap);
-
-    /**
      * Necessary evil to keep track of all ProcessViewModels
      * TODO: think about using Process factories and a specialization of Process to use Liskov Subst.?
      * @param obProcList the Observable Process List

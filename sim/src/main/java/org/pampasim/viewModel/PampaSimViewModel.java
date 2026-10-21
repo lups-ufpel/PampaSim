@@ -66,8 +66,6 @@ public class PampaSimViewModel implements ViewModel {
     private final AddSpecOrModulesDialogService addSpecOrModulesDialogService = new AddSpecOrModulesDialogService();
 
     @Getter
-    private ObservableMap<PidAllocator.Pid, ObservableMap<Integer, Process.State>> ganttData = FXCollections.observableHashMap();
-    @Getter
     private final Map<Process.State, Character> stateChar = Map.of(
             Process.State.NEW, 'n',
             Process.State.READY, 'r',
@@ -162,7 +160,6 @@ public class PampaSimViewModel implements ViewModel {
         },
                 module -> {
                     // preInit
-                    module.setProcessToProcessVMMap(pvmMap);
                     module.setProcessVMObservableList(allProcesses);
                 },
                 module -> {
@@ -282,8 +279,6 @@ public class PampaSimViewModel implements ViewModel {
     public void syncWithSpec() {
         allProcesses.clear();
         this.asciiReportClock = 0;
-        this.ganttData.clear();
-        var spec = simulatedScenario.getSpec();
         simulatedScenario.resetToSpec();
         updateProps();
     }
@@ -316,13 +311,9 @@ public class PampaSimViewModel implements ViewModel {
                     if (pid == null) {
                         continue;
                     }
-                    ganttData.compute(pid, (k, v) -> {
-                        if (v == null) {
-                            v = FXCollections.observableHashMap();
-                        }
-                        v.put(asciiReportClock, pvm.getState());
-                        return v;
-                    });
+                    PampaSimFatProcess fatProcess = (PampaSimFatProcess) pvm.getProcessRef().get();
+                    assert fatProcess != null;
+                    fatProcess.getGanttData().put(asciiReportClock, pvm.getState());
                 }
             }
         }
@@ -339,8 +330,9 @@ public class PampaSimViewModel implements ViewModel {
         LOGGER.trace("handling event {}", uncastEvent);
         org.pampasim.events.ProcessEvent event = (org.pampasim.events.ProcessEvent)uncastEvent;
         Process proc = event.getProcess();
+        PampaSimFatProcess fatProc = (PampaSimFatProcess) proc;
         Optional<ProcessViewModel> pvmOpt
-                = Optional.ofNullable(pvmMap.get(proc))
+                = Optional.ofNullable(fatProc.getProcessViewModel())
                 .or(() -> {
                     // We need to intercept the arriving process to bind the appropriate ProcessViewModel
                     if (event instanceof org.pampasim.events.Process.Allocate) {
@@ -348,15 +340,13 @@ public class PampaSimViewModel implements ViewModel {
                             LOGGER.trace("testing creationId compat between {} and {}", proc, pvm);
                             if (pvm.tryBinding(proc)) {
                                 LOGGER.trace("process {} bound to process view model {}", proc, pvm);
-                                pvmMap.put(proc, pvm);
+                                fatProc.setProcessViewModel(pvm);
                                 return Optional.of(pvm);
                             }
                         }
                     }
-                    return Optional.ofNullable(pvmMap.get(proc));
-                });/*.or(() -> allProcesses.stream().filter(pvm2 ->
-                                pvm2.getCreationData().equals(proc.getCreationData()))
-                        .findFirst());*/
+                    return Optional.ofNullable(fatProc.getProcessViewModel());
+                });
 
         pvmOpt.ifPresent(pvm -> {
             pvm.getPid().set(proc.getPid());
@@ -372,12 +362,13 @@ public class PampaSimViewModel implements ViewModel {
 
         // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
-            Stream<Process> processStream = simulatedScenario.getSimulation().get()
+            Stream<PampaSimFatProcess> processStream = simulatedScenario.getSimulation().get()
                     .getEntity(Scheduler.class)
-                    .getScheduledProcesses();
+                    .getScheduledProcesses()
+                    .map(v -> (PampaSimFatProcess) v);
 
             processStream.forEach(scheduledProc -> {
-                var pvm = pvmMap.get(scheduledProc);
+                var pvm = scheduledProc.getProcessViewModel();
                 if (pvm != null) {
                     pvm.getReadyWaitingTime().set(scheduledProc.getWaitTime());
                 }
@@ -387,63 +378,65 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void generateCSVReport(Simulation sim) {
-        int maxRealTick = sim.getRealClock().get();
-
-        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
-        var headerBuilder = new StringBuilder("pid");
-        for (var x = 0; x <= maxRealTick; x++) {
-            headerBuilder.append(",").append(x);
-        }
-        headerBuilder.append("\n");
-
-        String csv = headerBuilder.toString() + ganttData
-            .entrySet()
-            .stream()
-            .sorted(Map.Entry.comparingByKey())
-            .map(procEntry -> {
-                        var stateMap = procEntry.getValue();
-                        var rowBuilder = new StringBuilder()
-                                .append(procEntry.getKey()); // pid
-                        range.get().map(stateMap::get).forEach(state -> {
-                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
-                        });
-                        return rowBuilder.append("\n").toString();
-                    }).reduce((l,r) -> l.concat("\n").concat(r))
-                .orElse("couldn't generate csv report");
-        try {
-            Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            LOGGER.error("couldn't write CSV simulation report!", e);
-        }
+        // FIXME
+//        int maxRealTick = sim.getRealClock().get();
+//
+//        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+//        var headerBuilder = new StringBuilder("pid");
+//        for (var x = 0; x <= maxRealTick; x++) {
+//            headerBuilder.append(",").append(x);
+//        }
+//        headerBuilder.append("\n");
+//
+//        String csv = headerBuilder.toString() + ganttData
+//            .entrySet()
+//            .stream()
+//            .sorted(Map.Entry.comparingByKey())
+//            .map(procEntry -> {
+//                        var stateMap = procEntry.getValue();
+//                        var rowBuilder = new StringBuilder()
+//                                .append(procEntry.getKey()); // pid
+//                        range.get().map(stateMap::get).forEach(state -> {
+//                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
+//                        });
+//                        return rowBuilder.append("\n").toString();
+//                    }).reduce((l,r) -> l.concat("\n").concat(r))
+//                .orElse("couldn't generate csv report");
+//        try {
+//            Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+//        } catch (IOException e) {
+//            LOGGER.error("couldn't write CSV simulation report!", e);
+//        }
     }
 
     private void generateASCIIReport(Simulation sim) {
-        int maxRealTick = sim.getRealClock().get();
-        long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
-        int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
-        int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
-
-        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
-        String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
-                + "    " + " ".repeat(pidWidth) + " | "
-                + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
-                .reduce((l,r) -> l.concat(" ").concat(r))
-                .orElseThrow()
-                + "\n";
-        String asciiReportPrintout = "\n\tReport\n" + header +
-            ganttData
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(procEntry -> {
-                    var stateMap = procEntry.getValue();
-                    return "pid " + procEntry.getKey() + " |"
-                            + range.get().map(stateMap::get).map(state ->
-                            String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
-                    ).reduce(String::concat).orElseThrow();
-                }).reduce((l,r) -> l.concat("\n").concat(r))
-                .orElse("couldn't generate report");
-        LOGGER.log(Level.INFO, asciiReportPrintout);
+        // FIXME
+//        int maxRealTick = sim.getRealClock().get();
+//        long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
+//        int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
+//        int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
+//
+//        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+//        String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
+//                + "    " + " ".repeat(pidWidth) + " | "
+//                + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
+//                .reduce((l,r) -> l.concat(" ").concat(r))
+//                .orElseThrow()
+//                + "\n";
+//        String asciiReportPrintout = "\n\tReport\n" + header +
+//            ganttData
+//                .entrySet()
+//                .stream()
+//                .sorted(Map.Entry.comparingByKey())
+//                .map(procEntry -> {
+//                    var stateMap = procEntry.getValue();
+//                    return "pid " + procEntry.getKey() + " |"
+//                            + range.get().map(stateMap::get).map(state ->
+//                            String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
+//                    ).reduce(String::concat).orElseThrow();
+//                }).reduce((l,r) -> l.concat("\n").concat(r))
+//                .orElse("couldn't generate report");
+//        LOGGER.log(Level.INFO, asciiReportPrintout);
     }
 
     private void setSimulationRunning(boolean running) {

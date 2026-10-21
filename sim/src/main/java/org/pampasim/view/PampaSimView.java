@@ -247,6 +247,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         Process.State.SCHEDULED, WaitingList,
                         Process.State.IO_WAITING, WaitingList,
                         Process.State.IO_RUNNING, WaitingList,
+                        Process.State.WAITING, WaitingList,
                         Process.State.TERMINATED, FinishedList),
                 ProcessProgress,
                 ProcessViewModel::getProgress,
@@ -452,84 +453,85 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         ObservableList<ObjectProperty<GanttLine>> observableLineList = FXCollections.observableArrayList(ganttLines.values());
         ganttChart.setItems(observableLineList);
 
-        pampaSimViewModel.getGanttData().addListener(new MapChangeListener<PidAllocator.Pid, ObservableMap<Integer, Process.State>>() {
-            @Override
-            public void onChanged(Change<? extends PidAllocator.Pid, ? extends ObservableMap<Integer, Process.State>> change) {
-                if (change.wasAdded()) {
-                    var val = new SimpleMapProperty<>(change.getValueAdded());
-                    var pid = change.getKey();
-                    // FIXME: this might be too slow, consider exposing a hashmap for these queries
-                    var pvm = pampaSimViewModel.getAllProcesses().filtered(p -> p.getPid().get() == pid).getFirst();
-                    // we can get away with a non-observable pid here since PIDs increment monotonically (save for reuse)
-                    var line = new GanttLine(pid, val, pvm.getColorProperty());
-                    ganttLines.compute(pid, (_k, v) -> {
-                        if (v == null) {
-                            v = new SimpleObjectProperty<>(line);
-                        } else {
-                            v.set(line);
-                        }
-                        return v;
-                    });
-                    LOGGER.trace("added gantt info for PID {} = {}", change.getKey(), line.toString());
-                } else if (change.wasRemoved()) {
-                    LOGGER.trace("removed gantt info for PID {}", change.getKey());
-                    ganttLines.remove(change.getKey());
-                    if (pampaSimViewModel.getGanttData().isEmpty()) {
-                        // wipe the table data too
-                        resetGanttColumns();
-                    }
-                }
-                observableLineList.setAll(ganttLines.values()); // sync with the table list
-            }
-        });
-
-        pampaSimViewModel // what a ride
-                .simulatedScenario
-                .getSimulation()
-                .addListener((observableSim, oldSim, sim) ->
-                        sim.getRealClock()
-                                .addListener((observableClock, _oldNumber, number) -> {
-                                    LOGGER.info("adding column for {}", number);
-                                    if (number.intValue() < ganttChart.getColumns().size()-1) { return; } // don't rollback
-                                    TableColumn<ObjectProperty<GanttLine>, Process.State> col = new TableColumn<>(number.toString());
-                                    col.setCellValueFactory(cellData ->
-                                            ganttValueFactory(cellData.getValue(), number.intValue()));
-                                    col.setCellFactory( column -> new TableCell<>() {
-                                                @Override
-                                                protected void updateItem(Process.State item, boolean empty) {
-                                                    super.updateItem(item, empty);
-                                                    if (item == null || empty) { setText(null); setStyle(""); return; }
-                                                    setText(String.valueOf(pampaSimViewModel.getStateChar().get(item)));
-                                                    setTooltip(new Tooltip(item.toString())); // FIXME: localization?
-                                                    var staticColorMap = Map.of(
-                                                            Process.State.NEW, "#00000010", // dark tint
-                                                            Process.State.TERMINATED, "#00000000" // nothing
-                                                    );
-                                                    String hexColor = staticColorMap.get(item);
-                                                    if (hexColor == null) {
-                                                        // then it's a dynamic color, calculate it
-                                                        var procClr = getTableRow().getItem().getValue().color.getValue();
-                                                        byte alpha = (byte) switch (item) {
-                                                            case Process.State.NEW, Process.State.TERMINATED -> 0; // exhaustive compliance, never reached
-                                                            case Process.State.IO_RUNNING, Process.State.WAITING, Process.State.IO_WAITING -> 127; // half-bright
-                                                            case Process.State.READY -> 80; // faint
-                                                            case Process.State.SCHEDULED -> 32; // really faint
-                                                            case Process.State.RUNNING -> 255; // full bright
-                                                        };
-                                                        var colorTuple = new byte[]{
-                                                                ((byte) (procClr.getRed() * 255)),
-                                                                ((byte) (procClr.getGreen() * 255)),
-                                                                ((byte) (procClr.getBlue() * 255)),
-                                                                alpha};
-
-                                                        hexColor = "#" + HexFormat.of().formatHex(colorTuple);
-                                                    }
-                                                    setStyle("-fx-background-color: " + hexColor);
-                                                }
-                                    });
-                                    ganttChart.getColumns().add(col);
-                                    ganttChart.scrollToColumn(col); // we like seeing the progress
-                                }));
+        // FIXME
+//        pampaSimViewModel.getGanttData().addListener(new MapChangeListener<PidAllocator.Pid, ObservableMap<Integer, Process.State>>() {
+//            @Override
+//            public void onChanged(Change<? extends PidAllocator.Pid, ? extends ObservableMap<Integer, Process.State>> change) {
+//                if (change.wasAdded()) {
+//                    var val = new SimpleMapProperty<>(change.getValueAdded());
+//                    var pid = change.getKey();
+//                    // FIXME: this might be too slow, consider exposing a hashmap for these queries
+//                    var pvm = pampaSimViewModel.getAllProcesses().filtered(p -> p.getPid().get() == pid).getFirst();
+//                    // we can get away with a non-observable pid here since PIDs increment monotonically (save for reuse)
+//                    var line = new GanttLine(pid, val, pvm.getColorProperty());
+//                    ganttLines.compute(pid, (_k, v) -> {
+//                        if (v == null) {
+//                            v = new SimpleObjectProperty<>(line);
+//                        } else {
+//                            v.set(line);
+//                        }
+//                        return v;
+//                    });
+//                    LOGGER.trace("added gantt info for PID {} = {}", change.getKey(), line.toString());
+//                } else if (change.wasRemoved()) {
+//                    LOGGER.trace("removed gantt info for PID {}", change.getKey());
+//                    ganttLines.remove(change.getKey());
+//                    if (pampaSimViewModel.getGanttData().isEmpty()) {
+//                        // wipe the table data too
+//                        resetGanttColumns();
+//                    }
+//                }
+//                observableLineList.setAll(ganttLines.values()); // sync with the table list
+//            }
+//        });
+//
+//        pampaSimViewModel // what a ride
+//                .simulatedScenario
+//                .getSimulation()
+//                .addListener((observableSim, oldSim, sim) ->
+//                        sim.getRealClock()
+//                                .addListener((observableClock, _oldNumber, number) -> {
+//                                    LOGGER.info("adding column for {}", number);
+//                                    if (number.intValue() < ganttChart.getColumns().size()-1) { return; } // don't rollback
+//                                    TableColumn<ObjectProperty<GanttLine>, Process.State> col = new TableColumn<>(number.toString());
+//                                    col.setCellValueFactory(cellData ->
+//                                            ganttValueFactory(cellData.getValue(), number.intValue()));
+//                                    col.setCellFactory( column -> new TableCell<>() {
+//                                                @Override
+//                                                protected void updateItem(Process.State item, boolean empty) {
+//                                                    super.updateItem(item, empty);
+//                                                    if (item == null || empty) { setText(null); setStyle(""); return; }
+//                                                    setText(String.valueOf(pampaSimViewModel.getStateChar().get(item)));
+//                                                    setTooltip(new Tooltip(item.toString())); // FIXME: localization?
+//                                                    var staticColorMap = Map.of(
+//                                                            Process.State.NEW, "#00000010", // dark tint
+//                                                            Process.State.TERMINATED, "#00000000" // nothing
+//                                                    );
+//                                                    String hexColor = staticColorMap.get(item);
+//                                                    if (hexColor == null) {
+//                                                        // then it's a dynamic color, calculate it
+//                                                        var procClr = getTableRow().getItem().getValue().color.getValue();
+//                                                        byte alpha = (byte) switch (item) {
+//                                                            case Process.State.NEW, Process.State.TERMINATED -> 0; // exhaustive compliance, never reached
+//                                                            case Process.State.IO_RUNNING, Process.State.WAITING, Process.State.IO_WAITING -> 127; // half-bright
+//                                                            case Process.State.READY -> 80; // faint
+//                                                            case Process.State.SCHEDULED -> 32; // really faint
+//                                                            case Process.State.RUNNING -> 255; // full bright
+//                                                        };
+//                                                        var colorTuple = new byte[]{
+//                                                                ((byte) (procClr.getRed() * 255)),
+//                                                                ((byte) (procClr.getGreen() * 255)),
+//                                                                ((byte) (procClr.getBlue() * 255)),
+//                                                                alpha};
+//
+//                                                        hexColor = "#" + HexFormat.of().formatHex(colorTuple);
+//                                                    }
+//                                                    setStyle("-fx-background-color: " + hexColor);
+//                                                }
+//                                    });
+//                                    ganttChart.getColumns().add(col);
+//                                    ganttChart.scrollToColumn(col); // we like seeing the progress
+//                                }));
     }
 
     protected ObservableValue<Process.State> ganttValueFactory(

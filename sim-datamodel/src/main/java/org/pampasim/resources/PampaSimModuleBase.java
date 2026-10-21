@@ -47,11 +47,6 @@ public abstract class PampaSimModuleBase implements PampaSimModule {
     }
 
     @Override
-    public void setProcessToProcessVMMap(Map<Process, ProcessViewModel> pvmMap) {
-        this.pvmMap = pvmMap;
-    }
-
-    @Override
     public void setProcessVMObservableList(ObservableList<ProcessViewModel> obProcList) {
         this.processVMObservableList = obProcList;
     }
