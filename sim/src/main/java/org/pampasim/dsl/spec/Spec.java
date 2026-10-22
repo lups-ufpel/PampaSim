@@ -551,7 +551,7 @@ public class Spec {
                 .scan()
         ) {
             ClassInfoList schedulerClasses =
-                    scanResult.getSubclasses(PampaSimModule.class.getName())
+                    scanResult.getClassesImplementing(PampaSimModule.class.getName())
                             .filter(ClassInfo::isStandardClass)
                             .filter(ci -> !ci.isAbstract());
 

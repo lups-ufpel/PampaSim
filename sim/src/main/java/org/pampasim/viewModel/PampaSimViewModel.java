@@ -266,11 +266,20 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void setSimulationModules(AddModulesRecord userSelection) throws IOException, ModuleSimulation.ConfigError {
-        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
+        if (simulationRunning.get()) {
+            return;
+        }
         var spec = simulatedScenario.getSpec();
         var moduleList = spec.getInnerSpec().getExtraModules().getModule();
-        moduleList.clear();
-        moduleList.addAll(userSelection.modules());
+        var additionalModules = userSelection.modules().stream()
+                .filter(moduleName -> !moduleList.contains(moduleName))
+                .distinct()
+                .toList();
+        if (additionalModules.isEmpty()) {
+            return;
+        }
+        simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
+        moduleList.addAll(additionalModules);
         syncWithSpec();
     }
 
@@ -283,6 +292,8 @@ public class PampaSimViewModel implements ViewModel {
 
     public void syncWithSpec() {
         allProcesses.clear();
+        pvmMap.clear();
+        simulationStatisticsViewModel.getModuleStatisticsViewModels().clear();
         this.asciiReportClock = 0;
         this.ganttData.clear();
         var spec = simulatedScenario.getSpec();
@@ -560,7 +571,12 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void openAddModuleDialog() {
-        List<String> modules = simulatedScenario.getSpec().listAvailableModules();
+        List<String> modules = simulatedScenario.getSpec().listAvailableModules().stream()
+                .filter(moduleName -> simulatedScenario.getLoadedModuleByName(moduleName) == null)
+                .toList();
+        if (modules.isEmpty()) {
+            return;
+        }
         addModulesDialogService.showDialog(modules).ifPresent(userSelection -> {
             try {
                 setSimulationModules(userSelection);
@@ -569,6 +585,7 @@ public class PampaSimViewModel implements ViewModel {
             }
         });
     }
+
     public void openCreateProcessDialog() {
         LOGGER.trace("createProcessDialogService.moduleInfo = {}", createProcessDialogService.getModuleInfo());
         createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
