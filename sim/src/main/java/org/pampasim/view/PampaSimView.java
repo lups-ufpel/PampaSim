@@ -245,6 +245,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                         Process.State.READY, ReadyList,
                         Process.State.RUNNING, RunningList,
                         Process.State.SCHEDULED, WaitingList,
+                        Process.State.WAITING, WaitingList,
                         Process.State.IO_WAITING, WaitingList,
                         Process.State.IO_RUNNING, WaitingList,
                         Process.State.WAITING, WaitingList,
@@ -368,9 +369,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         );
 
         addModuleBtn.disableProperty().bind(
-                pampaSimViewModel
-                        .getSimulationIsValidSetup()
-                        .or(pampaSimViewModel.getSimulationRunning())
+                pampaSimViewModel.getSimulationRunning()
         );
 
         resetBtn.disableProperty()
