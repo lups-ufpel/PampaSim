@@ -1,0 +1,10 @@
+- [ ] make configuration persistent for all the dialogues
+- [ ] fix modules not using fat pampasim processes
+- [ ] fix quantum ticker showing for all schedulers indiscriminately
+- [x] implement module load after initialization
+- [ ] update examples / more examples
+- [ ] check if CTSS scheduler is working properly
+- [ ] module stats should update, they are not updating!
+- [ ] process inspector must show module info, it is not
+- [ ] better interface for spec loading? maybe show spec info in a label
+- [ ] persistent "user preferences" inside the JAR? should be doable (feature creep maybe)
