@@ -388,39 +388,35 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     private void generateCSVReport(Simulation sim) {
-        // FIXME
-//        int maxRealTick = sim.getRealClock().get();
-//
-//        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
-//        var headerBuilder = new StringBuilder("pid");
-//        for (var x = 0; x <= maxRealTick; x++) {
-//            headerBuilder.append(",").append(x);
-//        }
-//        headerBuilder.append("\n");
-//
-//        String csv = headerBuilder.toString() + ganttData
-//            .entrySet()
-//            .stream()
-//            .sorted(Map.Entry.comparingByKey())
-//            .map(procEntry -> {
-//                        var stateMap = procEntry.getValue();
-//                        var rowBuilder = new StringBuilder()
-//                                .append(procEntry.getKey()); // pid
-//                        range.get().map(stateMap::get).forEach(state -> {
-//                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
-//                        });
-//                        return rowBuilder.append("\n").toString();
-//                    }).reduce((l,r) -> l.concat("\n").concat(r))
-//                .orElse("couldn't generate csv report");
-//        try {
-//            Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-//        } catch (IOException e) {
-//            LOGGER.error("couldn't write CSV simulation report!", e);
-//        }
+        int maxRealTick = sim.getRealClock().get();
+
+        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+        var headerBuilder = new StringBuilder("pid");
+        for (var x = 0; x <= maxRealTick; x++) {
+            headerBuilder.append(",").append(x);
+        }
+        headerBuilder.append("\n");
+
+        String csv = headerBuilder.toString() + allProcesses.stream().flatMap(pvm -> Stream.ofNullable(pvm.getProcessRef().get()))
+            .map(proc -> {
+                var fatProc = (PampaSimFatProcess) proc;
+                        var stateMap = fatProc.getGanttData();
+                        var rowBuilder = new StringBuilder()
+                                .append(fatProc.getPid());
+                        range.get().map(stateMap::get).forEach(state -> {
+                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
+                        });
+                        return rowBuilder.append("\n").toString();
+                    }).reduce((l,r) -> l.concat("\n").concat(r))
+                .orElse("couldn't generate csv report");
+        try {
+            Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            LOGGER.error("couldn't write CSV simulation report!", e);
+        }
     }
 
     private void generateASCIIReport(Simulation sim) {
-        // FIXME
         int maxRealTick = sim.getRealClock().get();
         long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
         int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
