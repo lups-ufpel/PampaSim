@@ -421,32 +421,31 @@ public class PampaSimViewModel implements ViewModel {
 
     private void generateASCIIReport(Simulation sim) {
         // FIXME
-//        int maxRealTick = sim.getRealClock().get();
-//        long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
-//        int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
-//        int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
-//
-//        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
-//        String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
-//                + "    " + " ".repeat(pidWidth) + " | "
-//                + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
-//                .reduce((l,r) -> l.concat(" ").concat(r))
-//                .orElseThrow()
-//                + "\n";
-//        String asciiReportPrintout = "\n\tReport\n" + header +
-//            ganttData
-//                .entrySet()
-//                .stream()
-//                .sorted(Map.Entry.comparingByKey())
-//                .map(procEntry -> {
-//                    var stateMap = procEntry.getValue();
-//                    return "pid " + procEntry.getKey() + " |"
-//                            + range.get().map(stateMap::get).map(state ->
-//                            String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
-//                    ).reduce(String::concat).orElseThrow();
-//                }).reduce((l,r) -> l.concat("\n").concat(r))
-//                .orElse("couldn't generate report");
-//        LOGGER.log(Level.INFO, asciiReportPrintout);
+        int maxRealTick = sim.getRealClock().get();
+        long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
+        int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
+        int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
+
+        Supplier<Stream<Integer>> range = () -> IntStream.rangeClosed(0, maxRealTick).boxed();
+        String header = "pid " + " ".repeat(pidWidth) + " | clocks\n"
+                + "    " + " ".repeat(pidWidth) + " | "
+                + range.get().map(t -> String.format("%0"+cellWidth+"d", t))
+                .reduce((l,r) -> l.concat(" ").concat(r))
+                .orElseThrow()
+                + "\n";
+        String asciiReportPrintout = "\n\tReport\n" + header +
+            allProcesses.stream()
+                    .flatMap(pvm -> Stream.ofNullable(pvm.getProcessRef().get()))
+                .map(proc -> {
+                    var fatProc = (PampaSimFatProcess) proc;
+                    var stateMap = fatProc.getGanttData();
+                    return "pid " + fatProc.getPid() + " |"
+                            + range.get().map(stateMap::get).map(state ->
+                            String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
+                    ).reduce(String::concat).orElseThrow();
+                }).reduce((l,r) -> l.concat("\n").concat(r))
+                .orElse("couldn't generate report");
+        LOGGER.log(Level.INFO, asciiReportPrintout);
     }
 
     private void setSimulationRunning(boolean running) {

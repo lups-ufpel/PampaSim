@@ -1,54 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<spec
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://pampasim.org/"
-        xmlns:process="http://pampasim.org/events/process">
-    <version>
-        <major>2</major>
-        <minor>3</minor>
-        <patch>2</patch>
-    </version>
-    <entities>
-        <entity>
-            <fullyQualifiedClassName>org.pampasim.entity.schedulers.SJF</fullyQualifiedClassName>
-        </entity>
-    </entities>
-    <stimuli>
-        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <process:processCreationDataPayload>
-                <process:durationTicks>8</process:durationTicks>
-                <process:startPriority>0</process:startPriority>
-                <process:displayColor>990000</process:displayColor>
-            </process:processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <process:processCreationDataPayload>
-                <process:durationTicks>6</process:durationTicks>
-                <process:startPriority>0</process:startPriority>
-                <process:displayColor>b31a1a</process:displayColor>
-            </process:processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <process:processCreationDataPayload>
-                <process:durationTicks>4</process:durationTicks>
-                <process:startPriority>0</process:startPriority>
-                <process:displayColor>ff6666</process:displayColor>
-            </process:processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <process:processCreationDataPayload>
-                <process:durationTicks>2</process:durationTicks>
-                <process:startPriority>0</process:startPriority>
-                <process:displayColor>ff9999</process:displayColor>
-            </process:processCreationDataPayload>
-        </event>
-        <event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0">
-            <process:processCreationDataPayload>
-                <process:durationTicks>1</process:durationTicks>
-                <process:startPriority>0</process:startPriority>
-                <process:displayColor>e6b3cc</process:displayColor>
-            </process:processCreationDataPayload>
-        </event>
-    </stimuli>
-</spec>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns3:spec xmlns:ns6="http://pampasim.org/events/memory" xmlns:ns5="http://pampasim.org/memory" xmlns:ns2="http://pampasim.org/spec/decls" xmlns:ns4="http://pampasim.org/events/process" xmlns:ns3="http://pampasim.org/">
+    <ns3:version>
+        <ns3:major>2</ns3:major>
+        <ns3:minor>5</ns3:minor>
+        <ns3:patch>0</ns3:patch>
+    </ns3:version>
+    <ns3:extra-modules/>
+    <ns3:entities>
+        <ns3:entity>
+            <ns2:fullyQualifiedClassName>org.pampasim.entity.schedulers.SRTN</ns2:fullyQualifiedClassName>
+        </ns3:entity>
+    </ns3:entities>
+    <ns3:stimuli>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>6</ns4:durationTicks>
+                <ns4:startPriority>0</ns4:startPriority>
+                <ns4:displayColor>bbd928</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="2" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>1</ns4:durationTicks>
+                <ns4:startPriority>0</ns4:startPriority>
+                <ns4:displayColor>da2854</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="5" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>3</ns4:durationTicks>
+                <ns4:startPriority>0</ns4:startPriority>
+                <ns4:displayColor>3281c4</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="6" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>10</ns4:durationTicks>
+                <ns4:startPriority>0</ns4:startPriority>
+                <ns4:displayColor>21d629</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+    </ns3:stimuli>
+</ns3:spec>
