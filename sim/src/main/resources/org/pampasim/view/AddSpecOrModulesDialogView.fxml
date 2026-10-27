@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.ButtonType?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Region?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<DialogPane xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView" prefWidth="780" prefHeight="540" minWidth="780" minHeight="540" style="-fx-font-size: 17px;">
+<DialogPane minHeight="540" minWidth="780" prefHeight="540" prefWidth="780" style="-fx-font-size: 17px;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.AddSpecOrModulesDialogView">
   <content>
-    <VBox spacing="10" alignment="CENTER">
+    <VBox alignment="CENTER" spacing="10">
+         <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+               <Image url="@../../../imgs/pampasimlogo.png" />
+            </image>
+            <VBox.margin>
+               <Insets bottom="35.0" />
+            </VBox.margin>
+         </ImageView>
 
       <Label text="Módulos Ativos:" />
-      <VBox spacing="10" alignment="CENTER">
-          <CheckBox fx:id="processorCheckBox" text="Processador" disable="true" selected="true" prefWidth="100"/>
-          <CheckBox fx:id="memoryCheckBox" text="Memória" prefWidth="100"/>
+      <VBox alignment="CENTER" spacing="10">
+          <CheckBox fx:id="processorCheckBox" disable="true" prefHeight="24.0" selected="true" text="Processador" />
+          <CheckBox fx:id="memoryCheckBox" text="Memória" />
       </VBox>
       <Region prefHeight="5" />
-      <Label fx:id ="specFeedback" text="${viewModel.specFeedback}" />
+      <Label fx:id="specFeedback" text="${viewModel.specFeedback}" />
           <Button fx:id="loadSpecBtn" alignment="CENTER" contentDisplay="TOP" graphicTextGap="5.0" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSpec" text="Carregar Cenário" textFill="#1976d2">
             <tooltip>
               <Tooltip text="Carrega arquivo de descrição de cenário" />

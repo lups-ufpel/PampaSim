@@ -9,6 +9,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * The main entry point for PampaSim application.
@@ -18,7 +19,7 @@ import java.nio.file.Path;
  *     - Start the JavaFX main thread.
  * </p>
  */
-@Command(name="PampaSim", mixinStandardHelpOptions = true)
+@Command(name="PampaSim", mixinStandardHelpOptions = true, versionProvider = Launcher.BakedVersionProvider.class)
 public class Launcher implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(Launcher.class);
     private static String[] args;
@@ -53,6 +54,14 @@ public class Launcher implements Runnable {
         @Override
         public Level convert(String value) throws Exception {
             return Level.valueOf(value.toUpperCase());
+        }
+    }
+
+    static class BakedVersionProvider implements CommandLine.IVersionProvider {
+        @Override
+        public String[] getVersion() throws Exception {
+            var versionArr = List.of(VersionInfo.getMajor(), VersionInfo.getMinor(), VersionInfo.getPatch());
+            return new String[] { String.join(".", versionArr.stream().map(String::valueOf).toList()) };
         }
     }
 }
