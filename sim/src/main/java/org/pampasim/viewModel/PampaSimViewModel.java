@@ -287,7 +287,6 @@ public class PampaSimViewModel implements ViewModel {
 
     public void syncWithSpec() {
         allProcesses.clear();
-        pvmMap.clear();
         simulationStatisticsViewModel.getModuleStatisticsViewModels().clear();
         this.asciiReportClock = 0;
         simulatedScenario.resetToSpec();
