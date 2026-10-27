@@ -76,7 +76,6 @@ public class MemoryModule extends PampaSimModuleBase {
         memoryStatisticsViewModel = new MemoryStatisticsViewModel();
         memoryModuleVM = new MemoryModuleViewModel(
                 memSim,
-                pvmMap,
                 processVMObservableList,
                 memoryStatisticsViewModel
         );

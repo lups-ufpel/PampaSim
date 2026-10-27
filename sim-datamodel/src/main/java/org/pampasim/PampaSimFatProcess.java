@@ -1,13 +1,9 @@
 package org.pampasim;
 
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
-import org.pampasim.core.utils.PidAllocator;
-import org.pampasim.resources.ProcessImpl;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 /**
