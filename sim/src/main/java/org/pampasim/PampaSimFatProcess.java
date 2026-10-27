@@ -19,8 +19,6 @@ public class PampaSimFatProcess implements org.pampasim.resources.Process {
     @Getter
     @Setter
     ProcessViewModel processViewModel = null;
-    @Getter
-    ObservableMap<Integer, State> ganttData = FXCollections.observableHashMap();
 
     public PampaSimFatProcess(org.pampasim.resources.Process process) {
         this.process = process;

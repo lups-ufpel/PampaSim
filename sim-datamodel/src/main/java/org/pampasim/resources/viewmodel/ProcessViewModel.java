@@ -4,6 +4,7 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.NonNull;
@@ -32,6 +33,9 @@ public class ProcessViewModel implements ViewModel {
     private final IntegerProperty currExecTime = new SimpleIntegerProperty(0);
     private final IntegerProperty burstTime = new SimpleIntegerProperty(0);
     private final IntegerProperty endTime = new SimpleIntegerProperty();
+
+    // Gantt state data
+    ObservableMap<Integer, Process.State> ganttData = FXCollections.observableHashMap();
 
     // bodge to make the UD part of CRUD work with the edit and remove buttons
     private final Consumer<ProcessViewModel> editCallback;
@@ -82,6 +86,8 @@ public class ProcessViewModel implements ViewModel {
                 .filter(proc -> proc.getCreationData().equals(this.creationData))
                 .map(proc -> {
                     this.processRef = new WeakReference<>(candidate);
+                    this.syncWithProcess();
+                    // all done, this viewModel is updated and sane
                     this.deferredModuleInitializers.forEach(c -> c.accept(this));
                     return proc;
                 }).isPresent();
@@ -93,5 +99,19 @@ public class ProcessViewModel implements ViewModel {
                 .map(clazz::cast)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void syncWithProcess() {
+        var proc = this.getProcessRef().get();
+        assert proc != null;
+        this.getPid().set(proc.getPid());
+        this.setState(proc.getState());
+        this.getPriority().set(proc.getPriority());
+        this.getCurrExecTime().set(proc.getCurrExecTime());
+        this.getBurstTime().set(proc.getBurstTime());
+        double current = proc.getCurrExecTime();
+        double total = proc.getCreationData().durationTicks();
+        this.getProgress().set(current/total);
+        this.getEndTime().set(proc.getEndTime());
     }
 }

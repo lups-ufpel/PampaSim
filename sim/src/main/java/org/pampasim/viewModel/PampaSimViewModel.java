@@ -313,7 +313,7 @@ public class PampaSimViewModel implements ViewModel {
             }
         }
 
-        { // Update ascii report
+        { // Update ascii report & Gantt chart
             if (blockedTick) {
                 asciiReportClock = sim.getRealClock().get();
                 for (ProcessViewModel pvm : allProcesses) {
@@ -321,9 +321,7 @@ public class PampaSimViewModel implements ViewModel {
                     if (pid == null) {
                         continue;
                     }
-                    PampaSimFatProcess fatProcess = (PampaSimFatProcess) pvm.getProcessRef().get();
-                    assert fatProcess != null;
-                    fatProcess.getGanttData().put(asciiReportClock, pvm.getState());
+                    pvm.getGanttData().put(asciiReportClock, pvm.getState());
                 }
             }
         }
@@ -358,17 +356,7 @@ public class PampaSimViewModel implements ViewModel {
                     return Optional.ofNullable(fatProc.getProcessViewModel());
                 });
 
-        pvmOpt.ifPresent(pvm -> {
-            pvm.getPid().set(proc.getPid());
-            pvm.setState(proc.getState());
-            pvm.getPriority().set(proc.getPriority());
-            pvm.getCurrExecTime().set(proc.getCurrExecTime());
-            pvm.getBurstTime().set(proc.getBurstTime());
-            double current = proc.getCurrExecTime();
-            double total = proc.getCreationData().durationTicks();
-            pvm.getProgress().set(current/total);
-            pvm.getEndTime().set(proc.getEndTime());
-        });
+        pvmOpt.ifPresent(pvm -> pvm.syncWithProcess());
 
         // updating the wait time for the processes in the scheduler queue
         if (event instanceof org.pampasim.events.Process.Run || event instanceof org.pampasim.events.Process.RunPaused) {
@@ -397,17 +385,16 @@ public class PampaSimViewModel implements ViewModel {
         }
         headerBuilder.append("\n");
 
-        String csv = headerBuilder.toString() + allProcesses.stream().flatMap(pvm -> Stream.ofNullable(pvm.getProcessRef().get()))
-            .map(proc -> {
-                var fatProc = (PampaSimFatProcess) proc;
-                        var stateMap = fatProc.getGanttData();
-                        var rowBuilder = new StringBuilder()
-                                .append(fatProc.getPid());
-                        range.get().map(stateMap::get).forEach(state -> {
-                            rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
-                        });
-                        return rowBuilder.append("\n").toString();
-                    }).reduce((l,r) -> l.concat("\n").concat(r))
+        String csv = headerBuilder + allProcesses.stream()
+                .map(pvm -> {
+                    var stateMap = pvm.getGanttData();
+                    var rowBuilder = new StringBuilder()
+                            .append(pvm.getPid().get());
+                    range.get().map(stateMap::get).forEach(state -> {
+                        rowBuilder.append(",").append((state != null) ? stateChar.get(state) : '?');
+                    });
+                    return rowBuilder.append("\n").toString();
+                }).reduce((l,r) -> l.concat("\n").concat(r))
                 .orElse("couldn't generate csv report");
         try {
             Files.writeString(Paths.get("gantt.csv"), csv, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -431,11 +418,9 @@ public class PampaSimViewModel implements ViewModel {
                 + "\n";
         String asciiReportPrintout = "\n\tReport\n" + header +
             allProcesses.stream()
-                    .flatMap(pvm -> Stream.ofNullable(pvm.getProcessRef().get()))
-                .map(proc -> {
-                    var fatProc = (PampaSimFatProcess) proc;
-                    var stateMap = fatProc.getGanttData();
-                    return "pid " + fatProc.getPid() + " |"
+                .map(pvm -> {
+                    var stateMap = pvm.getGanttData();
+                    return "pid " + pvm.getPid().get() + " |"
                             + range.get().map(stateMap::get).map(state ->
                             String.format("%" + (cellWidth+1) + "s", (state != null)? stateChar.get(state) : '?')
                     ).reduce(String::concat).orElseThrow();
