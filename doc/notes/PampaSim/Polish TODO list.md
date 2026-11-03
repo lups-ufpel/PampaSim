@@ -11,3 +11,4 @@
 - [ ] check if SRTN and other preemptive schedulers are doing the preempting correctly (arrival tick != preemption tick)
 - [ ] fix memory tab going out of sync if detached  ![[out-of-sync memory tab.png]]
 - [ ] fix statistics window going out of sync too
+- [ ] add scrollbar to the process views

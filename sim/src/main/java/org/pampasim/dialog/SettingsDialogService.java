@@ -9,7 +9,9 @@ import javafx.scene.control.DialogPane;
 import lombok.Getter;
 import lombok.Setter;
 import org.pampasim.core.dialog.DialogService;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
+import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.viewModel.SimulationSetupDialogViewModel;
 
 import java.util.List;
@@ -22,25 +24,32 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
     @Getter
     @Setter
     private boolean memoryModulePresent = false;
+    private List<? extends Class<? extends Scheduler>> schedulerClasses;
+    private List<? extends Class<? extends PageReplacementAlgorithm>> pageReplacementAlgorithms;
 
+    public SettingsDialogService(List<? extends Class<? extends Scheduler>> schedulerClasses, List<? extends Class<? extends PageReplacementAlgorithm>> pageReplacementAlgorithms) {
+        this.schedulerClasses = schedulerClasses;
+        this.pageReplacementAlgorithms = pageReplacementAlgorithms;
+    }
     @Override
     public Optional<SchedulerSelectionRecord> showDialog(Object... args) {
         var dialogViewModel = new SimulationSetupDialogViewModel();
         dialogViewModel.setMemoryModulePresent(memoryModulePresent);
 
-        if (args.length > 0 && args[0] instanceof List<?> rawList) {
-            List<String> schedulerNames = (List<String>) rawList;
-            dialogViewModel.setSchedulerNames(schedulerNames);
-        }
+        // TODO: find a way to use short/long descriptions to build the UI
+        var schedulerNames = schedulerClasses
+                .stream()
+                .map(clazz -> { return clazz.getSimpleName(); })
+                .toList();
+        dialogViewModel.setSchedulerNames(schedulerNames);
 
-        if (args.length > 1 && args[1] instanceof List<?> rawList) {
-            List<String> pageReplacementAlgorithmNames = (List<String>) rawList.stream()
-                    .filter(str -> !str.equals("AbstractPageReplacementAlgorithm"))
-                    .collect(Collectors.toList());
-            dialogViewModel.setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
-        }
+        var pageReplacementAlgorithmNames = pageReplacementAlgorithms
+                .stream()
+                .map(clazz -> clazz.getSimpleName())
+                .toList();
+        dialogViewModel.setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
 
-        if (args.length > 2 && args[2] instanceof SchedulerSelectionRecord initialSettings) {
+        if (args.length > 0 && args[0] instanceof SchedulerSelectionRecord initialSettings) {
             dialogViewModel.initializeFrom(initialSettings);
         }
 

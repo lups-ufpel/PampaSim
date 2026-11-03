@@ -25,6 +25,7 @@ import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryModule;
 import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
+import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
 import org.pampasim.dialog.*;
@@ -60,7 +61,7 @@ public class PampaSimViewModel implements ViewModel {
     private final SimulationStatisticsViewModel simulationStatisticsViewModel = new SimulationStatisticsViewModel();;
 
     //***** Dialog services *****//
-    private final SettingsDialogService settingsDialogService = new SettingsDialogService();
+    private SettingsDialogService settingsDialogService;
     private final AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
     private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
     private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
@@ -156,7 +157,6 @@ public class PampaSimViewModel implements ViewModel {
             }
 
             simulationStatisticsViewModel.updateStatistics(sim, allProcesses);
-
             return sim;
         },
                 module -> {
@@ -175,8 +175,19 @@ public class PampaSimViewModel implements ViewModel {
                     }
                 });
         loadedModules.set(simulatedScenario.getLoadedModules());
-    }
 
+        // dialog services
+        List<? extends Class<? extends Scheduler>> schedulers
+                = simulatedScenario.getSpec().listAvailableSchedulers();
+        List<? extends Class<? extends PageReplacementAlgorithm>> pageReplacementAlgorithms = List.of();
+
+        // TODO / FIXME: hardcoded module handling
+        var memoryModuleLoaded = simulatedScenario.getSpec().getLoadedModules().containsKey(MemoryModule.class);
+        if (memoryModuleLoaded) {
+            pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
+        }
+        settingsDialogService = new SettingsDialogService(schedulers, pageReplacementAlgorithms);
+    }
 
     public void loadSpec(Path path) {
         try {
@@ -458,9 +469,6 @@ public class PampaSimViewModel implements ViewModel {
         scenarioIsSaved.set(simulatedScenario.isSaved());
     }
     public void openSettingsDialog() {
-        List<String> schedulers = simulatedScenario.getSpec().listAvailableSchedulers();
-
-        final boolean[] closedWithoutApply = {false};
 
         // TODO/FIXME: hardcoded memory module handling
         var memoryModuleLoaded = simulatedScenario.getSpec().getLoadedModules().containsKey(MemoryModule.class);
@@ -474,14 +482,7 @@ public class PampaSimViewModel implements ViewModel {
                 memoryModuleLoaded ? memoryModule.getSettings() : null
         );
 
-        Optional<SchedulerSelectionRecord> result;
-
-        if (memoryModuleLoaded) {
-            List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
-            result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms, initialSettings);
-        } else {
-            result = settingsDialogService.showDialog(schedulers, List.of(), initialSettings);
-        }
+        Optional<SchedulerSelectionRecord> result = settingsDialogService.showDialog(initialSettings);
 
         // Process the result
         if (result.isPresent()) {

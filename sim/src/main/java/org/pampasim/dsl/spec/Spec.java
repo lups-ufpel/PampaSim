@@ -507,7 +507,7 @@ public class Spec {
         }
     }
 
-    public List<String> listAvailableSchedulers() {
+    public List<? extends Class<? extends Scheduler>> listAvailableSchedulers() {
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .ignoreClassVisibility()
@@ -519,14 +519,14 @@ public class Spec {
                             .filter(ClassInfo::isStandardClass)
                             .filter(ci -> !ci.isAbstract());
 
-            return schedulerClasses.stream()
-                    .map(ClassInfo::getSimpleName)
-                    .sorted()
-                    .collect(Collectors.toList());
+            return schedulerClasses
+                    .stream()
+                    .map(classInfo -> (Class<? extends Scheduler>)classInfo.loadClass())
+                    .toList();
         }
     }
 
-    public List<String> listAvailablePageSubstitutionAlgorithms() {
+    public List<? extends Class<? extends PageReplacementAlgorithm>> listAvailablePageSubstitutionAlgorithms() {
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .ignoreClassVisibility()
@@ -535,12 +535,13 @@ public class Spec {
         ) {
             ClassInfoList implClasses = scanResult
                     .getClassInfo(PageReplacementAlgorithm.class.getName())
-                    .getClassesImplementing();
+                    .getClassesImplementing()
+                    .filter(ci -> !ci.isAbstract());
 
-            return implClasses.stream()
-                    .map(ClassInfo::getSimpleName)
-                    .sorted()
-                    .collect(Collectors.toList());
+            return implClasses
+                    .stream()
+                    .map(classInfo -> (Class<? extends PageReplacementAlgorithm>)classInfo.loadClass())
+                    .toList();
         }
     }
 

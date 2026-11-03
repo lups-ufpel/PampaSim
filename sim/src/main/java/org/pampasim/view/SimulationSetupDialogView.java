@@ -88,6 +88,7 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
         setInitialValue(quantumSpinner, viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
+        //viewModel.getSelectedScheduler()
 
         memoryTab.disableProperty().bind(viewModel.memoryModulePresentProperty().not());
 
