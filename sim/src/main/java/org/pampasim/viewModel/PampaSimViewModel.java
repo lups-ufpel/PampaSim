@@ -477,7 +477,7 @@ public class PampaSimViewModel implements ViewModel {
         var scheduler = simulatedScenario.getSimulation().get().getEntity(Scheduler.class);
         var initialSettings = new SchedulerSelectionRecord(
                 scheduler.getClass().getSimpleName(),
-                false,
+                scheduler instanceof RespectsQuantum,
                 scheduler instanceof RespectsQuantum quantumScheduler ? quantumScheduler.getQuantum() : 2,
                 memoryModuleLoaded ? memoryModule.getSettings() : null
         );
