@@ -1,6 +1,6 @@
 - [x] make configuration persistent for all the dialogues
 - [ ] fix modules not using fat pampasim processes
-- [ ] fix quantum ticker showing for all schedulers indiscriminately
+- [x] fix quantum ticker showing for all schedulers indiscriminately
 - [x] implement module load after initialization
 - [ ] update examples / more examples
 - [ ] check if CTSS scheduler is working properly
@@ -12,3 +12,4 @@
 - [ ] fix memory tab going out of sync if detached  ![[out-of-sync memory tab.png]]
 - [ ] fix statistics window going out of sync too
 - [ ] add scrollbar to the process views
+- [ ] CTSS does glitch out for some reason, check CTSS-bug.xml

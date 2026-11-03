@@ -18,6 +18,8 @@ public class SimulationSetupDialogViewModel implements ViewModel {
 
         // ─────────────── Process Scheduling ─────────────
     private final StringProperty selectedScheduler = new SimpleStringProperty();
+    private final StringProperty schedulerShortDescription = new SimpleStringProperty();
+    private final StringProperty schedulerLongDescription = new SimpleStringProperty();
     private final BooleanProperty preemptive       = new SimpleBooleanProperty(false);
     private final IntegerProperty quantum          = new SimpleIntegerProperty(2);
 
@@ -102,6 +104,13 @@ public class SimulationSetupDialogViewModel implements ViewModel {
 
     public StringProperty selectedSchedulerProperty() {
         return selectedScheduler;
+    }
+    public StringProperty schedulerShortDescriptionProperty() {
+        return schedulerShortDescription;
+    }
+
+    public StringProperty schedulerLongDescriptionProperty() {
+        return schedulerLongDescription;
     }
     public BooleanProperty preemptiveProperty() {
         return preemptive;

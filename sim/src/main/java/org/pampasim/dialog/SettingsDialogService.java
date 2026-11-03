@@ -59,6 +59,7 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
                         .load();
 
         Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setResizable(true);
         DialogPane dialogPane = (DialogPane) viewTuple.getView();
         dialog.setDialogPane(dialogPane);
 

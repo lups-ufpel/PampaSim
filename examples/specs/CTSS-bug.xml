@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns3:spec xmlns:ns6="http://pampasim.org/events/memory" xmlns:ns5="http://pampasim.org/memory" xmlns:ns2="http://pampasim.org/spec/decls" xmlns:ns4="http://pampasim.org/events/process" xmlns:ns3="http://pampasim.org/">
+    <ns3:version>
+        <ns3:major>2</ns3:major>
+        <ns3:minor>5</ns3:minor>
+        <ns3:patch>0</ns3:patch>
+    </ns3:version>
+    <ns3:extra-modules/>
+    <ns3:entities>
+        <ns3:entity>
+            <ns2:fullyQualifiedClassName>org.pampasim.entity.schedulers.CTSS</ns2:fullyQualifiedClassName>
+            <ns2:quantum>2</ns2:quantum>
+        </ns3:entity>
+    </ns3:entities>
+    <ns3:stimuli>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>12</ns4:durationTicks>
+                <ns4:startPriority>2</ns4:startPriority>
+                <ns4:displayColor>de5f2a</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>14</ns4:durationTicks>
+                <ns4:startPriority>1</ns4:startPriority>
+                <ns4:displayColor>24c883</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+        <ns3:event fullyQualifiedClassName="org.pampasim.events.External.Arrival" tick="0" intraTickOrder="0">
+            <ns4:processCreationDataPayload>
+                <ns4:durationTicks>20</ns4:durationTicks>
+                <ns4:startPriority>0</ns4:startPriority>
+                <ns4:displayColor>b744c8</ns4:displayColor>
+            </ns4:processCreationDataPayload>
+        </ns3:event>
+    </ns3:stimuli>
+</ns3:spec>

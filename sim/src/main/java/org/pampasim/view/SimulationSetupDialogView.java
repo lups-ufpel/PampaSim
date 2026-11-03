@@ -9,10 +9,12 @@ import javafx.scene.control.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.entity.schedulers.RespectsQuantum;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.viewModel.SimulationSetupDialogViewModel;
 import javafx.event.ActionEvent;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -23,6 +25,8 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
     
     @FXML
     ChoiceBox<String> schedulerChoiceBox;
+    @FXML
+    private Label schedulerDesc;
     @FXML
     Spinner<Integer> quantumSpinner;
 
@@ -97,14 +101,20 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
                         .loadClass("org.pampasim.entity.schedulers." + schedulerName);
 
                 var respectsQuantum = RespectsQuantum.class.isAssignableFrom(schedulerClass);
+                // it is really dumb that we have to do this
+                Scheduler instance = (Scheduler) schedulerClass.getConstructor().newInstance();
                 viewModel.preemptiveProperty().set(respectsQuantum);
+                viewModel.schedulerShortDescriptionProperty().set(instance.shortDescription());
+                viewModel.schedulerLongDescriptionProperty().set(instance.longDescription());
                 LOGGER.debug("{} is {}", schedulerName, respectsQuantum? "preemptive" : "not preemptive");
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |
+                     InvocationTargetException e) {
                 // ignore
             }
         });
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
         setInitialValue(quantumSpinner, viewModel.getQuantum());
+        schedulerDesc.textProperty().bind(viewModel.schedulerLongDescriptionProperty());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
         quantumSpinner.disableProperty().bind(viewModel.preemptiveProperty().not());
         quantumSpinner.editableProperty().bind(viewModel.preemptiveProperty().not());
