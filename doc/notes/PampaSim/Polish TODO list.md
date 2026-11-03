@@ -9,3 +9,5 @@
 - [ ] better interface for spec loading? maybe show spec info in a label
 - [ ] persistent "user preferences" inside the JAR? should be doable (feature creep maybe)
 - [ ] check if SRTN and other preemptive schedulers are doing the preempting correctly (arrival tick != preemption tick)
+- [ ] fix memory tab going out of sync if detached  ![[out-of-sync memory tab.png]]
+- [ ] fix statistics window going out of sync too

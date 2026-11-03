@@ -192,6 +192,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
 
     private void onLoadModule(PampaSimModule m) {
+        LOGGER.trace("onLoadModule for {}", m);
         Tab moduleTab = m.getModuleTab();
         if (moduleTab != null) {
             moduleTabPane.getTabs().add(moduleTab);

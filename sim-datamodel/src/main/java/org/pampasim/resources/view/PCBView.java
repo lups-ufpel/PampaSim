@@ -8,6 +8,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
 import java.util.HashSet;
@@ -15,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class PCBView implements FxmlView<ProcessViewModel> {
-
+    private static final Logger LOGGER = LogManager.getLogger(PCBView.class);
     @InjectViewModel
     ProcessViewModel viewModel;
 
