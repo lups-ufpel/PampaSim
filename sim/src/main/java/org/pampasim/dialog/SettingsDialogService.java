@@ -25,27 +25,33 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
 
     @Override
     public Optional<SchedulerSelectionRecord> showDialog(Object... args) {
-
-        ViewTuple<org.pampasim.view.SimulationSetupDialogView, SimulationSetupDialogViewModel> viewTuple =
-                FluentViewLoader.fxmlView(org.pampasim.view.SimulationSetupDialogView.class).load();
-
-        viewTuple.getViewModel().setMemoryModulePresent(memoryModulePresent);
-
-        Dialog<ButtonType> dialog = new Dialog<>();
-        DialogPane dialogPane = (DialogPane) viewTuple.getView();
-        dialog.setDialogPane(dialogPane);
+        var dialogViewModel = new SimulationSetupDialogViewModel();
+        dialogViewModel.setMemoryModulePresent(memoryModulePresent);
 
         if (args.length > 0 && args[0] instanceof List<?> rawList) {
             List<String> schedulerNames = (List<String>) rawList;
-            viewTuple.getViewModel().setSchedulerNames(schedulerNames);
+            dialogViewModel.setSchedulerNames(schedulerNames);
         }
 
         if (args.length > 1 && args[1] instanceof List<?> rawList) {
             List<String> pageReplacementAlgorithmNames = (List<String>) rawList.stream()
                     .filter(str -> !str.equals("AbstractPageReplacementAlgorithm"))
                     .collect(Collectors.toList());
-            viewTuple.getViewModel().setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
+            dialogViewModel.setPageSubstitutionAlgorithmNames(pageReplacementAlgorithmNames);
         }
+
+        if (args.length > 2 && args[2] instanceof SchedulerSelectionRecord initialSettings) {
+            dialogViewModel.initializeFrom(initialSettings);
+        }
+
+        ViewTuple<org.pampasim.view.SimulationSetupDialogView, SimulationSetupDialogViewModel> viewTuple =
+                FluentViewLoader.fxmlView(org.pampasim.view.SimulationSetupDialogView.class)
+                        .viewModel(dialogViewModel)
+                        .load();
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        DialogPane dialogPane = (DialogPane) viewTuple.getView();
+        dialog.setDialogPane(dialogPane);
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
@@ -81,4 +87,3 @@ public class SettingsDialogService implements DialogService<SchedulerSelectionRe
         return Optional.empty();
     }
 }
-

@@ -86,7 +86,7 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         // Scheduler section
         schedulerChoiceBox.setItems(viewModel.schedulerNameProperty());
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
-        quantumSpinner.getValueFactory().setValue(viewModel.getQuantum());
+        setInitialValue(quantumSpinner, viewModel.getQuantum());
         viewModel.quantumProperty().bind(quantumSpinner.getValueFactory().valueProperty());
 
         memoryTab.disableProperty().bind(viewModel.memoryModulePresentProperty().not());
@@ -95,15 +95,15 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         //memorySectionVBox.managedProperty().bind(viewModel.memoryModulePresentProperty());
 
         // Memory section
-        pageSizeSpinner.getValueFactory().setValue(viewModel.getPageSize());
-        maxPagesSpinner.getValueFactory().setValue(viewModel.getMaxPagesPerProcess());
-        ramFramesSpinner.getValueFactory().setValue(viewModel.getFramesInRAM());
-        swapFramesSpinner.getValueFactory().setValue(viewModel.getFramesInSwap());
-        workingSetWindowSpinner.getValueFactory().setValue(viewModel.getWorkingSetWindow());
-        loadedPagesCountSpinner.getValueFactory().setValue(viewModel.getPrePagingRange());
-        topThresholdSpinner.getValueFactory().setValue(viewModel.getVariablePageAllocationTopThreshold());
-        bottomThresholdSpinner.getValueFactory().setValue(viewModel.getVariablePageAllocationBottomThreshold());
-        tlbEntriesSpinner.getValueFactory().setValue(viewModel.getTlbEntries());
+        setInitialValue(pageSizeSpinner, viewModel.getPageSize());
+        setInitialValue(maxPagesSpinner, viewModel.getMaxPagesPerProcess());
+        setInitialValue(ramFramesSpinner, viewModel.getFramesInRAM());
+        setInitialValue(swapFramesSpinner, viewModel.getFramesInSwap());
+        setInitialValue(workingSetWindowSpinner, viewModel.getWorkingSetWindow());
+        setInitialValue(loadedPagesCountSpinner, viewModel.getPrePagingRange());
+        setInitialValue(topThresholdSpinner, viewModel.getVariablePageAllocationTopThreshold());
+        setInitialValue(bottomThresholdSpinner, viewModel.getVariablePageAllocationBottomThreshold());
+        setInitialValue(tlbEntriesSpinner, viewModel.getTlbEntries());
 
         viewModel.pageSizeProperty().bind(pageSizeSpinner.getValueFactory().valueProperty());
         viewModel.maxPagesPerProcessProperty().bind(maxPagesSpinner.getValueFactory().valueProperty());
@@ -149,7 +149,7 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         });
 
         tlbExistsCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            tlbEntriesSpinner.setDisable(!newVal);
+            tlbEntriesSpinner.setDisable(tlbExistsCheckBox.isDisabled() || !newVal);
         });
         tlbExistsCheckBox.selectedProperty().bindBidirectional(viewModel.tlbEnabledProperty());
 
@@ -157,7 +157,7 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         pageLoadingPolicyChoiceBox.setValue(viewModel.anticipatedPageLoadingProperty().get() ? "Antecipada" : "Demanda");
         pageAllocationPolicyChoiceBox.setValue(viewModel.variablePageAllocationProperty().get() ? "Variável" : "Fixa");
 
-        tlbEntriesSpinner.setDisable(!tlbExistsCheckBox.isSelected());
+        tlbEntriesSpinner.setDisable(tlbExistsCheckBox.isDisabled() || !tlbExistsCheckBox.isSelected());
         boolean enableThresholds = pageAllocationPolicyChoiceBox.getValue().equals("Variável");
         topThresholdSpinner.setDisable(!enableThresholds);
         bottomThresholdSpinner.setDisable(!enableThresholds);
@@ -191,5 +191,18 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         return (n > 0) && ((n & (n - 1)) == 0);
     }
 
+    private void setInitialValue(Spinner<Integer> spinner, int value) {
+        var valueFactory = (SpinnerValueFactory.IntegerSpinnerValueFactory) spinner.getValueFactory();
+        valueFactory.setMin(Math.min(valueFactory.getMin(), value));
+        valueFactory.setMax(Math.max(valueFactory.getMax(), value));
+        valueFactory.setValue(value);
+    }
 
+    private void setInitialValue(Spinner<Double> spinner, double value) {
+        var valueFactory = (SpinnerValueFactory.DoubleSpinnerValueFactory) spinner.getValueFactory();
+        valueFactory.setConverter(new javafx.util.converter.DoubleStringConverter());
+        valueFactory.setMin(Math.min(valueFactory.getMin(), value));
+        valueFactory.setMax(Math.max(valueFactory.getMax(), value));
+        valueFactory.setValue(value);
+    }
 }

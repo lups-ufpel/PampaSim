@@ -35,6 +35,8 @@ import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 import org.pampasim.core.events.Event;
+import org.pampasim.resources.view.PCBView;
+import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -97,6 +99,11 @@ public class MemoryModule extends PampaSimModuleBase {
     }
 
     @Override
+    public PCBView.ModulePCBView getPCBViewExtension() {
+        return new org.pampasim.memory.view.pcb.Memory();
+    }
+
+    @Override
     public ModuleInfoViewModel newModuleInfoVM(Object config) throws ModuleSimulation.ConfigError {
         if (! (config instanceof MemoryProcessCreationData processMemConfig)) {
             throw new ModuleSimulation.ConfigError("module info type mismatch");
@@ -110,6 +117,46 @@ public class MemoryModule extends PampaSimModuleBase {
     @Override
     public StatisticsViewModel getStatisticsViewModel() {
         return memoryStatisticsViewModel;
+    }
+
+    public MemoryConfigSelectionRecord getSettings() {
+        return new MemoryConfigSelectionRecord(
+                MemoryConfig.getPageSize() / 1024,
+                MemoryConfig.getMaxPagesPerProcess(),
+                MemoryConfig.getFramesInRAM(),
+                MemoryConfig.getFramesInSwap(),
+                MemoryConfig.getSwapOperationLength(),
+                MemoryConfig.getWorkingSetWindow(),
+                MemoryConfig.getPageSubstitutionAlgorithm(),
+                MemoryConfig.isGlobalPageSubstitution(),
+                MemoryConfig.isAnticipatedPageLoading(),
+                MemoryConfig.getPrePagingRange(),
+                MemoryConfig.isVariablePageAllocation(),
+                MemoryConfig.getVariablePageAllocationTopThreshold(),
+                MemoryConfig.getVariablePageAllocationBottomThreshold(),
+                MemoryConfig.isTlbEnabled(),
+                MemoryConfig.getTlbEntries()
+        );
+    }
+
+    public void applySettings(MemoryConfigSelectionRecord settings) {
+        MemoryConfig.initialize(
+                settings.pageSize(),
+                settings.maxPagesPerProcess(),
+                settings.framesInRAM(),
+                settings.framesInSwap(),
+                settings.swapOperationLength(),
+                settings.workingSetWindow(),
+                settings.pageSubstitutionAlgorithm(),
+                settings.globalPageSubstitution(),
+                settings.anticipatedPageLoading(),
+                settings.prePagingRange(),
+                settings.variablePageAllocation(),
+                settings.variablePageAllocationTopThreshold(),
+                settings.variablePageAllocationBottomThreshold(),
+                settings.tlbEnabled(),
+                settings.tlbEntries()
+        );
     }
 
     @Override

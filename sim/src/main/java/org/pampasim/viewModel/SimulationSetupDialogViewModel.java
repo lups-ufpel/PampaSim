@@ -4,6 +4,7 @@ import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.pampasim.dialog.SchedulerSelectionRecord;
 
 import java.util.List;
 
@@ -46,6 +47,31 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public void setSchedulerNames(List<String> names) {
         schedulerName.setAll(names);
         setDefaultSelectedScheduler(names);
+    }
+
+    public void initializeFrom(SchedulerSelectionRecord settings) {
+        selectedScheduler.set(settings.schedulerName());
+        preemptive.set(settings.preemptive());
+        quantum.set(settings.quantum());
+
+        var memorySettings = settings.memoryConfig();
+        if (memorySettings != null) {
+            pageSize.set(memorySettings.pageSize());
+            maxPagesPerProcess.set(memorySettings.maxPagesPerProcess());
+            framesInRAM.set(memorySettings.framesInRAM());
+            framesInSwap.set(memorySettings.framesInSwap());
+            swapOperationLength.set(memorySettings.swapOperationLength());
+            workingSetWindow.set(memorySettings.workingSetWindow());
+            pageSubstitutionAlgorithm.set(memorySettings.pageSubstitutionAlgorithm());
+            globalPageSubstitution.set(memorySettings.globalPageSubstitution());
+            anticipatedPageLoading.set(memorySettings.anticipatedPageLoading());
+            prePagingRange.set(memorySettings.prePagingRange());
+            variablePageAllocation.set(memorySettings.variablePageAllocation());
+            variablePageAllocationTopThreshold.set(memorySettings.variablePageAllocationTopThreshold());
+            variablePageAllocationBottomThreshold.set(memorySettings.variablePageAllocationBottomThreshold());
+            tlbEnabled.set(memorySettings.tlbEnabled());
+            tlbEntries.set(memorySettings.tlbEntries());
+        }
     }
 
     public void setPageSubstitutionAlgorithmNames(List<String> algorithmNames) {

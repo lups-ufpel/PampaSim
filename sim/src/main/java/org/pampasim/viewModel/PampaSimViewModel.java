@@ -31,6 +31,7 @@ import org.pampasim.dialog.*;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.viewmodel.*;
 import org.pampasim.resources.dialog.*;
+import org.pampasim.entity.schedulers.RespectsQuantum;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -464,14 +465,22 @@ public class PampaSimViewModel implements ViewModel {
         // TODO/FIXME: hardcoded memory module handling
         var memoryModuleLoaded = simulatedScenario.getSpec().getLoadedModules().containsKey(MemoryModule.class);
         settingsDialogService.setMemoryModulePresent(memoryModuleLoaded);
+        var memoryModule = (MemoryModule) simulatedScenario.getLoadedModules().get(MemoryModule.class);
+        var scheduler = simulatedScenario.getSimulation().get().getEntity(Scheduler.class);
+        var initialSettings = new SchedulerSelectionRecord(
+                scheduler.getClass().getSimpleName(),
+                false,
+                scheduler instanceof RespectsQuantum quantumScheduler ? quantumScheduler.getQuantum() : 2,
+                memoryModuleLoaded ? memoryModule.getSettings() : null
+        );
 
         Optional<SchedulerSelectionRecord> result;
 
         if (memoryModuleLoaded) {
             List<String> pageReplacementAlgorithms = simulatedScenario.getSpec().listAvailablePageSubstitutionAlgorithms();
-            result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms);
+            result = settingsDialogService.showDialog(schedulers, pageReplacementAlgorithms, initialSettings);
         } else {
-            result = settingsDialogService.showDialog(schedulers);
+            result = settingsDialogService.showDialog(schedulers, List.of(), initialSettings);
         }
 
         // Process the result
@@ -479,27 +488,7 @@ public class PampaSimViewModel implements ViewModel {
             // User pressed OK/Apply
             SchedulerSelectionRecord selection = result.get();
             if (memoryModuleLoaded) {
-                MemoryConfigSelectionRecord mem = selection.memoryConfig();
-                MemoryConfig.initialize(
-                        mem.pageSize(),
-                        mem.maxPagesPerProcess(),
-                        mem.framesInRAM(),
-                        mem.framesInSwap(),
-                        mem.swapOperationLength(),
-                        mem.workingSetWindow(),
-                        mem.pageSubstitutionAlgorithm(),
-                        mem.globalPageSubstitution(),
-                        mem.anticipatedPageLoading(),
-                        mem.prePagingRange(),
-                        mem.variablePageAllocation(),
-                        mem.variablePageAllocationTopThreshold(),
-                        mem.variablePageAllocationBottomThreshold(),
-                        mem.tlbEnabled(),
-                        mem.tlbEntries()
-                );
-                var memoryModule = simulatedScenario
-                        .getLoadedModules()
-                        .get(MemoryModule.class);
+                memoryModule.applySettings(selection.memoryConfig());
 
                 simulatedScenario.getSpec().upsertEntityConfig(
                         memoryModule.getSimulation().generateSpecEntityConfig()

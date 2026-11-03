@@ -142,7 +142,8 @@ public class MemoryModuleViewModel implements ViewModel {
         }
 
         // Update MemoryInfoViewModel for all matching processes which have a bound process view model
-        observableProcessList.stream().forEach(procVm -> {
+        PampaSimFatProcess fatProcess = (PampaSimFatProcess) process;
+        Optional.ofNullable(fatProcess.getProcessViewModel()).ifPresent(procVm -> {
             procVm.getModuleInfoViewModels()
                     .forEach(m -> {
                         if (!(m instanceof MemoryInfoViewModel)) {
