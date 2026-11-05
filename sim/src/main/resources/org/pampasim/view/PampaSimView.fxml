@@ -23,7 +23,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="200.0" minWidth="200.0" prefHeight="600.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
@@ -85,11 +85,11 @@
                                 <content>
                                 <SplitPane fx:id="simPane" dividerPositions="0.15" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" orientation="VERTICAL">
                                     <items>
-                                        <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" spacing="10.0">
+                                        <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
                                             <children>
-                                                <VBox alignment="CENTER" minWidth="20.0" nodeOrientation="LEFT_TO_RIGHT">
+                                                <VBox alignment="CENTER" fillWidth="false" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" HBox.hgrow="NEVER">
                                                     <children>
-                                                        <Label text="CPU">
+                                                        <Label text="CPU" textAlignment="CENTER" textOverrun="CLIP">
                                                             <font>
                                                                 <Font name="System Bold" size="24.0" />
                                                             </font>
@@ -129,7 +129,7 @@
                                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                         </StackPane.margin>
                                                     </HBox>
-                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Criados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
+                                                    <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Declarados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
                                                         <StackPane.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                         </StackPane.margin>
@@ -235,7 +235,7 @@
                                              <content>
                                                 <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                                                    <content>
-                                                      <TableView fx:id="ganttChart" minHeight="300.0" minWidth="800.0" >
+                                                      <TableView fx:id="ganttChart" minHeight="300.0" minWidth="800.0">
                                                         <columns>
                                                         </columns>
                                                       </TableView>
@@ -350,6 +350,6 @@
         </ToolBar>
     </top>
     <bottom>
-        <Label text="StatusLine WIP" />
+        <Label fx:id="statusLineLabel" text="StatusLine WIP" />
     </bottom>
 </BorderPane>

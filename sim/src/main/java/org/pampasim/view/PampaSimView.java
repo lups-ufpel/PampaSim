@@ -53,6 +53,8 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @InjectViewModel
     private PampaSimViewModel pampaSimViewModel;
     @FXML
+    public Label statusLineLabel;
+    @FXML
     public SplitPane simPane;
     @FXML
     public ScrollPane masterScrollPane;
@@ -123,6 +125,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
 
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
+        updateStatusLine();
         pampaSimViewModel.startSimulation();
         if(pampaSimViewModel.getSimulationRunning().get()) {
             LOGGER.debug("started animation");
@@ -130,6 +133,12 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         }
         lastStepT = Instant.now();
     }
+
+    private void updateStatusLine() {
+        String val = pampaSimViewModel.simulatedScenario.getSpec().getSchedulerConfig().getFullyQualifiedClassName();
+        statusLineLabel.textProperty().set(val);
+    }
+
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.syncWithSpec();
