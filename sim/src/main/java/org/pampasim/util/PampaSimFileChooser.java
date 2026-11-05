@@ -13,9 +13,14 @@ public class PampaSimFileChooser {
         fileChooser = new FileChooser();
         fileChooser
             .getExtensionFilters()
-            .add(new FileChooser.ExtensionFilter(
+            .addAll(
+                    new FileChooser.ExtensionFilter(
                     "PampaSim Spec (*.xml)",
-                    "*.xml"));
+                    "*.xml"),
+                    new FileChooser.ExtensionFilter(
+                            "Todos (*)",
+                            "*.*")
+            );
     }
 
     public static File showSaveDialog(Stage stage) {
