@@ -20,7 +20,7 @@
 <?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<AnchorPane prefHeight="621.0" prefWidth="929.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.memory.view.MemoryTabView">
+<AnchorPane prefHeight="621.0" prefWidth="929.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.memory.view.MemoryTabView">
     <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <AnchorPane maxWidth="253.0" minHeight="0.0" minWidth="253.0" prefHeight="160.0" prefWidth="100.0" SplitPane.resizableWithParent="false">
             <SplitPane dividerPositions="0.75" minWidth="253.0" orientation="VERTICAL" prefHeight="609.0" prefWidth="253.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -154,8 +154,8 @@
             </SplitPane>
         </AnchorPane>
         <!-- Right panel (memory visualization) -->
-        <SplitPane dividerPositions="0.2520193861066236, 0.7189014539579968" orientation="VERTICAL" prefHeight="609.0" prefWidth="347.0">
-            <VBox alignment="TOP_CENTER" maxHeight="150.0" minHeight="150.0">
+        <SplitPane dividerPositions="0.8, 0.7189" orientation="VERTICAL">
+            <VBox alignment="TOP_CENTER" maxHeight="150.0" minHeight="150.0" prefHeight="150.0">
                 <children>
                     <Label contentDisplay="CENTER" style="-fx-font-weight: bold; -fx-font-size: 15;" text="Operações de Disco" textAlignment="CENTER" />
                     <VBox VBox.vgrow="ALWAYS">
@@ -219,14 +219,14 @@
                 </children>
             </VBox>
             <!-- Main Memory Section -->
-            <VBox alignment="TOP_CENTER">
+            <VBox alignment="TOP_CENTER" prefHeight="0.0">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Memória Principal" />
                 <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                     <TilePane fx:id="mainTilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />
                 </ScrollPane>
             </VBox>
             <!-- SwapFile Section -->
-            <VBox alignment="TOP_CENTER">
+            <VBox alignment="TOP_CENTER" prefWidth="0.0">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 15;" text="Swapfile" />
                 <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
                     <TilePane fx:id="swapTilepane" hgap="5" prefTileHeight="50.0" prefTileWidth="35.0" style="-fx-padding: 5;" tileAlignment="TOP_CENTER" vgap="5" />

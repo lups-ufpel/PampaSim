@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.pampasim.PampaSim;
 import org.pampasim.PampaSimFatProcess;
 import org.pampasim.PampaSimModule;
 import org.pampasim.core.dialog.DialogService;
@@ -35,6 +36,7 @@ import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.view.ProcessView;
+import org.pampasim.util.PampaSimFileChooser;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
@@ -166,9 +168,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                 return; // early return, aborting the op.
             }
         }
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open specification file");
-        File file = fileChooser.showOpenDialog(null);
+        File file = PampaSimFileChooser.showLoadDialog();
         if (file != null) {
             pampaSimViewModel.loadSpec(Paths.get(file.getPath()));
         }
@@ -177,16 +177,34 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public void saveSpec() {
         Path currentPath = pampaSimViewModel.getCurrentSpecPath();
-        if (currentPath != null) {
-            pampaSimViewModel.saveSpec(currentPath);
-        } else {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save specification file");
-            File file = fileChooser.showSaveDialog(null);
-            if (file == null) {
-                return;
-            }
+        Runnable saveAsProc = () -> {
+            File file = PampaSimFileChooser.showSaveDialog(null);
+            if (file == null) { return; } // handle this better? no clue when it might return null
             pampaSimViewModel.saveSpec(file.toPath());
+        };
+        if (currentPath != null) {
+            Alert saveAsDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            ButtonType choices[] = new ButtonType[] {
+                    new ButtonType("Salvar", ButtonBar.ButtonData.APPLY),
+                    new ButtonType("Salvar Como...", ButtonBar.ButtonData.LEFT),
+                    new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE)
+            };
+            saveAsDialog.getButtonTypes().addAll(choices);
+            saveAsDialog.setTitle("Sobreescrever Spec?");
+            saveAsDialog.showAndWait().ifPresentOrElse(
+                    c -> {
+                        if (c == choices[0]) {
+                            pampaSimViewModel.saveSpec(currentPath);
+                        } else if (c == choices[1]) {
+                            saveAsProc.run();
+                        } else {
+                            return;
+                        }
+                    },
+                    () -> saveAsProc.run()
+            );
+        } else {
+            saveAsProc.run();
         }
         pampaSimViewModel.updateProps();
     }

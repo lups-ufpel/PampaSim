@@ -5,6 +5,8 @@ import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.stage.FileChooser;
 import javafx.scene.control.Label;
 import javafx.scene.control.CheckBox;
+import org.pampasim.PampaSim;
+import org.pampasim.util.PampaSimFileChooser;
 import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
 
 import javafx.event.ActionEvent;
@@ -27,9 +29,7 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDial
 
     @FXML
     public void loadSpec(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open specification file");
-        File file = fileChooser.showOpenDialog(null);
+        File file = PampaSimFileChooser.showLoadDialog();
         viewModel.setSpecPath(Optional.of(file.getPath()));
     }
 

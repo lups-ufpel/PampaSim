@@ -13,3 +13,13 @@
 - [ ] fix statistics window going out of sync too
 - [ ] add scrollbar to the process views
 - [ ] CTSS does glitch out for some reason, check CTSS-bug.xml
+- [ ] fix missing memory info
+- [ ] fix missing swap operation ticks config in the GUI
+- [ ] fix gantt chart TERMINATED overwrite for the last tick
+- [ ] fix synchronization issues between existing windows
+- [ ] add a way to automatically upload releases to github
+- [ ] fix english lang scheduler descriptions
+- [ ] accumulate memory operation descriptions for every tick
+- [ ] make it so memory accesses are not one-to-one mapped to execution ticks
+- [ ] fix persistence of memory accesses between process creations
+- [ ] fix working set not being live updated

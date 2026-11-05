@@ -13,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import org.pampasim.util.PampaSimFileChooser;
 import org.pampasim.view.PampaSimView;
 import org.pampasim.viewModel.PampaSimViewModel;
 import org.apache.logging.log4j.LogManager;
@@ -141,9 +142,7 @@ public class PampaSimGUI extends Application {
                 if (path != null) {
                     viewModel.saveSpec(path);
                 } else {
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Salvar arquivo de especificação");
-                    File file = fileChooser.showSaveDialog(stage);
+                    File file = PampaSimFileChooser.showSaveDialog(stage);
                     if (file == null) {
                         event.consume();
                         return;
