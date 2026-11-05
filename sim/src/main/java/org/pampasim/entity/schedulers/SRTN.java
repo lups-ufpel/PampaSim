@@ -39,7 +39,8 @@ public class SRTN extends Scheduler {
 
     @Override
     public String longDescription() {
-        return "Preemptive scheduler that always selects the process that takes the least time from the queue, kicking the current process out if a smaller one comes up. Good for interactive systems, but may lead to starvation!";
+        return "Escalonador preemptivo que sempre escolhe o processo que levará o menor tempo para ser concluído da fila de prontos, despejando o processo em execução se uma tarefa menor aparecer. Bom para sistemas interativos, mas pode levar a starvation!";
+        //return "Preemptive scheduler that always selects the process that takes the least time from the queue, kicking the current process out if a smaller one comes up. Good for interactive systems, but may lead to starvation!";
     }
 
     @Override

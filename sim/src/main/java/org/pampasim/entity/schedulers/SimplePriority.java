@@ -19,7 +19,8 @@ public class SimplePriority extends RankingScheduler {
 
     @Override
     public String longDescription() {
-        return "Scheduler that always selects the highest (by integer value) priority in the queue. Not preemptive.";
+        return "Escalonador que sempre seleciona a prioridade maior da fila de prontos. Não preemptivo.";
+        //return "Scheduler that always selects the highest (by integer value) priority in the queue. Not preemptive.";
     }
 
     @Override

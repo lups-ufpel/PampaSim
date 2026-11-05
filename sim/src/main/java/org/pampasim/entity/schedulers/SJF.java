@@ -19,7 +19,8 @@ public class SJF extends RankingScheduler {
 
     @Override
     public String longDescription() {
-        return "Scheduler that always selects the process that takes the least time from the queue. Not preemptive, optimal turnaround time just as long as we get the whole batch at once.";
+        return "Escalonador que sempre escolhe o processo que levará o menor tempo da fila de prontos. Não preemptivo, tempo de turnaround ótimo, desde que o lote de tarefas apareça todo de uma vez.";
+        //return "Scheduler that always selects the process that takes the least time from the queue. Not preemptive, optimal turnaround time just as long as we get the whole batch at once.";
     }
 
     @Override

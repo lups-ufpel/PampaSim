@@ -19,7 +19,8 @@ public class FCFS extends RankingScheduler {
 
     @Override
     public String longDescription() {
-        return "Scheduler that follows a simple queue: the earlier you get in line, the earlier you get fulfilled. Not preemptive, simple solution for batched jobs.";
+        return "Escalonador de fila simples: quanto mais cedo o processo chega, mais rápido ele é processado. Não preemptivo, solução simples para tarefas em lote.";
+        //return "Scheduler that follows a simple queue: the earlier you get in line, the earlier you get fulfilled. Not preemptive, simple solution for batched jobs.";
     }
 
     @Override

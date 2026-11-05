@@ -34,7 +34,8 @@ public class CTSS extends Scheduler implements RespectsQuantum {
 
     @Override
     public String longDescription() {
-        return "Preemptive scheduler inspired on the Compatible Time-Sharing System from MIT. If a process takes more than 2^priority quanta to execute, its priority gets incremented so its next execution will have 2 times the quanta, but will come after shorter processes. Unique in that lower priorities come first.";
+        return "Escalonador preemptivo inspirado no Compatible Time-Sharing System do MIT. Se um processo consome mais que 2^prioridade quanta, a sua prioridade é aumentada para que sua próxima execução tenha o dobro de quanta, mas será escalonado depois de processos mais curtos. Notável por prioridades menores serem escalonadas primeiro.";
+        //return "Preemptive scheduler inspired on the Compatible Time-Sharing System from MIT. If a process takes more than 2^priority quanta to execute, its priority gets incremented so its next execution will have 2 times the quanta, but will come after shorter processes. Unique in that lower priorities come first.";
     }
 
     @Override

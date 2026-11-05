@@ -25,7 +25,8 @@ public class RoundRobin extends Scheduler implements RespectsQuantum {
 
     @Override
     public String longDescription() {
-        return "Preemptive scheduler that enforces a hard time limit for the running process, the quantum. Otherwise behaves as first-come, first-served.";
+        return "Escalonador preemptivo que respeita um limite de tempo fixo para o processo em execução, o quantum. Outrora se comporta como primeiro a chegar, primeiro processado.";
+        //return "Preemptive scheduler that enforces a hard time limit for the running process, the quantum. Otherwise behaves as first-come, first-served.";
     }
 
     @Override
