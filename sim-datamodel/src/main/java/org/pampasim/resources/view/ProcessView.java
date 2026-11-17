@@ -1,15 +1,12 @@
 package org.pampasim.resources.view;
 
-import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.core.utils.PidAllocator;
@@ -28,33 +25,12 @@ public class ProcessView implements FxmlView<ProcessViewModel> {
     @FXML
     Label number;
 
-    private Stage inspectorView = null;
-
     public void initialize() {
         circle.fillProperty().bind(viewModel.getColorProperty());
         number.textProperty().bind(viewModel.getPid().map(PidAllocator.Pid::toString));
     }
 
     public void showInfo(MouseEvent mouseEvent) {
-        if (inspectorView != null) {
-            if (inspectorView.isShowing()) {
-                inspectorView.requestFocus();
-                return;
-            }
-        }
-        var processInspectorViewTuple = FluentViewLoader
-                .fxmlView(ProcessInspectorView.class)
-                .viewModel(viewModel)
-                .load();
-
-        Stage stage = new Stage();
-        stage.setTitle("Informações do Processo");
-        stage.setScene(new Scene(processInspectorViewTuple.getView()));
-        stage.setResizable(true);
-        inspectorView = stage;
-        viewModel.subscribe("CloseInspectors", (_a, b) -> {
-            inspectorView = null;
-        });
-        stage.show();
+        ProcessInspectorView.showFor(viewModel);
     }
 }

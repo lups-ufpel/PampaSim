@@ -3,6 +3,7 @@ package org.pampasim.memory.view.pcb;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,6 +13,7 @@ import org.pampasim.memory.viewmodel.PageTableViewModel;
 import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -45,8 +47,11 @@ public class Memory implements PCBView.ModulePCBView {
     @FXML private Tab PCBTab;
     @FXML public Tab pageTableTab;
 
+    private MemoryInfoViewModel memoryInfo;
+    private ChangeListener<PageTableViewModel> pageTableListener;
+
     public void initialize() {
-        MemoryInfoViewModel memoryInfo = viewModel.getModuleInfoViewModel(MemoryInfoViewModel.class);
+        memoryInfo = viewModel.getModuleInfoViewModel(MemoryInfoViewModel.class);
 
         processMemoryInfoTitledPane.visibleProperty().set(memoryInfo != null);
         processMemoryInfoTitledPane.managedProperty().set(memoryInfo != null);
@@ -84,7 +89,7 @@ public class Memory implements PCBView.ModulePCBView {
 
             //here, set tab to visible
 
-            memoryInfo.getPageTableViewModel().addListener((obs, oldVal, newVal) -> {
+            pageTableListener = (obs, oldVal, newVal) -> {
                 boolean hasTable = newVal != null;
 
                 pageTableView.setVisible(hasTable);
@@ -97,7 +102,8 @@ public class Memory implements PCBView.ModulePCBView {
                 } else {
                     pageTableView.setItems(null);
                 }
-            });
+            };
+            memoryInfo.getPageTableViewModel().addListener(pageTableListener);
 
             PageTableViewModel pageTable = memoryInfo.getPageTableViewModel().get();
             boolean hasTable = pageTable != null;
@@ -112,6 +118,22 @@ public class Memory implements PCBView.ModulePCBView {
             }
 
         }
+    }
+
+    @Override
+    public void dispose() {
+        if (memoryInfo == null) {
+            return;
+        }
+
+        memoryInfo.getPageTableViewModel().removeListener(pageTableListener);
+        pageTableListener = null;
+        memoryInfo = null;
+        List.of(memorySizeLabel, maxPagesRamLabel, ioWaitingTime, pageHitsLabel,
+                pageFaultsLabel, pageFaultRateLabel, workingSetWindowLabel,
+                workingSetListLabel, accessListLabel)
+                .forEach(label -> label.textProperty().unbind());
+        pageTableView.setItems(null);
     }
 
     private void updatePageTableUI(PageTableViewModel pageTable) {

@@ -81,7 +81,7 @@
                     <tabs>
                         <Tab text="Processador">
                             <content>
-                                <ScrollPane fx:id="masterScrollPane" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" vbarPolicy="ALWAYS">
+                                <ScrollPane fx:id="masterScrollPane" fitToHeight="${ganttTab.selected}" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" vbarPolicy="ALWAYS">
                                 <content>
                                 <SplitPane fx:id="simPane" dividerPositions="0.15" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" orientation="VERTICAL">
                                     <items>
@@ -213,7 +213,7 @@
                                                         </font>
                                                     </Label>
                                                 </StackPane>
-                                                <TabPane fx:id="outputTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="20.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+                                                <TabPane fx:id="outputTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="20.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS">
                                                     <tabs>
                                                         <Tab text="Process Table">
                                                             <TableView fx:id="procTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="20.0">
@@ -231,17 +231,10 @@
                                                                 </columnResizePolicy>
                                                             </TableView>
                                                         </Tab>
-                                                        <Tab text="Gantt">
-                                             <content>
-                                                <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-                                                   <content>
-                                                      <TableView fx:id="ganttChart" minHeight="300.0" minWidth="800.0" >
-                                                        <columns>
-                                                        </columns>
-                                                      </TableView>
-                                                   </content>
-                                                </ScrollPane>
-                                             </content>
+                                                        <Tab fx:id="ganttTab" text="Gantt">
+                                                            <content>
+                                                                <TableView fx:id="ganttChart" minHeight="0.0" minWidth="0.0" />
+                                                            </content>
                                                         </Tab>
                                                     </tabs>
                                                 </TabPane>

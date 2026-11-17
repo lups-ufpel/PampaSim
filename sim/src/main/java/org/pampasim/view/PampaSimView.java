@@ -35,6 +35,7 @@ import org.pampasim.core.utils.PidAllocator;
 import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.view.PCBView;
+import org.pampasim.resources.view.ProcessInspectorView;
 import org.pampasim.resources.view.ProcessView;
 import org.pampasim.util.PampaSimFileChooser;
 import org.pampasim.viewModel.PampaSimViewModel;
@@ -133,6 +134,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     @FXML
     public void onResetSimulation(ActionEvent actionEvent) {
         pampaSimViewModel.syncWithSpec();
+        ProcessInspectorView.rebindOpenInspectors(pampaSimViewModel.getAllProcesses());
     }
     // somewhat misleading name, also called when the stop button is clicked
     @FXML

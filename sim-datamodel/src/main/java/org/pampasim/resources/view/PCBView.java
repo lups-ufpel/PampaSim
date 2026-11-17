@@ -12,7 +12,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,9 +25,15 @@ public class PCBView implements FxmlView<ProcessViewModel> {
 
     @FXML private TabPane PCBViewTabPane;
 
+    private final List<ModulePCBView> loadedExtensions = new ArrayList<>();
+
     public interface ModulePCBView extends FxmlView<ProcessViewModel> {
         Set<Tab> getTabs();
+
+        default void dispose() {
+        }
     }
+
     public record ModuleView(Class<? extends ModulePCBView> clazz) {};
     public static HashSet<ModuleView> moduleViews = new HashSet<>();
 
@@ -36,6 +44,7 @@ public class PCBView implements FxmlView<ProcessViewModel> {
                     .viewModel(viewModel)
                     .load();
             var controller = viewTuple.getCodeBehind();
+            loadedExtensions.add(controller);
             for (Tab t : controller.getTabs()) {
                 var existingTabOpt = PCBViewTabPane.getTabs().stream().filter(
                         et -> Objects.equals(et.getId(), t.getId())
@@ -73,6 +82,12 @@ public class PCBView implements FxmlView<ProcessViewModel> {
             }
         }
         PCBViewTabPane.requestLayout();
+    }
+
+    void dispose() {
+        loadedExtensions.forEach(ModulePCBView::dispose);
+        loadedExtensions.clear();
+        PCBViewTabPane.getTabs().clear();
     }
 
     /**
