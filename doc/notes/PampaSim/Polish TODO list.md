@@ -21,5 +21,5 @@
 - [ ] fix english lang scheduler descriptions
 - [ ] accumulate memory operation descriptions for every tick
 - [ ] make it so memory accesses are not one-to-one mapped to execution ticks
-- [ ] fix persistence of memory accesses between process creations
-- [ ] fix working set not being live updated
+- [x] fix persistence of memory accesses between process creations
+- [x] fix working set not being live updated

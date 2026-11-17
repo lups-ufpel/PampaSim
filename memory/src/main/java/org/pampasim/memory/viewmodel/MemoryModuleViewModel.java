@@ -291,6 +291,28 @@ public class MemoryModuleViewModel implements ViewModel {
         var fatProcess = (PampaSimFatProcess) process;
         int access = memoryInfo.getCurrentAccess();
         ProcessViewModel procVm = fatProcess.getProcessViewModel();
+        // A hit can complete a reference window shared by all processes.
+        for (var otherVm : observableProcessList) {
+            var processRef = otherVm.getProcessRef();
+            if (otherVm == procVm || processRef == null
+                    || !(processRef.get() instanceof PampaSimFatProcess otherProcess)) {
+                continue;
+            }
+            var boundVm = otherProcess.getProcessViewModel();
+            var otherInfo = otherProcess.getModuleInfo(ProcessMemoryInfo.class);
+            if (boundVm != otherVm || otherInfo == null) {
+                continue;
+            }
+            var otherMemoryVm = boundVm.getModuleInfoViewModel(MemoryInfoViewModel.class);
+            if (otherMemoryVm != null) {
+                var pages = otherInfo.getWorkingSet().stream()
+                        .map(PageTableEntry::getPageNumber)
+                        .toList();
+                if (!otherMemoryVm.getWorkingSet().equals(pages)) {
+                    otherMemoryVm.getWorkingSet().setAll(pages);
+                }
+            }
+        }
         infoTitle.set("Page Hit");
         infoText.set(" Processo " + process.getPid() + " acessou o endereço virtual " + access + " que está presente na memória RAM");
         infoColor.set(procVm.getColorProperty().get());

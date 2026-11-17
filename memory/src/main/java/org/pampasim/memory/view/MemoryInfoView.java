@@ -84,6 +84,9 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
     public Parent moduleInitializer(ViewTuple<CreateProcessDialogView, CreateProcessDialogViewModel> parentDialog) {
         this.parentVM = parentDialog.getViewModel();
         this.dialogPane = (DialogPane)parentDialog.getView();
+        accessEntries.clear();
+        memoryAccessesContainer.getChildren().clear();
+        viewModel.clearAccesses();
         this.getPageSize().setValue(MemoryConfig.getPageSize());
         ChangeListener<Number> durationListener = (obs, oldVal, newVal) -> {
             trimAccessesToDuration(newVal.intValue());
@@ -91,7 +94,7 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
         parentVM.processDurationProperty().addListener(durationListener);
 
         Button okButtonNode = (Button) dialogPane.lookupButton(parentDialog.getCodeBehind().okButton);
-        okButtonNode.setOnAction(event -> {
+        okButtonNode.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
             viewModel.clearAccesses();
 
             viewModel.parseAndSetFileBackedPages(fileBackedPagesField.getText());
@@ -101,7 +104,7 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
                     boolean modifies = entry.modifiesCheck.isSelected();
                     viewModel.addAccess(address, modifies);
                 } catch (NumberFormatException e) {
-                    //FIXME: not working properly
+                    event.consume();
                     // Handle invalid input
                     showAlert("Acesso Inválido", "Acesso " + entry + "é inválido, informe um endereço válido");
                     return; // Prevent dialog from closing
