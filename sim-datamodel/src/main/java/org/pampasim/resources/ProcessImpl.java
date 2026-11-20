@@ -36,6 +36,7 @@ public class ProcessImpl implements Process {
         this.pid = pid;
         this.state = State.NEW;
         this.creationData = creationData;
+        this.priority = creationData.startPriority();
         this.burstTime = creationData.durationTicks();
         this.currExecTime = 0;
         this.moduleInfo = new ArrayList<>();
