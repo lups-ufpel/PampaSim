@@ -7,13 +7,13 @@
 <?import javafx.scene.text.Font?>
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.resources.view.ProcessView">
-   <Circle fx:id="circle" centerX="30.0" centerY="30.0" onMouseClicked="#showInfo" radius="30.0" stroke="BLACK" strokeType="INSIDE">
+   <Circle fx:id="circle" centerX="15.0" centerY="15.0" onMouseClicked="#showInfo" radius="15.0" stroke="BLACK" strokeType="INSIDE">
       <cursor>
          <Cursor fx:constant="HAND" />
       </cursor></Circle>
-   <Label fx:id="number" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="60.0" minWidth="60.0" mouseTransparent="true" text="0" textAlignment="CENTER" textFill="WHITE">
+   <Label fx:id="number" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="30.0" minWidth="30.0" mouseTransparent="true" text="0" textAlignment="CENTER" textFill="WHITE">
       <font>
-         <Font size="34.0" />
+         <Font size="14.0" />
       </font>
    </Label>
 </Pane>

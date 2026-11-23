@@ -45,7 +45,7 @@
                                  styleClass="split-arrows-horizontal" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                         <Label text="Prioridade" GridPane.rowIndex="3"/>
-                        <Spinner fx:id="prioritySpinner" editable="true" max="999" min="-999"
+                        <Spinner fx:id="prioritySpinner" editable="true" max="999" min="0"
                                  styleClass="split-arrows-horizontal" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
                         <Label text="Cor" GridPane.rowIndex="4"/>

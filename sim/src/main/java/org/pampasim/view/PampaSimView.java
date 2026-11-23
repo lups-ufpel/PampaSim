@@ -30,8 +30,11 @@ import org.apache.logging.log4j.Logger;
 import org.pampasim.PampaSim;
 import org.pampasim.PampaSimFatProcess;
 import org.pampasim.PampaSimModule;
+import org.pampasim.SpecEntityDataMismatch;
 import org.pampasim.core.dialog.DialogService;
 import org.pampasim.core.utils.PidAllocator;
+import org.pampasim.entity.schedulers.RespectsQuantum;
+import org.pampasim.entity.schedulers.Scheduler;
 import org.pampasim.resources.ViewListBinder;
 import org.pampasim.resources.Process;
 import org.pampasim.resources.view.PCBView;
@@ -124,9 +127,17 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     public Label stepFreqReadOut;
     public Instant lastStepT;
 
+
+    /**
+     * Called immediately after the user finishes the configuration flow.
+     * Not an FXML callback!
+     */
+    public void onConfigured() {
+        updateStatusLine();
+    }
+
     @FXML
     public void onStartSimulation(ActionEvent actionEvent) {
-        updateStatusLine();
         pampaSimViewModel.startSimulation();
         if(pampaSimViewModel.getSimulationRunning().get()) {
             LOGGER.debug("started animation");
@@ -136,8 +147,24 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
     }
 
     private void updateStatusLine() {
-        String val = pampaSimViewModel.simulatedScenario.getSpec().getSchedulerConfig().getFullyQualifiedClassName();
-        statusLineLabel.textProperty().set(val);
+        StringBuilder strB = new StringBuilder("Escalonador ");
+        var schedulerConfig = pampaSimViewModel.simulatedScenario.getSpec().getSchedulerConfig();
+        var schedulerFQCN = schedulerConfig.getFullyQualifiedClassName();
+        Scheduler scheduler = org.pampasim.util.FlywheelData.getSchedulerObjByFQCNMap().get(schedulerFQCN);
+        if (scheduler == null) {
+            LOGGER.error("couldn't find flywheel instance for scheduler {}", schedulerFQCN);
+        } else {
+            strB.append(scheduler.shortDescription());
+            if (scheduler instanceof RespectsQuantum respectsQuantum) {
+                try {
+                    respectsQuantum.applySpecEntityConfig(schedulerConfig);
+                    strB.append(" com quantum " + respectsQuantum.getQuantum());
+                } catch (SpecEntityDataMismatch e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        statusLineLabel.textProperty().set(strB.toString());
     }
 
     @FXML
@@ -162,6 +189,7 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         } catch (RuntimeException e) {
            // user closed the window
         }
+        onConfigured();
     }
     @FXML
     public void onSelectModule(ActionEvent actionEvent) {
@@ -200,8 +228,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
                     new ButtonType("Salvar Como...", ButtonBar.ButtonData.LEFT),
                     new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE)
             };
-            saveAsDialog.getButtonTypes().addAll(choices);
-            saveAsDialog.setTitle("Sobreescrever Spec?");
+            saveAsDialog.getButtonTypes().setAll(choices);
+            saveAsDialog.setTitle("Salvar spec");
+            saveAsDialog.setContentText("Sobreescrever spec?");
             saveAsDialog.showAndWait().ifPresentOrElse(
                     c -> {
                         if (c == choices[0]) {
@@ -371,6 +400,9 @@ public class PampaSimView implements FxmlView<PampaSimViewModel>, Initializable 
         });
         ganttLines = new SimpleMapProperty<>(FXCollections.observableHashMap());
         bindGanttChartObservable();
+        pampaSimViewModel.simulatedScenario.getSimulation().addListener(_a -> {
+            updateStatusLine();
+        });
     }
 
     private void bindButtons() {

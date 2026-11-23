@@ -95,22 +95,17 @@ public class SimulationSetupDialogView implements FxmlView<SimulationSetupDialog
         // Scheduler section
         schedulerChoiceBox.setItems(viewModel.schedulerNameProperty());
         schedulerChoiceBox.valueProperty().subscribe(schedulerName -> {
-            try {
-                var schedulerClass = Thread.currentThread()
-                        .getContextClassLoader()
-                        .loadClass("org.pampasim.entity.schedulers." + schedulerName);
-
-                var respectsQuantum = RespectsQuantum.class.isAssignableFrom(schedulerClass);
-                // it is really dumb that we have to do this
-                Scheduler instance = (Scheduler) schedulerClass.getConstructor().newInstance();
-                viewModel.preemptiveProperty().set(respectsQuantum);
-                viewModel.schedulerShortDescriptionProperty().set(instance.shortDescription());
-                viewModel.schedulerLongDescriptionProperty().set(instance.longDescription());
-                LOGGER.debug("{} is {}", schedulerName, respectsQuantum? "preemptive" : "not preemptive");
-            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |
-                     InvocationTargetException e) {
-                // ignore
+            if (schedulerName == null) {
+                return;
             }
+            var schedulerFQCN = "org.pampasim.entity.schedulers." + schedulerName;
+            var instance = org.pampasim.util.FlywheelData.getSchedulerObjByFQCNMap().get(schedulerFQCN);
+            var respectsQuantum = RespectsQuantum.class.isAssignableFrom(instance.getClass());
+            // it is really dumb that we have to do this
+            viewModel.preemptiveProperty().set(respectsQuantum);
+            viewModel.schedulerShortDescriptionProperty().set(instance.shortDescription());
+            viewModel.schedulerLongDescriptionProperty().set(instance.longDescription());
+            LOGGER.debug("{} is {}", schedulerName, respectsQuantum? "preemptive" : "not preemptive");
         });
         schedulerChoiceBox.valueProperty().bindBidirectional(viewModel.selectedSchedulerProperty());
         setInitialValue(quantumSpinner, viewModel.getQuantum());

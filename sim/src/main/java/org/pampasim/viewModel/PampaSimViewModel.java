@@ -418,6 +418,10 @@ public class PampaSimViewModel implements ViewModel {
     private void generateASCIIReport(Simulation sim) {
         int maxRealTick = sim.getRealClock().get();
         long maxPid = sim.getPidAllocator().assignPid().getId() - 1;
+        if (maxPid <= 0 || maxRealTick <= 0) {
+            LOGGER.log(Level.INFO, "no data for ASCII report");
+            return;
+        }
         int cellWidth = 1 + (int)Math.floor(Math.log10(maxRealTick));
         int pidWidth = 1 + (int)Math.floor(Math.log10(maxPid));
 

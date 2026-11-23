@@ -23,7 +23,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="200.0" minWidth="200.0" prefHeight="600.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.pampasim.view.PampaSimView">
     <left>
         <ToolBar orientation="VERTICAL" style="-fx-padding: 0;" BorderPane.alignment="CENTER">
             <items>
@@ -81,11 +81,11 @@
                     <tabs>
                         <Tab text="Processador">
                             <content>
-                                <ScrollPane fx:id="masterScrollPane" fitToWidth="true" hbarPolicy="ALWAYS" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" vbarPolicy="ALWAYS">
+                                <ScrollPane fx:id="masterScrollPane" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0">
                                 <content>
-                                <SplitPane fx:id="simPane" dividerPositions="0.15" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" orientation="VERTICAL">
+                                <SplitPane fx:id="simPane" dividerPositions="0.09" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" orientation="VERTICAL">
                                     <items>
-                                        <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
+                                        <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="77.0" prefWidth="284.0" spacing="10.0">
                                             <children>
                                                 <VBox alignment="CENTER" fillWidth="false" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" HBox.hgrow="NEVER">
                                                     <children>
@@ -93,124 +93,124 @@
                                                             <font>
                                                                 <Font name="System Bold" size="24.0" />
                                                             </font>
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin>
+                                             <padding>
+                                                <Insets left="20.0" />
+                                             </padding>
                                                         </Label>
                                                         <!-- <FontIcon iconColor="#406f78" iconLiteral="bi-cpu-fill" iconSize="68" /> -->
                                                     </children>
                                                 </VBox>
-                                                <HBox fx:id="RunningList" alignment="CENTER" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" prefHeight="60.0" prefWidth="60.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 100; -fx-border-radius: 100; -fx-border-color: BLACK;">
+                                                <HBox fx:id="RunningList" alignment="CENTER" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" prefHeight="30.0" prefWidth="30.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 30; -fx-border-radius: 30; -fx-border-color: BLACK;">
                                                     <HBox.margin>
-                                                        <Insets bottom="10.0" top="30.0" />
+                                                        <Insets bottom="10.0" top="15.0" />
                                                     </HBox.margin>
                                                 </HBox>
                                                 <ProgressBar fx:id="ProcessProgress" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="20.0" nodeOrientation="LEFT_TO_RIGHT" progress="0.0" HBox.hgrow="ALWAYS">
                                                     <HBox.margin>
-                                                        <Insets top="25.0" />
+                                                        <Insets top="8.0" />
                                                     </HBox.margin>
                                                 </ProgressBar>
                                             </children>
-                                            <opaqueInsets>
-                                                <Insets />
-                                            </opaqueInsets>
-                                            <padding>
-                                                <Insets left="10.0" />
-                                            </padding>
                                         </HBox>
                                         <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="0.0" spacing="5.0">
                                             <children>
                                                 <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
-                                                    <HBox fx:id="NewList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <HBox fx:id="NewList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
                                                         </VBox.margin>
                                                         <padding>
                                                             <Insets left="10.0" />
                                                         </padding>
-                                                        <StackPane.margin>
-                                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                        </StackPane.margin>
+                                          <StackPane.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </StackPane.margin>
                                                     </HBox>
                                                     <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Declarados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
-                                                        <StackPane.margin>
-                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                        </StackPane.margin>
                                                         <padding>
                                                             <Insets right="20.0" />
                                                         </padding>
                                                         <font>
-                                                            <Font name="System Bold" size="33.0" />
+                                                            <Font name="System Bold" size="24.0" />
                                                         </font>
+                                          <StackPane.margin>
+                                             <Insets />
+                                          </StackPane.margin>
                                                     </Label>
                                                 </StackPane>
                                                 <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
-                                                    <HBox fx:id="ReadyList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <HBox fx:id="ReadyList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
                                                         </VBox.margin>
                                                         <padding>
                                                             <Insets left="10.0" />
                                                         </padding>
-                                                        <StackPane.margin>
-                                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                        </StackPane.margin>
+                                          <StackPane.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </StackPane.margin>
                                                     </HBox>
                                                     <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Prontos" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
-                                                        <StackPane.margin>
-                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                        </StackPane.margin>
                                                         <padding>
                                                             <Insets right="20.0" />
                                                         </padding>
                                                         <font>
-                                                            <Font name="System Bold" size="33.0" />
+                                                            <Font name="System Bold" size="24.0" />
                                                         </font>
+                                          <StackPane.margin>
+                                             <Insets />
+                                          </StackPane.margin>
                                                     </Label>
                                                 </StackPane>
                                                 <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
-                                                    <HBox fx:id="WaitingList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <HBox fx:id="WaitingList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
                                                         </VBox.margin>
                                                         <padding>
                                                             <Insets left="10.0" />
                                                         </padding>
-                                                        <StackPane.margin>
-                                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                        </StackPane.margin>
+                                          <StackPane.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </StackPane.margin>
                                                     </HBox>
                                                     <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Em espera" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
-                                                        <StackPane.margin>
-                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                        </StackPane.margin>
                                                         <padding>
                                                             <Insets right="20.0" />
                                                         </padding>
                                                         <font>
-                                                            <Font name="System Bold" size="33.0" />
+                                                            <Font name="System Bold" size="24.0" />
                                                         </font>
+                                          <StackPane.margin>
+                                             <Insets />
+                                          </StackPane.margin>
                                                     </Label>
                                                 </StackPane>
                                                 <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0">
-                                                    <HBox fx:id="FinishedList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="72.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
+                                                    <HBox fx:id="FinishedList" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" minWidth="20.0" spacing="5.0" style="-fx-background-color: #f8f8f2; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0, 0, 0);">
                                                         <VBox.margin>
                                                             <Insets left="5.0" right="5.0" top="15.0" />
                                                         </VBox.margin>
                                                         <padding>
                                                             <Insets left="10.0" />
                                                         </padding>
-                                                        <StackPane.margin>
-                                                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                        </StackPane.margin>
+                                          <StackPane.margin>
+                                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                          </StackPane.margin>
                                                     </HBox>
                                                     <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="20.0" mouseTransparent="true" text="Finalizados" textAlignment="RIGHT" textFill="#c3c3c3" StackPane.alignment="CENTER_RIGHT">
-                                                        <StackPane.margin>
-                                                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                                        </StackPane.margin>
                                                         <padding>
                                                             <Insets right="20.0" />
                                                         </padding>
                                                         <font>
-                                                            <Font name="System Bold" size="33.0" />
+                                                            <Font name="System Bold" size="24.0" />
                                                         </font>
+                                          <StackPane.margin>
+                                             <Insets />
+                                          </StackPane.margin>
                                                     </Label>
                                                 </StackPane>
                                                 <TabPane fx:id="outputTabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="20.0" minWidth="20.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">

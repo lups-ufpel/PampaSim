@@ -52,6 +52,7 @@
         <HBox spacing="10">
             <Button fx:id="addAccessButton" text="Adicionar Acesso"/>
             <Button fx:id="randomizeAccessesButton" text="Gerar Aleatórios"/>
+            <Button fx:id="randomizeAllAccessesButton" text="Gerar Todos Aleatórios"/>
             <CheckBox fx:id="loopAccessCheckBox" text="Loop"/>
         </HBox>
 

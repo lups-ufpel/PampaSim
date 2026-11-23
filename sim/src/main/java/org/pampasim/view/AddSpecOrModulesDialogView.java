@@ -30,7 +30,7 @@ public class AddSpecOrModulesDialogView implements FxmlView<AddSpecOrModulesDial
     @FXML
     public void loadSpec(ActionEvent actionEvent) {
         File file = PampaSimFileChooser.showLoadDialog();
-        viewModel.setSpecPath(Optional.of(file.getPath()));
+        viewModel.loadSpec(Optional.of(file.getPath()));
     }
 
     @Override

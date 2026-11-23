@@ -32,6 +32,7 @@ import java.nio.file.Path;
 
 public class PampaSimGUI extends Application {
     private static final Logger LOGGER = LogManager.getLogger(PampaSimGUI.class);
+    private PampaSimView view;
     private BorderPane mainFrame;
 
     @Override
@@ -43,11 +44,13 @@ public class PampaSimGUI extends Application {
         PampaSimViewModel viewModel = this.initializeMainFrame();
         if (openSetupScreens(viewModel)) {
             this.configureStage(stage, viewModel);
+            view.onConfigured();
         }
     }
 
     private PampaSimViewModel initializeMainFrame() {
         final ViewTuple<PampaSimView, PampaSimViewModel> viewTuple = FluentViewLoader.fxmlView(PampaSimView.class).load();
+        this.view = viewTuple.getCodeBehind();
         this.mainFrame = (BorderPane) viewTuple.getView();
 
         return viewTuple.getViewModel();
@@ -115,7 +118,6 @@ public class PampaSimGUI extends Application {
     private void configureStage(Stage stage, PampaSimViewModel viewModel) {
         stage.setTitle("PampaSim");
         stage.setScene(new Scene(mainFrame, 1000, 700));
-
         stage.setOnCloseRequest(event -> {
 
             if (viewModel.getScenarioIsSaved().get()) {

@@ -7,6 +7,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import org.pampasim.core.dialog.DialogService;
+import org.pampasim.core.utils.KVPair;
 import org.pampasim.view.AddSpecOrModulesDialogView;
 import org.pampasim.viewModel.AddSpecOrModulesDialogViewModel;
 import org.pampasim.Launcher;
@@ -31,16 +32,15 @@ public class AddSpecOrModulesDialogService implements DialogService<AddSpecOrMod
         if(args.length > 0 && args[0] instanceof List<?> rawList) {
             List<String> moduleNames = (List<String>) rawList;
             viewTuple.getViewModel().setModuleNames(moduleNames);
-
         }
 
         var autoloadSpec = Launcher.getAutoloadSpec();
         if (autoloadSpec != null) {
-            viewTuple.getViewModel().setSpecPath(Optional.of(autoloadSpec.toString()));
+            viewTuple.getViewModel().loadSpec(Optional.of(autoloadSpec.toString()));
         }
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.APPLY) {
-            Optional<String> specPath = viewTuple.getViewModel().getSpecPath();
+            Optional<String> specPath = viewTuple.getViewModel().getSpecInfo().map(KVPair::key);
             AddSpecOrModulesRecord userSelection = new AddSpecOrModulesRecord(
             viewTuple.getViewModel().getSelectedModulesOpt(), specPath);
             return Optional.of(userSelection);

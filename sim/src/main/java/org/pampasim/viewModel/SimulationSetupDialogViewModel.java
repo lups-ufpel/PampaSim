@@ -160,9 +160,6 @@ public class SimulationSetupDialogViewModel implements ViewModel {
     public BooleanProperty memoryModulePresentProperty() {
         return memoryModulePresent;
     }
-    public boolean isMemoryModulePresent() {
-        return memoryModulePresent.get();
-    }
     public void setMemoryModulePresent(boolean present) {
         memoryModulePresent.set(present);
     }
