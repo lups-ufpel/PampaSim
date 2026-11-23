@@ -2,7 +2,7 @@
 <ns3:spec xmlns:ns6="http://pampasim.org/events/memory" xmlns:ns5="http://pampasim.org/memory" xmlns:ns2="http://pampasim.org/spec/decls" xmlns:ns4="http://pampasim.org/events/process" xmlns:ns3="http://pampasim.org/">
     <ns3:version>
         <ns3:major>2</ns3:major>
-        <ns3:minor>5</ns3:minor>
+        <ns3:minor>6</ns3:minor>
         <ns3:patch>0</ns3:patch>
     </ns3:version>
     <ns3:extra-modules>
