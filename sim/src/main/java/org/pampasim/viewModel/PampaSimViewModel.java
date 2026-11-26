@@ -24,7 +24,6 @@ import org.pampasim.core.entity.SimEntity;
 import org.pampasim.events.ProcessCreationDataEvent;
 import org.pampasim.memory.MemoryConfig;
 import org.pampasim.memory.MemoryModule;
-import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 import org.pampasim.memory.entity.algorithms.PageReplacementAlgorithm;
 import org.pampasim.resources.Process;
 import org.pampasim.core.utils.GraphVisualizeable;
@@ -63,8 +62,7 @@ public class PampaSimViewModel implements ViewModel {
     //***** Dialog services *****//
     private SettingsDialogService settingsDialogService;
     private final AddModulesDialogService addModulesDialogService = new AddModulesDialogService();
-    private final CreateProcessDialogService createProcessDialogService = new CreateProcessDialogService();
-    private final EditProcessDialogService editProcessDialogService = new EditProcessDialogService();
+    private final UpsertProcessDialogService upsertProcessDialogService = new UpsertProcessDialogService();
     private final AddSpecOrModulesDialogService addSpecOrModulesDialogService = new AddSpecOrModulesDialogService();
 
     @Getter
@@ -171,7 +169,7 @@ public class PampaSimViewModel implements ViewModel {
                     }
                     var cProcDiagServModuleInfo = module.getCreateProcessDialogServiceModuleTuple();
                     if (cProcDiagServModuleInfo != null) {
-                        createProcessDialogService.getModuleInfo().put(module.getClass(), cProcDiagServModuleInfo);
+                        upsertProcessDialogService.getModuleInfo().put(module.getClass(), cProcDiagServModuleInfo);
                     }
                 });
         loadedModules.set(simulatedScenario.getLoadedModules());
@@ -216,7 +214,7 @@ public class PampaSimViewModel implements ViewModel {
         LOGGER.info("saved to {}", path); // might've failed, report back if so FIXME
     }
 
-    public void createNewProcess(CreateProcessRecord userProcess) {
+    public void createNewProcess(UpsertProcessRecord userProcess) {
         simulatedScenario.setSaved(false); // important line, must be set wherever we mutate spec
         var spec = simulatedScenario.getSpec();
         var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(userProcess.start()))
@@ -227,13 +225,12 @@ public class PampaSimViewModel implements ViewModel {
 
         syncWithSpec();
     }
-    private void editProcess(ProcessViewModel processViewModel, EditProcessRecord epr) {
-        CreateProcessRecord cpr = epr.processRecord();
-        if (epr.deleted()) {
+    private void editProcess(ProcessViewModel processViewModel, UpsertProcessRecord upr) {
+        simulatedScenario.setSaved(false);
+        if (upr.delete()) {
             deleteProcess(processViewModel);
             return;
         }
-        simulatedScenario.setSaved(false);
         var spec = simulatedScenario.getSpec();
         var oldTickEventList = spec.getEventSchedule().get(processViewModel.getArrivalTick().get());
         var arrivalEvent = (ProcessCreationDataEvent) oldTickEventList.stream().filter(event -> {
@@ -242,17 +239,17 @@ public class PampaSimViewModel implements ViewModel {
             } else { return false; }
         }).findFirst().orElseThrow();
 
-        var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(cpr.start()))
+        var tickEventCount = Optional.ofNullable(spec.getEventSchedule().get(upr.start()))
                 .map(ArrayList::size)
                 .orElse(0);
-        LOGGER.trace("got epr {}, with cpr {}, moduleInfo {}", epr, cpr, cpr.moduleInfo());
-        var creationData = new Process.CreationData(cpr.start(), cpr.duration(), cpr.priority(), tickEventCount, cpr.moduleInfo());
+        LOGGER.trace("got upr {}", upr);
+        var creationData = new Process.CreationData(upr.start(), upr.duration(), upr.priority(), tickEventCount, upr.moduleInfo());
         arrivalEvent.setCreationData(creationData);
 
-        spec.getArrivalColorMap().put(arrivalEvent, Color.web(epr.processRecord().color()));
+        spec.getArrivalColorMap().put(arrivalEvent, Color.web(upr.color()));
 
         spec.getEventSchedule().removeFirstMatch(e -> e == arrivalEvent);
-        spec.getEventSchedule().schedule(epr.processRecord().start(), arrivalEvent);
+        spec.getEventSchedule().schedule(upr.start(), arrivalEvent);
         syncWithSpec();
     }
     private void deleteProcess(ProcessViewModel processViewModel) {
@@ -551,19 +548,14 @@ public class PampaSimViewModel implements ViewModel {
     }
 
     public void openCreateProcessDialog() {
-        LOGGER.trace("createProcessDialogService.moduleInfo = {}", createProcessDialogService.getModuleInfo());
-        createProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
-        createProcessDialogService.showDialog().ifPresent(this::createNewProcess);
+        LOGGER.trace("createProcessDialogService.moduleInfo = {}", upsertProcessDialogService.getModuleInfo());
+        upsertProcessDialogService.setMemoryPageSize(MemoryConfig.getPageSize());
+        upsertProcessDialogService.showDialog().ifPresent(this::createNewProcess);
     }
 
     public void openEditProcessDialog(ProcessViewModel editedProcessViewModel) {
-        int start = editedProcessViewModel.getArrivalTick().get();
-        int duration = editedProcessViewModel.getBurst().get();
-        int priority = editedProcessViewModel.getPriority().get();
-        var moduleInfo = editedProcessViewModel.getCreationData().moduleCreationData();
-        ObjectProperty<Color> color = editedProcessViewModel.getColorProperty();
-        Optional<EditProcessRecord> result = editProcessDialogService.showDialog(start, duration, priority, color, moduleInfo);
-        result.ifPresent(epr -> this.editProcess(editedProcessViewModel, epr));
+        Optional<UpsertProcessRecord> result = upsertProcessDialogService.showDialog(editedProcessViewModel);
+        result.ifPresent(upr -> this.editProcess(editedProcessViewModel, upr));
     }
 
     public Path getCurrentSpecPath() {

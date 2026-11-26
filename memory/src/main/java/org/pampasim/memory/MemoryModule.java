@@ -26,8 +26,7 @@ import org.pampasim.memory.viewmodel.MemoryModuleViewModel;
 import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
 import org.pampasim.resources.PampaSimModuleBase;
-import org.pampasim.resources.Process;
-import org.pampasim.resources.dialog.CreateProcessDialogService;
+import org.pampasim.resources.dialog.UpsertProcessDialogService;
 import org.pampasim.resources.memory.MMU;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.pampasim.resources.memory.ProcessPageTable;
@@ -40,10 +39,10 @@ import org.pampasim.memory.dialog.MemoryConfigSelectionRecord;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemoryModule extends PampaSimModuleBase {
@@ -160,11 +159,11 @@ public class MemoryModule extends PampaSimModuleBase {
     }
 
     @Override
-    public CreateProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple() {
+    public UpsertProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple() {
         var memoryViewTuple = FluentViewLoader.fxmlView(MemoryInfoView.class).load();
         var memVM = memoryViewTuple.getViewModel();
         var memView = memoryViewTuple.getCodeBehind();
-        return new CreateProcessDialogService.ModuleTuple(
+        return new UpsertProcessDialogService.ModuleTuple(
                 //init
                 memView::moduleInitializer,
                 // generate
@@ -196,7 +195,8 @@ public class MemoryModule extends PampaSimModuleBase {
                         memCData.setLoopAccessList(memVM.getLoopAccessList());
                     };
                     return memCData;
-                });
+                },
+                Optional.empty());
     }
 
     @Override

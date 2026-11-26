@@ -1,23 +1,18 @@
 package org.pampasim;
 
 import de.saxsys.mvvmfx.ViewModel;
-import jakarta.xml.bind.JAXBException;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
 import org.pampasim.core.events.Event;
 import org.pampasim.resources.EntityConfig;
 import org.pampasim.resources.ModuleSimulation;
-import org.pampasim.resources.Process;
-import org.pampasim.resources.dialog.CreateProcessDialogService;
+import org.pampasim.resources.dialog.UpsertProcessDialogService;
 import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ModuleInfoViewModel;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * PampaSim module behavioral abstraction
@@ -76,7 +71,7 @@ public interface PampaSimModule {
      * If no module information needs user input, this MAY be omitted.
      * @return null or the initializer-generator function pair for the process creation dialog service
      */
-    CreateProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple();
+    UpsertProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple();
 
     ViewModel getViewModel();
     ModuleSimulation getSimulation();

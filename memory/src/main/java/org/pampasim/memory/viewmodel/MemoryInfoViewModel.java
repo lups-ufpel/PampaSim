@@ -4,6 +4,8 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import lombok.Getter;
 import lombok.Setter;
+import org.pampasim.PampaSimModule;
+import org.pampasim.memory.MemoryModule;
 import org.pampasim.resources.memory.MemoryProcessCreationData;
 import org.pampasim.resources.memory.ProcessMemoryInfo;
 import org.pampasim.resources.memory.ProcessMemoryInfo.IoOperationType;
@@ -114,4 +116,8 @@ public class MemoryInfoViewModel extends ModuleInfoViewModel {
         }
     }
 
+    @Override
+    public Class<? extends PampaSimModule> getPampaSimModuleClass() {
+        return MemoryModule.class;
+    }
 }

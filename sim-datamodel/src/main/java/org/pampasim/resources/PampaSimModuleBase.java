@@ -3,8 +3,7 @@ package org.pampasim.resources;
 import javafx.collections.ObservableList;
 import lombok.Getter;
 import org.pampasim.PampaSimModule;
-import org.pampasim.core.Simulation;
-import org.pampasim.resources.dialog.CreateProcessDialogService;
+import org.pampasim.resources.dialog.UpsertProcessDialogService;
 import org.pampasim.resources.view.PCBView;
 import org.pampasim.resources.viewmodel.ProcessViewModel;
 import org.pampasim.resources.viewmodel.StatisticsViewModel;
@@ -59,7 +58,7 @@ public abstract class PampaSimModuleBase implements PampaSimModule {
     public StatisticsViewModel getStatisticsViewModel() { return null; }
 
     @Override
-    public CreateProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple() { return null; }
+    public UpsertProcessDialogService.ModuleTuple getCreateProcessDialogServiceModuleTuple() { return null; }
 
     @Override
     public List<Class<?>> getEventPayloadClasses() { return List.of(); }

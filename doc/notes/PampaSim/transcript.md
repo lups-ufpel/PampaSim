@@ -518,7 +518,7 @@ Read file /home/kaisa/Projects/PampaSim/sim/src/main/java/org/pampasim/dialog/Ed
 9: import javafx.scene.control.DialogPane;
 10: import javafx.scene.paint.Color;
 11: import org.pampasim.core.dialog.DialogService;
-12: import org.pampasim.resources.dialog.CreateProcessRecord;
+12: import org.pampasim.resources.dialog.UpsertProcessRecord;
 13: import org.pampasim.view.EditProcessDialogView;
 14: import org.pampasim.viewModel.EditProcessDialogViewModel;
 15: 
@@ -641,8 +641,8 @@ Read file /home/kaisa/Projects/PampaSim/sim-datamodel/src/main/java/org/pampasim
 14: import org.apache.logging.log4j.LogManager;
 15: import org.apache.logging.log4j.Logger;
 16: import org.pampasim.core.dialog.DialogService;
-17: import org.pampasim.resources.view.CreateProcessDialogView;
-18: import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
+17: import org.pampasim.resources.view.UpsertProcessDialogView;
+18: import org.pampasim.resources.viewmodel.UpsertProcessDialogViewModel;
 19: 
 20: import java.util.*;
 21: import java.util.function.Function;
@@ -1023,7 +1023,7 @@ import de.saxsys.mvvmfx.internal.viewloader.View;
 import javafx.beans.property.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import org.pampasim.resources.dialog.CreateProcessDialogService;
+import org.pampasim.resources.dialog.UpsertProcessDialogService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -1246,8 +1246,8 @@ This is a reasonable direction. The interface `DialogService<T>` is very thin (j
 
 ### Current state (what I see)
 - `core/src/main/java/org/pampasim/core/dialog/DialogService.java` - minimal interface
-- Implementations in `sim/` and `sim-datamodel/` (e.g. `SettingsDialogService`, `CreateProcessDialogService`, `EditProcessDialogService`, `AddModulesDialogService`, `AddSpecOrModulesDialogService`) all: load FXML via MVVMFX, build `Dialog`, pass `args` into ViewModel if needed, read from ViewModel on APPLY, return a record
-- ViewModels hold JavaFX `Property` objects with defaults (e.g. `SimulationSetupDialogViewModel` has sensible defaults for all memory/scheduler params; `CreateProcessDialogViewModel` randomizes color)
+- Implementations in `sim/` and `sim-datamodel/` (e.g. `SettingsDialogService`, `UpsertProcessDialogService`, `EditProcessDialogService`, `AddModulesDialogService`, `AddSpecOrModulesDialogService`) all: load FXML via MVVMFX, build `Dialog`, pass `args` into ViewModel if needed, read from ViewModel on APPLY, return a record
+- ViewModels hold JavaFX `Property` objects with defaults (e.g. `SimulationSetupDialogViewModel` has sensible defaults for all memory/scheduler params; `UpsertProcessDialogViewModel` randomizes color)
 - TODOs in notes: "make configuration persistent for all the dialogues", "program-wide config store" 
 - No prefs/config store in source yet (only `MemoryConfig` which seems more like runtime/module config)
 
@@ -1277,7 +1277,7 @@ Don't persist JavaFX properties or View instances. Persist plain POJOs/records t
 
 Examples:
 - `SimulationSetupState` (scheduler, preemptive, quantum, all memory fields, selected algorithms, etc.) - maps to/from `SimulationSetupDialogViewModel` and becomes `SchedulerSelectionRecord`
-- `CreateProcessState` (start, duration, priority, colorHex, and possibly per-module serialized data) - maps to/from `CreateProcessDialogViewModel`
+- `CreateProcessState` (start, duration, priority, colorHex, and possibly per-module serialized data) - maps to/from `UpsertProcessDialogViewModel`
 - `AddModulesState` / `AddSpecOrModulesState` for the simpler ones
 
 Keep these near the dialog services or in `sim-datamodel` if shared. Using records is nice here.
@@ -1335,13 +1335,13 @@ Also consider a `DialogStateApplier` helper that knows how to copy between state
 1. **Explore deps**: peek at `pom.xml` (root and `core/`) to see JSON/JAXB/Preferences usage and module boundaries. 
 2. **Create core config package**: add `DialogConfigStore` interface + `JsonDialogConfigStore` implementation. Pick a user config location and JSON mapper.
 3. **Define state records** for `CreateProcess` and `SimulationSetup` first (highest value, most fields).
-4. **Refactor one service** to use persistence (e.g. `CreateProcessDialogService` in `sim-datamodel`) - it’s self-contained enough. Load on show, save on APPLY.
+4. **Refactor one service** to use persistence (e.g. `UpsertProcessDialogService` in `sim-datamodel`) - it’s self-contained enough. Load on show, save on APPLY.
 5. **Refactor `SettingsDialogService`** similarly.
 6. **Handle the rest** and decide policy for `EditProcess` (probably no "remember last" or different semantics).
 7. **Test manually** - run the app, change values, close/reopen dialog, verify persistence.
 
 ### Caveats / notes
-- **Module dynamic UI**: `CreateProcessDialogService` adds module-provided UI sections via `moduleInfo.initializer` and reads via `generator`. Persisting arbitrary module data is the gnarly part. You might need to version the state and be tolerant of schema changes.
+- **Module dynamic UI**: `UpsertProcessDialogService` adds module-provided UI sections via `moduleInfo.initializer` and reads via `generator`. Persisting arbitrary module data is the gnarly part. You might need to version the state and be tolerant of schema changes.
 - **Args precedence**: `args` are often used to pass available options (lists). "Remembered values" should fill defaults but if args change available options, need to validate (e.g. last selected scheduler no longer exists).
 - **Edit vs create semantics**: TODO in `EditProcessDialogService` line ~44 says "NOT THE BEST OPTION" for passing data via code-behind; persistence might interact with that. Be explicit about when to apply stored values.
 - **Threading/JavaFX**: all of this is on JavaFX thread currently (showAndWait). Persistence should be fast/sync or done off-thread but UI updates on FX thread.
@@ -1350,7 +1350,7 @@ Also consider a `DialogStateApplier` helper that knows how to copy between state
 ### My recommendation
 I'd do this in layers:
 1. Add `core` persistence infra (store + base classes)
-2. Migrate `CreateProcessDialogService` first (prototype) - proves the pattern
+2. Migrate `UpsertProcessDialogService` first (prototype) - proves the pattern
 3. Migrate `SettingsDialogService` 
 4. Migrate simpler ones
 5. Tackle module state separately with a contributor API if needed

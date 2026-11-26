@@ -6,9 +6,9 @@ import de.saxsys.mvvmfx.ViewTuple;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -18,22 +18,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.pampasim.memory.MemoryConfig;
-import org.pampasim.memory.MemoryManagement;
 import org.pampasim.memory.MemoryModule;
 import org.pampasim.memory.viewmodel.ProcessMemoryInfoViewModel;
-import org.pampasim.resources.view.CreateProcessDialogView;
-import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
+import org.pampasim.resources.dialog.UpsertProcessDialogService;
+import org.pampasim.resources.memory.MemoryProcessCreationData;
+import org.pampasim.resources.view.UpsertProcessDialogView;
+import org.pampasim.resources.viewmodel.UpsertProcessDialogViewModel;
 
+import javax.swing.text.html.Option;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Initializable {
     private static final Logger LOGGER = LogManager.getLogger(MemoryInfoView.class);
     @InjectViewModel
     ProcessMemoryInfoViewModel viewModel;
-    CreateProcessDialogViewModel parentVM;
+    UpsertProcessDialogViewModel parentVM;
 
     @FXML
     VBox memoryAccessesContainer;
@@ -51,6 +56,8 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
     private Label validAddressRangeLabel;
     @FXML
     private Button randomizeAccessesButton;
+    @FXML
+    private Button randomizeAllAccessesButton;
 
     @Getter
     private final IntegerProperty pageSize = new SimpleIntegerProperty(0);
@@ -78,40 +85,45 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
                     updateValidAddressRange();
                 });
         randomizeAccessesButton.setOnAction(e -> generateRandomAccesses());
+        randomizeAllAccessesButton.setOnAction(e -> generateAllRandomAccesses());
         pageSize.set(MemoryConfig.getPageSize());
     }
 
-    public Parent moduleInitializer(ViewTuple<CreateProcessDialogView, CreateProcessDialogViewModel> parentDialog) {
+    public Parent moduleInitializer(ViewTuple<UpsertProcessDialogView, UpsertProcessDialogViewModel> parentDialog) {
         this.parentVM = parentDialog.getViewModel();
         this.dialogPane = (DialogPane)parentDialog.getView();
+
         accessEntries.clear();
         memoryAccessesContainer.getChildren().clear();
         viewModel.clearAccesses();
         this.getPageSize().setValue(MemoryConfig.getPageSize());
-        ChangeListener<Number> durationListener = (obs, oldVal, newVal) -> {
-            trimAccessesToDuration(newVal.intValue());
+
+        Consumer<Number> durationListener = duration -> {
+            trimAccessesToDuration(duration.intValue());
         };
-        parentVM.processDurationProperty().addListener(durationListener);
+        parentVM.processDurationProperty().subscribe(durationListener);
+
+        var previousModuleCreationDataOpt = this.parentVM.getModuleInfo().get(MemoryModule.class).previousValue();
+        previousModuleCreationDataOpt.ifPresent(creationData -> {
+            var memCD = (MemoryProcessCreationData) creationData;
+            this.processSizeSpinner.getValueFactory().valueProperty().setValue((int) memCD.getPageCount());
+            this.loopAccessCheckBox.selectedProperty().set(memCD.isLoopAccessList());
+            var addressAccessList = memCD.getAddressAccessList().getAddress();
+
+            ensureMemoryAccessEntryCapacity(addressAccessList.size());
+            for (int i = 0; i < addressAccessList.size(); i++) {
+                int address = addressAccessList.get(i).intValue();
+                MemoryAccessEntry accessEntry = accessEntries.get(i);
+                accessEntry.addressField.textProperty().set(String.valueOf(address));
+                accessEntry.modifiesCheck.selectedProperty()
+                        .setValue(memCD.getModifyPages().getPageId().contains((long) (address / pageSize.get())));
+            }
+        });
+        this.parentVM.getModuleInfo().computeIfPresent(MemoryModule.class, (k,v) ->
+        { return new UpsertProcessDialogService.ModuleTuple(v.initializer(), v.generator(), Optional.empty()); });
 
         Button okButtonNode = (Button) dialogPane.lookupButton(parentDialog.getCodeBehind().okButton);
-        okButtonNode.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-            viewModel.clearAccesses();
-
-            viewModel.parseAndSetFileBackedPages(fileBackedPagesField.getText());
-            for (MemoryAccessEntry entry : accessEntries) {
-                try {
-                    int address = Integer.parseInt(entry.addressField.getText());
-                    boolean modifies = entry.modifiesCheck.isSelected();
-                    viewModel.addAccess(address, modifies);
-                } catch (NumberFormatException e) {
-                    event.consume();
-                    // Handle invalid input
-                    showAlert("Acesso Inválido", "Acesso " + entry + "é inválido, informe um endereço válido");
-                    return; // Prevent dialog from closing
-                }
-            }
-            viewModel.setLoopAccessList(loopAccessCheckBox.isSelected());
-        });
+        okButtonNode.addEventFilter(javafx.event.ActionEvent.ACTION, this::applyConfig);
         updateValidAddressRange();
         return this.memorySectionVBox;
     }
@@ -207,5 +219,36 @@ public class MemoryInfoView implements FxmlView<ProcessMemoryInfoViewModel>, Ini
             entry.addressField.setText(String.valueOf(randomAddress));
             entry.modifiesCheck.setSelected(modifies);
         }
+    }
+
+    private void ensureMemoryAccessEntryCapacity(int capacity) {
+        var currentSize = memoryAccessesContainer.getChildren().size();
+        for (int i = currentSize; i < capacity; i++) {
+            tryAddMemoryAccess();
+        }
+    }
+
+    private void generateAllRandomAccesses() {
+        ensureMemoryAccessEntryCapacity(this.parentVM.getProcessDuration());
+        generateRandomAccesses();
+    }
+
+    void applyConfig(ActionEvent event) {
+        viewModel.clearAccesses();
+
+        viewModel.parseAndSetFileBackedPages(fileBackedPagesField.getText());
+        for (MemoryAccessEntry entry : accessEntries) {
+            try {
+                int address = Integer.parseInt(entry.addressField.getText());
+                boolean modifies = entry.modifiesCheck.isSelected();
+                viewModel.addAccess(address, modifies);
+            } catch (NumberFormatException e) {
+                event.consume();
+                // Handle invalid input
+                showAlert("Acesso Inválido", "Acesso " + entry + "é inválido, informe um endereço válido");
+                return; // Prevent dialog from closing
+            }
+        }
+        viewModel.setLoopAccessList(loopAccessCheckBox.isSelected());
     }
 }

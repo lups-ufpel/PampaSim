@@ -1,27 +1,27 @@
 package org.pampasim.resources.view;
 
+import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.pampasim.resources.viewmodel.CreateProcessDialogViewModel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.pampasim.resources.dialog.UpsertProcessDialogService;
+import org.pampasim.resources.viewmodel.UpsertProcessDialogViewModel;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
-public class CreateProcessDialogView implements FxmlView<CreateProcessDialogViewModel>, Initializable {
+public class UpsertProcessDialogView implements FxmlView<UpsertProcessDialogViewModel>, Initializable {
+    private static final Logger LOGGER = LogManager.getLogger(UpsertProcessDialogView.class);
     @InjectViewModel
-    CreateProcessDialogViewModel viewModel;
+    UpsertProcessDialogViewModel viewModel;
 
     @FXML
     Spinner<Integer> startSpinner;
@@ -45,14 +45,20 @@ public class CreateProcessDialogView implements FxmlView<CreateProcessDialogView
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //TODO: handle more invalid inputs
+        startSpinner.getValueFactory().setValue(viewModel.getProcessStart());
+        durationSpinner.getValueFactory().setValue(viewModel.getProcessDuration());
+        prioritySpinner.getValueFactory().setValue(viewModel.getProcessPriority());
+
         viewModel.processStartProperty().bind(startSpinner.getValueFactory().valueProperty());
         viewModel.processDurationProperty().bind(durationSpinner.getValueFactory().valueProperty());
         viewModel.processPriorityProperty().bind(prioritySpinner.getValueFactory().valueProperty());
         colorPicker.valueProperty().bindBidirectional(viewModel.colorHexProperty());
 
+        // not sure if we should be creating a new ViewTuple here
+        var viewTuple = new ViewTuple<>(this, dialogPane, viewModel);
         for (var moduleTuple : viewModel.getModuleInfo().values()) {
-            // not sure if we should be creating a new ViewTuple here
-            var node = (Node)moduleTuple.initializer().apply(new ViewTuple<>(this, dialogPane, viewModel));
+            LOGGER.trace("running initializer for module: {}", moduleTuple);
+            var node = moduleTuple.initializer().apply(viewTuple);
             moduleSection.getChildren().add(node);
         }
     }
