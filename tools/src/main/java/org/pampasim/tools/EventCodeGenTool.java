@@ -16,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,11 +26,13 @@ public class EventCodeGenTool {
     public static Path destinationFolder;
     public static String destinationPackage;
     public static Path pkgPath;
+    public static Path sentinelFile;
     private static JAXBContext jaxbContext;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, JAXBException, SAXException {
         destinationPackage = args[args.length - 2];
         destinationFolder = Paths.get(args[args.length - 1]);
+        sentinelFile = destinationFolder.resolve("uptodate.sentinel");
         pkgPath = destinationFolder.resolve(Paths.get(".", destinationPackage.split("\\.")));
         Files.createDirectories(pkgPath);
         jaxbContext = JAXBContext.newInstance("org.pampasim.resources");
@@ -78,6 +82,11 @@ public class EventCodeGenTool {
             System.out.println("event groups: " + groupSet.stream().map(EventGroup::getName).toList());
             writeEventManager(groupSet);
             //writeModuleInfo(groupSet);
+
+            if (! sentinelFile.toFile().exists()) {
+                Files.createFile(sentinelFile);
+            }
+            Files.setLastModifiedTime(sentinelFile, FileTime.from(Instant.now()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
